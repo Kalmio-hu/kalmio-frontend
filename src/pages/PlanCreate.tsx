@@ -281,7 +281,7 @@ export function PlanCreate() {
             {/* Meal slot checkboxes */}
             <div className="flex flex-col gap-2">
               <Label>{t('plan.wizard.mealSlotsLabel')}</Label>
-              <p className="text-sm text-[#6b7280]">{t('plan.wizard.step3Hint')}</p>
+              <p className="text-sm text-[#6b7280]">{t('plan.wizard.mealSlotsHint')}</p>
               <div className="flex flex-col gap-2" role="group" aria-label={t('plan.wizard.mealSlotsLabel')}>
                 {MEAL_TYPES.map((mt) => {
                   const checked = mealSlots.includes(mt)
