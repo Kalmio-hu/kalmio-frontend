@@ -2190,8 +2190,8 @@
     "noRecipe": "Nincs recept",
     "emptyTitle": "Nincs megjeleníthető étkezés erre az időszakra",
     "emptyBody": "Ütemezés után jelennek meg itt az étkezések.",
-    "statusUpdated": "Állapot frissítve.",
-    "statusUpdateError": "Nem sikerült frissíteni az állapotot. Próbáld újra.",
+    "statusUpdated": "Rögzítve.",
+    "statusUpdateError": "Az állapot nem frissült. Próbáld újra.",
     "status": {
       "PLANNED": "Tervezett",
       "EATEN": "Megettem",
@@ -2205,7 +2205,7 @@
       "VIEW_RECIPE": "Recept megtekintése",
       "REPLACE_RECIPE": "Recept cseréje"
     },
-    "recipeReplaced": "Recept lecserélve.",
+    "recipeReplaced": "Recept cserélve.",
     "recipeReplaceError": "Nem sikerült lecserélni a receptet. Próbáld újra.",
     "mealTypes": {
       "BREAKFAST": "Reggeli",

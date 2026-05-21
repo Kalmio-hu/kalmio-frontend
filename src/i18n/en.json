@@ -2177,7 +2177,7 @@
   },
   "calendar": {
     "title": "Calendar",
-    "subtitle": "Materialized planned meals calendar view",
+    "subtitle": "Planned meals, calendar view",
     "today": "Today",
     "prevTwoWeeks": "Previous two weeks",
     "nextTwoWeeks": "Next two weeks",
@@ -2190,7 +2190,7 @@
     "noRecipe": "No recipe",
     "emptyTitle": "No meals to show for this period",
     "emptyBody": "Meals appear here once a schedule is active.",
-    "statusUpdated": "Status updated.",
+    "statusUpdated": "Saved.",
     "statusUpdateError": "Could not update status. Please try again.",
     "status": {
       "PLANNED": "Planned",
@@ -2205,7 +2205,7 @@
       "VIEW_RECIPE": "View recipe",
       "REPLACE_RECIPE": "Replace recipe"
     },
-    "recipeReplaced": "Recipe replaced.",
+    "recipeReplaced": "Recipe updated.",
     "recipeReplaceError": "Could not replace the recipe. Please try again.",
     "mealTypes": {
       "BREAKFAST": "Breakfast",
