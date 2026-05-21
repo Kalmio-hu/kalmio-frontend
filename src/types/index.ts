@@ -1310,3 +1310,57 @@ export interface MemberMealSlotDto {
   status: PlannedMealStatus
   isBatchCookLeftover: boolean
 }
+
+// ── Schedules (A5 / KALMIO-227 + C14 / KALMIO-236) ──────────────────────────
+
+/** Mirrors ScheduleResponse.status from the backend. */
+export type ScheduleStatus = 'ACTIVE' | 'PAUSED' | 'ENDED'
+
+/**
+ * A recurring schedule that materialises one or more plan templates onto the
+ * calendar. Mirrors ScheduleResponse from the backend (KALMIO-227).
+ */
+export interface Schedule {
+  id: string
+  ownerUserId: string
+  familyId: string | null
+  name: string
+  /** Ordered rotation of plan-template UUIDs. */
+  planIds: string[]
+  /** Total rotation period in days. */
+  cadenceDays: number
+  /** First calendar day of the rotation. ISO date "YYYY-MM-DD". */
+  startDate: string
+  /** Last day (inclusive); null = open-ended. ISO date "YYYY-MM-DD". */
+  endDate: string | null
+  status: ScheduleStatus
+  /** Watermark for the eager materialization job. ISO date "YYYY-MM-DD". */
+  lastMaterializedDate: string | null
+  createdAt: string   // ISO-8601
+  updatedAt: string   // ISO-8601
+}
+
+/** Request body for POST /api/schedules. */
+export interface CreateScheduleRequest {
+  name: string
+  /** Ordered rotation (at least one plan-template UUID). */
+  planIds: string[]
+  /** Total rotation length in days; null → backend derives from plan lengths. */
+  cadenceDays?: number | null
+  /** ISO date "YYYY-MM-DD". */
+  startDate: string
+  /** ISO date "YYYY-MM-DD"; null = open-ended. */
+  endDate?: string | null
+  familyId?: string | null
+}
+
+/** Request body for PATCH /api/schedules/{id}. All fields optional. */
+export interface UpdateScheduleRequest {
+  name?: string
+  planIds?: string[]
+  cadenceDays?: number
+  /** ISO date "YYYY-MM-DD". */
+  startDate?: string
+  /** ISO date "YYYY-MM-DD"; null = clear end date. */
+  endDate?: string | null
+}

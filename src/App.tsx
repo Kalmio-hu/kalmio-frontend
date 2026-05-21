@@ -47,6 +47,9 @@ import { Family } from '@/pages/Family'
 import { Plans } from '@/pages/Plans'
 import { PlanCreate } from '@/pages/PlanCreate'
 import { PlanDetail } from '@/pages/PlanDetail'
+import { Schedules } from '@/pages/Schedules'
+import { ScheduleNew } from '@/pages/ScheduleNew'
+import { ScheduleDetail } from '@/pages/ScheduleDetail'
 import { OnboardingShell } from '@/pages/onboarding/OnboardingShell'
 import { ConversationalOnboarding } from '@/pages/onboarding/ConversationalOnboarding'
 import { OnboardingGate } from '@/components/OnboardingGate'
@@ -180,6 +183,9 @@ export default function App() {
                   <Route path="plans" element={<Plans />} />
                   <Route path="plans/new" element={<PlanCreate />} />
                   <Route path="plans/:id" element={<PlanDetail />} />
+                  <Route path="schedules" element={<Schedules />} />
+                  <Route path="schedules/new" element={<ScheduleNew />} />
+                  <Route path="schedules/:id" element={<ScheduleDetail />} />
                   <Route path="_preview/planting" element={<PlantingPreview />} />
                   <Route path="_preview/diofa" element={<DiofaPreview />} />
                   <Route path="_preview/taste-swipe" element={<TasteSwipePreview />} />

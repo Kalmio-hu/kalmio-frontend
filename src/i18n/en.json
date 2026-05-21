@@ -22,7 +22,8 @@
     "feedback": "Feedback",
     "more": "More",
     "family": "Family",
-    "preferences": "My Preferences"
+    "preferences": "My Preferences",
+    "schedules": "Schedules"
   },
   "common": {
     "version": "Nutrition Engine v0.1",
@@ -2050,6 +2051,94 @@
       "days7": "Next 7 days",
       "days14": "Next 14 days",
       "days30": "Next 30 days"
+    }
+  },
+  "schedules": {
+    "pageTitle": "Schedules",
+    "pageSubtitle": "Recurring placement of plans onto the calendar",
+    "newScheduleCta": "New schedule",
+    "noSchedules": "No schedules yet.",
+    "noSchedulesHint": "Pick a plan and assign it to a start date.",
+    "status": {
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "ENDED": "Ended"
+    },
+    "cadence": {
+      "label": "Recurrence",
+      "days_one": "every {{count}} day",
+      "days_other": "every {{count}} days",
+      "weekly": "weekly",
+      "biweekly": "bi-weekly",
+      "custom": "custom ({{count}} days)"
+    },
+    "card": {
+      "plans_one": "{{count}} plan",
+      "plans_other": "{{count}} plans",
+      "nextWindow": "Next materialization",
+      "lastMaterialized": "Last: {{date}}",
+      "neverMaterialized": "Not yet materialized"
+    },
+    "actions": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "end": "End schedule",
+      "edit": "Edit",
+      "materialize": "Materialize now",
+      "materializeThrough": "Materialize through:",
+      "materializeSubmit": "Run",
+      "deleteConfirm": "End this schedule?",
+      "pauseSuccess": "Schedule paused.",
+      "resumeSuccess": "Schedule resumed.",
+      "endSuccess": "Schedule ended.",
+      "materializeSuccess": "Materialization triggered.",
+      "actionError": "Action failed. Please try again."
+    },
+    "wizard": {
+      "title": "Schedule this…",
+      "stepPlans": "1. Select plan(s)",
+      "stepCadence": "2. Timing",
+      "stepConfirm": "3. Confirm",
+      "planPickerLabel": "Plan(s)",
+      "planPickerPlaceholder": "Pick a plan…",
+      "addAnotherPlan": "Add another plan",
+      "removePlan": "Remove plan",
+      "rotationHint": "Plans rotate in the order listed.",
+      "startDate": "Start date",
+      "startDateHint": "The first materialization starts on this day.",
+      "endDate": "End date (optional)",
+      "endDateHint": "Leave blank for an open-ended schedule.",
+      "cadenceDays": "Cycle length (days)",
+      "cadenceHint": "How many days until the next plan is placed?",
+      "cadenceAutoHint": "Automatically derived from plan lengths: {{days}} days.",
+      "recurrence": "Recurrence type",
+      "recurrenceOnce": "Once only",
+      "recurrenceContinuous": "Continuous",
+      "recurrenceN": "N occurrences",
+      "occurrences": "Number of occurrences",
+      "scheduleName": "Schedule name",
+      "scheduleNameHint": "e.g. Weekly meal plan, Two-week rotation",
+      "scheduleNamePlaceholder": "Weekly meal plan",
+      "back": "Back",
+      "next": "Next",
+      "submit": "Start",
+      "submitting": "Saving…",
+      "submitError": "Could not create the schedule. Please try again.",
+      "noPlanSelected": "Select at least one plan.",
+      "summaryPlans_one": "{{count}} plan",
+      "summaryPlans_other": "{{count}} plans",
+      "summaryCadence": "Cycle: {{days}} days",
+      "summaryStart": "Starts: {{date}}"
+    },
+    "detail": {
+      "title": "Schedule details",
+      "editTitle": "Edit schedule",
+      "planIds": "Plans (in order)",
+      "saving": "Saving…",
+      "saveSuccess": "Schedule saved.",
+      "saveError": "Could not save. Please try again.",
+      "materializeSection": "Materialize now",
+      "materializeThroughLabel": "Materialize through date"
     }
   }
 }

@@ -15,6 +15,7 @@ import {
   Vault,
   ClipboardList,
   SlidersHorizontal,
+  CalendarClock,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -29,6 +30,7 @@ const OVERFLOW_ROUTES = [
   '/app/retail-products',
   '/app/family',
   '/app/preferences',
+  '/app/schedules',
   '/app/admin',
 ]
 
@@ -158,6 +160,21 @@ export function MobileNav() {
             >
               <SlidersHorizontal className="h-5 w-5 shrink-0" />
               {t('nav.preferences')}
+            </NavLink>
+
+            {/* Ütemezések */}
+            <NavLink
+              to="/app/schedules"
+              role="menuitem"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
+                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
+                )
+              }
+            >
+              <CalendarClock className="h-5 w-5 shrink-0" />
+              {t('nav.schedules')}
             </NavLink>
 
             {isAdmin && (

@@ -22,7 +22,8 @@
     "feedback": "Visszajelzés",
     "more": "Több",
     "family": "Család",
-    "preferences": "Beállításaim"
+    "preferences": "Beállításaim",
+    "schedules": "Ütemezések"
   },
   "common": {
     "version": "Táplálkozási Motor v0.1",
@@ -2050,6 +2051,94 @@
       "days7": "Következő 7 nap",
       "days14": "Következő 14 nap",
       "days30": "Következő 30 nap"
+    }
+  },
+  "schedules": {
+    "pageTitle": "Ütemezések",
+    "pageSubtitle": "Tervek ismétlődő elhelyezése a naptárban",
+    "newScheduleCta": "Új ütemezés",
+    "noSchedules": "Még nincs ütemezés.",
+    "noSchedulesHint": "Válassz egy tervet, és rendeld hozzá egy kezdő dátumhoz.",
+    "status": {
+      "ACTIVE": "Aktív",
+      "PAUSED": "Szüneteltetve",
+      "ENDED": "Lezárt"
+    },
+    "cadence": {
+      "label": "Ismétlődés",
+      "days_one": "minden {{count}} nap",
+      "days_other": "minden {{count}} nap",
+      "weekly": "hetente",
+      "biweekly": "kéthetente",
+      "custom": "egyéni ({{count}} nap)"
+    },
+    "card": {
+      "plans_one": "{{count}} terv",
+      "plans_other": "{{count}} terv",
+      "nextWindow": "Következő materializ.",
+      "lastMaterialized": "Utoljára: {{date}}",
+      "neverMaterialized": "Még nem materializálva"
+    },
+    "actions": {
+      "pause": "Szüneteltetés",
+      "resume": "Folytatás",
+      "end": "Lezárás",
+      "edit": "Szerkesztés",
+      "materialize": "Azonnali materializ.",
+      "materializeThrough": "Materializ. eddig:",
+      "materializeSubmit": "Végrehajtás",
+      "deleteConfirm": "Lezárod ezt az ütemezést?",
+      "pauseSuccess": "Ütemezés szüneteltetva.",
+      "resumeSuccess": "Ütemezés folytatva.",
+      "endSuccess": "Ütemezés lezárva.",
+      "materializeSuccess": "Materializálás elindítva.",
+      "actionError": "Nem sikerült a művelet. Próbáld újra."
+    },
+    "wizard": {
+      "title": "Ütemezz erre…",
+      "stepPlans": "1. Terv kiválasztása",
+      "stepCadence": "2. Időzítés",
+      "stepConfirm": "3. Megerősítés",
+      "planPickerLabel": "Terv(ek)",
+      "planPickerPlaceholder": "Válassz tervet…",
+      "addAnotherPlan": "Adj hozzá egy másik tervet",
+      "removePlan": "Terv eltávolítása",
+      "rotationHint": "A tervek a felsorolt sorrendben váltakoznak.",
+      "startDate": "Kezdő dátum",
+      "startDateHint": "Az első materializálás ezen a napon kezdődik.",
+      "endDate": "Befejező dátum (opcionális)",
+      "endDateHint": "Ha üresen hagyod, az ütemezés határozatlan ideig fut.",
+      "cadenceDays": "Ismétlődési ciklus (nap)",
+      "cadenceHint": "Hány naponta kerül sor a következő terv elhelyezésére?",
+      "cadenceAutoHint": "Automatikusan a tervek hosszaiból számítva: {{days}} nap.",
+      "recurrence": "Ismétlődés típusa",
+      "recurrenceOnce": "Csak egyszer",
+      "recurrenceContinuous": "Folyamatosan",
+      "recurrenceN": "N alkalom",
+      "occurrences": "Alkalmak száma",
+      "scheduleName": "Ütemezés neve",
+      "scheduleNameHint": "Pl. Heti étrend, Kéthetes rotáció",
+      "scheduleNamePlaceholder": "Heti étrend",
+      "back": "Vissza",
+      "next": "Következő",
+      "submit": "Indítás",
+      "submitting": "Mentés…",
+      "submitError": "Nem sikerült létrehozni az ütemezést. Próbáld újra.",
+      "noPlanSelected": "Válassz legalább egy tervet.",
+      "summaryPlans_one": "{{count}} terv",
+      "summaryPlans_other": "{{count}} terv",
+      "summaryCadence": "Ciklus: {{days}} nap",
+      "summaryStart": "Kezdés: {{date}}"
+    },
+    "detail": {
+      "title": "Ütemezés részletei",
+      "editTitle": "Ütemezés szerkesztése",
+      "planIds": "Tervek (sorrendben)",
+      "saving": "Mentés…",
+      "saveSuccess": "Ütemezés mentve.",
+      "saveError": "Nem sikerült menteni. Próbáld újra.",
+      "materializeSection": "Azonnali materializ.",
+      "materializeThroughLabel": "Materializálj eddig a dátumig"
     }
   }
 }
