@@ -1311,7 +1311,54 @@
       }
     },
     "detail": {
-      "settings": "Terv beállításai"
+      "settings": "Terv beállításai",
+      "pageTitle": "Sablon szerkesztése",
+      "dayLabel": "{{day}}. nap",
+      "slotsChipAria": "Étkezési sávok",
+      "membersChipAria": "Tagok",
+      "lengthChip_one": "{{count}} nap",
+      "lengthChip_other": "{{count}} nap",
+      "cadenceChip": "{{days}} napos bevásárlás",
+      "statusBadge": {
+        "DRAFT": "Vázlat",
+        "ACTIVE": "Aktív",
+        "ARCHIVED": "Archivált"
+      },
+      "sourceBadge": "Auto-feltöltés",
+      "actions": {
+        "menuAria": "Terv műveletek",
+        "copy": "Másold le",
+        "snapshotRefresh": "Preferenciák frissítése",
+        "archive": "Archiváld",
+        "archiveConfirmTitle": "Biztos archiválod?",
+        "archiveConfirmBody": "Az archivált tervet visszaállítani nem lehet.",
+        "archiveConfirmOk": "Igen, archiválás",
+        "archiveConfirmCancel": "Mégse",
+        "fill": "Tervező feltöltése",
+        "fillConfirmTitle": "Milyen slotokat töltsük fel?",
+        "fillConfirmEmpty": "Csak az üres slotok",
+        "fillConfirmAll": "Mindet felülírom",
+        "fillConfirmOk": "Feltöltés"
+      },
+      "cell": {
+        "emptyAria": "Üres slot — kattints a receptválasztáshoz",
+        "emptyLabel": "Válassz receptet",
+        "pickerTitle": "Étkezés szerkesztése",
+        "tabRecipe": "Recept",
+        "tabOffPlan": "Egyedi étkezés",
+        "offPlanEmpty": "Még nincs mentett étkezési sablon.",
+        "offPlanCreateName": "Sablon neve",
+        "offPlanCreateKcal": "kcal",
+        "offPlanCreateSave": "Mentés",
+        "servingsLabel": "Adagok száma",
+        "confirmPick": "Beállítás",
+        "clearSlot": "Ürítés",
+        "saving": "Mentés…",
+        "saved": "Étkezés beállítva."
+      },
+      "copySuccess": "A terv másolata elkészült.",
+      "snapshotRefreshSuccess": "Preferenciák frissítve.",
+      "archiveSuccess": "Terv archiválva."
     },
     "member": {
       "allergenWarningAria": "Allergén figyelmeztetés"

@@ -1311,7 +1311,54 @@
       }
     },
     "detail": {
-      "settings": "Plan settings"
+      "settings": "Plan settings",
+      "pageTitle": "Edit template",
+      "dayLabel": "Day {{day}}",
+      "slotsChipAria": "Meal slots",
+      "membersChipAria": "Members",
+      "lengthChip_one": "{{count}} day",
+      "lengthChip_other": "{{count}} days",
+      "cadenceChip": "{{days}}-day shopping cycle",
+      "statusBadge": {
+        "DRAFT": "Draft",
+        "ACTIVE": "Active",
+        "ARCHIVED": "Archived"
+      },
+      "sourceBadge": "Auto-fill",
+      "actions": {
+        "menuAria": "Plan actions",
+        "copy": "Make a copy",
+        "snapshotRefresh": "Refresh preferences",
+        "archive": "Archive",
+        "archiveConfirmTitle": "Archive this plan?",
+        "archiveConfirmBody": "Archived plans cannot be restored.",
+        "archiveConfirmOk": "Yes, archive",
+        "archiveConfirmCancel": "Cancel",
+        "fill": "Fill with planner",
+        "fillConfirmTitle": "Which slots should be filled?",
+        "fillConfirmEmpty": "Empty slots only",
+        "fillConfirmAll": "Overwrite all",
+        "fillConfirmOk": "Fill"
+      },
+      "cell": {
+        "emptyAria": "Empty slot — click to pick a recipe",
+        "emptyLabel": "Pick a recipe",
+        "pickerTitle": "Edit meal",
+        "tabRecipe": "Recipe",
+        "tabOffPlan": "Custom meal",
+        "offPlanEmpty": "No saved meal templates yet.",
+        "offPlanCreateName": "Template name",
+        "offPlanCreateKcal": "kcal",
+        "offPlanCreateSave": "Save",
+        "servingsLabel": "Servings",
+        "confirmPick": "Confirm",
+        "clearSlot": "Clear slot",
+        "saving": "Saving…",
+        "saved": "Meal slot saved."
+      },
+      "copySuccess": "A copy of the plan was created.",
+      "snapshotRefreshSuccess": "Preferences refreshed.",
+      "archiveSuccess": "Plan archived."
     },
     "member": {
       "allergenWarningAria": "Allergen warning"

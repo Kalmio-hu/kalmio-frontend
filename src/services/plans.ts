@@ -1,5 +1,16 @@
 import { api } from '@/lib/api'
-import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest } from '@/types'
+import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal } from '@/types'
+
+// ── Template Meal upsert body ──────────────────────────────────────────────
+
+export interface UpsertTemplateMealRequest {
+  dayIndex: number
+  mealType: string
+  memberId: string
+  recipeId?: string | null
+  offPlanMealTemplateId?: string | null
+  servings?: number
+}
 
 export const planService = {
   create: (req: CreatePlanRequest): Promise<Plan> =>
@@ -75,4 +86,30 @@ export const planTemplateService = {
   /** POST /api/plans/{id}/copy — duplicate plan. */
   copy: (id: string, name?: string | null): Promise<PlanTemplate> =>
     api.post<PlanTemplate>(`/api/plans/${id}/copy`, name ? { name } : {}).then(r => r.data),
+
+  /**
+   * POST /api/plans/{id}/template-meals — create or upsert a template meal cell.
+   * The backend enforces the XOR constraint (recipeId XOR offPlanMealTemplateId).
+   * If templateMealId is provided, issues PUT to update an existing row.
+   */
+  upsertTemplateMeal: (
+    planId: string,
+    body: UpsertTemplateMealRequest,
+    templateMealId?: string | null,
+  ): Promise<TemplateMeal> => {
+    if (templateMealId) {
+      return api
+        .put<TemplateMeal>(`/api/plans/${planId}/template-meals/${templateMealId}`, body)
+        .then(r => r.data)
+    }
+    return api
+      .post<TemplateMeal>(`/api/plans/${planId}/template-meals`, body)
+      .then(r => r.data)
+  },
+
+  /**
+   * DELETE /api/plans/{id}/template-meals/{templateMealId} — clear a cell.
+   */
+  clearTemplateMeal: (planId: string, templateMealId: string): Promise<void> =>
+    api.delete(`/api/plans/${planId}/template-meals/${templateMealId}`).then(() => undefined),
 }
