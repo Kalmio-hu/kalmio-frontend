@@ -3,6 +3,34 @@
 export type BiologicalSex = 'MALE' | 'FEMALE' | 'PREFER_NOT_TO_SAY'
 export type ActivityLevel = 'SEDENTARY' | 'LIGHT' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE'
 
+/** User fitness/nutrition goal — drives TDEE-based macro targets. KALMIO-223. */
+export type Goal =
+  | 'MAINTAIN'
+  | 'MILD_LOSS'
+  | 'AGGRESSIVE_LOSS'
+  | 'RECOMPOSITION'
+  | 'CLEAN_BULK'
+  | 'DIRTY_BULK'
+
+/** Severity level returned by GET /api/users/me/goal-feedback. KALMIO-224. */
+export type HealthFeedbackSeverity = 'WARN' | 'STRONG_WARN'
+
+/** One health-feedback item from GET /api/users/me/goal-feedback. */
+export interface HealthFeedbackItem {
+  severity: HealthFeedbackSeverity
+  messageKey: string
+  params: Record<string, unknown>
+}
+
+/** Response shape from GET /api/users/me/targets. 204 = null (body data incomplete). */
+export interface TargetSetResponse {
+  tdeeKcal: number
+  targetKcal: number
+  proteinG: number
+  carbsG: number
+  fatG: number
+}
+
 export type IngredientCategory = 'PROTEIN' | 'CARB' | 'FAT' | 'VEGGIE' | 'SPICE'
 export type Unit = 'G' | 'ML' | 'PIECE'
 export type MealType = 'BREAKFAST' | 'MORNING_SNACK' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER' | 'SNACK'
