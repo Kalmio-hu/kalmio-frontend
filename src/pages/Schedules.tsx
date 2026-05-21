@@ -180,6 +180,18 @@ function ScheduleCard({ schedule }: ScheduleCardProps) {
               ? t('schedules.card.lastMaterialized', { date: schedule.lastMaterializedDate })
               : t('schedules.card.neverMaterialized')}
           </p>
+          {(() => {
+            const base = schedule.lastMaterializedDate ?? schedule.startDate
+            const d = new Date(base)
+            d.setDate(d.getDate() + schedule.cadenceDays)
+            const nextWindow = d.toISOString().split('T')[0]
+            return (
+              <p>
+                {t('schedules.card.nextWindow')}:{' '}
+                <span className="text-[#1A1A1A] font-medium">{nextWindow}</span>
+              </p>
+            )
+          })()}
         </div>
 
         {/* Actions */}

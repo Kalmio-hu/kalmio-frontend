@@ -10,7 +10,7 @@
  * On success → navigate to /app/schedules/{id}
  */
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronUp, ChevronDown, X, Plus } from 'lucide-react'
@@ -75,11 +75,15 @@ export function ScheduleNew() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const qc = useQueryClient()
+  const [searchParams] = useSearchParams()
 
   const [step, setStep] = useState<Step>(1)
 
-  // Step 1: ordered plan IDs
-  const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>([])
+  // Step 1: ordered plan IDs — seed from ?planId= query param if present
+  const [selectedPlanIds, setSelectedPlanIds] = useState<string[]>(() => {
+    const preselect = searchParams.get('planId')
+    return preselect ? [preselect] : []
+  })
 
   // Step 2
   const [startDate, setStartDate] = useState(nextMonday)

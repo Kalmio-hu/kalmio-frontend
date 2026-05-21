@@ -293,6 +293,14 @@ export function PlanDetail() {
                     <MenuButton
                       onClick={() => {
                         setMenuOpen(false)
+                        navigate(`/app/schedules/new?planId=${id}`)
+                      }}
+                    >
+                      {t('plan.detail.actions.schedule')}
+                    </MenuButton>
+                    <MenuButton
+                      onClick={() => {
+                        setMenuOpen(false)
                         setFillConfirmOpen(true)
                       }}
                     >

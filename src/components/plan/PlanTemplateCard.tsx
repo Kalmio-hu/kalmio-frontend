@@ -89,10 +89,11 @@ export function PlanTemplateCard({
     navigate(`/app/plans/${plan.id}`)
   }
 
-  function handleMenuAction(action: 'open' | 'copy' | 'archive') {
+  function handleMenuAction(action: 'open' | 'copy' | 'schedule' | 'archive') {
     setMenuOpen(false)
     if (action === 'open') navigate(`/app/plans/${plan.id}`)
     if (action === 'copy') onCopy(plan.id)
+    if (action === 'schedule') navigate(`/app/schedules/new?planId=${plan.id}`)
     if (action === 'archive') onArchive(plan.id)
   }
 
@@ -157,6 +158,7 @@ export function PlanTemplateCard({
               >
                 <MenuButton label={t('plan.list.card.menu.open')} onClick={() => handleMenuAction('open')} />
                 <MenuButton label={t('plan.list.card.menu.copy')} onClick={() => handleMenuAction('copy')} />
+                <MenuButton label={t('plan.list.card.menu.schedule')} onClick={() => handleMenuAction('schedule')} />
                 {plan.status !== 'ARCHIVED' && (
                   <MenuButton
                     label={t('plan.list.card.menu.archive')}

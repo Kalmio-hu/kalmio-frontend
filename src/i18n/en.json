@@ -1257,6 +1257,7 @@
         "menu": {
           "open": "Open",
           "copy": "Copy",
+          "schedule": "Schedule this…",
           "archive": "Archive"
         }
       }
@@ -1365,6 +1366,7 @@
         "archiveConfirmBody": "Archived plans cannot be restored.",
         "archiveConfirmOk": "Yes, archive",
         "archiveConfirmCancel": "Cancel",
+        "schedule": "Schedule this…",
         "fill": "Fill with planner",
         "fillConfirmTitle": "Which slots should be filled?",
         "fillConfirmEmpty": "Empty slots only",

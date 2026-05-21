@@ -1257,6 +1257,7 @@
         "menu": {
           "open": "Megnyitás",
           "copy": "Másolás",
+          "schedule": "Ütemezz erre…",
           "archive": "Archiválás"
         }
       }
@@ -1365,6 +1366,7 @@
         "archiveConfirmBody": "Az archivált tervet visszaállítani nem lehet.",
         "archiveConfirmOk": "Igen, archiválás",
         "archiveConfirmCancel": "Mégse",
+        "schedule": "Ütemezz erre…",
         "fill": "Tervező feltöltése",
         "fillConfirmTitle": "Milyen slotokat töltsük fel?",
         "fillConfirmEmpty": "Csak az üres slotok",
