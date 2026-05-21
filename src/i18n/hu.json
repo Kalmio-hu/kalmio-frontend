@@ -1258,7 +1258,7 @@
         "menu": {
           "open": "Megnyitás",
           "copy": "Másolás",
-          "schedule": "Ütemezz erre…",
+          "schedule": "Ütemezés…",
           "archive": "Archiválás"
         }
       }
@@ -2109,7 +2109,7 @@
     "card": {
       "plans_one": "{{count}} terv",
       "plans_other": "{{count}} terv",
-      "nextWindow": "Következő materializ.",
+      "nextWindow": "Következő materializálás",
       "lastMaterialized": "Utoljára: {{date}}",
       "neverMaterialized": "Még nem materializálva"
     },
@@ -2118,18 +2118,18 @@
       "resume": "Folytatás",
       "end": "Lezárás",
       "edit": "Szerkesztés",
-      "materialize": "Azonnali materializ.",
-      "materializeThrough": "Materializ. eddig:",
+      "materialize": "Azonnali materializálás",
+      "materializeThrough": "Materializálás eddig:",
       "materializeSubmit": "Végrehajtás",
       "deleteConfirm": "Lezárod ezt az ütemezést?",
-      "pauseSuccess": "Ütemezés szüneteltetva.",
+      "pauseSuccess": "Ütemezés szüneteltetve.",
       "resumeSuccess": "Ütemezés folytatva.",
       "endSuccess": "Ütemezés lezárva.",
       "materializeSuccess": "Materializálás elindítva.",
       "actionError": "Nem sikerült a művelet. Próbáld újra."
     },
     "wizard": {
-      "title": "Ütemezz erre…",
+      "title": "Ütemezés",
       "stepPlans": "1. Terv kiválasztása",
       "stepCadence": "2. Időzítés",
       "stepConfirm": "3. Megerősítés",
@@ -2171,7 +2171,7 @@
       "saving": "Mentés…",
       "saveSuccess": "Ütemezés mentve.",
       "saveError": "Nem sikerült menteni. Próbáld újra.",
-      "materializeSection": "Azonnali materializ.",
+      "materializeSection": "Azonnali materializálás",
       "materializeThroughLabel": "Materializálj eddig a dátumig"
     }
   },

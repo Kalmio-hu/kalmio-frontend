@@ -1258,7 +1258,7 @@
         "menu": {
           "open": "Open",
           "copy": "Copy",
-          "schedule": "Schedule this…",
+          "schedule": "Schedule…",
           "archive": "Archive"
         }
       }
@@ -2129,7 +2129,7 @@
       "actionError": "Action failed. Please try again."
     },
     "wizard": {
-      "title": "Schedule this…",
+      "title": "Schedule",
       "stepPlans": "1. Select plan(s)",
       "stepCadence": "2. Timing",
       "stepConfirm": "3. Confirm",
