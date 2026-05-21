@@ -1357,7 +1357,7 @@
         "ACTIVE": "Active",
         "ARCHIVED": "Archived"
       },
-      "sourceBadge": "Auto-fill",
+      "sourceBadge": "Automatic fill",
       "actions": {
         "menuAria": "Plan actions",
         "copy": "Make a copy",
@@ -1367,7 +1367,7 @@
         "archiveConfirmBody": "Archived plans cannot be restored.",
         "archiveConfirmOk": "Yes, archive",
         "archiveConfirmCancel": "Cancel",
-        "schedule": "Schedule this…",
+        "schedule": "Schedule…",
         "fill": "Fill with planner",
         "fillConfirmTitle": "Which slots should be filled?",
         "fillConfirmEmpty": "Empty slots only",
@@ -1376,7 +1376,7 @@
       },
       "cell": {
         "emptyAria": "Empty slot — click to pick a recipe",
-        "emptyLabel": "Pick a recipe",
+        "emptyLabel": "Select a recipe",
         "pickerTitle": "Edit meal",
         "tabRecipe": "Recipe",
         "tabOffPlan": "Custom meal",
