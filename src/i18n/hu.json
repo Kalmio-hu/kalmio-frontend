@@ -1444,7 +1444,7 @@
       "saturday": "Szombat",
       "sunday": "Vasárnap"
     },
-    "generate": "Generálj tervet",
+    "generate": "Terv generálása",
     "generating": "Egy pillanat — összerakom a heteded.",
     "error": "Hiba történt. Próbáld újra.",
     "advancedToggle": "Speciális beállítások",
@@ -1847,7 +1847,7 @@
     },
     "bodyDataHint": {
       "title": "Személyre szabott célok",
-      "body": "A testsúlyod, magasságod és aktivitási szinted megadásával Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
+      "body": "A testsúlyod, testmagasságod és aktivitási szinted megadásával Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
       "cta": "Adatok megadása"
     }
   },
@@ -2110,23 +2110,23 @@
     "card": {
       "plans_one": "{{count}} terv",
       "plans_other": "{{count}} terv",
-      "nextWindow": "Következő materializálás",
+      "nextWindow": "Következő indítás",
       "lastMaterialized": "Utoljára: {{date}}",
-      "neverMaterialized": "Még nem materializálva"
+      "neverMaterialized": "Még nem indult el"
     },
     "actions": {
       "pause": "Szüneteltetés",
       "resume": "Folytatás",
       "end": "Lezárás",
       "edit": "Szerkesztés",
-      "materialize": "Azonnali materializálás",
-      "materializeThrough": "Materializálás eddig:",
-      "materializeSubmit": "Végrehajtás",
+      "materialize": "Azonnali elindítás",
+      "materializeThrough": "Elindítás eddig:",
+      "materializeSubmit": "Indítás",
       "deleteConfirm": "Lezárod ezt az ütemezést?",
       "pauseSuccess": "Ütemezés szüneteltetve.",
       "resumeSuccess": "Ütemezés folytatva.",
       "endSuccess": "Ütemezés lezárva.",
-      "materializeSuccess": "Materializálás elindítva.",
+      "materializeSuccess": "Elindítva.",
       "actionError": "Nem sikerült a művelet. Próbáld újra."
     },
     "wizard": {
@@ -2172,8 +2172,8 @@
       "saving": "Mentés…",
       "saveSuccess": "Ütemezés mentve.",
       "saveError": "Nem sikerült menteni. Próbáld újra.",
-      "materializeSection": "Azonnali materializálás",
-      "materializeThroughLabel": "Materializálj eddig a dátumig"
+      "materializeSection": "Azonnali elindítás",
+      "materializeThroughLabel": "Elindítás eddig a dátumig"
     }
   },
   "calendar": {

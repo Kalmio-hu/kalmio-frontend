@@ -2110,23 +2110,23 @@
     "card": {
       "plans_one": "{{count}} plan",
       "plans_other": "{{count}} plans",
-      "nextWindow": "Next materialization",
+      "nextWindow": "Next run",
       "lastMaterialized": "Last: {{date}}",
-      "neverMaterialized": "Not yet materialized"
+      "neverMaterialized": "Not started yet"
     },
     "actions": {
       "pause": "Pause",
       "resume": "Resume",
       "end": "End schedule",
       "edit": "Edit",
-      "materialize": "Materialize now",
-      "materializeThrough": "Materialize through:",
+      "materialize": "Run now",
+      "materializeThrough": "Run through:",
       "materializeSubmit": "Run",
       "deleteConfirm": "End this schedule?",
       "pauseSuccess": "Schedule paused.",
       "resumeSuccess": "Schedule resumed.",
       "endSuccess": "Schedule ended.",
-      "materializeSuccess": "Materialization triggered.",
+      "materializeSuccess": "Started.",
       "actionError": "Action failed. Please try again."
     },
     "wizard": {
@@ -2172,8 +2172,8 @@
       "saving": "Saving…",
       "saveSuccess": "Schedule saved.",
       "saveError": "Could not save. Please try again.",
-      "materializeSection": "Materialize now",
-      "materializeThroughLabel": "Materialize through date"
+      "materializeSection": "Run now",
+      "materializeThroughLabel": "Run through date"
     }
   },
   "calendar": {
