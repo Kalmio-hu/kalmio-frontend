@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList } from '@/types'
+import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest } from '@/types'
 
 export const planService = {
   create: (req: CreatePlanRequest): Promise<Plan> =>
@@ -41,4 +41,38 @@ export const planService = {
 
   patchMealScheduledTime: (planId: string, mealId: string, scheduledTime: string | null): Promise<void> =>
     api.patch(`/api/plans/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }).then(() => undefined),
+}
+
+// ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────
+
+export const planTemplateService = {
+  /** POST /api/plans — create a new plan template. Returns 201. */
+  create: (req: CreatePlanTemplateRequest): Promise<PlanTemplate> =>
+    api.post<PlanTemplate>('/api/plans', req).then(r => r.data),
+
+  /** GET /api/plans — list all plans visible to the current user. */
+  list: (): Promise<PlanTemplate[]> =>
+    api.get<PlanTemplate[]>('/api/plans').then(r => r.data),
+
+  /** GET /api/plans/{id} — single plan with template meals. */
+  getById: (id: string): Promise<PlanTemplate> =>
+    api.get<PlanTemplate>(`/api/plans/${id}`).then(r => r.data),
+
+  /**
+   * POST /api/plans/{id}/snapshot/refresh — re-reads current member prefs
+   * into the plan's preferences_snapshot.
+   *
+   * Called after "Auto-fill" creation to ensure prefs are fresh before the
+   * solver run (C13).
+   */
+  refreshSnapshot: (id: string): Promise<PlanTemplate> =>
+    api.post<PlanTemplate>(`/api/plans/${id}/snapshot/refresh`).then(r => r.data),
+
+  /** DELETE /api/plans/{id} — soft-archive the plan. */
+  archive: (id: string): Promise<void> =>
+    api.delete(`/api/plans/${id}`).then(() => undefined),
+
+  /** POST /api/plans/{id}/copy — duplicate plan. */
+  copy: (id: string, name?: string | null): Promise<PlanTemplate> =>
+    api.post<PlanTemplate>(`/api/plans/${id}/copy`, name ? { name } : {}).then(r => r.data),
 }

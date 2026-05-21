@@ -26,3 +26,17 @@ export function generatePlanName(
   if (memberNames.length <= 1) return t('plan.wizard.autoName', { date: monthDay })
   return t('plan.wizard.autoNameFamily', { date: monthDay })
 }
+
+/**
+ * Generates an auto-name for a plan template (calendar-free).
+ * Uses the current month as context since templates have no start date.
+ */
+export function generateTemplateName(
+  memberNames: string[],
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): string {
+  const now = new Date()
+  const monthName = new Intl.DateTimeFormat('hu-HU', { month: 'long' }).format(now)
+  if (memberNames.length <= 1) return t('plan.wizard.autoName', { date: monthName })
+  return t('plan.wizard.autoNameFamily', { date: monthName })
+}

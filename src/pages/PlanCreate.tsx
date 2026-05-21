@@ -1,13 +1,18 @@
 /**
- * PlanCreate — 3-step plan creation wizard.
+ * PlanCreate — 3-step plan template creation wizard (meal-planning-v2).
  *
- * Step 1: Member selection (chip selector)
- * Step 2: Date + duration (date picker, quick-picks 7/14, free entry)
- * Step 3: Meal slot coverage (breakfast/lunch/dinner/snack checkboxes)
+ * Step 1: Members — chip selector, self pre-selected.
+ * Step 2: Shape   — length_days quick-picks (1/7/14) + custom (1-28),
+ *                   meal_slots_covered (all 6 meal types, at least one required).
+ * Step 3: Name + Source — edit-in-place name, radio source choice
+ *                         ("Tervező töltse fel" / "Üresen kezdem").
  *
- * Conflict warning inline if (profile, date, mealType) overlaps existing plan.
- * Plan name auto-generated with edit-in-place.
- * CTA "Generate plan" → triggers solver run (existing 10s flow TBD — BE3).
+ * On submit: POST /api/plans (CreatePlanTemplateRequest).
+ * On "Auto-fill": additionally calls POST /api/plans/{id}/snapshot/refresh,
+ *                 then navigates to /app/plans/{id}.
+ * On "Start empty": navigates directly to /app/plans/{id}.
+ *
+ * No conflict check — templates are calendar-free.
  */
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -21,21 +26,31 @@ import { Label } from '@/components/ui/label'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { MemberChipSelector, type SelectableMember } from '@/components/plan/MemberChipSelector'
-import { multiMemberPlanService } from '@/services/multiMemberPlanService'
 import { familyService } from '@/services/family'
 import { usersService } from '@/services/users'
+import { planTemplateService } from '@/services/plans'
 import { useAuthStore } from '@/store/auth'
-import { generatePlanName } from './planUtils'
-import type { MealType, CreateMultiMemberPlanRequest } from '@/types'
+import { generateTemplateName } from './planUtils'
+import type { MealType, CreatePlanTemplateRequest } from '@/types'
 
 const FAMILY_ID_KEY = 'kalmio_family_id'
 
 type WizardStep = 1 | 2 | 3
 
-const MEAL_TYPES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
-const DURATION_PRESETS = [7, 14]
-const TODAY = new Date().toISOString().slice(0, 10)
+/** All meal types supported in plan templates. */
+const MEAL_TYPES: MealType[] = [
+  'BREAKFAST',
+  'MORNING_SNACK',
+  'LUNCH',
+  'AFTERNOON_SNACK',
+  'DINNER',
+  'SNACK',
+]
 
+/** Quick-pick day counts per AC. */
+const DURATION_PRESETS = [1, 7, 14]
+
+type PlanSource = 'AUTO' | 'EMPTY'
 
 export function PlanCreate() {
   const { t } = useTranslation()
@@ -45,21 +60,25 @@ export function PlanCreate() {
   const currentUserId = useAuthStore((s) => s.session?.user.id ?? '')
   const familyId = localStorage.getItem(FAMILY_ID_KEY)
 
-  // Allow callers to land on the wizard with a pre-selected member set (e.g. the household
-  // chip selector in PlanPreferencesForm hands off here when multiple members are toggled in).
+  // Allow callers to land with a pre-selected member set.
   const initialMemberIds =
     (location.state as { initialMemberIds?: string[] } | null)?.initialMemberIds ?? [currentUserId]
 
   const [step, setStep] = useState<WizardStep>(1)
+
+  // Step 1
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(initialMemberIds)
-  const [startDate, setStartDate] = useState(TODAY)
-  const [durationDays, setDurationDays] = useState(7)
+
+  // Step 2
+  const [lengthDays, setLengthDays] = useState(7)
   const [mealSlots, setMealSlots] = useState<MealType[]>(['LUNCH', 'DINNER'])
+
+  // Step 3
   const [editingName, setEditingName] = useState(false)
   const [planName, setPlanName] = useState('')
-  const [conflictError, setConflictError] = useState<string | null>(null)
+  const [source, setSource] = useState<PlanSource>('AUTO')
 
-  // Load family to get member list
+  // Load family for member list
   const { data: family } = useQuery({
     queryKey: ['family', familyId],
     queryFn: () => familyService.getFamily(familyId!),
@@ -77,70 +96,74 @@ export function PlanCreate() {
     ? ([me.firstName, me.lastName].filter(Boolean).join(' ') || me.email)
     : t('family.memberRow.you')
 
-  // Build selectable member list from family members.
-  // displayName may be missing if the backend hasn't been redeployed yet — fall back to a
-  // short UUID so the page renders instead of crashing inside MemberChipSelector.
   const selectableMembers: SelectableMember[] = family
     ? family.members.map((m) => ({
         id: m.userId,
-        displayName: m.userId === currentUserId
-          ? myDisplayName
-          : (m.displayName ?? m.userId.slice(0, 8)),
+        displayName:
+          m.userId === currentUserId
+            ? myDisplayName
+            : (m.displayName ?? m.userId.slice(0, 8)),
         isCurrentUser: m.userId === currentUserId,
       }))
     : [{ id: currentUserId, displayName: myDisplayName, isCurrentUser: true }]
 
-  // Auto-generate plan name whenever inputs change
-  const memberDisplayNames = selectedMemberIds.map(id => {
-    const m = selectableMembers.find(sm => sm.id === id)
+  const memberDisplayNames = selectedMemberIds.map((id) => {
+    const m = selectableMembers.find((sm) => sm.id === id)
     return m?.displayName ?? id
   })
 
-  const autoName = generatePlanName(memberDisplayNames, startDate, t)
+  const autoName = generateTemplateName(memberDisplayNames, t)
   const displayName = planName || autoName
 
   function toggleMealSlot(mt: MealType) {
-    setMealSlots(prev =>
-      prev.includes(mt) ? prev.filter(s => s !== mt) : [...prev, mt]
+    setMealSlots((prev) =>
+      prev.includes(mt) ? prev.filter((s) => s !== mt) : [...prev, mt]
     )
   }
 
+  // Snapshot mutation — called after create when source === 'AUTO'
+  const snapshotMut = useMutation({
+    mutationFn: (planId: string) => planTemplateService.refreshSnapshot(planId),
+  })
+
   const createMut = useMutation({
-    mutationFn: (req: CreateMultiMemberPlanRequest) => multiMemberPlanService.create(req),
-    onSuccess: (plan) => {
-      qc.invalidateQueries({ queryKey: ['multiplans'] })
+    mutationFn: (req: CreatePlanTemplateRequest) => planTemplateService.create(req),
+    onSuccess: async (plan) => {
+      qc.invalidateQueries({ queryKey: ['plan-templates'] })
+      if (source === 'AUTO') {
+        try {
+          await snapshotMut.mutateAsync(plan.id)
+        } catch {
+          // Snapshot refresh failure is non-fatal — the plan exists and the
+          // solver can still run with stale prefs.
+        }
+      }
       toast({ title: t('plan.wizard.created') })
       navigate(`/app/plans/${plan.id}`)
     },
-    onError: (err: { response?: { status?: number; data?: { message?: string } } }) => {
-      if (err.response?.status === 409) {
-        const msg = err.response.data?.message ?? t('plan.wizard.conflictGeneric')
-        setConflictError(msg)
-        setStep(2) // go back to date step to show conflict
-      } else {
-        toast({ title: t('common.errorGeneric'), variant: 'destructive' })
-      }
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
     },
   })
 
   function submit() {
-    const req: CreateMultiMemberPlanRequest = {
+    const req: CreatePlanTemplateRequest = {
+      name: planName || autoName,
       memberIds: selectedMemberIds,
-      startDate,
-      durationDays,
       mealSlotsCovered: mealSlots,
-      name: planName || null,
+      lengthDays,
     }
-    setConflictError(null)
     createMut.mutate(req)
   }
 
   function canAdvance(): boolean {
     if (step === 1) return selectedMemberIds.length > 0
-    if (step === 2) return !!startDate && durationDays >= 1
-    if (step === 3) return mealSlots.length > 0
+    if (step === 2) return lengthDays >= 1 && lengthDays <= 28 && mealSlots.length > 0
+    if (step === 3) return true
     return false
   }
+
+  const isPending = createMut.isPending || snapshotMut.isPending
 
   const stepLabels = [
     t('plan.wizard.step1Label'),
@@ -186,7 +209,7 @@ export function PlanCreate() {
                   {label}
                 </span>
               </div>
-              {i < 2 && <div className="flex-1 h-px bg-[#e5e7eb]" aria-hidden />}
+              {i < 2 && <div className="flex-1 h-px bg-[#e5e4e7]" aria-hidden />}
             </div>
           )
         })}
@@ -206,46 +229,33 @@ export function PlanCreate() {
               onChange={setSelectedMemberIds}
             />
             {selectedMemberIds.length === 0 && (
-              <p className="text-xs text-red-600">{t('plan.wizard.atLeastOneMember')}</p>
+              <p className="text-xs text-red-600" role="alert">{t('plan.wizard.atLeastOneMember')}</p>
             )}
           </div>
         )}
 
-        {/* Step 2: Date + duration */}
+        {/* Step 2: Shape (length + meal slots) */}
         {step === 2 && (
-          <div className="flex flex-col gap-4">
-            <h2 className="font-headline font-bold text-[#1A1A1A]">{t('plan.wizard.step2Title')}</h2>
-
-            {conflictError && (
-              <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-                {conflictError}
-              </div>
-            )}
-
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="start-date">{t('plan.wizard.startDate')}</Label>
-              <Input
-                id="start-date"
-                type="date"
-                value={startDate}
-                min={TODAY}
-                onChange={e => setStartDate(e.target.value)}
-              />
+          <div className="flex flex-col gap-5">
+            <div>
+              <h2 className="font-headline font-bold text-[#1A1A1A] mb-1">{t('plan.wizard.step2Title')}</h2>
+              <p className="text-sm text-[#6b7280]">{t('plan.wizard.step2Hint')}</p>
             </div>
 
+            {/* Length quick-picks */}
             <div className="flex flex-col gap-2">
               <Label>{t('plan.wizard.duration')}</Label>
               <div className="flex items-center gap-2 flex-wrap">
-                {DURATION_PRESETS.map(d => (
+                {DURATION_PRESETS.map((d) => (
                   <button
                     key={d}
                     type="button"
-                    aria-pressed={durationDays === d}
-                    onClick={() => setDurationDays(d)}
+                    aria-pressed={lengthDays === d}
+                    onClick={() => setLengthDays(d)}
                     className={`
                       px-4 py-1.5 rounded-lg text-sm font-medium border transition-colors
                       focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-                      ${durationDays === d
+                      ${lengthDays === d
                         ? 'bg-[#4f46e5] text-white border-transparent'
                         : 'bg-white text-[#1A1A1A] border-[#e5e4e7] hover:border-[#4f46e5]'}
                     `}
@@ -257,9 +267,9 @@ export function PlanCreate() {
                   <Input
                     type="number"
                     min={1}
-                    max={30}
-                    value={durationDays}
-                    onChange={e => setDurationDays(Number(e.target.value))}
+                    max={28}
+                    value={lengthDays}
+                    onChange={(e) => setLengthDays(Math.max(1, Math.min(28, Number(e.target.value))))}
                     className="w-16 text-center"
                     aria-label={t('plan.wizard.durationCustom')}
                   />
@@ -267,54 +277,58 @@ export function PlanCreate() {
                 </div>
               </div>
             </div>
+
+            {/* Meal slot checkboxes */}
+            <div className="flex flex-col gap-2">
+              <Label>{t('plan.wizard.mealSlotsLabel')}</Label>
+              <p className="text-sm text-[#6b7280]">{t('plan.wizard.step3Hint')}</p>
+              <div className="flex flex-col gap-2" role="group" aria-label={t('plan.wizard.mealSlotsLabel')}>
+                {MEAL_TYPES.map((mt) => {
+                  const checked = mealSlots.includes(mt)
+                  return (
+                    <label
+                      key={mt}
+                      className={`
+                        flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors
+                        ${checked ? 'border-[#4f46e5] bg-[#eef2ff]' : 'border-[#e5e4e7] bg-white hover:border-[#4f46e5]/50'}
+                      `}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleMealSlot(mt)}
+                        className="w-4 h-4 accent-[#4f46e5] rounded shrink-0"
+                      />
+                      <span className="text-sm font-medium text-[#1A1A1A]">
+                        {t(`plan.mealTypes.${mt}`, mt)}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+              {mealSlots.length === 0 && (
+                <p className="text-xs text-red-600" role="alert">{t('plan.wizard.atLeastOneMealSlot')}</p>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Step 3: Meal slots */}
+        {/* Step 3: Name + Source */}
         {step === 3 && (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <h2 className="font-headline font-bold text-[#1A1A1A]">{t('plan.wizard.step3Title')}</h2>
-            <p className="text-sm text-[#6b7280]">{t('plan.wizard.step3Hint')}</p>
-
-            <div className="flex flex-col gap-2" role="group" aria-label={t('plan.wizard.mealSlotsLabel')}>
-              {MEAL_TYPES.map(mt => {
-                const checked = mealSlots.includes(mt)
-                return (
-                  <label
-                    key={mt}
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors
-                      ${checked ? 'border-[#4f46e5] bg-[#eef2ff]' : 'border-[#e5e4e7] bg-white hover:border-[#4f46e5]/50'}
-                    `}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleMealSlot(mt)}
-                      className="w-4 h-4 accent-[#4f46e5] rounded shrink-0"
-                    />
-                    <span className="text-sm font-medium text-[#1A1A1A]">
-                      {t(`plan.mealTypes.${mt}`, mt)}
-                    </span>
-                  </label>
-                )
-              })}
-            </div>
-
-            {mealSlots.length === 0 && (
-              <p className="text-xs text-red-600">{t('plan.wizard.atLeastOneMealSlot')}</p>
-            )}
 
             {/* Plan name edit-in-place */}
-            <div className="flex flex-col gap-1.5 pt-2 border-t border-[#e5e4e7]">
+            <div className="flex flex-col gap-1.5">
               <Label>{t('plan.wizard.planName')}</Label>
               {editingName ? (
                 <div className="flex gap-2">
                   <Input
                     value={planName}
-                    onChange={e => setPlanName(e.target.value)}
+                    onChange={(e) => setPlanName(e.target.value)}
                     placeholder={autoName}
                     autoFocus
+                    maxLength={200}
                   />
                   <Button
                     variant="secondary"
@@ -339,6 +353,59 @@ export function PlanCreate() {
               )}
               <p className="text-xs text-[#9ca3af]">{t('plan.wizard.nameHint')}</p>
             </div>
+
+            {/* Source choice */}
+            <div className="flex flex-col gap-2">
+              <Label>{t('plan.wizard.sourceLabel')}</Label>
+              <div className="flex flex-col gap-2" role="radiogroup" aria-label={t('plan.wizard.sourceLabel')}>
+                {([
+                  { value: 'AUTO' as PlanSource, labelKey: 'plan.wizard.sourceAuto', hintKey: 'plan.wizard.sourceAutoHint' },
+                  { value: 'EMPTY' as PlanSource, labelKey: 'plan.wizard.sourceEmpty', hintKey: 'plan.wizard.sourceEmptyHint' },
+                ] satisfies { value: PlanSource; labelKey: string; hintKey: string }[]).map(({ value, labelKey, hintKey }) => (
+                  <label
+                    key={value}
+                    className={`
+                      flex items-start gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors
+                      ${source === value ? 'border-[#4f46e5] bg-[#eef2ff]' : 'border-[#e5e4e7] bg-white hover:border-[#4f46e5]/50'}
+                    `}
+                  >
+                    <input
+                      type="radio"
+                      name="plan-source"
+                      value={value}
+                      checked={source === value}
+                      onChange={() => setSource(value)}
+                      className="w-4 h-4 accent-[#4f46e5] shrink-0 mt-0.5"
+                    />
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-medium text-[#1A1A1A]">{t(labelKey)}</span>
+                      <span className="text-xs text-[#6b7280]">{t(hintKey)}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Review summary */}
+            <div className="rounded-xl bg-[#f9fafb] border border-[#e5e4e7] px-4 py-3 flex flex-col gap-1.5">
+              <p className="text-xs font-semibold text-[#6b7280] uppercase tracking-wide">{t('plan.wizard.summaryLabel')}</p>
+              <p className="text-sm text-[#1A1A1A]">
+                <span className="font-medium">{t('plan.wizard.summaryName')}</span>{' '}
+                {displayName}
+              </p>
+              <p className="text-sm text-[#1A1A1A]">
+                <span className="font-medium">{t('plan.wizard.summaryLength')}</span>{' '}
+                {t('plan.wizard.durationDays', { count: lengthDays })}
+              </p>
+              <p className="text-sm text-[#1A1A1A]">
+                <span className="font-medium">{t('plan.wizard.summarySlots')}</span>{' '}
+                {mealSlots.map((mt) => t(`plan.mealTypes.${mt}`, mt)).join(', ')}
+              </p>
+              <p className="text-sm text-[#1A1A1A]">
+                <span className="font-medium">{t('plan.wizard.summaryMembers')}</span>{' '}
+                {memberDisplayNames.join(', ')}
+              </p>
+            </div>
           </div>
         )}
       </div>
@@ -348,7 +415,8 @@ export function PlanCreate() {
         <Button
           variant="secondary"
           size="md"
-          onClick={() => step === 1 ? navigate(-1) : setStep((step - 1) as WizardStep)}
+          onClick={() => (step === 1 ? navigate(-1) : setStep((step - 1) as WizardStep))}
+          disabled={isPending}
         >
           <ChevronLeft className="w-4 h-4" />
           {step === 1 ? t('common.cancel') : t('common.back')}
@@ -369,15 +437,15 @@ export function PlanCreate() {
             variant="primary"
             size="md"
             onClick={submit}
-            disabled={!canAdvance() || createMut.isPending}
+            disabled={isPending}
           >
-            {createMut.isPending ? (
+            {isPending ? (
               <>
                 <Spinner className="w-4 h-4" />
-                {t('plan.wizard.generating')}
+                {t('plan.wizard.creating')}
               </>
             ) : (
-              t('plan.wizard.generate')
+              t('plan.wizard.create')
             )}
           </Button>
         )}

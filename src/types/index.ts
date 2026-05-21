@@ -1129,6 +1129,67 @@ export interface ImpersonateResponse {
   sessionToken: string
 }
 
+// ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────
+
+/** Source of a template meal assignment. */
+export type TemplateMealSource = 'SOLVER' | 'MANUAL' | 'COPIED'
+
+/** Plan template status. */
+export type PlanTemplateStatus = 'DRAFT' | 'ACTIVE' | 'ARCHIVED'
+
+/**
+ * Single meal slot within a plan template.
+ * Mirrors TemplateMealResponse from the backend.
+ */
+export interface TemplateMeal {
+  id: string
+  planId: string
+  /** Zero-based day index within the plan (0 = day 1). */
+  dayIndex: number
+  mealType: MealType
+  memberId: string
+  recipeId: string | null
+  offPlanMealTemplateId: string | null
+  servings: number
+  source: TemplateMealSource
+}
+
+/**
+ * A plan template — the primary planning unit in meal-planning-v2.
+ * Calendar-free: no startDate/endDate, only lengthDays.
+ * Mirrors PlanTemplateResponse from the backend.
+ */
+export interface PlanTemplate {
+  id: string
+  ownerUserId: string
+  familyId: string | null
+  name: string
+  memberIds: string[]
+  mealSlotsCovered: MealType[]
+  lengthDays: number
+  shoppingCadenceDays: number
+  status: PlanTemplateStatus
+  /** Per-member preference snapshot, keyed by member UUID string. */
+  preferencesSnapshot: Record<string, unknown> | null
+  templateMeals: TemplateMeal[]
+  createdAt: string   // ISO-8601
+  updatedAt: string   // ISO-8601
+  archivedAt: string | null   // ISO-8601
+}
+
+/** Request body for POST /api/plans (create plan template). */
+export interface CreatePlanTemplateRequest {
+  name: string
+  memberIds: string[]
+  mealSlotsCovered: MealType[]
+  /** 1–28 days. Default 7 when not supplied. */
+  lengthDays: number
+  /** Shopping cadence in days. Default 7. */
+  shoppingCadenceDays?: number | null
+  /** Optional family UUID. */
+  familyId?: string | null
+}
+
 // ── Multi-Member Plans (BE2 / KALMIO-216) ────────────────────────────────
 
 export type MultiPlanStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
