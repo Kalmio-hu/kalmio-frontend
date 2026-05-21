@@ -28,7 +28,7 @@ interface FormValues {
   languagePreference: string
   days: string
   kcalTarget: string
-  proteinMin: string
+  proteinTarget: string
   carbsTargetG: string
   fatTargetG: string
   budgetMax: string
@@ -212,7 +212,7 @@ export function Settings() {
         languagePreference: settings.languagePreference ?? i18n.resolvedLanguage ?? 'hu',
         days: settings.mealPlanPreferences?.days?.toString() ?? '',
         kcalTarget: settings.mealPlanPreferences?.kcalTarget?.toString() ?? '',
-        proteinMin: settings.mealPlanPreferences?.proteinMin?.toString() ?? '',
+        proteinTarget: settings.mealPlanPreferences?.proteinTarget?.toString() ?? '',
         carbsTargetG: settings.carbsTargetG?.toString() ?? '',
         fatTargetG: settings.fatTargetG?.toString() ?? '',
         budgetMax: settings.mealPlanPreferences?.budgetMax?.toString() ?? '',
@@ -248,7 +248,7 @@ export function Settings() {
     const prefs = {
       days: values.days ? parseInt(values.days) : undefined,
       kcalTarget: values.kcalTarget ? parseFloat(values.kcalTarget) : undefined,
-      proteinMin: values.proteinMin ? parseFloat(values.proteinMin) : undefined,
+      proteinTarget: values.proteinTarget ? parseFloat(values.proteinTarget) : undefined,
       budgetMax: values.budgetMax ? parseFloat(values.budgetMax) : undefined,
       prepTimeMax: values.prepTimeMax ? parseInt(values.prepTimeMax) : undefined,
       maxRecipeRepetitions: values.maxRecipeRepetitions ? parseInt(values.maxRecipeRepetitions) : undefined,
@@ -269,7 +269,7 @@ export function Settings() {
 
   // ── Implied macro preview ──────────────────────────────────────────────────
   const watchedKcal = useWatch({ control, name: 'kcalTarget' })
-  const watchedProtein = useWatch({ control, name: 'proteinMin' })
+  const watchedProtein = useWatch({ control, name: 'proteinTarget' })
   const watchedCarbs = useWatch({ control, name: 'carbsTargetG' })
   const watchedFat = useWatch({ control, name: 'fatTargetG' })
 
@@ -374,12 +374,12 @@ export function Settings() {
               </button>
             </TooltipTrigger>
             <TooltipContent>
-              {settings.foundingMemberSince
+              {settings.foundingMemberPurchasedAt
                 ? new Intl.DateTimeFormat('hu-HU', {
                     year: 'numeric',
                     month: '2-digit',
                     day: '2-digit',
-                  }).format(new Date(settings.foundingMemberSince)) + '.'
+                  }).format(new Date(settings.foundingMemberPurchasedAt)) + '.'
                 : t('settings.foundingMemberBadge.title')}
             </TooltipContent>
           </Tooltip>
@@ -387,7 +387,7 @@ export function Settings() {
       )}
 
       {/* Suggested targets card — only shown when backend has computed values */}
-      {(settings?.suggestedKcalTarget != null || settings?.suggestedProteinMin != null) && (
+      {(settings?.suggestedKcalTarget != null || settings?.suggestedProteinTarget != null) && (
         <div className="max-w-lg mb-6 rounded-xl border border-[#4F7942]/30 bg-[#F3F8F2] px-4 py-4 space-y-2">
           <p className="text-xs font-semibold text-[#4F7942] uppercase tracking-wider">
             {t('settings.suggestion.title')}
@@ -397,9 +397,9 @@ export function Settings() {
               {t('settings.suggestion.kcal', { n: Math.round(settings.suggestedKcalTarget) })}
             </p>
           )}
-          {settings.suggestedProteinMin != null && (
+          {settings.suggestedProteinTarget != null && (
             <p className="text-sm text-[#1A1A1A]">
-              {t('settings.suggestion.protein', { n: Math.round(settings.suggestedProteinMin) })}
+              {t('settings.suggestion.protein', { n: Math.round(settings.suggestedProteinTarget) })}
             </p>
           )}
           <p className="text-[10px] text-gray-500">{t('settings.suggestion.hint')}</p>
@@ -409,8 +409,8 @@ export function Settings() {
               if (settings.suggestedKcalTarget != null) {
                 setValue('kcalTarget', String(Math.round(settings.suggestedKcalTarget)))
               }
-              if (settings.suggestedProteinMin != null) {
-                setValue('proteinMin', String(Math.round(settings.suggestedProteinMin)))
+              if (settings.suggestedProteinTarget != null) {
+                setValue('proteinTarget', String(Math.round(settings.suggestedProteinTarget)))
               }
             }}
             className="mt-1 rounded-lg bg-[#4F7942] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#4F7942]/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]/50"
@@ -455,8 +455,8 @@ export function Settings() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>{t('mealPlan.form.proteinMin')}</Label>
-                <Input type="number" min={0} {...register('proteinMin')} className="mt-1" placeholder="150" />
+                <Label>{t('mealPlan.form.proteinTarget')}</Label>
+                <Input type="number" min={0} {...register('proteinTarget')} className="mt-1" placeholder="150" />
               </div>
               <div>
                 <Label>{t('settings.macroTargets.carbsTargetG')}</Label>

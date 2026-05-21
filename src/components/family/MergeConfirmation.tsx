@@ -143,7 +143,7 @@ export function MergeConfirmation({ preview, onConfirmClaim, onJoinWithoutClaim,
         <dl className="grid grid-cols-2 gap-2 text-sm">
           {[
             { label: t('family.merge.kcal'), source: preview.macros.kcalTargetSource },
-            { label: t('family.merge.protein'), source: preview.macros.proteinMinSource },
+            { label: t('family.merge.protein'), source: preview.macros.proteinTargetSource },
             { label: t('family.merge.carbs'), source: preview.macros.carbsTargetSource },
             { label: t('family.merge.fat'), source: preview.macros.fatTargetSource },
           ].map(({ label, source }) => (

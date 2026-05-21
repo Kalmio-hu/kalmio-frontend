@@ -274,7 +274,7 @@
       "mealCalories": "Kalória-elosztás étkezésenként",
       "mealCaloriesHint": "Húzd fel/le a gombokat — az értékek mindig a napi kalóriacélt adják ki",
       "kcalTarget": "Kalória cél (kcal) *",
-      "proteinMin": "Min fehérje (g)",
+      "proteinTarget": "Fehérjecél (g)",
       "budgetMax": "Max. napi büdzsé (Ft)",
       "prepTimeMax": "Max. elkészítési idő (perc)",
       "maxRepeats": "Hány napon jelenhet meg ugyanaz a recept",
@@ -628,7 +628,7 @@
       "kcalTarget": "Napi kalória cél",
       "meals": "Étkezések",
       "mealCalories": "Kalória elosztás",
-      "proteinMin": "Minimum fehérje",
+      "proteinTarget": "Fehérjecél",
       "save": "Mentés"
     }
   },
@@ -1441,7 +1441,33 @@
     }
   },
   "foundingMember": {
-    "comingSoon": "Hamarosan elérhető."
+    "comingSoon": "Hamarosan elérhető.",
+    "buy": {
+      "label": "Alapító tagság",
+      "headline": "Élethosszigtartó hozzáférés.",
+      "sub": "Egyszer fizetsz, örökre a tiéd minden prémium funkció — a mostani és a jövőbeniek is.",
+      "priceLine": "{{price, number}} Ft — egyszeri díj.",
+      "remainingLine": "Még {{remaining}} hely az első 1000-ből.",
+      "cta": "Vásárlás",
+      "ctaLoading": "Átirányítás a fizetéshez…",
+      "ctaSoldOut": "Elkelt",
+      "soldOutTitle": "Minden alapítói hely elkelt.",
+      "soldOutSub": "Köszönjük az érdeklődést. A prémium hamarosan szélesebb körben is elérhető lesz.",
+      "alreadyMember": "Már alapító tag vagy. Köszönjük, hogy elsőként hittél bennünk.",
+      "errors": {
+        "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium hamarosan más formában is elérhető lesz.",
+        "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
+      },
+      "loading": "Pillanat, ellenőrizzük a maradék helyeket…"
+    },
+    "success": {
+      "title": "Köszönjük.",
+      "waiting": "Megérkezett a fizetésed visszaigazolása. Pár másodpercen belül aktiváljuk a hozzáférésed.",
+      "granted": "Alapító tag vagy. Minden prémium funkció a tiéd, most és a jövőben.",
+      "slow": "A bankod kicsit lassabban válaszol. Maradj itt — amint visszaigazolja a tranzakciót, frissítjük.",
+      "refresh": "Frissítés",
+      "backToApp": "Vissza az alkalmazásba"
+    }
   },
   "blog": {
     "nav": "Blog",
@@ -1729,15 +1755,13 @@
       "invalidCode": "Ez a kód nem érvényes vagy már lejárt.",
       "acceptSuccess": "Csatlakoztál a csoporthoz.",
       "sentInvitesSection": "Kiküldött meghívók",
-      "sentInvitesEmpty": "Nincs aktív meghívó.",
       "sentInviteCode": "Kód: {{code}}",
       "sentInviteExpiry": "Lejár: {{date}}",
       "sentInviteBoundTo": "Kötve: {{name}}",
       "revokeInviteCta": "Visszavonás",
       "revokeInviteConfirm": "Biztosan visszavonod ezt a meghívót?",
       "revokeInviteSuccess": "A meghívó visszavonva.",
-      "revokeInviteError": "A meghívót nem sikerült visszavonni.",
-      "sentInvitesUnavailable": "A kiküldött meghívók listája jelenleg nem elérhető."
+      "revokeInviteError": "A meghívót nem sikerült visszavonni."
     },
     "merge": {
       "dialogTitle": "Profil összekapcsolása",
@@ -1781,7 +1805,7 @@
       "dietaryFlags": "Étrendi megszorítások",
       "macroTargets": "Makrócélok",
       "kcalTarget": "Kalóriacél (kcal)",
-      "proteinMin": "Fehérje minimum (g)",
+      "proteinTarget": "Fehérjecél (g)",
       "carbsTarget": "Szénhidrát cél (g)",
       "fatTarget": "Zsír cél (g)",
       "prepTolerance": "Konyhai tolerancia (perc)",

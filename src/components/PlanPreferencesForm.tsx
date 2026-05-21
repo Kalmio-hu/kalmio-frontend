@@ -171,9 +171,9 @@ export function PlanPreferencesForm({ onSuccess, isRegeneration = false }: PlanP
           kcalTarget: user.suggestedKcalTarget != null
             ? Math.round(user.suggestedKcalTarget)
             : user.mealPlanPreferences?.kcalTarget,
-          proteinMin: user.suggestedProteinMin != null
-            ? Math.round(user.suggestedProteinMin)
-            : user.mealPlanPreferences?.proteinMin,
+          proteinTarget: user.suggestedProteinTarget != null
+            ? Math.round(user.suggestedProteinTarget)
+            : user.mealPlanPreferences?.proteinTarget,
         },
       })
       queryClient.setQueryData(['user-settings'], updated)
@@ -241,7 +241,7 @@ export function PlanPreferencesForm({ onSuccess, isRegeneration = false }: PlanP
     const kcal = prefs?.kcalTarget ?? 2000
     const selectedMeals = (prefs?.selectedMealTypes ?? ['BREAKFAST', 'LUNCH', 'DINNER']) as MealType[]
     const mealCalorieTargets = prefs?.mealCalorieTargets ?? null
-    const proteinMin = prefs?.proteinMin ?? null
+    const proteinTarget = prefs?.proteinTarget ?? null
 
     mutation.mutate({
       startDate: new Date().toISOString().split('T')[0],
@@ -251,7 +251,7 @@ export function PlanPreferencesForm({ onSuccess, isRegeneration = false }: PlanP
         selectedMeals,
         constraints: {
           kcalTarget: kcal,
-          proteinMin,
+          proteinTarget,
           budgetMax: budgetMax.trim() ? Number(budgetMax) : null,
           prepTimeMax: prepTimeMax.trim() ? Number(prepTimeMax) : null,
           maxRecipeRepetitions: maxRepetitions,
@@ -276,10 +276,10 @@ export function PlanPreferencesForm({ onSuccess, isRegeneration = false }: PlanP
   return (
     <form onSubmit={handleSubmit} className="space-y-8 max-w-lg mx-auto">
       {/* TDEE suggestion — shown when backend has computed targets from body data */}
-      {(user?.suggestedKcalTarget != null || user?.suggestedProteinMin != null) && (
+      {(user?.suggestedKcalTarget != null || user?.suggestedProteinTarget != null) && (
         <TdeeSuggestionBanner
           suggestedKcal={user.suggestedKcalTarget}
-          suggestedProtein={user.suggestedProteinMin}
+          suggestedProtein={user.suggestedProteinTarget}
           onApply={applyTdeeSuggestion}
           applying={tdeeApplying}
         />

@@ -303,7 +303,7 @@ export interface GenerateMealPlanRequest {
   selectedMeals: MealType[]
   constraints: {
     kcalTarget: number
-    proteinMin?: number | null
+    proteinTarget?: number | null
     budgetMax?: number | null
     prepTimeMax?: number | null
     forbiddenIngredientIds?: string[]
@@ -917,6 +917,27 @@ export interface FoundingMemberAvailability {
   currency: string
 }
 
+/**
+ * Request body for POST /api/founding-member/checkout.
+ *
+ * @property redirectUrl Public URL Barion redirects the buyer to after payment.
+ *                       Must point at the FE success page.
+ */
+export interface FoundingMemberCheckoutRequest {
+  redirectUrl: string
+}
+
+/**
+ * Response from POST /api/founding-member/checkout.
+ *
+ * @property paymentId  Barion payment identifier (UUID) — kept for webhook correlation.
+ * @property gatewayUrl Barion-hosted payment-page URL the FE must redirect the buyer to.
+ */
+export interface FoundingMemberCheckoutResponse {
+  paymentId: string
+  gatewayUrl: string
+}
+
 // ── Premium Grants (KALMIO-169 / KALMIO-173) ─────────────────────────────────
 
 /**
@@ -1035,7 +1056,7 @@ export interface UserPreferencesDto {
   lowFodmap: boolean
   paleo: boolean
   kcalTarget: number | null
-  proteinMinG: number | null
+  proteinTargetG: number | null
   carbsTargetG: number | null
   fatTargetG: number | null
   portionSizeMultiplier: number | null
@@ -1064,7 +1085,7 @@ export interface AcceptInviteRequest {
 
 export interface MacroMergeResultDto {
   kcalTargetSource: string
-  proteinMinSource: string
+  proteinTargetSource: string
   carbsTargetSource: string
   fatTargetSource: string
 }

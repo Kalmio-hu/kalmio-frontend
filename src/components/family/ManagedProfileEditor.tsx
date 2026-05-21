@@ -29,7 +29,7 @@ export interface ManagedProfileFormValues {
   lowFodmap: boolean
   paleo: boolean
   kcalTarget: string
-  proteinMinG: string
+  proteinTargetG: string
   carbsTargetG: string
   fatTargetG: string
   portionSizeMultiplier: string
@@ -63,7 +63,7 @@ function prefsToForm(
     lowFodmap: prefs.lowFodmap ?? false,
     paleo: prefs.paleo ?? false,
     kcalTarget: prefs.kcalTarget != null ? String(prefs.kcalTarget) : '',
-    proteinMinG: prefs.proteinMinG != null ? String(prefs.proteinMinG) : '',
+    proteinTargetG: prefs.proteinTargetG != null ? String(prefs.proteinTargetG) : '',
     carbsTargetG: prefs.carbsTargetG != null ? String(prefs.carbsTargetG) : '',
     fatTargetG: prefs.fatTargetG != null ? String(prefs.fatTargetG) : '',
     portionSizeMultiplier:
@@ -101,7 +101,7 @@ function formToPrefs(values: ManagedProfileFormValues): UserPreferencesDto {
     lowFodmap: values.lowFodmap,
     paleo: values.paleo,
     kcalTarget: values.kcalTarget ? parseFloat(values.kcalTarget) : null,
-    proteinMinG: values.proteinMinG ? parseFloat(values.proteinMinG) : null,
+    proteinTargetG: values.proteinTargetG ? parseFloat(values.proteinTargetG) : null,
     carbsTargetG: values.carbsTargetG ? parseInt(values.carbsTargetG, 10) : null,
     fatTargetG: values.fatTargetG ? parseInt(values.fatTargetG, 10) : null,
     portionSizeMultiplier: values.portionSizeMultiplier
@@ -220,13 +220,13 @@ export function ManagedProfileEditor({
           </div>
           <div className="space-y-1">
             <Label htmlFor="mp-protein" className="text-xs text-[#6b6b6b]">
-              {t('family.prefs.proteinMin')}
+              {t('family.prefs.proteinTarget')}
             </Label>
             <Input
               id="mp-protein"
               type="number"
               min={0}
-              {...register('proteinMinG')}
+              {...register('proteinTargetG')}
               placeholder="80"
             />
           </div>
