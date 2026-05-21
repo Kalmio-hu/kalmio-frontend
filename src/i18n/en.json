@@ -1846,7 +1846,7 @@
       }
     },
     "bodyDataHint": {
-      "title": "Refine your targets",
+      "title": "Personalised targets",
       "body": "Add your weight, height and activity level and Kalmio will suggest a personalised calorie and protein target.",
       "cta": "Add body data"
     }
