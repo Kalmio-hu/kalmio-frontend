@@ -293,6 +293,14 @@ export function PlanDetail() {
                     <MenuButton
                       onClick={() => {
                         setMenuOpen(false)
+                        setFillConfirmOpen(true)
+                      }}
+                    >
+                      {t('plan.detail.actions.fill')}
+                    </MenuButton>
+                    <MenuButton
+                      onClick={() => {
+                        setMenuOpen(false)
                         copyMutation.mutate()
                       }}
                       disabled={copyMutation.isPending}
