@@ -622,14 +622,14 @@
       "clearSuccess": "Body data cleared.",
       "clearError": "Failed to clear body data.",
       "tdee": "Total Daily Energy Expenditure (TDEE)",
-      "tdeeIncomplete": "Add your body data to calculate TDEE."
+      "tdeeIncomplete": "Body data required to calculate TDEE."
     },
     "goal": {
       "title": "My goal",
       "subtitle": "Your macro targets are derived from this goal.",
       "noGoalHint": "Choose a goal to see your macro targets.",
       "maintain": "Maintain weight",
-      "maintainDesc": "0 %BW/week — hold your current weight",
+      "maintainDesc": "0 %BW/week — maintain current weight",
       "mildLoss": "Mild loss",
       "mildLossDesc": "−0.5 %BW/week — steady, sustainable fat loss",
       "aggressiveLoss": "Aggressive loss",
@@ -660,7 +660,6 @@
       "proteinOverride": "Protein target override (g)",
       "carbsOverride": "Carb target override (g)",
       "fatOverride": "Fat target override (g)",
-      "carbFatSplit": "Carb / Fat split",
       "save": "Save",
       "saving": "Saving…",
       "saveSuccess": "Advanced settings saved.",
@@ -678,8 +677,8 @@
   },
   "goal": {
     "feedback": {
-      "bmiBelow18Loss": "Your weight is already below the healthy range. Please consult a professional before aiming to lose more.",
-      "lowBmiAggressiveLoss": "At this body weight, mild loss is more sustainable and safer. Have you considered the Mild loss option?",
+      "bmiBelow18Loss": "Your weight is already below the healthy range. Consult a professional before aiming to lose more.",
+      "lowBmiAggressiveLoss": "At this body weight, mild loss is more sustainable and safer. Consider the mild loss option instead.",
       "highBmiDirtyBulk": "Aggressive bulking is unlikely to serve you well right now. Recomposition may be a better starting point.",
       "midHighBmiDirtyBulk": "At your current weight, a clean bulk may be a better choice than the dirty bulk option.",
       "seniorAggressiveLoss": "Over 65, aggressive calorie restriction can lead to muscle loss. Mild loss is a gentler approach."

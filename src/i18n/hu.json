@@ -622,14 +622,14 @@
       "clearSuccess": "Testadatok törölve.",
       "clearError": "Nem sikerült törölni a testadatokat.",
       "tdee": "Napi energiaszükséglet (TDEE)",
-      "tdeeIncomplete": "Add meg a testadataidat a TDEE kiszámításához."
+      "tdeeIncomplete": "A TDEE-hez testadatok szükségesek."
     },
     "goal": {
       "title": "Célom",
       "subtitle": "A céltól számítjuk a javasolt makrócéljaidat.",
       "noGoalHint": "Válassz célt a makrócélok megjelenítéséhez.",
       "maintain": "Súlytartás",
-      "maintainDesc": "0 %BW/hét — tartd a jelenlegi súlyodat",
+      "maintainDesc": "0 %BW/hét — jelenlegi súly megtartása",
       "mildLoss": "Enyhe fogyás",
       "mildLossDesc": "−0,5 %BW/hét — lassú, tartós fogyás",
       "aggressiveLoss": "Erőteljes fogyás",
@@ -660,7 +660,6 @@
       "proteinOverride": "Fehérjecél felülírása (g)",
       "carbsOverride": "Szénhidrátcél felülírása (g)",
       "fatOverride": "Zsírcél felülírása (g)",
-      "carbFatSplit": "Szénhidrát / Zsír arány",
       "save": "Mentés",
       "saving": "Mentés…",
       "saveSuccess": "Speciális beállítások elmentve.",
@@ -678,8 +677,8 @@
   },
   "goal": {
     "feedback": {
-      "bmiBelow18Loss": "A súlyod már most az egészséges tartomány alatt van. Kérlek, kérj szakemberi véleményt, mielőtt fogyni kezdesz.",
-      "lowBmiAggressiveLoss": "Ezzel a testtömeggel az enyhe fogyás tartósabb és biztonságosabb. Megfontoltad a Mild loss opciót?",
+      "bmiBelow18Loss": "A súlyod már most az egészséges tartomány alatt van. Kérj szakemberi véleményt, mielőtt fogyni kezdesz.",
+      "lowBmiAggressiveLoss": "Ezzel a testtömeggel az enyhe fogyás tartósabb és biztonságosabb. Fontold meg az enyhe fogyás lehetőségét.",
       "highBmiDirtyBulk": "Az agresszív tömegnövelés mostanában valószínűleg nem a legmegfelelőbb választás. A Testösszetétel-javítás jobb kiindulópont lehet.",
       "midHighBmiDirtyBulk": "Ennél a súlynál a Tiszta tömegnövelés jobb választás lehet az agresszív változat helyett.",
       "seniorAggressiveLoss": "65 év felett az erőteljes fogyás izomvesztéssel járhat. Az enyhe fogyás kíméletesebb megközelítés."
