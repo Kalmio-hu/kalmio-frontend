@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { Fingerprint, Trash2, LogOut, ChevronRight, Key, Copy, Check, Star } from 'lucide-react'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { Link } from 'react-router-dom'
@@ -15,7 +15,6 @@ import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast'
 import { UserAvatar } from '@/components/ui/UserAvatar'
-import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
 import { usersService, type UpdateSettingsRequest } from '@/services/users'
 import { DiofaNameField } from '@/components/settings/DiofaNameField'
 import { listPasskeys, registerPasskey, deletePasskey, type PasskeyInfo } from '@/services/passkey'
@@ -26,16 +25,6 @@ import { capture } from '@/lib/analytics'
 
 interface FormValues {
   languagePreference: string
-  days: string
-  kcalTarget: string
-  proteinTarget: string
-  carbsTargetG: string
-  fatTargetG: string
-  budgetMax: string
-  prepTimeMax: string
-  maxRecipeRepetitions: string
-  prefersFreezing: boolean
-  preferredPrepDayOfWeek: string // '' = no preference, otherwise '1'..'7'
 }
 
 function deviceLabel(): string {
@@ -61,10 +50,6 @@ export function Settings() {
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<PasskeyInfo | null>(null)
   const [customName, setCustomName] = useState('')
-
-  // ── Forbidden ingredients state ────────────────────────────────────────────
-  const [forbiddenIngredientIds, setForbiddenIngredientIds] = useState<string[]>([])
-  const forbiddenPrefilled = useRef(false)
 
   // ── API Keys state ─────────────────────────────────────────────────────────
   const [confirmRevokeAll, setConfirmRevokeAll] = useState(false)
@@ -204,32 +189,13 @@ export function Settings() {
   const isFiatalPlus =
     stageData?.currentStage === 'FIATAL' || stageData?.currentStage === 'TERMO'
 
-  const { register, handleSubmit, reset, setValue, control } = useForm<FormValues>()
+  const { register, handleSubmit, reset } = useForm<FormValues>()
 
   useEffect(() => {
     if (settings) {
       reset({
         languagePreference: settings.languagePreference ?? i18n.resolvedLanguage ?? 'hu',
-        days: settings.mealPlanPreferences?.days?.toString() ?? '',
-        kcalTarget: settings.mealPlanPreferences?.kcalTarget?.toString() ?? '',
-        proteinTarget: settings.mealPlanPreferences?.proteinTarget?.toString() ?? '',
-        carbsTargetG: settings.carbsTargetG?.toString() ?? '',
-        fatTargetG: settings.fatTargetG?.toString() ?? '',
-        budgetMax: settings.mealPlanPreferences?.budgetMax?.toString() ?? '',
-        prepTimeMax: settings.mealPlanPreferences?.prepTimeMax?.toString() ?? '',
-        maxRecipeRepetitions: settings.mealPlanPreferences?.maxRecipeRepetitions?.toString() ?? '',
-        prefersFreezing: settings.prefersFreezing,
-        preferredPrepDayOfWeek: settings.preferredPrepDayOfWeek?.toString() ?? '',
       })
-      // Pre-fill forbidden ingredients once (on first load)
-      if (!forbiddenPrefilled.current) {
-        forbiddenPrefilled.current = true
-        const saved = settings.mealPlanPreferences?.forbiddenIngredientIds
-        if (saved && saved.length > 0) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
-          setForbiddenIngredientIds(saved)
-        }
-      }
     }
   }, [settings, reset, i18n.resolvedLanguage])
 
@@ -245,80 +211,15 @@ export function Settings() {
   })
 
   const onSubmit = (values: FormValues) => {
-    const prefs = {
-      days: values.days ? parseInt(values.days) : undefined,
-      kcalTarget: values.kcalTarget ? parseFloat(values.kcalTarget) : undefined,
-      proteinTarget: values.proteinTarget ? parseFloat(values.proteinTarget) : undefined,
-      budgetMax: values.budgetMax ? parseFloat(values.budgetMax) : undefined,
-      prepTimeMax: values.prepTimeMax ? parseInt(values.prepTimeMax) : undefined,
-      maxRecipeRepetitions: values.maxRecipeRepetitions ? parseInt(values.maxRecipeRepetitions) : undefined,
-      forbiddenIngredientIds: forbiddenIngredientIds.length > 0 ? forbiddenIngredientIds : undefined,
-    }
-    const hasPrefs = Object.values(prefs).some(v => v !== undefined)
     mutation.mutate({
       languagePreference: values.languagePreference || null,
-      mealPlanPreferences: hasPrefs ? prefs : null,
-      prefersFreezing: values.prefersFreezing,
-      preferredPrepDayOfWeek: values.preferredPrepDayOfWeek
-        ? parseInt(values.preferredPrepDayOfWeek, 10)
-        : null,
-      carbsTargetG: values.carbsTargetG ? parseInt(values.carbsTargetG, 10) : null,
-      fatTargetG: values.fatTargetG ? parseInt(values.fatTargetG, 10) : null,
     })
   }
 
-  // ── Implied macro preview ──────────────────────────────────────────────────
-  const watchedKcal = useWatch({ control, name: 'kcalTarget' })
-  const watchedProtein = useWatch({ control, name: 'proteinTarget' })
-  const watchedCarbs = useWatch({ control, name: 'carbsTargetG' })
-  const watchedFat = useWatch({ control, name: 'fatTargetG' })
-
-  const kcalNum = watchedKcal ? parseFloat(watchedKcal) : null
-  const proteinNum = watchedProtein ? parseFloat(watchedProtein) : null
-  const carbsNum = watchedCarbs ? parseFloat(watchedCarbs) : null
-  const fatNum = watchedFat ? parseFloat(watchedFat) : null
-
-  // Compute implied macros: if kcal + 2 of 3 macros are set, infer the third
-  // protein: 4 kcal/g, carbs: 4 kcal/g, fat: 9 kcal/g
-  let impliedProteinG: number | null = null
-  let impliedProteinPct: number | null = null
-  let impliedCarbsG: number | null = null
-  let impliedCarbsPct: number | null = null
-  let impliedFatG: number | null = null
-  let impliedFatPct: number | null = null
-
-  if (kcalNum != null && kcalNum > 0) {
-    const proteinKcal = proteinNum != null ? proteinNum * 4 : null
-    const carbsKcal = carbsNum != null ? carbsNum * 4 : null
-    const fatKcal = fatNum != null ? fatNum * 9 : null
-
-    const setCount = [proteinKcal, carbsKcal, fatKcal].filter(v => v != null).length
-
-    if (setCount === 2) {
-      // Infer the missing one
-      if (proteinKcal == null && carbsKcal != null && fatKcal != null) {
-        const remaining = kcalNum - carbsKcal - fatKcal
-        if (remaining >= 0) {
-          impliedProteinG = Math.round(remaining / 4)
-          impliedProteinPct = Math.round((remaining / kcalNum) * 100)
-        }
-      } else if (carbsKcal == null && proteinKcal != null && fatKcal != null) {
-        const remaining = kcalNum - proteinKcal - fatKcal
-        if (remaining >= 0) {
-          impliedCarbsG = Math.round(remaining / 4)
-          impliedCarbsPct = Math.round((remaining / kcalNum) * 100)
-        }
-      } else if (fatKcal == null && proteinKcal != null && carbsKcal != null) {
-        const remaining = kcalNum - proteinKcal - carbsKcal
-        if (remaining >= 0) {
-          impliedFatG = Math.round(remaining / 9)
-          impliedFatPct = Math.round((remaining / kcalNum) * 100)
-        }
-      }
-    }
-  }
-
-  const hasImplied = impliedProteinG != null || impliedCarbsG != null || impliedFatG != null
+  // ── Member since display ───────────────────────────────────────────────────
+  const memberSince = settings?.createdAt
+    ? formatLocalDate(settings.createdAt, i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })
+    : null
 
   if (isLoading) {
     return <div className="flex justify-center py-12"><Spinner /></div>
@@ -353,75 +254,8 @@ export function Settings() {
         <ChevronRight className="h-4 w-4 text-gray-300 shrink-0" />
       </Link>
 
-      {/* Founding Member badge — shown only when the flag is set */}
-      {settings?.foundingMember && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-2 max-w-lg mb-6 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400"
-              >
-                <Star
-                  size={16}
-                  className="text-amber-500 shrink-0"
-                  aria-hidden="true"
-                  fill="currentColor"
-                />
-                <span className="text-sm font-medium text-amber-800">
-                  {t('settings.foundingMemberBadge.label')}
-                </span>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {settings.foundingMemberPurchasedAt
-                ? new Intl.DateTimeFormat('hu-HU', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                  }).format(new Date(settings.foundingMemberPurchasedAt)) + '.'
-                : t('settings.foundingMemberBadge.title')}
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-
-      {/* Suggested targets card — only shown when backend has computed values */}
-      {(settings?.suggestedKcalTarget != null || settings?.suggestedProteinTarget != null) && (
-        <div className="max-w-lg mb-6 rounded-xl border border-[#4F7942]/30 bg-[#F3F8F2] px-4 py-4 space-y-2">
-          <p className="text-xs font-semibold text-[#4F7942] uppercase tracking-wider">
-            {t('settings.suggestion.title')}
-          </p>
-          {settings.suggestedKcalTarget != null && (
-            <p className="text-sm text-[#1A1A1A]">
-              {t('settings.suggestion.kcal', { n: Math.round(settings.suggestedKcalTarget) })}
-            </p>
-          )}
-          {settings.suggestedProteinTarget != null && (
-            <p className="text-sm text-[#1A1A1A]">
-              {t('settings.suggestion.protein', { n: Math.round(settings.suggestedProteinTarget) })}
-            </p>
-          )}
-          <p className="text-[10px] text-gray-500">{t('settings.suggestion.hint')}</p>
-          <button
-            type="button"
-            onClick={() => {
-              if (settings.suggestedKcalTarget != null) {
-                setValue('kcalTarget', String(Math.round(settings.suggestedKcalTarget)))
-              }
-              if (settings.suggestedProteinTarget != null) {
-                setValue('proteinTarget', String(Math.round(settings.suggestedProteinTarget)))
-              }
-            }}
-            className="mt-1 rounded-lg bg-[#4F7942] px-4 py-1.5 text-xs font-medium text-white hover:bg-[#4F7942]/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]/50"
-          >
-            {t('settings.suggestion.accept')}
-          </button>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-lg">
-        {/* Language */}
+        {/* Card 1 — Language */}
         <Card>
           <CardContent className="pt-5 space-y-4">
             <h2 className="font-semibold text-sm text-[#1A1A1A]">{t('settings.language')}</h2>
@@ -435,142 +269,20 @@ export function Settings() {
           </CardContent>
         </Card>
 
-        {/* Meal plan defaults */}
-        <Card>
-          <CardContent className="pt-5 space-y-4">
-            <h2 className="font-semibold text-sm text-[#1A1A1A]">{t('settings.mealPlanDefaults')}</h2>
-            <p className="text-xs text-gray-400">{t('settings.mealPlanDefaultsHint')}</p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{t('mealPlan.form.days')}</Label>
-                <Input type="number" min={1} max={14} {...register('days')} className="mt-1" placeholder="7" />
-              </div>
-            </div>
-
-            <div>
-              <Label>{t('mealPlan.form.kcalTarget')}</Label>
-              <Input type="number" min={0} {...register('kcalTarget')} className="mt-1" placeholder="2000" />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{t('mealPlan.form.proteinTarget')}</Label>
-                <Input type="number" min={0} {...register('proteinTarget')} className="mt-1" placeholder="150" />
-              </div>
-              <div>
-                <Label>{t('settings.macroTargets.carbsTargetG')}</Label>
-                <Input type="number" min={0} max={2000} {...register('carbsTargetG')} className="mt-1" placeholder="250" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{t('settings.macroTargets.fatTargetG')}</Label>
-                <Input type="number" min={0} max={1000} {...register('fatTargetG')} className="mt-1" placeholder="70" />
-              </div>
-              <div>
-                <Label>{t('mealPlan.form.budgetMax')}</Label>
-                <Input type="number" min={0} {...register('budgetMax')} className="mt-1" />
-              </div>
-            </div>
-
-            {/* Implied macro preview — shown when kcal + exactly 2 of 3 macros are filled */}
-            {hasImplied && (
-              <div className="rounded-lg border border-[#4F7942]/20 bg-[#F3F8F2] px-3 py-2.5 space-y-0.5">
-                <p className="text-[10px] font-semibold text-[#4F7942] uppercase tracking-wide mb-1">
-                  {t('settings.macroTargets.impliedTitle')}
-                </p>
-                {impliedProteinG != null && (
-                  <p className="text-xs text-[#1A1A1A]">
-                    {t('settings.macroTargets.impliedProtein', { g: impliedProteinG, pct: impliedProteinPct })}
-                  </p>
-                )}
-                {impliedCarbsG != null && (
-                  <p className="text-xs text-[#1A1A1A]">
-                    {t('settings.macroTargets.impliedCarbs', { g: impliedCarbsG, pct: impliedCarbsPct })}
-                  </p>
-                )}
-                {impliedFatG != null && (
-                  <p className="text-xs text-[#1A1A1A]">
-                    {t('settings.macroTargets.impliedFat', { g: impliedFatG, pct: impliedFatPct })}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>{t('mealPlan.form.prepTimeMax')}</Label>
-                <Input type="number" min={0} {...register('prepTimeMax')} className="mt-1" />
-              </div>
-              <div>
-                <Label>{t('mealPlan.form.maxRepeats')}</Label>
-                <Input type="number" min={1} {...register('maxRecipeRepetitions')} className="mt-1" />
-              </div>
-            </div>
-
-            {/* Forbidden ingredients */}
-            <div>
-              <Label>{t('plan.forbiddenIngredients.label')}</Label>
-              <div className="mt-2">
-                <ForbiddenIngredientsPicker
-                  value={forbiddenIngredientIds}
-                  onChange={setForbiddenIngredientIds}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Prep preferences */}
-        <Card>
-          <CardContent className="pt-5 space-y-4">
-            <h2 className="font-semibold text-sm text-[#1A1A1A]">{t('settings.prepPrefs.title')}</h2>
-            <p className="text-xs text-gray-400">{t('settings.prepPrefs.subtitle')}</p>
-
-            <label className="flex items-center gap-2 text-sm font-medium text-[#1A1A1A] cursor-pointer">
-              <input
-                type="checkbox"
-                {...register('prefersFreezing')}
-                className="h-4 w-4 rounded border-gray-300 accent-[#4F7942]"
-              />
-              {t('settings.prepPrefs.prefersFreezing')}
-            </label>
-            <p className="text-[10px] text-gray-400 -mt-2 ml-6">{t('settings.prepPrefs.prefersFreezingHint')}</p>
-
-            <div>
-              <Label>{t('settings.prepPrefs.preferredPrepDayOfWeek')}</Label>
-              <Select {...register('preferredPrepDayOfWeek')} className="mt-1">
-                <option value="">{t('settings.prepPrefs.noPreference')}</option>
-                <option value="1">{t('common.weekdays.monday')}</option>
-                <option value="2">{t('common.weekdays.tuesday')}</option>
-                <option value="3">{t('common.weekdays.wednesday')}</option>
-                <option value="4">{t('common.weekdays.thursday')}</option>
-                <option value="5">{t('common.weekdays.friday')}</option>
-                <option value="6">{t('common.weekdays.saturday')}</option>
-                <option value="7">{t('common.weekdays.sunday')}</option>
-              </Select>
-              <p className="text-[10px] text-gray-400 mt-1">{t('settings.prepPrefs.preferredPrepDayOfWeekHint')}</p>
-            </div>
-          </CardContent>
-        </Card>
-
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? t('common.save') + '…' : t('common.save')}
         </Button>
       </form>
 
-      {/* ── Diófa tree naming — FIATAL+ only ── */}
-      {isFiatalPlus && (
-        <div className="max-w-lg mt-6">
-          <h2 className="font-semibold text-sm text-[#1A1A1A] mb-3">{t('settings.diofaName.sectionTitle')}</h2>
-          <DiofaNameField currentName={settings?.diofaName ?? null} />
-        </div>
+      {mutation.isError && (
+        <p className="text-sm text-red-500 mt-2">{t('settings.saveError')}</p>
+      )}
+      {mutation.isSuccess && (
+        <p className="text-sm text-green-600 mt-2">{t('settings.saveSuccess')}</p>
       )}
 
-      {/* ── Security ── */}
-      <div className="space-y-4 max-w-lg mt-2">
+      {/* Card 2 — Security */}
+      <div className="space-y-4 max-w-lg mt-6">
         <Card>
           <CardContent className="pt-5 space-y-4">
             <div>
@@ -634,17 +346,9 @@ export function Settings() {
             {passkeyError && <p className="text-xs text-red-500">{passkeyError}</p>}
           </CardContent>
         </Card>
-
       </div>
 
-      {mutation.isError && (
-        <p className="text-sm text-red-500 mt-2">{t('settings.saveError')}</p>
-      )}
-      {mutation.isSuccess && (
-        <p className="text-sm text-green-600 mt-2">{t('settings.saveSuccess')}</p>
-      )}
-
-      {/* ── API & Connections ── */}
+      {/* Card 3 — API & Connections */}
       <div className="space-y-4 max-w-lg mt-6">
         <Card>
           <CardContent className="pt-5 space-y-4">
@@ -830,6 +534,68 @@ export function Settings() {
         </Card>
       </div>
 
+      {/* Card 4 — Status */}
+      <div className="max-w-lg mt-6">
+        <Card>
+          <CardContent className="pt-5 space-y-4">
+            <h2 className="font-semibold text-sm text-[#1A1A1A]">{t('settings.status.title')}</h2>
+
+            {/* Founding Member badge */}
+            {settings?.foundingMember ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3"
+                      role="status"
+                      aria-label={t('settings.foundingMemberBadge.title')}
+                    >
+                      <Star
+                        size={16}
+                        className="text-amber-500 shrink-0"
+                        aria-hidden="true"
+                        fill="currentColor"
+                      />
+                      <span className="text-sm font-medium text-amber-800">
+                        {t('settings.foundingMemberBadge.label')}
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {settings.foundingMemberPurchasedAt
+                      ? new Intl.DateTimeFormat(i18n.language === 'hu' ? 'hu-HU' : 'en-GB', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                        }).format(new Date(settings.foundingMemberPurchasedAt)) + '.'
+                      : t('settings.foundingMemberBadge.title')}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <p className="text-sm text-gray-500">{t('settings.status.freeTier')}</p>
+            )}
+
+            {/* Member since */}
+            {memberSince && (
+              <div className="flex items-baseline gap-2">
+                <span className="text-xs text-gray-400">{t('settings.status.memberSince')}</span>
+                <span className="text-xs font-medium text-[#1A1A1A]">{memberSince}</span>
+              </div>
+            )}
+
+            {/* Diófa name — FIATAL+ only */}
+            {isFiatalPlus && (
+              <div className="pt-1">
+                <p className="text-xs font-semibold text-[#1A1A1A] mb-2">{t('settings.diofaName.sectionTitle')}</p>
+                <DiofaNameField currentName={settings?.diofaName ?? null} />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Sign-out — mobile only */}
       <div className="max-w-lg mt-6 md:hidden">
         <Button
           type="button"

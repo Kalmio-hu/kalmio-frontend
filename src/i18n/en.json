@@ -735,37 +735,17 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage your preferences",
+    "subtitle": "Manage your account",
     "language": "Language",
     "languageLabel": "Interface language",
-    "mealPlanDefaults": "Meal plan defaults",
-    "mealPlanDefaultsHint": "These values will pre-fill the meal plan generator form.",
-    "macroTargets": {
-      "carbsTargetG": "Carb target (g)",
-      "fatTargetG": "Fat target (g)",
-      "impliedTitle": "Calculated from kcal",
-      "impliedProtein": "Protein (calculated): {{g}} g ({{pct}}% kcal)",
-      "impliedCarbs": "Carbs (calculated): {{g}} g ({{pct}}% kcal)",
-      "impliedFat": "Fat (calculated): {{g}} g ({{pct}}% kcal)"
-    },
-    "prepPrefs": {
-      "title": "Prep preferences",
-      "subtitle": "Tells the planner how you like to handle meal prep.",
-      "prefersFreezing": "I'm comfortable freezing prepped food",
-      "prefersFreezingHint": "When on, repeated meals beyond fridge shelf life will be batched into one cook with some portions frozen.",
-      "preferredPrepDayOfWeek": "Preferred prep day",
-      "preferredPrepDayOfWeekHint": "The planner will land batches on this day whenever the recipe's hold window allows.",
-      "noPreference": "No preference"
-    },
-    "suggestion": {
-      "title": "Suggested targets",
-      "kcal": "Suggested calorie target: {{n}} kcal (based on TDEE)",
-      "protein": "Suggested protein: {{n}}g (1.8 g / kg body weight)",
-      "accept": "Apply",
-      "hint": "Calculated from the body data you entered in your profile."
-    },
     "saveError": "Failed to save settings.",
     "saveSuccess": "Settings saved.",
+    "status": {
+      "title": "Account status",
+      "memberSince": "Member since",
+      "freeTier": "Free access",
+      "foundingMemberLabel": "Founding Member"
+    },
     "foundingMemberBadge": {
       "label": "Founding Member",
       "title": "Lifetime founding membership"

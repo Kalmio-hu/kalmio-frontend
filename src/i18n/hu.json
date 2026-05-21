@@ -735,37 +735,17 @@
   },
   "settings": {
     "title": "Beállítások",
-    "subtitle": "Preferenciák kezelése",
+    "subtitle": "Fiókod kezelése",
     "language": "Nyelv",
     "languageLabel": "Felület nyelve",
-    "mealPlanDefaults": "Étrendtervezés alapértékek",
-    "mealPlanDefaultsHint": "Ezek az értékek előre kitöltik az étrend generáló űrlapot.",
-    "macroTargets": {
-      "carbsTargetG": "Cél szénhidrát (g)",
-      "fatTargetG": "Cél zsír (g)",
-      "impliedTitle": "Kalóriából számítva",
-      "impliedProtein": "Fehérje (számított): {{g}} g ({{pct}}% kcal)",
-      "impliedCarbs": "Szénhidrát (számított): {{g}} g ({{pct}}% kcal)",
-      "impliedFat": "Zsír (számított): {{g}} g ({{pct}}% kcal)"
-    },
-    "prepPrefs": {
-      "title": "Előkészítési preferenciák",
-      "subtitle": "Innen tudjuk, hogyan szervezzük az előkészítést neked.",
-      "prefersFreezing": "Szívesen lefagyasztok előkészített ételt",
-      "prefersFreezingHint": "Ha engedélyezed, a hűtős eltarthatóságon túli ismétléseket egyetlen főzésbe fogjuk össze és néhány adagot fagyasztásra ajánlunk.",
-      "preferredPrepDayOfWeek": "Preferált előkészítési nap",
-      "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
-      "noPreference": "Nincs preferencia"
-    },
-    "suggestion": {
-      "title": "Javasolt célok",
-      "kcal": "Javasolt kalóriacél: {{n}} kcal (TDEE alapján)",
-      "protein": "Javasolt fehérje: {{n}}g (1,8 g / kg testsúly)",
-      "accept": "Elfogadom",
-      "hint": "A javaslatot a profilban megadott testadataid alapján számítottuk."
-    },
     "saveError": "Nem sikerült menteni a beállításokat.",
     "saveSuccess": "Beállítások elmentve.",
+    "status": {
+      "title": "Fiók állapota",
+      "memberSince": "Tag:",
+      "freeTier": "Ingyenes hozzáférés",
+      "foundingMemberLabel": "Alapító tag"
+    },
     "foundingMemberBadge": {
       "label": "Alapító tag",
       "title": "Életre szóló alapítói tagság"
