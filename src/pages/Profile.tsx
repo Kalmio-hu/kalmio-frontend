@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
+import { useSearchParams } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -127,6 +128,7 @@ function HealthFeedbackBanner({ items }: HealthFeedbackBannerProps) {
 export function Profile() {
   const { t, i18n } = useTranslation()
   const qc = useQueryClient()
+  const [searchParams] = useSearchParams()
 
   // ── Data fetches ─────────────────────────────────────────────────────────
   const { data: user, isLoading } = useQuery({
@@ -134,6 +136,18 @@ export function Profile() {
     queryFn: usersService.getMe,
     staleTime: 30_000,
   })
+
+  // ── Scroll to body-data section when arriving from onboarding ────────────
+  const bodyDataRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (searchParams.get('section') === 'body-data' && bodyDataRef.current) {
+      // Small delay lets the layout settle after route transition.
+      const id = window.setTimeout(() => {
+        bodyDataRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300)
+      return () => window.clearTimeout(id)
+    }
+  }, [searchParams])
 
   const { data: targets, isLoading: targetsLoading } = useQuery({
     queryKey: ['me', 'targets'],
@@ -489,8 +503,24 @@ export function Profile() {
         </Card>
 
         {/* ── Card 2: Body data ─────────────────────────────────────────────── */}
+        <div ref={bodyDataRef}>
         <Card>
           <CardContent className="pt-5 space-y-5">
+            {/* Hint card — shown when body data is entirely missing (KALMIO-241) */}
+            {user && user.weightKg == null && user.heightCm == null && (
+              <div
+                className="rounded-xl border border-[#F28C28]/40 bg-[#FEF3E7] px-4 py-3 space-y-1"
+                role="note"
+                aria-label={t('onboarding.bodyDataHint.title')}
+              >
+                <p className="text-sm font-semibold text-[#1A1A1A]">
+                  {t('onboarding.bodyDataHint.title')}
+                </p>
+                <p className="text-xs text-[#6B6460] leading-relaxed">
+                  {t('onboarding.bodyDataHint.body')}
+                </p>
+              </div>
+            )}
             <div>
               <h2 className="font-semibold text-sm text-[#1A1A1A]">{t('profile.bodyData.title')}</h2>
               <p className="text-xs text-gray-500 mt-1">{t('profile.bodyData.subtitle')}</p>
@@ -619,6 +649,7 @@ export function Profile() {
             </div>
           </CardContent>
         </Card>
+        </div>
 
         {/* ── Card 3: Goal ──────────────────────────────────────────────────── */}
         <Card>

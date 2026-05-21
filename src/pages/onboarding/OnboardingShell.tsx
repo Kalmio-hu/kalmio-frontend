@@ -1,50 +1,48 @@
 /**
- * OnboardingShell — KALMIO-167
+ * OnboardingShell — KALMIO-167 / KALMIO-241
  *
  * Multi-step onboarding container.  Owns:
- *   1. A 10-step progress indicator (OnboardingProgressBar, top of screen).
+ *   1. A 5-step progress indicator (OnboardingProgressBar, top of screen).
  *   2. A "Kihagyom most" link visible from step 2 onward (SkipConfirmModal).
  *   3. Resume: reads the last persisted step from localStorage on mount
  *      and lands the returning user there automatically.
- *   4. Step content: renders a step-specific content panel.  Steps that
- *      belong to KALMIO-166 (mini-tutorial components) are stubbed with
- *      <StepPlaceholder /> until that branch merges.
+ *   4. Step content: renders a step-specific content panel.
+ *
+ * KALMIO-241: Steps 2–6 (household size, activity+calories, dietary,
+ * shopping cadence, forbidden ingredients) were removed because they
+ * duplicate the Profile and Preferences pages. The flow is now 5 steps:
+ *   1. Welcome
+ *   2. App orientation (taste-swipe mini-tutorial)
+ *   3. Plan generation loading
+ *   4. First plan reveal
+ *   5. Csemete moment
+ *
+ * Post-completion redirect:
+ *   - Body data incomplete (weightKg or heightCm null) → /app/profile?section=body-data
+ *   - Otherwise → /app/dashboard
  *
  * Route: /app/onboarding  (ProtectedRoute, no AppShell chrome — full-screen)
  *
- * Step → scene mapping (gamification-progression.md §4.1, mirrored in
- * PlantingScene.tsx): shell step is 1-indexed; PlantingScene step is 0-indexed.
- *   Shell step 1  → PlantingScene 0  — Welcome
- *   Shell step 2  → PlantingScene 1  — Household size
- *   Shell step 3  → PlantingScene 2  — Activity + calories
- *   Shell step 4  → PlantingScene 3  — Dietary restrictions
- *   Shell step 5  → PlantingScene 4  — Shopping cadence
- *   Shell step 6  → PlantingScene 5  — Forbidden ingredients
- *   Shell step 7  → PlantingScene 6  — Taste swipe
- *   Shell step 8  → PlantingScene 7  — Plan generation (loading)
- *   Shell step 9  → PlantingScene 8  — First plan reveal
- *   Shell step 10 → PlantingScene 9/10 — User accepts plan / Csemete
- *
- * TODO (KALMIO-166): Replace <StepPlaceholder /> with the real mini-tutorial
- * components once that branch has merged:
- *   step 2 → <MiniTutorialHousehold />
- *   step 3 → <MiniTutorialCalories />
- *   step 4 → <MiniTutorialDiet />
- *   step 5 → <MiniTutorialShopping />
- *   step 6 → <MiniTutorialForbidden />
- *   step 7 → <MiniTutorialTasteSwipe />
- *   step 8 → <MiniTutorialPlanGeneration />
- *   step 9 → <MiniTutorialPlanReveal />
- *   step 10 → <MiniTutorialCsemete />
+ * Step → PlantingScene mapping (shell is 1-indexed; PlantingScene is 0-indexed):
+ *   Shell step 1  → PlantingScene 0  — Welcome (hand above soil)
+ *   Shell step 2  → PlantingScene 6  — Orientation (scene fast-forwards: hole, walnut, cover, mound, stake, swipe details all visible)
+ *   Shell step 3  → PlantingScene 7  — Plan generation (watering can)
+ *   Shell step 4  → PlantingScene 8  — First plan reveal (moist soil)
+ *   Shell step 5  → PlantingScene 10 — Csemete (sprout)
  */
 
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/auth'
 import { OnboardingProgressBar } from '@/components/onboarding/OnboardingProgressBar'
 import { SkipConfirmModal } from '@/components/onboarding/SkipConfirmModal'
 import { PlantingScene, type PlantingStep } from '@/components/onboarding/PlantingScene'
+import { MiniTutorialPlanner } from '@/components/onboarding/MiniTutorialPlanner'
+import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
+import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
+import { usersService } from '@/services/users'
 import {
   readOnboardingStep,
   writeOnboardingStep,
@@ -56,26 +54,37 @@ import {
 // Constants
 // ---------------------------------------------------------------------------
 
-const TOTAL_STEPS = 10
+const TOTAL_STEPS = 5
 
-// ---------------------------------------------------------------------------
-// Step-content placeholder — removed once KALMIO-166 ships real components
-// ---------------------------------------------------------------------------
-
-interface StepPlaceholderProps {
-  step: number
+/**
+ * Maps the 1-indexed shell step to the PlantingScene 0-indexed step.
+ * Steps 2–6 from the old shell (data-collection) are collapsed into a
+ * fast-forward to PlantingScene step 6 so the scene still tells its story.
+ */
+const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
+  1: 0,
+  2: 6,
+  3: 7,
+  4: 8,
+  5: 10,
 }
 
-function StepPlaceholder({ step }: StepPlaceholderProps) {
+// ---------------------------------------------------------------------------
+// Plan generation loading step (step 3)
+// ---------------------------------------------------------------------------
+
+function PlanGenerationStep() {
   const { t } = useTranslation()
   return (
     <div
-      className="flex flex-col items-center justify-center gap-3 px-6 py-8 text-center"
-      data-testid={`step-placeholder-${step}`}
+      className="flex flex-col items-center justify-center gap-4 px-6 py-8 text-center"
+      data-testid="step-plan-generation"
     >
-      <p className="text-sm text-[#6B6460]">
-        {/* TODO(KALMIO-166): replace with real step component */}
-        {t(`onboarding.shell.stepLabels.${step}`)}
+      <p className="text-base font-semibold text-[#1A1A1A]">
+        {t('onboarding.shell.stepLabels.3')}
+      </p>
+      <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
+        {t('onboarding.shell.planGeneratingBody')}
       </p>
     </div>
   )
@@ -127,12 +136,23 @@ export function OnboardingShell() {
   const navigate = useNavigate()
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
+  // Prefetch user data so we can check body-data completeness on final step.
+  const { data: user } = useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: usersService.getMe,
+    staleTime: 30_000,
+    enabled: !!userId,
+  })
+
   // Resume: read persisted step at mount time.
   // useAuthStore.getState() is synchronous so it is safe to call inside the
   // useState lazy initializer — no setState-in-effect needed.
   const [currentStep, setCurrentStep] = useState<number>(() => {
     const uid = useAuthStore.getState().user?.id
-    return uid ? readOnboardingStep(uid) : 1
+    // Clamp persisted step to the new TOTAL_STEPS in case the user had a
+    // higher step stored from the old 10-step shell (KALMIO-241 migration).
+    const persisted = uid ? readOnboardingStep(uid) : 1
+    return Math.min(persisted, TOTAL_STEPS)
   })
   const [skipModalOpen, setSkipModalOpen] = useState(false)
 
@@ -153,31 +173,36 @@ export function OnboardingShell() {
 
   const goNext = useCallback(() => {
     if (currentStep >= TOTAL_STEPS) {
-      // Final step completed — mark done, clear step progress, navigate to app.
-      // Writing the done flag prevents OnboardingGate from re-redirecting.
+      // Final step completed — mark done, clear step progress.
       if (userId) {
         writeOnboardingDone(userId)
         clearOnboardingStep(userId)
       }
-      navigate('/app', { replace: true })
+      // KALMIO-241: redirect to Profile (body-data section) when body data is
+      // incomplete; otherwise go straight to the dashboard.
+      const bodyDataIncomplete =
+        !user || (user.weightKg == null && user.heightCm == null)
+      if (bodyDataIncomplete) {
+        navigate('/app/profile?section=body-data', { replace: true })
+      } else {
+        navigate('/app/dashboard', { replace: true })
+      }
       return
     }
     goToStep(currentStep + 1)
-  }, [currentStep, goToStep, navigate, userId])
+  }, [currentStep, goToStep, navigate, userId, user])
 
   const handleSkipConfirm = useCallback(() => {
     // Skip: mark done, clear persisted progress and go to dashboard.
-    // The user proceeds with whatever data has been collected so far.
-    // Writing the done flag prevents OnboardingGate from re-redirecting.
     if (userId) {
       writeOnboardingDone(userId)
       clearOnboardingStep(userId)
     }
-    navigate('/app', { replace: true })
+    navigate('/app/dashboard', { replace: true })
   }, [navigate, userId])
 
-  // PlantingScene expects a 0-indexed step (0..10); shell is 1-indexed (1..10).
-  const plantingStep = Math.min(currentStep - 1, 10) as PlantingStep
+  // Map shell step (1-indexed) to PlantingScene step (0-indexed, 0..10).
+  const plantingStep: PlantingStep = SHELL_TO_PLANTING[currentStep] ?? 0
 
   return (
     <div
@@ -204,41 +229,64 @@ export function OnboardingShell() {
       </header>
 
       {/* ---- Planting scene (drives visual continuity across all steps) ---- */}
-      <div className="px-4 md:px-8 pt-4">
-        <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
-      </div>
+      {/* Hidden on steps 4–5 where FirstPlanReveal / CsemeteWelcomeMoment
+          have their own full-bleed visuals. */}
+      {currentStep <= 3 && (
+        <div className="px-4 md:px-8 pt-4">
+          <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
+        </div>
+      )}
 
       {/* ---- Step content area ---- */}
       <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full">
-        {currentStep === 1 ? (
+        {currentStep === 1 && (
           <WelcomeStep onNext={goNext} />
-        ) : (
-          <>
-            {/* TODO(KALMIO-166): swap StepPlaceholder for real components */}
-            <StepPlaceholder step={currentStep} />
+        )}
 
+        {currentStep === 2 && (
+          <>
+            {/* MiniTutorialPlanner: onSkip advances to the next step */}
+            <MiniTutorialPlanner onSkip={goNext} />
+            <div className="mt-auto flex flex-col gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => goToStep(1)}
+                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+              >
+                {t('common.back')}
+              </button>
+            </div>
+          </>
+        )}
+
+        {currentStep === 3 && (
+          <>
+            <PlanGenerationStep />
             <div className="mt-auto flex flex-col gap-3 pt-4">
               <button
                 type="button"
                 onClick={goNext}
                 className="h-12 w-full rounded-[12px] bg-[#F28C28] px-6 text-base font-semibold text-white transition-colors hover:bg-[#d97a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
-                {currentStep === TOTAL_STEPS
-                  ? t('onboarding.shell.finish')
-                  : t('onboarding.shell.next')}
+                {t('onboarding.shell.next')}
               </button>
-
-              {currentStep > 1 && (
-                <button
-                  type="button"
-                  onClick={() => goToStep(currentStep - 1)}
-                  className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
-                >
-                  {t('common.back')}
-                </button>
-              )}
+              <button
+                type="button"
+                onClick={() => goToStep(2)}
+                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+              >
+                {t('common.back')}
+              </button>
             </div>
           </>
+        )}
+
+        {currentStep === 4 && (
+          <FirstPlanReveal onDismiss={goNext} />
+        )}
+
+        {currentStep === 5 && (
+          <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
       </main>
 

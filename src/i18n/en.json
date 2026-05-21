@@ -1746,17 +1746,13 @@
       },
       "next": "Next",
       "finish": "Show me my week",
+      "planGeneratingBody": "One moment — putting your week together from what we have so far.",
       "stepLabels": {
         "1": "Welcome",
-        "2": "Household size",
-        "3": "Activity and calories",
-        "4": "Dietary preferences",
-        "5": "Shopping habits",
-        "6": "Forbidden ingredients",
-        "7": "Taste tour",
-        "8": "Building your plan…",
-        "9": "Your first week is ready",
-        "10": "Csemete — your first action"
+        "2": "How the planner works",
+        "3": "Building your plan…",
+        "4": "Your first week is ready",
+        "5": "Csemete — your first action"
       }
     },
     "planting": {
@@ -1848,6 +1844,11 @@
         "shoppingDay": "Usual shopping day",
         "dietaryRestrictions": "Dietary restrictions"
       }
+    },
+    "bodyDataHint": {
+      "title": "Refine your targets",
+      "body": "Add your weight, height and activity level and Kalmio will suggest a personalised calorie and protein target.",
+      "cta": "Add body data"
     }
   },
   "family": {

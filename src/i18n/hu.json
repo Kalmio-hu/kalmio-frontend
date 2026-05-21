@@ -1746,17 +1746,13 @@
       },
       "next": "Tovább",
       "finish": "Megnézem a hetemet",
+      "planGeneratingBody": "Egy pillanat — összerakom a heted az eddig megadott adatok alapján.",
       "stepLabels": {
         "1": "Üdvözlés",
-        "2": "Hány személyre főzzük?",
-        "3": "Aktivitás és kalória",
-        "4": "Étrendi preferenciák",
-        "5": "Bevásárlási szokások",
-        "6": "Tiltott hozzávalók",
-        "7": "Ízlés-körkép",
-        "8": "Étrend összerakása…",
-        "9": "Az első heted kész",
-        "10": "Csemete — az első cselekvés"
+        "2": "Így működik a tervező",
+        "3": "Étrend összerakása…",
+        "4": "Az első heted kész",
+        "5": "Csemete — az első cselekvés"
       }
     },
     "planting": {
@@ -1848,6 +1844,11 @@
         "shoppingDay": "Szokásos bevásárlónap",
         "dietaryRestrictions": "Étrendi megszorítások"
       }
+    },
+    "bodyDataHint": {
+      "title": "Pontosítsuk a céljaidat",
+      "body": "A testsúlyod, magasságod és aktivitási szinted megadásával Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
+      "cta": "Adatok megadása"
     }
   },
   "family": {
