@@ -274,7 +274,7 @@
       "mealCalories": "Calorie distribution per meal",
       "mealCaloriesHint": "Drag knobs up/down — values always sum to your daily calorie target",
       "kcalTarget": "Calorie target (kcal) *",
-      "proteinMin": "Min protein (g)",
+      "proteinTarget": "Protein target (g)",
       "budgetMax": "Max daily budget (HUF)",
       "prepTimeMax": "Max prep time (min)",
       "maxRepeats": "How many days the same recipe may appear",
@@ -628,7 +628,7 @@
       "kcalTarget": "Daily calorie target",
       "meals": "Meals",
       "mealCalories": "Calorie distribution",
-      "proteinMin": "Minimum protein",
+      "proteinTarget": "Protein target",
       "save": "Save"
     }
   },
@@ -1441,7 +1441,33 @@
     }
   },
   "foundingMember": {
-    "comingSoon": "Coming soon."
+    "comingSoon": "Coming soon.",
+    "buy": {
+      "label": "Founding membership",
+      "headline": "Lifetime access.",
+      "sub": "Pay once, keep it for life — every premium feature, today and in the future.",
+      "priceLine": "{{price, number}} HUF — one-time payment.",
+      "remainingLine": "{{remaining}} of the first 1,000 seats still open.",
+      "cta": "Buy now",
+      "ctaLoading": "Redirecting to checkout…",
+      "ctaSoldOut": "Sold out",
+      "soldOutTitle": "All founder seats are taken.",
+      "soldOutSub": "Thank you for the interest. Premium will return in a different form soon.",
+      "alreadyMember": "You're already a founding member. Thank you for trusting us first.",
+      "errors": {
+        "capReached": "The last founder seat was just taken. Premium will return in a different form soon.",
+        "generic": "Could not start the payment. Please try again in a few seconds."
+      },
+      "loading": "One moment — checking remaining seats…"
+    },
+    "success": {
+      "title": "Thank you.",
+      "waiting": "Your payment confirmation has arrived. We're activating your access in a few seconds.",
+      "granted": "You're a founding member. Every premium feature is yours, now and in the future.",
+      "slow": "Your bank is a little slow to respond. Stay here — as soon as the transaction confirms, we'll refresh.",
+      "refresh": "Refresh",
+      "backToApp": "Back to the app"
+    }
   },
   "blog": {
     "nav": "Blog",
@@ -1729,15 +1755,13 @@
       "invalidCode": "This code is not valid or has expired.",
       "acceptSuccess": "You have joined the group.",
       "sentInvitesSection": "Sent invites",
-      "sentInvitesEmpty": "No active invites.",
       "sentInviteCode": "Code: {{code}}",
       "sentInviteExpiry": "Expires: {{date}}",
       "sentInviteBoundTo": "Linked to: {{name}}",
       "revokeInviteCta": "Revoke",
       "revokeInviteConfirm": "Are you sure you want to revoke this invite?",
       "revokeInviteSuccess": "Invite revoked.",
-      "revokeInviteError": "Failed to revoke the invite.",
-      "sentInvitesUnavailable": "The sent invites list is currently unavailable."
+      "revokeInviteError": "Failed to revoke the invite."
     },
     "merge": {
       "dialogTitle": "Link your profile",
@@ -1781,7 +1805,7 @@
       "dietaryFlags": "Dietary restrictions",
       "macroTargets": "Macro targets",
       "kcalTarget": "Calorie target (kcal)",
-      "proteinMin": "Protein minimum (g)",
+      "proteinTarget": "Protein target (g)",
       "carbsTarget": "Carbohydrate target (g)",
       "fatTarget": "Fat target (g)",
       "prepTolerance": "Prep tolerance (minutes)",

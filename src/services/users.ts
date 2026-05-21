@@ -5,7 +5,7 @@ export interface UserMealPreferences {
   days?: number
   selectedMealTypes?: string[]
   kcalTarget?: number
-  proteinMin?: number
+  proteinTarget?: number
   budgetMax?: number
   prepTimeMax?: number
   forbiddenIngredientIds?: string[]
@@ -41,17 +41,23 @@ export interface UserSettings {
   activityLevel: ActivityLevel | null
   /** TDEE-derived suggestion, null until body data is set. */
   suggestedKcalTarget: number | null
-  /** 1.8 g/kg protein minimum, null until weight is set. */
-  suggestedProteinMin: number | null
+  /** 1.8 g/kg protein target, null until weight is set. */
+  suggestedProteinTarget: number | null
   // ── Macro targets ──────────────────────────────────────────────────────────
   /** Daily carbohydrate target in grams. Null = no target set. */
   carbsTargetG: number | null
   /** Daily fat target in grams. Null = no target set. */
   fatTargetG: number | null
-  /** True when the user holds a Founding Member entitlement. */
+  /**
+   * Composed premium status — true when the user is premium from any source
+   * (admin flag, Founding Member purchase, active taster grant). Never combine
+   * the raw fields client-side; use this single field.
+   */
+  isPremium: boolean
+  /** True when the user has purchased the lifetime Founding Member entitlement. */
   foundingMember: boolean
-  /** ISO-8601 timestamp of the Founding Member purchase. Null until exposed by the backend. */
-  foundingMemberSince: string | null
+  /** ISO-8601 timestamp of the Founding Member purchase. Null until purchased. */
+  foundingMemberPurchasedAt: string | null
   /** User-chosen name for their diófa tree. Available from FIATAL stage onward. Null = unnamed. */
   diofaName: string | null
 }

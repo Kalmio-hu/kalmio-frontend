@@ -132,7 +132,7 @@ export function blankPreferences(): UserPreferencesDto {
     lowFodmap: false,
     paleo: false,
     kcalTarget: null,
-    proteinMinG: null,
+    proteinTargetG: null,
     carbsTargetG: null,
     fatTargetG: null,
     portionSizeMultiplier: null,

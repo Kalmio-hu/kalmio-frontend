@@ -157,9 +157,9 @@ export function Profile() {
     user?.mealPlanPreferences?.mealCalorieTargets
       ?? equalMealKcals(['BREAKFAST', 'LUNCH', 'DINNER'], 2000)
   )
-  const [proteinMin, setProteinMin] = useState<string>(
-    user?.mealPlanPreferences?.proteinMin != null
-      ? String(user.mealPlanPreferences.proteinMin) : ''
+  const [proteinTarget, setProteinTarget] = useState<string>(
+    user?.mealPlanPreferences?.proteinTarget != null
+      ? String(user.mealPlanPreferences.proteinTarget) : ''
   )
   const [mealPrefSaving, setMealPrefSaving] = useState(false)
 
@@ -174,7 +174,7 @@ export function Profile() {
         ?? ['BREAKFAST', 'LUNCH', 'DINNER']
       setSelectedMeals(meals)
       setMealKcals(prefs?.mealCalorieTargets ?? equalMealKcals(meals, kcal))
-      setProteinMin(prefs?.proteinMin != null ? String(prefs.proteinMin) : '')
+      setProteinTarget(prefs?.proteinTarget != null ? String(prefs.proteinTarget) : '')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
@@ -188,7 +188,7 @@ export function Profile() {
           kcalTarget: mealKcalTarget,
           selectedMealTypes: selectedMeals,
           mealCalorieTargets: mealKcals,
-          proteinMin: proteinMin.trim() ? Number(proteinMin) : undefined,
+          proteinTarget: proteinTarget.trim() ? Number(proteinTarget) : undefined,
         },
       })
       qc.setQueryData(['me'], updated)
@@ -646,17 +646,17 @@ export function Profile() {
               </div>
             )}
 
-            {/* Protein minimum */}
+            {/* Protein target */}
             <div>
-              <Label htmlFor="protein-min">{t('profile.mealPrefs.proteinMin')}</Label>
+              <Label htmlFor="protein-target">{t('profile.mealPrefs.proteinTarget')}</Label>
               <div className="flex items-center gap-2 mt-1">
                 <Input
-                  id="protein-min"
+                  id="protein-target"
                   type="number"
                   min={0}
                   max={500}
-                  value={proteinMin}
-                  onChange={e => setProteinMin(e.target.value)}
+                  value={proteinTarget}
+                  onChange={e => setProteinTarget(e.target.value)}
                   placeholder={t('common.optional')}
                   className="w-28"
                 />
