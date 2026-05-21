@@ -144,7 +144,8 @@ export function PlanDetail() {
   const copyMutation = useMutation({
     mutationFn: () => planTemplateService.copy(id!),
     onSuccess: (copy) => {
-      qc.invalidateQueries({ queryKey: ['plan-template'] })
+      void qc.invalidateQueries({ queryKey: ['plan-template'] })
+      void qc.invalidateQueries({ queryKey: ['plan-templates'] })
       toast({ title: t('plan.detail.copySuccess'), variant: 'success' })
       navigate(`/app/plans/${copy.id}`)
     },

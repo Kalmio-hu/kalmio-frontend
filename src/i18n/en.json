@@ -1257,7 +1257,7 @@
         "menuAria": "Plan actions",
         "menu": {
           "open": "Open",
-          "copy": "Copy",
+          "copy": "Copy plan",
           "schedule": "Schedule…",
           "archive": "Archive"
         }
@@ -1360,7 +1360,7 @@
       "sourceBadge": "Automatic fill",
       "actions": {
         "menuAria": "Plan actions",
-        "copy": "Make a copy",
+        "copy": "Save as new plan",
         "snapshotRefresh": "Refresh preferences",
         "archive": "Archive",
         "archiveConfirmTitle": "Archive this plan?",
@@ -1390,7 +1390,7 @@
         "saving": "Saving…",
         "saved": "Meal slot saved."
       },
-      "copySuccess": "A copy of the plan was created.",
+      "copySuccess": "Copy created.",
       "snapshotRefreshSuccess": "Preferences refreshed.",
       "archiveSuccess": "Plan archived."
     },

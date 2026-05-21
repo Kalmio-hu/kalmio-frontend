@@ -1257,7 +1257,7 @@
         "menuAria": "Terv műveletek",
         "menu": {
           "open": "Megnyitás",
-          "copy": "Másolás",
+          "copy": "Másold le",
           "schedule": "Ütemezés…",
           "archive": "Archiválás"
         }
@@ -1360,7 +1360,7 @@
       "sourceBadge": "Automatikus feltöltés",
       "actions": {
         "menuAria": "Terv műveletek",
-        "copy": "Másolás",
+        "copy": "Mentsd új tervként",
         "snapshotRefresh": "Preferenciák frissítése",
         "archive": "Archiválás",
         "archiveConfirmTitle": "Biztosan archiválod?",
@@ -1390,7 +1390,7 @@
         "saving": "Mentés…",
         "saved": "Étkezés beállítva."
       },
-      "copySuccess": "A terv másolata elkészült.",
+      "copySuccess": "Másolat létrehozva.",
       "snapshotRefreshSuccess": "Preferenciák frissítve.",
       "archiveSuccess": "Terv archiválva."
     },

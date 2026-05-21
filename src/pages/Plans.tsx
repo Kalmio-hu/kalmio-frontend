@@ -22,6 +22,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { PlanTemplateCard } from '@/components/plan/PlanTemplateCard'
 import { planTemplateService } from '@/services/plans'
 import { usersService } from '@/services/users'
+import { toast } from '@/components/ui/toast'
 import type { PlanTemplateStatus } from '@/types'
 
 type ListFilter = 'active' | 'draft' | 'archived' | 'all'
@@ -57,8 +58,13 @@ export function Plans() {
 
   const copyMutation = useMutation({
     mutationFn: (id: string) => planTemplateService.copy(id),
-    onSuccess: () => {
+    onSuccess: (copy) => {
       void queryClient.invalidateQueries({ queryKey: ['plan-templates'] })
+      toast({ title: t('plan.detail.copySuccess'), variant: 'success' })
+      navigate(`/app/plans/${copy.id}`)
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
     },
   })
 
