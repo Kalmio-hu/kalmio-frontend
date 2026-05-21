@@ -56,6 +56,7 @@ import { OnboardingGate } from '@/components/OnboardingGate'
 import { MemberView } from '@/pages/MemberView'
 import { ShoppingCart } from '@/pages/ShoppingCart'
 import { CookMode } from '@/pages/CookMode'
+import { Calendar } from '@/pages/Calendar'
 
 initAnalytics()
 
@@ -186,6 +187,7 @@ export default function App() {
                   <Route path="schedules" element={<Schedules />} />
                   <Route path="schedules/new" element={<ScheduleNew />} />
                   <Route path="schedules/:id" element={<ScheduleDetail />} />
+                  <Route path="calendar" element={<Calendar />} />
                   <Route path="_preview/planting" element={<PlantingPreview />} />
                   <Route path="_preview/diofa" element={<DiofaPreview />} />
                   <Route path="_preview/taste-swipe" element={<TasteSwipePreview />} />

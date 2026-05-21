@@ -1364,3 +1364,49 @@ export interface UpdateScheduleRequest {
   /** ISO date "YYYY-MM-DD"; null = clear end date. */
   endDate?: string | null
 }
+
+// ── Materialized Planned Meals (C15 / KALMIO-237) ────────────────────────
+
+/**
+ * Status of a materialized planned_meal row.
+ * Mirrors the backend `planned_meal.status` enum.
+ */
+export type MaterializedPlannedMealStatus = 'PLANNED' | 'EATEN' | 'SKIPPED' | 'REPLACED'
+
+/**
+ * Source that created the planned_meal row.
+ * Mirrors the backend `planned_meal.source` enum.
+ */
+export type MaterializedPlannedMealSource = 'SCHEDULED' | 'MANUAL' | 'OFF_PLAN'
+
+/**
+ * A materialized calendar entry from the `planned_meal` table.
+ * Returned by `GET /api/planned-meals?from=YYYY-MM-DD&to=YYYY-MM-DD`
+ * (backend ticket: KALMIO-249).
+ *
+ * Distinct from the legacy `PlannedMeal` type which reads from the old
+ * `planned_meals` table on the calendar-plan path.
+ */
+export interface MaterializedPlannedMeal {
+  id: string
+  scheduleId: string | null
+  originPlanId: string | null
+  memberId: string
+  /** ISO date "YYYY-MM-DD". */
+  date: string
+  mealType: MealType
+  recipeId: string | null
+  /** Denormalized recipe name — populated by the backend join. */
+  recipeName: string | null
+  /** Thumbnail URL — populated by the backend join; null when recipe has no image. */
+  recipeImageUrl: string | null
+  status: MaterializedPlannedMealStatus
+  source: MaterializedPlannedMealSource
+  generatedAt: string | null   // ISO-8601
+  eatenAt: string | null       // ISO-8601
+}
+
+/** Request body for PATCH /api/planned-meals/{id}/status (KALMIO-249). */
+export interface UpdateMaterializedPlannedMealStatusRequest {
+  status: MaterializedPlannedMealStatus
+}

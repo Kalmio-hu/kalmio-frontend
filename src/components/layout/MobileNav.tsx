@@ -16,6 +16,7 @@ import {
   ClipboardList,
   SlidersHorizontal,
   CalendarClock,
+  CalendarDays,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -31,6 +32,7 @@ const OVERFLOW_ROUTES = [
   '/app/family',
   '/app/preferences',
   '/app/schedules',
+  '/app/calendar',
   '/app/admin',
 ]
 
@@ -175,6 +177,21 @@ export function MobileNav() {
             >
               <CalendarClock className="h-5 w-5 shrink-0" />
               {t('nav.schedules')}
+            </NavLink>
+
+            {/* Naptár */}
+            <NavLink
+              to="/app/calendar"
+              role="menuitem"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
+                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
+                )
+              }
+            >
+              <CalendarDays className="h-5 w-5 shrink-0" />
+              {t('nav.calendar')}
             </NavLink>
 
             {isAdmin && (

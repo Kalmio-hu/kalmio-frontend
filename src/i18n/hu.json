@@ -23,7 +23,8 @@
     "more": "Több",
     "family": "Család",
     "preferences": "Beállításaim",
-    "schedules": "Ütemezések"
+    "schedules": "Ütemezések",
+    "calendar": "Naptár"
   },
   "common": {
     "version": "Táplálkozási Motor v0.1",
@@ -2172,6 +2173,43 @@
       "saveError": "Nem sikerült menteni. Próbáld újra.",
       "materializeSection": "Azonnali materializ.",
       "materializeThroughLabel": "Materializálj eddig a dátumig"
+    }
+  },
+  "calendar": {
+    "title": "Naptár",
+    "subtitle": "Tervezett étkezések naptár nézete",
+    "today": "Ma",
+    "prevTwoWeeks": "Előző két hét",
+    "nextTwoWeeks": "Következő két hét",
+    "jumpToDate": "Ugrás dátumra",
+    "week1Label": "Ez a hét",
+    "week2Label": "Jövő hét",
+    "gridLabel": "Étkezések heti rácsa",
+    "mealSlot": "Étkezés",
+    "noMeals": "Nincs tervezett étkezés.",
+    "noRecipe": "Nincs recept",
+    "emptyTitle": "Nincs megjeleníthető étkezés erre az időszakra",
+    "emptyBody": "Hozz létre egy ütemezést, hogy étkezések jelenjenek meg a naptárban.",
+    "statusUpdated": "Állapot frissítve.",
+    "statusUpdateError": "Nem sikerült frissíteni az állapotot. Próbáld újra.",
+    "status": {
+      "PLANNED": "Tervezett",
+      "EATEN": "Megettem",
+      "SKIPPED": "Kihagytam",
+      "REPLACED": "Lecseréltem"
+    },
+    "action": {
+      "EATEN": "Megettem",
+      "SKIPPED": "Kihagytam",
+      "RESET": "Visszaállítás"
+    },
+    "mealTypes": {
+      "BREAKFAST": "Reggeli",
+      "MORNING_SNACK": "Tízórai",
+      "LUNCH": "Ebéd",
+      "AFTERNOON_SNACK": "Uzsonna",
+      "DINNER": "Vacsora",
+      "SNACK": "Esti snack"
     }
   }
 }

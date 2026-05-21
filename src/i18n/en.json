@@ -23,7 +23,8 @@
     "more": "More",
     "family": "Family",
     "preferences": "My Preferences",
-    "schedules": "Schedules"
+    "schedules": "Schedules",
+    "calendar": "Calendar"
   },
   "common": {
     "version": "Nutrition Engine v0.1",
@@ -2172,6 +2173,43 @@
       "saveError": "Could not save. Please try again.",
       "materializeSection": "Materialize now",
       "materializeThroughLabel": "Materialize through date"
+    }
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "Materialized planned meals calendar view",
+    "today": "Today",
+    "prevTwoWeeks": "Previous two weeks",
+    "nextTwoWeeks": "Next two weeks",
+    "jumpToDate": "Jump to date",
+    "week1Label": "This week",
+    "week2Label": "Next week",
+    "gridLabel": "Weekly meal grid",
+    "mealSlot": "Meal",
+    "noMeals": "No meals planned.",
+    "noRecipe": "No recipe",
+    "emptyTitle": "No meals to show for this period",
+    "emptyBody": "Create a schedule to see meals appear on the calendar.",
+    "statusUpdated": "Status updated.",
+    "statusUpdateError": "Could not update status. Please try again.",
+    "status": {
+      "PLANNED": "Planned",
+      "EATEN": "Eaten",
+      "SKIPPED": "Skipped",
+      "REPLACED": "Replaced"
+    },
+    "action": {
+      "EATEN": "Mark eaten",
+      "SKIPPED": "Skip",
+      "RESET": "Reset"
+    },
+    "mealTypes": {
+      "BREAKFAST": "Breakfast",
+      "MORNING_SNACK": "Morning snack",
+      "LUNCH": "Lunch",
+      "AFTERNOON_SNACK": "Afternoon snack",
+      "DINNER": "Dinner",
+      "SNACK": "Snack"
     }
   }
 }
