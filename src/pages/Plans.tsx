@@ -26,9 +26,6 @@ import type { PlanTemplateStatus } from '@/types'
 
 type ListFilter = 'active' | 'draft' | 'archived' | 'all'
 
-// The default plan seeded by A7 (KALMIO-229) always has this name.
-const DEFAULT_PLAN_NAME = 'Sajátom'
-
 export function Plans() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -90,10 +87,10 @@ export function Plans() {
     return true
   }
 
-  // Sort: default ("Sajátom") first, then by updatedAt desc
+  // Sort: default plan first (backend flag), then by updatedAt desc
   const sorted = [...plans].sort((a, b) => {
-    const aDefault = a.name === DEFAULT_PLAN_NAME ? 0 : 1
-    const bDefault = b.name === DEFAULT_PLAN_NAME ? 0 : 1
+    const aDefault = a.isDefault ? 0 : 1
+    const bDefault = b.isDefault ? 0 : 1
     if (aDefault !== bDefault) return aDefault - bDefault
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   })
@@ -194,7 +191,7 @@ export function Plans() {
               key={plan.id}
               plan={plan}
               memberNames={memberNames}
-              isDefault={plan.name === DEFAULT_PLAN_NAME}
+              isDefault={plan.isDefault}
               onCopy={id => copyMutation.mutate(id)}
               onArchive={id => archiveMutation.mutate(id)}
             />

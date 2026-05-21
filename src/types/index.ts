@@ -1169,6 +1169,12 @@ export interface PlanTemplate {
   lengthDays: number
   shoppingCadenceDays: number
   status: PlanTemplateStatus
+  /**
+   * True when the backend has flagged this as the user's canonical default plan
+   * (seeded by A7 / KALMIO-229). Set server-side; do not infer from the name.
+   * KALMIO-233.
+   */
+  isDefault: boolean
   /** Per-member preference snapshot, keyed by member UUID string. */
   preferencesSnapshot: Record<string, unknown> | null
   templateMeals: TemplateMeal[]
