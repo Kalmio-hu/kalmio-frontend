@@ -14,6 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { mealPlansService } from '@/services/mealPlans'
 import { fridgeService } from '@/services/fridge'
 import { planService } from '@/services/plans'
+import { plannedMealsService } from '@/services/plannedMeals'
 import { useMealPlanStore } from '@/store/mealPlan'
 import { formatCurrency } from '@/lib/utils'
 import { capture, buildCohortProperties } from '@/lib/analytics'
@@ -55,18 +56,38 @@ export function ShoppingList() {
     staleTime: 300_000,
   })
 
-  // ── Calendar-plan path: GET endpoint ─────────────────────────────────────
+  // ── Calendar-plan path: aggregate from planned_meal rows ─────────────────
+  // Primary: GET /api/planned-meals/shopping-list?from=&to= (KALMIO-249).
+  // Fallback: GET /api/plans/{id}/shopping-list when the planned_meals endpoint
+  // returns null (i.e., KALMIO-249 not yet live on the backend).
+  const planFrom = calendarPlan?.startDate ?? ''
+  const planTo = calendarPlan?.endDate ?? ''
+
   const {
-    data: calendarShoppingList,
-    isLoading: calendarLoading,
+    data: plannedMealsShoppingList,
+    isLoading: plannedMealsListLoading,
+  } = useQuery({
+    queryKey: ['planned-meals', 'shopping-list', planFrom, planTo],
+    queryFn: () => plannedMealsService.getShoppingList(planFrom, planTo),
+    enabled: !!calendarPlan && !!planFrom && !!planTo,
+    staleTime: 60_000,
+  })
+
+  const {
+    data: planShoppingList,
+    isLoading: planListLoading,
     isError: calendarError,
     error: calendarErrorObj,
   } = useQuery({
     queryKey: ['shopping-list', calendarPlan?.id],
     queryFn: () => planService.getShoppingList(calendarPlan!.id),
-    enabled: !!calendarPlan,
+    // Only fall back to the plan-based endpoint if planned_meals returned null.
+    enabled: !!calendarPlan && plannedMealsShoppingList === null,
     staleTime: 60_000,
   })
+
+  const calendarShoppingList = plannedMealsShoppingList ?? planShoppingList ?? undefined
+  const calendarLoading = plannedMealsListLoading || (plannedMealsShoppingList === null && planListLoading)
 
   // ── Legacy path: POST mutation ────────────────────────────────────────────
   const legacyMutation = useMutation({

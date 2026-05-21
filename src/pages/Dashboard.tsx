@@ -8,6 +8,7 @@ import { WeeklySummaryModule } from '@/components/dashboard/WeeklySummaryModule'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { MoistureHistoryStrip } from '@/components/diofa/MoistureHistoryStrip'
 import { planService } from '@/services/plans'
+import { plannedMealsService } from '@/services/plannedMeals'
 import { usersService } from '@/services/users'
 import { momentumService } from '@/services/momentum'
 import { usePointsToast } from '@/hooks/usePointsToast'
@@ -41,6 +42,14 @@ export function Dashboard() {
     staleTime: 60_000,
   })
 
+  // Today's meals from the materialized planned_meal table (meal-planning-v2).
+  // Used by DailyTimeline to render the new source of truth for today's meal slots.
+  const { data: todayPlannedMeals = [] } = useQuery({
+    queryKey: ['planned-meals', today, today],
+    queryFn: () => plannedMealsService.listInRange(today, today),
+    staleTime: 30_000,
+  })
+
   const { data: dashboardState } = useQuery({
     queryKey: ['users', 'me', 'dashboard-state'],
     queryFn: usersService.getMyDashboardState,
@@ -72,6 +81,7 @@ export function Dashboard() {
         date={selectedDate}
         hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
         activePlanId={activePlan?.id ?? null}
+        plannedMeals={selectedDate === today ? todayPlannedMeals : undefined}
       />
       <section aria-label={t('diofa.sectionLabel')} className="px-4 pb-4 space-y-3">
         <TeachOnReturnHint bucket={engagementGapBucket} />

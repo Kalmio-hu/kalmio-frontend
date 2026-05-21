@@ -2201,8 +2201,12 @@
     "action": {
       "EATEN": "Megettem",
       "SKIPPED": "Kihagytam",
-      "RESET": "Visszaállítás"
+      "RESET": "Visszaállítás",
+      "VIEW_RECIPE": "Recept megtekintése",
+      "REPLACE_RECIPE": "Recept cseréje"
     },
+    "recipeReplaced": "Recept lecserélve.",
+    "recipeReplaceError": "Nem sikerült lecserélni a receptet. Próbáld újra.",
     "mealTypes": {
       "BREAKFAST": "Reggeli",
       "MORNING_SNACK": "Tízórai",

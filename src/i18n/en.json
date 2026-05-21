@@ -2201,8 +2201,12 @@
     "action": {
       "EATEN": "Mark eaten",
       "SKIPPED": "Skip",
-      "RESET": "Reset"
+      "RESET": "Reset",
+      "VIEW_RECIPE": "View recipe",
+      "REPLACE_RECIPE": "Replace recipe"
     },
+    "recipeReplaced": "Recipe replaced.",
+    "recipeReplaceError": "Could not replace the recipe. Please try again.",
     "mealTypes": {
       "BREAKFAST": "Breakfast",
       "MORNING_SNACK": "Morning snack",

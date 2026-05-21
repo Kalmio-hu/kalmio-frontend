@@ -16,15 +16,17 @@
 import { useState, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight, CalendarDays, Info } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CalendarDays, Info, Eye, RefreshCw } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast'
+import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
+import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
 import { plannedMealsService } from '@/services/plannedMeals'
-import type { MaterializedPlannedMeal, MaterializedPlannedMealStatus, MealType } from '@/types'
+import type { MaterializedPlannedMeal, MaterializedPlannedMealStatus, MealType, Recipe } from '@/types'
 import { cn } from '@/lib/utils'
 
 // ── Date helpers ────────────────────────────────────────────────────────────
@@ -84,6 +86,8 @@ interface MealDetailPanelProps {
   open: boolean
   onOpenChange: (v: boolean) => void
   onStatusChange: (id: string, status: MaterializedPlannedMealStatus) => void
+  onReplaceRecipe: (meal: MaterializedPlannedMeal) => void
+  onViewRecipe: (meal: MaterializedPlannedMeal) => void
   isPending: boolean
 }
 
@@ -92,6 +96,8 @@ function MealDetailPanel({
   open,
   onOpenChange,
   onStatusChange,
+  onReplaceRecipe,
+  onViewRecipe,
   isPending,
 }: MealDetailPanelProps) {
   const { t } = useTranslation()
@@ -159,6 +165,31 @@ function MealDetailPanel({
               </Button>
             )}
           </div>
+
+          {/* Recipe actions — available only when a recipe is attached */}
+          {meal.recipeId && (
+            <div className="flex flex-wrap gap-2 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onViewRecipe(meal)}
+                className="flex items-center gap-1.5"
+              >
+                <Eye className="h-3.5 w-3.5" />
+                {t('calendar.action.VIEW_RECIPE')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={isPending}
+                onClick={() => onReplaceRecipe(meal)}
+                className="flex items-center gap-1.5"
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                {t('calendar.action.REPLACE_RECIPE')}
+              </Button>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
@@ -363,6 +394,8 @@ export function Calendar() {
   const [windowStart, setWindowStart] = useState<Date>(() => weekStart(new Date()))
   const [selectedMeal, setSelectedMeal] = useState<MaterializedPlannedMeal | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [recipePickerMeal, setRecipePickerMeal] = useState<MaterializedPlannedMeal | null>(null)
+  const [recipeDetailMeal, setRecipeDetailMeal] = useState<MaterializedPlannedMeal | null>(null)
 
   // 14-day window: current week + next week
   const from = toIso(windowStart)
@@ -388,8 +421,36 @@ export function Calendar() {
     },
   })
 
+  const { mutate: patchRecipe, isPending: isReplacingRecipe } = useMutation({
+    mutationFn: ({ id, recipeId }: { id: string; recipeId: string }) =>
+      plannedMealsService.replaceRecipe(id, { recipeId }),
+    onSuccess: (updated) => {
+      void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      setSelectedMeal(updated)
+      setRecipePickerMeal(null)
+      toast({ title: t('calendar.recipeReplaced') })
+    },
+    onError: () => {
+      toast({ title: t('calendar.recipeReplaceError'), variant: 'destructive' })
+    },
+  })
+
   function handleStatusChange(id: string, status: MaterializedPlannedMealStatus) {
     patchStatus({ id, status })
+  }
+
+  function handleReplaceRecipe(meal: MaterializedPlannedMeal) {
+    setDetailOpen(false)
+    setRecipePickerMeal(meal)
+  }
+
+  function handleViewRecipe(meal: MaterializedPlannedMeal) {
+    setRecipeDetailMeal(meal)
+  }
+
+  function handleRecipeSelected(recipe: Recipe) {
+    if (!recipePickerMeal) return
+    patchRecipe({ id: recipePickerMeal.id, recipeId: recipe.id })
   }
 
   function handleMealClick(meal: MaterializedPlannedMeal) {
@@ -547,8 +608,30 @@ export function Calendar() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         onStatusChange={handleStatusChange}
-        isPending={isPatching}
+        onReplaceRecipe={handleReplaceRecipe}
+        onViewRecipe={handleViewRecipe}
+        isPending={isPatching || isReplacingRecipe}
       />
+
+      {/* Recipe picker — opens when the user taps "Replace recipe" */}
+      {recipePickerMeal?.recipeId && (
+        <RecipePickerDialog
+          open
+          currentRecipeId={recipePickerMeal.recipeId}
+          onSelect={handleRecipeSelected}
+          onClose={() => setRecipePickerMeal(null)}
+        />
+      )}
+
+      {/* Recipe detail — read-only view of the current recipe */}
+      {recipeDetailMeal?.recipeId && (
+        <RecipeDetailDialog
+          open
+          onOpenChange={open => !open && setRecipeDetailMeal(null)}
+          recipeId={recipeDetailMeal.recipeId}
+          displayName={recipeDetailMeal.recipeName ?? undefined}
+        />
+      )}
     </div>
   )
 }

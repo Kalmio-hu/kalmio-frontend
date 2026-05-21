@@ -27,11 +27,10 @@ import { Spinner } from '@/components/ui/spinner'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MemberMealSlot } from '@/components/member/MemberMealSlot'
 import { OffPlanLogSheet } from '@/components/member/OffPlanLogSheet'
-import { multiMemberPlanService } from '@/services/multiMemberPlanService'
+import { plannedMealsService } from '@/services/plannedMeals'
 import { offPlanMealsService } from '@/services/offPlanMeals'
-import { planService } from '@/services/plans'
 import { useAuthStore } from '@/store/auth'
-import type { MealType, PlannedMealSummary } from '@/types'
+import type { MealType, MaterializedPlannedMeal } from '@/types'
 
 const MEAL_TYPE_ORDER: MealType[] = [
   'BREAKFAST',
@@ -53,30 +52,27 @@ export function MemberView() {
   const queryClient = useQueryClient()
   const session = useAuthStore(s => s.session)
 
-  const planId = searchParams.get('planId') ?? undefined
   const viewDate = searchParams.get('date') ?? todayIso()
-
   const isOwnView = !memberId || memberId === session?.user.id
+  const targetMemberId = memberId ?? session?.user.id ?? ''
 
-  // ── Fetch multi-member plan ───────────────────────────────────────────────
+  // ── Fetch planned meals for this member on this date ─────────────────────
+  // Source: materialized planned_meal table (meal-planning-v2).
+  // Falls back to empty array until KALMIO-249 backend endpoint ships.
   const {
-    data: plan,
-    isLoading: planLoading,
-    isError: planError,
+    data: memberMeals = [],
+    isLoading: mealsLoading,
+    isError: mealsError,
   } = useQuery({
-    queryKey: ['multiMemberPlan', planId],
-    queryFn: () => multiMemberPlanService.getById(planId!),
-    enabled: !!planId,
+    queryKey: ['planned-meals', viewDate, viewDate, targetMemberId],
+    queryFn: () => plannedMealsService.listInRangeForMember(viewDate, viewDate, targetMemberId),
+    enabled: !!targetMemberId,
     staleTime: 30_000,
   })
 
-  // ── Meals for this member on this date ───────────────────────────────────
-  const targetMemberId = memberId ?? session?.user.id ?? ''
-  const todaysMeals: PlannedMealSummary[] = plan
-    ? plan.meals
-        .filter(m => m.date === viewDate && m.memberIds.includes(targetMemberId))
-        .sort((a, b) => MEAL_TYPE_ORDER.indexOf(a.mealType) - MEAL_TYPE_ORDER.indexOf(b.mealType))
-    : []
+  const todaysMeals: MaterializedPlannedMeal[] = [...memberMeals].sort(
+    (a, b) => MEAL_TYPE_ORDER.indexOf(a.mealType) - MEAL_TYPE_ORDER.indexOf(b.mealType),
+  )
 
   // ── Off-plan meals for the day ────────────────────────────────────────────
   const { data: offPlanMeals = [] } = useQuery({
@@ -88,9 +84,9 @@ export function MemberView() {
   // ── Mark eaten mutation ───────────────────────────────────────────────────
   const markEatenMutation = useMutation({
     mutationFn: (mealId: string) =>
-      planService.updateMeal(plan!.id, mealId, { status: 'EATEN' }),
+      plannedMealsService.updateStatus(mealId, { status: 'EATEN' }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['multiMemberPlan', planId] })
+      queryClient.invalidateQueries({ queryKey: ['planned-meals', viewDate] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
@@ -98,26 +94,6 @@ export function MemberView() {
   // ── Off-plan log sheet state ──────────────────────────────────────────────
   const [logSheetMealId, setLogSheetMealId] = useState<string | null>(null)
   const logSheetOpen = logSheetMealId !== null
-
-  // Build family recipients from plan member list (exclude the meal owner)
-  // Allergen data is not yet available from BE4 — pass empty conflicts.
-  const familyRecipients = plan
-    ? plan.memberIds
-        .filter(id => id !== targetMemberId)
-        .map(id => ({
-          userId: id,
-          displayName: id.slice(0, 8), // placeholder until member names are fetched
-          conflictingAllergens: [],     // TODO (BE4): AllergenSafetyChecker
-        }))
-    : []
-
-  // ── Daily macro totals ────────────────────────────────────────────────────
-  const dailyKcal = todaysMeals
-    .filter(m => m.status !== 'SKIPPED')
-    .reduce((sum, m) => sum + (m.macros?.kcal ?? 0) * m.servingMultiplier, 0)
-  const dailyProtein = todaysMeals
-    .filter(m => m.status !== 'SKIPPED')
-    .reduce((sum, m) => sum + (m.macros?.protein ?? 0) * m.servingMultiplier, 0)
 
   return (
     <div>
@@ -127,23 +103,14 @@ export function MemberView() {
       />
 
       {/* Loading */}
-      {planLoading && (
+      {mealsLoading && (
         <div className="flex justify-center py-16">
           <Spinner className="h-8 w-8" />
         </div>
       )}
 
-      {/* No plan specified */}
-      {!planId && !planLoading && (
-        <Card>
-          <CardContent className="py-10 text-center">
-            <p className="text-sm text-[#6b7280]">{t('member.view.noPlanSelected')}</p>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Error */}
-      {planError && (
+      {mealsError && (
         <Card className="border-red-200">
           <CardContent className="py-6">
             <p className="text-sm text-red-600">{t('common.errorGeneric')}</p>
@@ -151,26 +118,8 @@ export function MemberView() {
         </Card>
       )}
 
-      {plan && (
+      {!mealsLoading && (
         <div className="space-y-4">
-          {/* Daily macro summary card */}
-          <Card>
-            <CardContent className="pt-4 pb-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-[#6b7280] mb-0.5">{t('member.view.dailyTotal')}</p>
-                  <p className="text-xl font-headline font-bold text-[#1a1a1a]">
-                    {dailyKcal.toFixed(0)} kcal
-                  </p>
-                  <p className="text-xs text-[#6b7280]">
-                    {t('member.view.protein')}: {dailyProtein.toFixed(0)}g
-                  </p>
-                </div>
-                <p className="text-xs text-[#9ca3af]">{viewDate}</p>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Meal slots */}
           <Card>
             <CardHeader>
@@ -190,13 +139,13 @@ export function MemberView() {
                     mealType={meal.mealType}
                     recipeId={meal.recipeId}
                     recipeName={meal.recipeName}
-                    portionKcal={meal.macros ? meal.macros.kcal * meal.servingMultiplier : null}
-                    portionProtein={meal.macros ? meal.macros.protein * meal.servingMultiplier : null}
-                    portionFat={meal.macros ? meal.macros.fat * meal.servingMultiplier : null}
-                    portionCarbs={meal.macros ? meal.macros.carbs * meal.servingMultiplier : null}
-                    servingMultiplier={meal.servingMultiplier}
+                    portionKcal={null}
+                    portionProtein={null}
+                    portionFat={null}
+                    portionCarbs={null}
+                    servingMultiplier={1}
                     status={meal.status}
-                    isBatchCookLeftover={meal.isBatchCookLeftover}
+                    isBatchCookLeftover={false}
                     isOwn={isOwnView}
                     onMarkEaten={mealId => markEatenMutation.mutate(mealId)}
                     onLogOffPlan={mealId => setLogSheetMealId(mealId)}
@@ -270,7 +219,7 @@ export function MemberView() {
         <OffPlanLogSheet
           plannedMealId={logSheetMealId || null}
           date={viewDate}
-          familyRecipients={familyRecipients}
+          familyRecipients={[]}
           onClose={() => setLogSheetMealId(null)}
         />
       )}

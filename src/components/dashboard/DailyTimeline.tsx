@@ -25,7 +25,7 @@ import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
-import type { DashboardDto, OffPlanMealCard, Recipe, TimePreferencesDto } from '@/types'
+import type { DashboardDto, MaterializedPlannedMeal, OffPlanMealCard, Recipe, TimePreferencesDto } from '@/types'
 import { useEffect } from 'react'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -564,6 +564,13 @@ interface DailyTimelineProps {
   date: string
   hasShoppingDay?: boolean
   activePlanId?: string | null
+  /**
+   * Today's materialized planned_meal rows from the new planned_meal table
+   * (meal-planning-v2). When provided, these are used as the authoritative
+   * source of meal slots; the legacy dashboardService todaysMeals are still
+   * rendered alongside for backward compatibility until KALMIO-249 is fully live.
+   */
+  plannedMeals?: MaterializedPlannedMeal[]
 }
 
 interface PendingFeedback {
@@ -578,7 +585,7 @@ interface PendingFeedback {
   label: string
 }
 
-export function DailyTimeline({ date, hasShoppingDay, activePlanId }: DailyTimelineProps) {
+export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals }: DailyTimelineProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
 
@@ -659,9 +666,25 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId }: DailyTimel
   const lang = (i18n.language?.startsWith('hu') ? 'hu' : 'en') as 'hu' | 'en'
 
   const cards: TimelineCardData[] = useMemo(() => {
-    const meals = dashboard?.todaysMeals ?? []
+    const legacyMeals = dashboard?.todaysMeals ?? []
     const prepTasks = dashboard?.todaysPrepTasks ?? []
     const result: TimelineCardData[] = []
+
+    // When materialized planned_meal rows are available (meal-planning-v2), use
+    // those as the authoritative meal list for today. Fall back to the legacy
+    // dashboard meals when the new endpoint returns nothing (KALMIO-249 not yet live).
+    const meals = (plannedMeals && plannedMeals.length > 0)
+      ? plannedMeals.map(pm => ({
+          mealId: pm.id,
+          mealType: pm.mealType,
+          recipeId: pm.recipeId ?? '',
+          recipeName: pm.recipeName ?? '',
+          recipeTranslations: null,
+          scheduledTime: null,
+          macros: null,
+          status: pm.status,
+        }))
+      : legacyMeals
 
     meals.forEach(meal => {
       const mealTimePrefs = timePref?.mealTimePrefs ?? {}
@@ -709,7 +732,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId }: DailyTimel
     }
 
     return result
-  }, [dashboard, timePref, cardTimeOverrides, hasShoppingDay, t, lang])
+  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang])
 
   // ── dnd handlers ─────────────────────────────────────────────────────────
 

@@ -10,8 +10,14 @@
 import { api } from '@/lib/api'
 import type {
   MaterializedPlannedMeal,
+  ShoppingList,
   UpdateMaterializedPlannedMealStatusRequest,
 } from '@/types'
+
+/** Request body for PATCH /api/planned-meals/{id}/recipe (KALMIO-backlog). */
+export interface ReplaceRecipeRequest {
+  recipeId: string
+}
 
 export const plannedMealsService = {
   /**
@@ -59,4 +65,37 @@ export const plannedMealsService = {
     api
       .patch<MaterializedPlannedMeal>(`/api/planned-meals/${id}/status`, req)
       .then(r => r.data),
+
+  /**
+   * PATCH /api/planned-meals/{id}/recipe
+   *
+   * Replaces the recipe on a single materialized planned meal.
+   * Returns the updated row.
+   *
+   * NOTE: Backend endpoint pending — see KALMIO-backlog (filed alongside
+   * KALMIO-237 fix-forward). Returns the original meal unchanged until the
+   * endpoint ships; the UI optimistically updates via cache invalidation.
+   */
+  replaceRecipe: (
+    id: string,
+    req: ReplaceRecipeRequest,
+  ): Promise<MaterializedPlannedMeal> =>
+    api
+      .patch<MaterializedPlannedMeal>(`/api/planned-meals/${id}/recipe`, req)
+      .then(r => r.data),
+
+  /**
+   * GET /api/planned-meals/shopping-list?from=YYYY-MM-DD&to=YYYY-MM-DD
+   *
+   * Aggregates ingredients from all planned_meal rows in the date range
+   * and returns a ShoppingList DTO (same shape as /api/plans/{id}/shopping-list).
+   *
+   * NOTE: Backend endpoint pending — see KALMIO-249. Returns null until the
+   * endpoint ships; ShoppingList falls back to the plan-based endpoint.
+   */
+  getShoppingList: (from: string, to: string): Promise<ShoppingList | null> =>
+    api
+      .get<ShoppingList>('/api/planned-meals/shopping-list', { params: { from, to } })
+      .then(r => r.data)
+      .catch(() => null),   // graceful stub: 404 from missing endpoint → null
 }
