@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   LayoutDashboard,
-  UtensilsCrossed,
   ShoppingCart,
   Settings,
   ChefHat,
@@ -70,7 +69,6 @@ export function MobileNav() {
 
   const primaryItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.home') },
-    { to: '/app/meal-plans', icon: UtensilsCrossed, label: t('nav.plans') },
     { to: '/app/shopping-list', icon: ShoppingCart, label: t('nav.shop') },
     { to: '/app/settings', icon: Settings, label: t('nav.settings') },
   ]

@@ -9,7 +9,6 @@ import { LandingPage } from '@/pages/LandingPage'
 import { Auth } from '@/pages/Auth'
 import { AuthCallback } from '@/pages/AuthCallback'
 import { Dashboard } from '@/pages/Dashboard'
-import { MealPlan } from '@/pages/MealPlan'
 import { Recipes } from '@/pages/Recipes'
 import { Ingredients } from '@/pages/Ingredients'
 import { ShoppingList } from '@/pages/ShoppingList'
@@ -165,7 +164,6 @@ export default function App() {
                 <Route path="/app/recipes/:id/cook" element={<CookMode />} />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<Dashboard />} />
-                  <Route path="meal-plans" element={<MealPlan />} />
                   <Route path="recipes" element={<Recipes />} />
                   <Route path="ingredients" element={<Ingredients />} />
                   <Route path="shopping-list" element={<ShoppingList />} />

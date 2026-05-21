@@ -11,11 +11,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
-import { mealPlansService } from '@/services/mealPlans'
 import { fridgeService } from '@/services/fridge'
 import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
-import { useMealPlanStore } from '@/store/mealPlan'
 import { formatCurrency } from '@/lib/utils'
 import { capture, buildCohortProperties } from '@/lib/analytics'
 import { usersService } from '@/services/users'
@@ -29,25 +27,18 @@ export function ShoppingList() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const legacyPlan = useMealPlanStore(s => s.plan)
   const [leftoversAdded, setLeftoversAdded] = useState(false)
   const [copied, setCopied] = useState(false)
   const [tescoMappingWeak, setTescoMappingWeak] = useState(false)
 
-  // New calendar plan takes priority
   const { data: calendarPlan } = useQuery({
     queryKey: ['plan', 'active'],
     queryFn: planService.getActive,
     staleTime: 60_000,
   })
 
-  const hasPlan = !!calendarPlan || !!legacyPlan
-  const planDays = calendarPlan ? calendarPlan.shoppingCycleDays : legacyPlan?.days
-
-  const { data: fridgeItems = [] } = useQuery({
-    queryKey: ['fridge'],
-    queryFn: fridgeService.list,
-  })
+  const hasPlan = !!calendarPlan
+  const planDays = calendarPlan?.shoppingCycleDays
 
   // ── User profile — needed for cohort analytics properties ─────────────────
   const { data: userProfile } = useQuery({
@@ -89,30 +80,11 @@ export function ShoppingList() {
   const calendarShoppingList = plannedMealsShoppingList ?? planShoppingList ?? undefined
   const calendarLoading = plannedMealsListLoading || (plannedMealsShoppingList === null && planListLoading)
 
-  // ── Legacy path: POST mutation ────────────────────────────────────────────
-  const legacyMutation = useMutation({
-    mutationFn: mealPlansService.shoppingList,
-  })
-
-  // Trigger legacy mutation when a legacyPlan (but no calendarPlan) is present.
-  // We keep the same effect-free approach — the caller page redirects here after
-  // generating, so we fire once on mount when legacyPlan is available.
-  const [legacyTriggered, setLegacyTriggered] = useState(false)
-  if (legacyPlan && !calendarPlan && !legacyTriggered && !legacyMutation.isPending) {
-    setLegacyTriggered(true)
-    legacyMutation.mutate({
-      meals: legacyPlan.meals.map(m => ({ recipeId: m.recipe.id, servingMultiplier: m.servingMultiplier })),
-      fridgeItems: fridgeItems.map(fi => ({ ingredientId: fi.ingredientId, amount: fi.amount, unit: fi.unit })),
-    })
-  }
-
   // Resolve the active shopping list and loading/error state
-  const shoppingList = calendarPlan ? calendarShoppingList : legacyMutation.data
-  const isLoading = calendarPlan ? calendarLoading : legacyMutation.isPending
-  const isError = calendarPlan ? calendarError : legacyMutation.isError
-  const errorMessage = calendarPlan
-    ? (calendarErrorObj as Error | null)?.message ?? t('shoppingList.error')
-    : (legacyMutation.error as Error | null)?.message ?? t('shoppingList.error')
+  const shoppingList = calendarShoppingList
+  const isLoading = calendarLoading
+  const isError = calendarError
+  const errorMessage = (calendarErrorObj as Error | null)?.message ?? t('shoppingList.error')
 
   // ── Analytics: fire once when the shopping list first loads ──────────────
   const capturedRef = useRef(false)
@@ -288,7 +260,7 @@ export function ShoppingList() {
             <ShoppingCart className="h-10 w-10 text-[#F28C28] mb-3" />
             <h3 className="font-headline font-bold text-[#1A1A1A] mb-1">{t('shoppingList.noActivePlan.title')}</h3>
             <p className="text-sm text-gray-500 mb-4">{t('shoppingList.noActivePlan.description')}</p>
-            <Button onClick={() => navigate('/app/meal-plans')}>{t('shoppingList.noActivePlan.button')}</Button>
+            <Button onClick={() => navigate('/app/plans')}>{t('shoppingList.noActivePlan.button')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -301,7 +273,7 @@ export function ShoppingList() {
         title={t('shoppingList.title')}
         subtitle={planDays != null ? t('shoppingList.subtitle', { days: planDays }) : undefined}
         actions={
-          <Button variant="secondary" onClick={() => navigate('/app/meal-plans')}>
+          <Button variant="secondary" onClick={() => navigate('/app/plans')}>
             {t('shoppingList.backToPlan')}
           </Button>
         }

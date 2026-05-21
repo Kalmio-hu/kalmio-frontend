@@ -290,15 +290,6 @@ export interface UpdateRetailProductRequest {
   ingredientMappings: { ingredientId: string; matchConfidence: number }[]
 }
 
-// ── Meal Plans ────────────────────────────────────────────────────────────
-
-export interface ConstraintWeights {
-  leftovers: number
-  budget: number
-  prepTime: number
-  recipeRepeat: number
-}
-
 // ── Fridge ────────────────────────────────────────────────────────────────
 
 export interface FridgeItem {
@@ -326,6 +317,13 @@ export interface UpdateFridgeItemRequest {
   amount?: number
 }
 
+export interface ConstraintWeights {
+  leftovers: number
+  budget: number
+  prepTime: number
+  recipeRepeat: number
+}
+
 export interface GenerateMealPlanRequest {
   days: number
   selectedMeals: MealType[]
@@ -348,81 +346,6 @@ export interface GenerateMealPlanRequest {
     maxMultiplier: number
     step: number
   } | null
-}
-
-export interface GeneratedMeal {
-  id: string
-  day: number
-  mealType: MealType
-  recipe: Recipe
-  servingMultiplier: number
-  estimatedCost: number | null
-  macros: Macros | null
-  isBatchCookLeftover?: boolean
-}
-
-export interface MealPlan {
-  id: string
-  days: number
-  mealsPerDay: number
-  score: string
-  totalEstimatedCost: number | null
-  savedPlanId: string | null
-  meals: GeneratedMeal[]
-}
-
-// ── Async plan-job queue ──────────────────────────────────────────────────
-
-export type PlanJobStatus = 'PENDING' | 'RUNNING' | 'DONE' | 'FAILED'
-
-export interface PlanJobStatusResponse {
-  jobId: string
-  status: PlanJobStatus
-  queuePosition: number | null
-  estimatedWaitSeconds: number | null
-  /** Generated MealPlan as a JSON string; populated only when status === 'DONE'. */
-  result: string | null
-  errorMessage: string | null
-}
-
-export interface PlanJobProgress {
-  status: PlanJobStatus
-  queuePosition: number | null
-  estimatedWaitSeconds: number | null
-}
-
-// ── Saved Meal Plans ──────────────────────────────────────────────────────
-
-export interface SavedSlotMacros {
-  kcal: number
-  protein: number
-  fat: number
-  carbs: number
-}
-
-export interface SavedMealSlot {
-  id: string
-  dayNumber: number
-  mealType: MealType
-  recipeId: string
-  recipeName: string
-  recipePrepTimeMinutes: number
-  recipeCookTimeMinutes: number
-  recipeTags: RecipeTag[]
-  servingMultiplier: number
-  macros: SavedSlotMacros | null
-  estimatedCost: number | null
-  recipeSteps: string[]
-  recipeTranslations: RecipeTranslations | null
-}
-
-export interface SavedMealPlan {
-  id: string
-  name: string
-  days: number
-  mealsPerDay: number
-  slots: SavedMealSlot[]
-  createdAt: string
 }
 
 // ── Calendar Plans ────────────────────────────────────────────────────────
@@ -727,11 +650,6 @@ export interface AiCookModeResponse {
 }
 
 // ── Shopping List ─────────────────────────────────────────────────────────
-
-export interface ShoppingListRequest {
-  meals: { recipeId: string; servingMultiplier: number }[]
-  fridgeItems?: { ingredientId: string; amount: number; unit: Unit }[]
-}
 
 export interface RetailProductInfo {
   id: string
@@ -1194,72 +1112,6 @@ export interface CreatePlanTemplateRequest {
   shoppingCadenceDays?: number | null
   /** Optional family UUID. */
   familyId?: string | null
-}
-
-// ── Multi-Member Plans (BE2 / KALMIO-216) ────────────────────────────────
-
-export type MultiPlanStatus = 'DRAFT' | 'ACTIVE' | 'COMPLETED' | 'CANCELLED'
-
-export interface PlannedMealSummary {
-  id: string
-  date: string              // "YYYY-MM-DD"
-  mealType: MealType
-  recipeId: string | null
-  recipeName: string | null
-  memberIds: string[]
-  macros: Macros | null
-  estimatedCostPerServing: number | null
-  servingMultiplier: number
-  status: PlannedMealStatus
-  replacedWithRecipeId: string | null
-  eatenAt: string | null
-  notes: string | null
-  scheduledTime: string | null  // "HH:mm"
-  isBatchCookLeftover: boolean
-}
-
-export interface MultiMemberPlan {
-  id: string
-  name: string
-  plannerId: string
-  memberIds: string[]
-  coPlannerIds: string[]
-  startDate: string         // "YYYY-MM-DD"
-  endDate: string           // "YYYY-MM-DD"
-  durationDays: number
-  mealSlotsCovered: MealType[]
-  status: MultiPlanStatus
-  shoppedAt: string | null  // ISO-8601
-  createdAt: string         // ISO-8601
-  meals: PlannedMealSummary[]
-}
-
-export interface CreateMultiMemberPlanRequest {
-  memberIds: string[]
-  startDate: string         // "YYYY-MM-DD"
-  durationDays: number
-  mealSlotsCovered: MealType[]
-  name?: string | null
-}
-
-export interface UpdatePlanMembersRequest {
-  addUserIds: string[]
-  removeUserIds: string[]
-}
-
-/** Replan suggestion from BE4 — stubbed type until BE4 endpoints land. */
-export interface ReplanSuggestion {
-  id: string
-  planId: string
-  date: string
-  mealType: MealType
-  oldRecipeId: string | null
-  oldRecipeName: string | null
-  newRecipeId: string
-  newRecipeName: string
-  reason: string
-  riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'
-  createdAt: string
 }
 
 // ── Shopping Cart (BE2 / KALMIO-217) ─────────────────────────────────────

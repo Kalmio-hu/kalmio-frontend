@@ -3,17 +3,6 @@
  * imported by both page components and unit tests without triggering
  * the react-refresh/only-export-components lint rule.
  */
-import type { MultiMemberPlan } from '@/types'
-
-export type FilterStatus = 'all' | 'active' | 'upcoming' | 'past'
-
-export function filterPlans(plans: MultiMemberPlan[], status: FilterStatus): MultiMemberPlan[] {
-  const today = new Date().toISOString().slice(0, 10)
-  if (status === 'active') return plans.filter(p => p.startDate <= today && p.endDate >= today)
-  if (status === 'upcoming') return plans.filter(p => p.startDate > today)
-  if (status === 'past') return plans.filter(p => p.endDate < today)
-  return plans
-}
 
 export function generatePlanName(
   memberNames: string[],
