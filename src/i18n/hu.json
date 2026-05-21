@@ -1230,6 +1230,37 @@
       "pendingShopping": "Bevásárlás szükséges",
       "avgKcal": "~{{kcal}} kcal/étkezés"
     },
+    "list": {
+      "title": "Terveim",
+      "subtitle": "Minden étrend-sablonod egy helyen.",
+      "newPlan": "Új terv",
+      "empty": "Még nincs terv — az első sablonodat te szabhatod meg.",
+      "retry": "Újrapróbálás",
+      "defaultBadge": "Alapértelmezett",
+      "filter": {
+        "label": "Szűrő",
+        "all": "Mind",
+        "active": "Aktív",
+        "draft": "Vázlat",
+        "archived": "Archivált"
+      },
+      "status": {
+        "ACTIVE": "Aktív",
+        "DRAFT": "Vázlat",
+        "ARCHIVED": "Archivált"
+      },
+      "card": {
+        "lengthDays_one": "{{count}} nap",
+        "lengthDays_other": "{{count}} nap",
+        "lastModified": "Módosítva: {{date}}",
+        "menuAria": "Terv műveletek",
+        "menu": {
+          "open": "Megnyitás",
+          "copy": "Másolás",
+          "archive": "Archiválás"
+        }
+      }
+    },
     "mealTypes": {
       "BREAKFAST": "Reggeli",
       "MORNING_SNACK": "Tízórai",

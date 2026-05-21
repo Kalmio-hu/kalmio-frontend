@@ -1230,6 +1230,37 @@
       "pendingShopping": "Shopping pending",
       "avgKcal": "~{{kcal}} kcal/meal"
     },
+    "list": {
+      "title": "My plans",
+      "subtitle": "All your meal-plan templates in one place.",
+      "newPlan": "New plan",
+      "empty": "No plans yet — your first template is yours to shape.",
+      "retry": "Try again",
+      "defaultBadge": "Default",
+      "filter": {
+        "label": "Filter",
+        "all": "All",
+        "active": "Active",
+        "draft": "Draft",
+        "archived": "Archived"
+      },
+      "status": {
+        "ACTIVE": "Active",
+        "DRAFT": "Draft",
+        "ARCHIVED": "Archived"
+      },
+      "card": {
+        "lengthDays_one": "{{count}} day",
+        "lengthDays_other": "{{count}} days",
+        "lastModified": "Updated {{date}}",
+        "menuAria": "Plan actions",
+        "menu": {
+          "open": "Open",
+          "copy": "Copy",
+          "archive": "Archive"
+        }
+      }
+    },
     "mealTypes": {
       "BREAKFAST": "Breakfast",
       "MORNING_SNACK": "Morning snack",
