@@ -21,7 +21,8 @@
     "contentReview": "Tartalom jóváhagyás",
     "feedback": "Visszajelzés",
     "more": "Több",
-    "family": "Család"
+    "family": "Család",
+    "preferences": "Beállításaim"
   },
   "common": {
     "version": "Táplálkozási Motor v0.1",
@@ -1375,7 +1376,23 @@
     "weightRecipeRepeat": "Változatosság",
     "weightDisabled": "Nincs megadva feltétel",
     "infeasibleTitle": "Nem sikerült megoldható tervet összerakni.",
-    "infeasibleDesc": "Lazíts egy kicsit a feltételeken, vagy bővítsd a recept adatbázist."
+    "infeasibleDesc": "Lazíts egy kicsit a feltételeken, vagy bővítsd a recept adatbázist.",
+    "page": {
+      "title": "Beállításaim",
+      "subtitle": "Étkezési és tervezési preferenciák egy helyen.",
+      "dietary": {
+        "title": "Étrendi preferenciák"
+      },
+      "mealTypes": {
+        "title": "Étkezések és kalóriaelosztás"
+      },
+      "prep": {
+        "title": "Előkészítési beállítások"
+      },
+      "forbidden": {
+        "title": "Kizárt hozzávalók"
+      }
+    }
   },
   "ipVault": {
     "title": "IP Trezor",

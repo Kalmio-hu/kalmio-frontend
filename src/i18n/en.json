@@ -21,7 +21,8 @@
     "contentReview": "Content Review",
     "feedback": "Feedback",
     "more": "More",
-    "family": "Family"
+    "family": "Family",
+    "preferences": "My Preferences"
   },
   "common": {
     "version": "Nutrition Engine v0.1",
@@ -1375,7 +1376,23 @@
     "weightRecipeRepeat": "Variety",
     "weightDisabled": "No constraint set",
     "infeasibleTitle": "Couldn't build a feasible plan.",
-    "infeasibleDesc": "Relax some constraints, or expand the recipe database."
+    "infeasibleDesc": "Relax some constraints, or expand the recipe database.",
+    "page": {
+      "title": "My Preferences",
+      "subtitle": "Nutrition and planning preferences in one place.",
+      "dietary": {
+        "title": "Dietary preferences"
+      },
+      "mealTypes": {
+        "title": "Meal types and calorie split"
+      },
+      "prep": {
+        "title": "Prep preferences"
+      },
+      "forbidden": {
+        "title": "Forbidden ingredients"
+      }
+    }
   },
   "ipVault": {
     "title": "IP Vault",

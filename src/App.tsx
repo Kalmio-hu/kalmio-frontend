@@ -18,6 +18,7 @@ import { Grooming } from '@/pages/Grooming'
 import { RetailProducts } from '@/pages/RetailProducts'
 import { Settings } from '@/pages/Settings'
 import { Profile } from '@/pages/Profile'
+import { Preferences } from '@/pages/Preferences'
 import { UserManagement } from '@/pages/admin/UserManagement'
 import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
@@ -41,6 +42,7 @@ import { DiofaPreview } from '@/pages/_preview/DiofaPreview'
 import { TasteSwipePreview } from '@/pages/_preview/TasteSwipePreview'
 import { Grove } from '@/pages/Grove'
 import { FoundingMember } from '@/pages/FoundingMember'
+import { FoundingMemberSuccess } from '@/pages/FoundingMemberSuccess'
 import { Family } from '@/pages/Family'
 import { Plans } from '@/pages/Plans'
 import { PlanCreate } from '@/pages/PlanCreate'
@@ -168,8 +170,10 @@ export default function App() {
                   <Route path="retail-products" element={<RetailProducts />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path="preferences" element={<Preferences />} />
                   <Route path="grove" element={<Grove />} />
                   <Route path="founding-member" element={<FoundingMember />} />
+                  <Route path="founding-member/success" element={<FoundingMemberSuccess />} />
                   <Route path="family" element={<Family />} />
                   <Route path="cart" element={<ShoppingCart />} />
                   <Route path="members/:memberId" element={<MemberView />} />
