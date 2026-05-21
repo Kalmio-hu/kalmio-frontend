@@ -749,9 +749,8 @@
     },
     "status": {
       "title": "Fiók állapota",
-      "memberSince": "Tag:",
-      "freeTier": "Ingyenes hozzáférés",
-      "foundingMemberLabel": "Alapító tag"
+      "memberSince": "Tagság kezdete:",
+      "freeTier": "Ingyenes hozzáférés"
     },
     "foundingMemberBadge": {
       "label": "Alapító tag",

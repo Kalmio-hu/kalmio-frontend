@@ -750,8 +750,7 @@
     "status": {
       "title": "Account status",
       "memberSince": "Member since:",
-      "freeTier": "Free access",
-      "foundingMemberLabel": "Founding Member"
+      "freeTier": "Free access"
     },
     "foundingMemberBadge": {
       "label": "Founding Member",
