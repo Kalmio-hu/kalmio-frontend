@@ -2,7 +2,7 @@
  * Plans — plan-template list page (C11 / KALMIO-233).
  *
  * Shows every PlanTemplate owned by or shared with the current user.
- * The seeded default "Sajátom" plan is always first and visually pinned.
+ * The seeded default plan is always first and visually pinned.
  *
  * Filter chips: All / Active / Draft / Archived (archived hidden by default).
  * Each card links to /app/plans/:id (PlanDetail — C13).
@@ -173,7 +173,7 @@ export function Plans() {
         </div>
       )}
 
-      {/* Empty state — should never appear (A7 seeds "Sajátom") */}
+      {/* Empty state — should never appear (A7 seeds the default plan) */}
       {!isLoading && !isError && filtered.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-12 text-center">
           <p className="text-[#6b7280] text-sm">{t('plan.list.empty')}</p>

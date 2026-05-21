@@ -1235,7 +1235,7 @@
       "title": "Terveim",
       "subtitle": "Minden étrend-sablonod egy helyen.",
       "newPlan": "Új terv",
-      "empty": "Még nincs terv — az első sablonodat te szabhatod meg.",
+      "empty": "Még nincs terv.",
       "retry": "Újrapróbálás",
       "defaultBadge": "Alapértelmezett",
       "filter": {
@@ -2189,7 +2189,7 @@
     "noMeals": "Nincs tervezett étkezés.",
     "noRecipe": "Nincs recept",
     "emptyTitle": "Nincs megjeleníthető étkezés erre az időszakra",
-    "emptyBody": "Hozz létre egy ütemezést, hogy étkezések jelenjenek meg a naptárban.",
+    "emptyBody": "Ütemezés után jelennek meg itt az étkezések.",
     "statusUpdated": "Állapot frissítve.",
     "statusUpdateError": "Nem sikerült frissíteni az állapotot. Próbáld újra.",
     "status": {
@@ -2213,7 +2213,7 @@
       "LUNCH": "Ebéd",
       "AFTERNOON_SNACK": "Uzsonna",
       "DINNER": "Vacsora",
-      "SNACK": "Esti snack"
+      "SNACK": "Snack"
     }
   }
 }
