@@ -740,6 +740,13 @@
     "languageLabel": "Felület nyelve",
     "saveError": "Nem sikerült menteni a beállításokat.",
     "saveSuccess": "Beállítások elmentve.",
+    "suggestion": {
+      "title": "Javasolt célok",
+      "kcal": "Javasolt kalóriacél: {{n}} kcal (TDEE alapján)",
+      "protein": "Javasolt fehérje: {{n}}g (1,8 g / kg testsúly)",
+      "accept": "Elfogadom",
+      "hint": "A javaslatot a profilban megadott testadataid alapján számítottuk."
+    },
     "status": {
       "title": "Fiók állapota",
       "memberSince": "Tag:",
@@ -809,6 +816,19 @@
       "saveFailed": "Nem sikerült menteni. Próbáld újra.",
       "inappropriate": "Ez a név nem engedélyezett. Válassz másikat.",
       "tooLong": "A név legfeljebb {{max}} karakter lehet."
+    },
+    "macroTargets": {
+      "carbsTargetG": "Cél szénhidrát (g)",
+      "fatTargetG": "Cél zsír (g)"
+    },
+    "prepPrefs": {
+      "title": "Előkészítési preferenciák",
+      "subtitle": "Innen tudjuk, hogyan szervezzük az előkészítést neked.",
+      "prefersFreezing": "Szívesen lefagyasztok előkészített ételt",
+      "prefersFreezingHint": "Ha engedélyezed, a hűtős eltarthatóságon túli ismétléseket egyetlen főzésbe fogjuk össze és néhány adagot fagyasztásra ajánlunk.",
+      "preferredPrepDayOfWeek": "Preferált előkészítési nap",
+      "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
+      "noPreference": "Nincs preferencia"
     }
   },
   "impersonation": {

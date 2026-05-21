@@ -740,9 +740,16 @@
     "languageLabel": "Interface language",
     "saveError": "Failed to save settings.",
     "saveSuccess": "Settings saved.",
+    "suggestion": {
+      "title": "Suggested targets",
+      "kcal": "Suggested calorie target: {{n}} kcal (based on TDEE)",
+      "protein": "Suggested protein: {{n}}g (1.8 g / kg body weight)",
+      "accept": "Apply",
+      "hint": "Calculated from the body data you entered in your profile."
+    },
     "status": {
       "title": "Account status",
-      "memberSince": "Member since",
+      "memberSince": "Member since:",
       "freeTier": "Free access",
       "foundingMemberLabel": "Founding Member"
     },
@@ -809,6 +816,19 @@
       "saveFailed": "Could not save. Please try again.",
       "inappropriate": "That name is not allowed. Choose another.",
       "tooLong": "The name must be {{max}} characters or fewer."
+    },
+    "macroTargets": {
+      "carbsTargetG": "Carb target (g)",
+      "fatTargetG": "Fat target (g)"
+    },
+    "prepPrefs": {
+      "title": "Prep preferences",
+      "subtitle": "Tells the planner how you like to handle meal prep.",
+      "prefersFreezing": "I'm comfortable freezing prepped food",
+      "prefersFreezingHint": "When on, repeated meals beyond fridge shelf life will be batched into one cook with some portions frozen.",
+      "preferredPrepDayOfWeek": "Preferred prep day",
+      "preferredPrepDayOfWeekHint": "The planner will land batches on this day whenever the recipe's hold window allows.",
+      "noPreference": "No preference"
     }
   },
   "impersonation": {
