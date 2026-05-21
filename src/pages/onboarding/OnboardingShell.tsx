@@ -181,7 +181,7 @@ export function OnboardingShell() {
       // KALMIO-241: redirect to Profile (body-data section) when body data is
       // incomplete; otherwise go straight to the dashboard.
       const bodyDataIncomplete =
-        !user || (user.weightKg == null && user.heightCm == null)
+        !!user && user.weightKg == null && user.heightCm == null
       if (bodyDataIncomplete) {
         navigate('/app/profile?section=body-data', { replace: true })
       } else {
