@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { BiologicalSex, ActivityLevel, DietaryConstraints, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
+import type { BiologicalSex, ActivityLevel, DietaryConstraints, Goal, HealthFeedbackItem, TargetSetResponse, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
 
 export interface UserMealPreferences {
   days?: number
@@ -60,6 +60,10 @@ export interface UserSettings {
   foundingMemberPurchasedAt: string | null
   /** User-chosen name for their diófa tree. Available from FIATAL stage onward. Null = unnamed. */
   diofaName: string | null
+  /** User's current fitness/nutrition goal. Null = not yet set. KALMIO-223. */
+  goal: Goal | null
+  /** Optional override for the goal's default %BW/week rate. Null = use built-in default. */
+  goalTargetPct: number | null
 }
 
 export interface BodyDataRequest {
@@ -68,6 +72,13 @@ export interface BodyDataRequest {
   ageYears?: number | null
   biologicalSex?: BiologicalSex | null
   activityLevel?: ActivityLevel | null
+}
+
+/** PATCH /api/users/me/body-data extended with goal — KALMIO-230 / B8.
+ *  Backend needs to accept this field; tracked in the B8 In Progress comment. */
+export interface UpdateGoalRequest {
+  goal: Goal | null
+  goalTargetPct?: number | null
 }
 
 export interface UpdateSettingsRequest {
@@ -117,4 +128,27 @@ export const usersService = {
   /** PUT /api/users/me/diofa-name — set or update the user's diófa tree name (FIATAL+ only). */
   updateDiofaName: (name: string): Promise<void> =>
     api.put('/api/users/me/diofa-name', { name }).then(() => undefined),
+  /**
+   * GET /api/users/me/targets — returns computed TDEE + macro targets.
+   * Returns null (204) when body data is incomplete or goal is not set.
+   * KALMIO-223 / A1.
+   */
+  getTargets: (): Promise<TargetSetResponse | null> =>
+    api.get<TargetSetResponse>('/api/users/me/targets').then(r =>
+      r.status === 204 || !r.data ? null : r.data
+    ),
+  /**
+   * GET /api/users/me/goal-feedback — returns list of health-feedback items.
+   * Returns empty array when no warnings apply or body data / goal is absent.
+   * KALMIO-224 / A2.
+   */
+  getGoalFeedback: (): Promise<HealthFeedbackItem[]> =>
+    api.get<HealthFeedbackItem[]>('/api/users/me/goal-feedback').then(r => r.data),
+  /**
+   * PATCH /api/users/me/body-data — update user goal.
+   * NOTE: The backend UpdateBodyDataRequest needs a `goal` field added (tracked in KALMIO-230 comment).
+   * This call will silently succeed once the backend accepts the `goal` field.
+   */
+  updateGoal: (req: UpdateGoalRequest): Promise<UserSettings> =>
+    api.patch<UserSettings>('/api/users/me/body-data', req).then(r => r.data),
 }

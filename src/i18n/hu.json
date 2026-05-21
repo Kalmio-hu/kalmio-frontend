@@ -620,7 +620,51 @@
       "clearAll": "Adatok törlése",
       "clearing": "Törlés…",
       "clearSuccess": "Testadatok törölve.",
-      "clearError": "Nem sikerült törölni a testadatokat."
+      "clearError": "Nem sikerült törölni a testadatokat.",
+      "tdee": "Napi energiaszükséglet (TDEE)",
+      "tdeeIncomplete": "Add meg a testadataidat a TDEE kiszámításához."
+    },
+    "goal": {
+      "title": "Célom",
+      "subtitle": "A céltól számítjuk a javasolt makrócéljaidat.",
+      "noGoalHint": "Válassz célt a makrócélok megjelenítéséhez.",
+      "maintain": "Súlytartás",
+      "maintainDesc": "0 %BW/hét — tartd a jelenlegi súlyodat",
+      "mildLoss": "Enyhe fogyás",
+      "mildLossDesc": "−0,5 %BW/hét — lassú, tartós fogyás",
+      "aggressiveLoss": "Erőteljes fogyás",
+      "aggressiveLossDesc": "−1,0 %BW/hét — gyorsabb fogyás",
+      "recomposition": "Testösszetétel-javítás",
+      "recompositionDesc": "~0 %BW/hét — zsír le, izom marad",
+      "cleanBulk": "Tiszta tömegnövelés",
+      "cleanBulkDesc": "+0,25 %BW/hét — lassú izomnövelés",
+      "dirtyBulk": "Agresszív tömegnövelés",
+      "dirtyBulkDesc": "+0,5 %BW/hét — gyors tömegnövelés",
+      "weeklyChangeLabel": "≈{{kg}} kg/hét a te súlyodnál",
+      "saveSuccess": "Cél elmentve.",
+      "saveError": "Nem sikerült menteni a célt."
+    },
+    "targets": {
+      "title": "Számított célok",
+      "kcal": "Kalóriacél",
+      "protein": "Fehérjecél",
+      "carbs": "Szénhidrátcél",
+      "fat": "Zsírcél",
+      "unit_kcal": "kcal",
+      "unit_g": "g"
+    },
+    "specialis": {
+      "label": "Speciális",
+      "hint": "Felülírhatod a számított célokat. Ha törlöd az értéket, visszaáll a számított adat.",
+      "kcalOverride": "Kalóriacél felülírása (kcal)",
+      "proteinOverride": "Fehérjecél felülírása (g)",
+      "carbsOverride": "Szénhidrátcél felülírása (g)",
+      "fatOverride": "Zsírcél felülírása (g)",
+      "carbFatSplit": "Szénhidrát / Zsír arány",
+      "save": "Mentés",
+      "saving": "Mentés…",
+      "saveSuccess": "Speciális beállítások elmentve.",
+      "saveError": "Nem sikerült menteni a speciális beállításokat."
     },
     "mealPrefs": {
       "title": "Étkezési preferenciák",
@@ -630,6 +674,15 @@
       "mealCalories": "Kalória elosztás",
       "proteinTarget": "Fehérjecél",
       "save": "Mentés"
+    }
+  },
+  "goal": {
+    "feedback": {
+      "bmiBelow18Loss": "A súlyod már most az egészséges tartomány alatt van. Kérlek, kérj szakemberi véleményt, mielőtt fogyni kezdesz.",
+      "lowBmiAggressiveLoss": "Ezzel a testtömeggel az enyhe fogyás tartósabb és biztonságosabb. Megfontoltad a Mild loss opciót?",
+      "highBmiDirtyBulk": "Az agresszív tömegnövelés mostanában valószínűleg nem a legmegfelelőbb választás. A Testösszetétel-javítás jobb kiindulópont lehet.",
+      "midHighBmiDirtyBulk": "Ennél a súlynál a Tiszta tömegnövelés jobb választás lehet az agresszív változat helyett.",
+      "seniorAggressiveLoss": "65 év felett az erőteljes fogyás izomvesztéssel járhat. Az enyhe fogyás kíméletesebb megközelítés."
     }
   },
   "dietary": {
