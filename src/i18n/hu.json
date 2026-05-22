@@ -1473,7 +1473,7 @@
       }
     },
     "prep": {
-      "rowLabel": "Előkészítés",
+      "rowLabel": "Előkészítések",
       "empty": "Még nincs előkészítés",
       "windowMorning": "reggel",
       "windowEvening": "este",
@@ -1482,7 +1482,7 @@
       "servings_other": "{{count}} adag",
       "freezeMarker": "fagyasztandó",
       "picker": {
-        "title": "Előkészítés hozzáadása",
+        "title": "Új előkészítés",
         "recipeLabel": "Recept",
         "windowLabel": "Időpont",
         "servingsLabel": "Adagok száma",

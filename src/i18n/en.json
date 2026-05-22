@@ -1482,10 +1482,10 @@
       "servings_other": "{{count}} servings",
       "freezeMarker": "to freeze",
       "picker": {
-        "title": "Add prep slot",
+        "title": "New prep",
         "recipeLabel": "Recipe",
-        "windowLabel": "Time of day",
-        "servingsLabel": "Servings to make",
+        "windowLabel": "Time",
+        "servingsLabel": "Servings",
         "submit": "Add"
       },
       "actions": {
