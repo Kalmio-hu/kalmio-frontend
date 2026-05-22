@@ -37,7 +37,18 @@ import type {
   RecipeTranslations,
   Unit,
   DietaryRestrictionKey,
+  MealType,
 } from '@/types'
+
+/** Meal-type filter chip order — matches the wizard's MEAL_TYPES constant. */
+const RECIPE_MEAL_TYPES: MealType[] = [
+  'BREAKFAST',
+  'MORNING_SNACK',
+  'LUNCH',
+  'AFTERNOON_SNACK',
+  'DINNER',
+  'SNACK',
+]
 
 const IMAGE_ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 const IMAGE_MAX_SIZE = 5 * 1024 * 1024 // 5 MB
@@ -156,6 +167,10 @@ export function Recipes() {
 
   const [activeRestrictions, setActiveRestrictions] = useState<Set<DietaryRestrictionKey>>(new Set())
   const [showDietaryFilter, setShowDietaryFilter] = useState(false)
+  // Optional meal-type filter — chips render above the recipe grid. Empty set
+  // means "all meal types" (no filtering). A recipe passes when it has at
+  // least one of the selected meal-type tags.
+  const [activeMealTypes, setActiveMealTypes] = useState<Set<MealType>>(new Set())
   const restrictionsInitialized = useRef(false)
 
   useEffect(() => {
@@ -346,6 +361,15 @@ export function Recipes() {
       })
       if (!passes) return false
     }
+    // Meal-type filter: recipe passes when it carries at least one of the
+    // selected meal-type tags (BREAKFAST/LUNCH/DINNER/…).
+    if (activeMealTypes.size > 0) {
+      let anyMatch = false
+      for (const mt of activeMealTypes) {
+        if (r.tags.includes(mt)) { anyMatch = true; break }
+      }
+      if (!anyMatch) return false
+    }
     return true
   })
 
@@ -373,6 +397,45 @@ export function Recipes() {
       </div>
 
       <div className="mb-4">
+        {/* Meal-type chips — quick toggle filter row above the dietary chips. */}
+        <div className="flex flex-wrap items-center gap-1.5 mb-2">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mr-1">
+            {t('recipes.mealTypeFilter')}
+          </span>
+          {RECIPE_MEAL_TYPES.map(mt => {
+            const active = activeMealTypes.has(mt)
+            return (
+              <button
+                key={mt}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setActiveMealTypes(prev => {
+                  const next = new Set(prev)
+                  if (next.has(mt)) next.delete(mt)
+                  else next.add(mt)
+                  return next
+                })}
+                className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                  active
+                    ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5]'
+                }`}
+              >
+                {t(`recipes.tags.${mt}`, { defaultValue: mt })}
+              </button>
+            )
+          })}
+          {activeMealTypes.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveMealTypes(new Set())}
+              className="text-xs text-gray-400 hover:text-gray-600 underline ml-1"
+            >
+              {t('recipes.clearFilters')}
+            </button>
+          )}
+        </div>
+
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -545,22 +608,39 @@ export function Recipes() {
                     )}
                   </div>
 
-                  {r.macros && (
-                    <div className="grid grid-cols-4 gap-1 text-center">
-                      {[
-                        { labelKey: 'recipes.detail.kcal', value: r.macros.kcal },
-                        { labelKey: 'recipes.detail.protein', value: r.macros.protein },
-                        { labelKey: 'recipes.detail.fat', value: r.macros.fat },
-                        { labelKey: 'recipes.detail.carbs', value: r.macros.carbs },
-                      ].map(({ labelKey, value }) => (
-                        <div key={labelKey} className="bg-[#F9F7F2] rounded-[8px] p-1.5">
-                          <span className="sr-only">{t(labelKey)}: {Number(value).toFixed(0)}</span>
-                          <p className="text-xs font-bold text-[#1A1A1A]" aria-hidden="true">{Number(value).toFixed(0)}</p>
-                          <p className="text-[10px] text-gray-400" aria-hidden="true">{t(labelKey)}</p>
+                  {r.macros && (() => {
+                    // r.macros is the whole-recipe total — show per-serving on
+                    // the card so the user reads it the same way they would on
+                    // any nutrition label.
+                    const divisor = r.servings > 0 ? r.servings : 1
+                    const perServing = {
+                      kcal:    Number(r.macros.kcal) / divisor,
+                      protein: Number(r.macros.protein) / divisor,
+                      fat:     Number(r.macros.fat) / divisor,
+                      carbs:   Number(r.macros.carbs) / divisor,
+                    }
+                    return (
+                      <>
+                        <div className="grid grid-cols-4 gap-1 text-center">
+                          {[
+                            { labelKey: 'recipes.detail.kcal', value: perServing.kcal },
+                            { labelKey: 'recipes.detail.protein', value: perServing.protein },
+                            { labelKey: 'recipes.detail.fat', value: perServing.fat },
+                            { labelKey: 'recipes.detail.carbs', value: perServing.carbs },
+                          ].map(({ labelKey, value }) => (
+                            <div key={labelKey} className="bg-[#F9F7F2] rounded-[8px] p-1.5">
+                              <span className="sr-only">{t(labelKey)}: {value.toFixed(0)}</span>
+                              <p className="text-xs font-bold text-[#1A1A1A]" aria-hidden="true">{value.toFixed(0)}</p>
+                              <p className="text-[10px] text-gray-400" aria-hidden="true">{t(labelKey)}</p>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                        <p className="mt-1 text-[10px] text-gray-400 text-right">
+                          {t('recipes.detail.perServing')}
+                        </p>
+                      </>
+                    )
+                  })()}
 
                   {/* Owner review actions for private / pending recipes */}
                   {isOwner && r.visibility !== 'PUBLIC' && (
