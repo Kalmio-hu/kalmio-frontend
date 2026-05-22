@@ -11,7 +11,7 @@
  */
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, Pencil, Pause, Play, Square, Zap, Check, X } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
@@ -24,6 +24,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
 import { planTemplateService } from '@/services/plans'
+import { prepTasksService } from '@/services/prepTasks'
+import { PrepLane } from '@/components/schedule/PrepLane'
+import type { PrepTaskDto } from '@/services/prepTasks'
 import type { ScheduleStatus } from '@/types'
 
 function statusBadge(status: ScheduleStatus) {
@@ -235,6 +238,24 @@ export function ScheduleDetail() {
     staleTime: 30_000,
   })
 
+  // ── Per-plan prep task fetch ───────────────────────────────────────────────
+  // Fetch prep tasks for each plan in the schedule in parallel via useQueries.
+  // We wait for the schedule to load before enabling these (planIds is empty until then).
+  const planIds = schedule?.planIds ?? []
+  const prepTaskResults = useQueries({
+    queries: planIds.map(planId => ({
+      queryKey: ['prep-tasks', id, planId] as const,
+      queryFn: () => prepTasksService.listForPlan(planId),
+      enabled: !!id && !!schedule,
+      staleTime: 30_000,
+    })),
+  })
+
+  // Flatten results from all plans into a single sorted list
+  const allPrepTasks: PrepTaskDto[] = prepTaskResults
+    .flatMap(r => r.data ?? [])
+    .sort((a, b) => a.scheduledDate.localeCompare(b.scheduledDate))
+
   const { mutate: doPause, isPending: isPausing } = useMutation({
     mutationFn: () => schedulesService.pause(id!),
     onSuccess: () => {
@@ -439,6 +460,29 @@ export function ScheduleDetail() {
               </li>
             ))}
           </ol>
+        </div>
+
+        {/* Per-day prep lane */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 mb-4">
+          <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">
+            {t('schedules.prep.laneLabel')}
+          </p>
+          {prepTaskResults.some(r => r.isLoading) ? (
+            <div className="flex justify-center py-4" aria-live="polite" aria-busy="true">
+              <Spinner />
+            </div>
+          ) : (
+            <PrepLane
+              tasks={allPrepTasks}
+              scheduleId={id!}
+              onMutated={() => {
+                // Invalidate all per-plan prep-task caches when any mutation fires
+                planIds.forEach(planId => {
+                  void qc.invalidateQueries({ queryKey: ['prep-tasks', id, planId] })
+                })
+              }}
+            />
+          )}
         </div>
 
         {/* Materialize forward */}

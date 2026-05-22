@@ -450,6 +450,7 @@
       }
     },
     "dietaryFilter": "Étrendi szűrők",
+    "mealTypeFilter": "Étkezés típusa",
     "clearFilters": "Szűrők törlése",
     "image": {
       "sectionLabel": "Recept képe",
@@ -1059,6 +1060,7 @@
     "verifyCode": "Bejelentkezés a kóddal",
     "requestNewCode": "Kérj új kódot",
     "tagline": "Egészséges élet. Egyszerűen.",
+    "backToHome": "Vissza a főoldalra",
     "errors": {
       "invalidEmail": "Ez az e-mail cím nem fogadható el. Ellenőrizd a begépelést, vagy próbálj másik címet.",
       "invalidEmailFormat": "Ez nem tűnik érvényes e-mail címnek. Ellenőrizd a formátumot.",
@@ -1303,6 +1305,8 @@
       "generating": "Összerakom…",
       "create": "Létrehozás",
       "creating": "Egy pillanat…",
+      "solving": "Recepteket válogatok…",
+      "solveFailed": "Most nem sikerült feltölteni a tervet — a sablon létrejött, próbáld újra a részletek lapon.",
       "created": "A terv elkészült.",
       "conflictGeneric": "Ez a terv ütközik egy meglévő tervvel. Válassz másik időszakot.",
       "sourceLabel": "Hogyan töltjük fel?",
@@ -1346,6 +1350,7 @@
     "detail": {
       "settings": "Terv beállításai",
       "pageTitle": "Sablon szerkesztése",
+      "memberFallback": "{{index}}. tag",
       "dayLabel": "{{day}}. nap",
       "slotsChipAria": "Étkezési sávok",
       "membersChipAria": "Tagok",
@@ -1369,10 +1374,16 @@
         "archiveConfirmCancel": "Mégse",
         "schedule": "Ütemezés…",
         "fill": "Tervező feltöltése",
+        "clearAll": "Terv ürítése",
+        "clearAllConfirmTitle": "Biztosan üríted a tervet?",
+        "clearAllConfirmBody_one": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a slotok ürülnek ki.",
+        "clearAllConfirmBody_other": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a slotok ürülnek ki.",
+        "clearAllConfirmOk": "Igen, üríts mindent",
         "fillConfirmTitle": "Milyen slotokat töltsük fel?",
         "fillConfirmEmpty": "Csak az üres slotok",
         "fillConfirmAll": "Mindent felülír",
-        "fillConfirmOk": "Feltöltés"
+        "fillConfirmOk": "Feltöltés",
+        "fillProgress": "A tervező összeállítja a hetet — kérlek, várj egy fél percet."
       },
       "cell": {
         "emptyAria": "Üres slot — kattints a receptválasztáshoz",
@@ -1388,11 +1399,78 @@
         "confirmPick": "Beállítás",
         "clearSlot": "Ürítés",
         "saving": "Mentés…",
-        "saved": "Étkezés beállítva."
+        "saved": "Étkezés beállítva.",
+        "kcalVsSlotAria": "{{actual}} kcal — étkezés cél {{target}} kcal",
+        "dragHandleAria": "{{meal}} áthúzása másik időpontra",
+        "swapBadge": "Csere",
+        "nonPreferredBadge": "Nem preferált",
+        "nonPreferredAria": "Ez a slot nincs a tag preferenciái között.",
+        "nonPreferredTitle": "Ez az étkezés nincs a tag preferenciái között — kézzel kerülhet ide.",
+        "filters": {
+          "tagsLabel": "Címkék",
+          "dietaryLabel": "Diéta",
+          "clear": "Szűrők törlése"
+        },
+        "servingsUnit": "adag",
+        "servingsIncAria": "Több adag",
+        "servingsDecAria": "Kevesebb adag",
+        "servingsValueAria": "{{servings}} adag"
       },
       "copySuccess": "Másolat létrehozva.",
       "snapshotRefreshSuccess": "Preferenciák frissítve.",
-      "archiveSuccess": "Terv archiválva."
+      "archiveSuccess": "Terv archiválva.",
+      "fillSuccess": "A tervező feltöltötte a tervet.",
+      "fillFailed": "Most nem sikerült feltölteni a tervet.",
+      "clearAllSuccess": "A terv kiürítve.",
+      "palette": {
+        "title": "Recept paletta",
+        "empty": "Még nincs recept a tervben.",
+        "hint": "Húzd át bármelyik napra. Az eredeti itt marad.",
+        "usageCountAria_one": "{{count}} étkezésre van betervezve",
+        "usageCountAria_other": "{{count}} étkezésre van betervezve",
+        "replaceTitle": "Lecseréljem?",
+        "replaceBody": "Ebben a slotban most {{target}} van. Cseréljem le {{source}}-re?",
+        "replaceOk": "Igen, cseréld le"
+      },
+      "trash": {
+        "label": "Húzd ide a törléshez",
+        "dropToDelete": "Engedd el a törléshez",
+        "aria": "Étkezés törlése a tervből"
+      },
+      "sidePanel": {
+        "costSection": "Becsült költség",
+        "costTitle": "Költség",
+        "costUnit": "Ft",
+        "costNoData": "Még nincs ár az alapanyagokhoz.",
+        "costMissing_one": "{{count}} étkezésnél hiányzik az ár.",
+        "costMissing_other": "{{count}} étkezésnél hiányzik az ár.",
+        "costHint_one": "{{cells}} étkezés alapján.",
+        "costHint_other": "{{cells}} étkezés alapján.",
+        "usedSection": "A hűtődből",
+        "usedTitle": "Felhasználva",
+        "usedEmpty": "A terv nem nyúl bele a hűtődbe.",
+        "fridgeSection": "Hűtő tartalma",
+        "fridgeTitle": "A hűtődben",
+        "fridgeEmpty": "A hűtő üres."
+      },
+      "macros": {
+        "sectionAria": "Makró összesítő",
+        "weeklyTitle": "Heti átlag · napi célhoz mérve",
+        "dailyTitle": "Napi bontás",
+        "dayStripAria": "Napi makró célok",
+        "kcalLabel": "Kalória",
+        "proteinLabel": "Fehérje",
+        "fatLabel": "Zsír",
+        "carbsLabel": "Szénhidrát",
+        "kcalShort": "Kcal",
+        "proteinShort": "Feh.",
+        "fatShort": "Zsír",
+        "carbsShort": "Szénh.",
+        "percentOfTarget": "{{pct}}% — cél {{target}} {{unit}}",
+        "noTarget": "Nincs cél megadva",
+        "setTargetsCta": "Célok beállítása",
+        "dayShort": "{{day}}. nap"
+      }
     },
     "member": {
       "allergenWarningAria": "Allergén figyelmeztetés"
@@ -1963,7 +2041,17 @@
       "requestPermissionAriaLabel": "Hozzáférés kérése: {{name}}",
       "requestPermissionSent": "Hozzáférési kérés elküldve: {{name}}",
       "requestPermissionError": "A kérést nem sikerült elküldeni.",
-      "permissionPendingLabel": "Jóváhagyásra vár"
+      "permissionPendingLabel": "Jóváhagyásra vár",
+      "pendingTitle": "Hozzáférési kérés vár rád",
+      "pendingHint": "Egy családtag azt kéri, hogy a te nevedben tervezhessen. Te döntesz: megadod vagy elutasítod.",
+      "pendingItem": "Egy tervező ({{requesterId}}) hozzáférést kér a profilodhoz.",
+      "grantCta": "Megadom",
+      "grantAriaLabel": "Hozzáférés megadása",
+      "denyCta": "Elutasítom",
+      "denyAriaLabel": "Hozzáférés elutasítása",
+      "permissionGranted": "Hozzáférés megadva.",
+      "permissionDenied": "Hozzáférés elutasítva.",
+      "permissionDecisionError": "A döntést nem sikerült rögzíteni."
     },
     "prefs": {
       "dietaryFlags": "Étrendi megszorítások",
@@ -2174,6 +2262,19 @@
       "saveError": "Nem sikerült menteni. Próbáld újra.",
       "materializeSection": "Azonnali elindítás",
       "materializeThroughLabel": "Elindítás eddig a dátumig"
+    },
+    "prep": {
+      "laneLabel": "Előkészítés",
+      "empty": "Erre a napra nincs előkészítés",
+      "moveLabel": "Áthelyezés",
+      "timeLabel": "Időpont",
+      "actions": {
+        "done": "Megcsináltam",
+        "skip": "Kihagyom",
+        "moved": "Áthelyezve",
+        "split": "Bontás",
+        "splitHint": "Szétbontás – hamarosan elérhető"
+      }
     }
   },
   "calendar": {

@@ -450,6 +450,7 @@
       }
     },
     "dietaryFilter": "Dietary filters",
+    "mealTypeFilter": "Meal type",
     "clearFilters": "Clear filters",
     "image": {
       "sectionLabel": "Recipe image",
@@ -1059,6 +1060,7 @@
     "verifyCode": "Sign in with code",
     "requestNewCode": "Request a new code",
     "tagline": "Healthy living. Simplified.",
+    "backToHome": "Back to home",
     "errors": {
       "invalidEmail": "This email address is not accepted. Check the format or try a different address.",
       "invalidEmailFormat": "This doesn't look like a valid email. Check the format.",
@@ -1303,6 +1305,8 @@
       "generating": "Working on it…",
       "create": "Create plan",
       "creating": "One moment…",
+      "solving": "Picking recipes…",
+      "solveFailed": "Couldn't fill the plan just now — the template was created, please retry from its detail page.",
       "created": "Plan created.",
       "conflictGeneric": "This plan conflicts with an existing one. Choose a different period.",
       "sourceLabel": "How should the plan be filled?",
@@ -1346,6 +1350,7 @@
     "detail": {
       "settings": "Plan settings",
       "pageTitle": "Edit template",
+      "memberFallback": "Member {{index}}",
       "dayLabel": "Day {{day}}",
       "slotsChipAria": "Meal slots",
       "membersChipAria": "Members",
@@ -1369,10 +1374,16 @@
         "archiveConfirmCancel": "Cancel",
         "schedule": "Schedule…",
         "fill": "Fill with planner",
+        "clearAll": "Clear all meals",
+        "clearAllConfirmTitle": "Clear every meal in the plan?",
+        "clearAllConfirmBody_one": "Removes every meal from the plan ({{count}} cell). The plan itself stays — only the slots are emptied.",
+        "clearAllConfirmBody_other": "Removes every meal from the plan ({{count}} cells). The plan itself stays — only the slots are emptied.",
+        "clearAllConfirmOk": "Yes, clear everything",
         "fillConfirmTitle": "Which slots should be filled?",
         "fillConfirmEmpty": "Empty slots only",
         "fillConfirmAll": "Overwrite all",
-        "fillConfirmOk": "Fill"
+        "fillConfirmOk": "Fill",
+        "fillProgress": "The planner is assembling the week — please wait about half a minute."
       },
       "cell": {
         "emptyAria": "Empty slot — click to pick a recipe",
@@ -1388,11 +1399,78 @@
         "confirmPick": "Confirm",
         "clearSlot": "Clear slot",
         "saving": "Saving…",
-        "saved": "Meal slot saved."
+        "saved": "Meal slot saved.",
+        "kcalVsSlotAria": "{{actual}} kcal — slot target {{target}} kcal",
+        "dragHandleAria": "Drag {{meal}} to a different slot",
+        "swapBadge": "Swap",
+        "nonPreferredBadge": "Not preferred",
+        "nonPreferredAria": "This slot isn't in the member's preferences.",
+        "nonPreferredTitle": "This meal type isn't in the member's preferences — added manually.",
+        "filters": {
+          "tagsLabel": "Tags",
+          "dietaryLabel": "Diet",
+          "clear": "Clear filters"
+        },
+        "servingsUnit": "serving",
+        "servingsIncAria": "Increase servings",
+        "servingsDecAria": "Decrease servings",
+        "servingsValueAria": "{{servings}} servings"
       },
       "copySuccess": "Copy created.",
       "snapshotRefreshSuccess": "Preferences refreshed.",
-      "archiveSuccess": "Plan archived."
+      "archiveSuccess": "Plan archived.",
+      "fillSuccess": "The planner has filled the plan.",
+      "fillFailed": "Couldn't fill the plan just now.",
+      "clearAllSuccess": "Plan cleared.",
+      "palette": {
+        "title": "Recipe palette",
+        "empty": "No recipes in the plan yet.",
+        "hint": "Drag onto any day. The original stays here.",
+        "usageCountAria_one": "Used in {{count}} meal slot",
+        "usageCountAria_other": "Used in {{count}} meal slots",
+        "replaceTitle": "Replace this meal?",
+        "replaceBody": "This slot already holds {{target}}. Replace it with {{source}}?",
+        "replaceOk": "Yes, replace"
+      },
+      "trash": {
+        "label": "Drag here to remove",
+        "dropToDelete": "Release to delete",
+        "aria": "Remove meal from plan"
+      },
+      "sidePanel": {
+        "costSection": "Estimated cost",
+        "costTitle": "Cost",
+        "costUnit": "HUF",
+        "costNoData": "No ingredient prices yet.",
+        "costMissing_one": "Missing price for {{count}} meal.",
+        "costMissing_other": "Missing prices for {{count}} meals.",
+        "costHint_one": "Based on {{cells}} meal.",
+        "costHint_other": "Based on {{cells}} meals.",
+        "usedSection": "From your fridge",
+        "usedTitle": "Taken from fridge",
+        "usedEmpty": "The plan doesn't touch your fridge.",
+        "fridgeSection": "Fridge contents",
+        "fridgeTitle": "In your fridge",
+        "fridgeEmpty": "Fridge is empty."
+      },
+      "macros": {
+        "sectionAria": "Macro summary",
+        "weeklyTitle": "Weekly average · per-day target",
+        "dailyTitle": "Daily breakdown",
+        "dayStripAria": "Daily macro targets",
+        "kcalLabel": "Calories",
+        "proteinLabel": "Protein",
+        "fatLabel": "Fat",
+        "carbsLabel": "Carbs",
+        "kcalShort": "Kcal",
+        "proteinShort": "Prot.",
+        "fatShort": "Fat",
+        "carbsShort": "Carbs",
+        "percentOfTarget": "{{pct}}% — target {{target}} {{unit}}",
+        "noTarget": "No target set",
+        "setTargetsCta": "Set targets",
+        "dayShort": "Day {{day}}"
+      }
     },
     "member": {
       "allergenWarningAria": "Allergen warning"
@@ -1963,7 +2041,17 @@
       "requestPermissionAriaLabel": "Request access to view {{name}}",
       "requestPermissionSent": "Access request sent for {{name}}",
       "requestPermissionError": "Failed to send the access request.",
-      "permissionPendingLabel": "Awaiting approval"
+      "permissionPendingLabel": "Awaiting approval",
+      "pendingTitle": "An access request needs your decision",
+      "pendingHint": "A family member is asking to plan on your behalf. It's your call to grant or deny.",
+      "pendingItem": "A planner ({{requesterId}}) is requesting access to your profile.",
+      "grantCta": "Grant",
+      "grantAriaLabel": "Grant access",
+      "denyCta": "Deny",
+      "denyAriaLabel": "Deny access",
+      "permissionGranted": "Access granted.",
+      "permissionDenied": "Access denied.",
+      "permissionDecisionError": "Failed to record your decision."
     },
     "prefs": {
       "dietaryFlags": "Dietary restrictions",
@@ -2174,6 +2262,19 @@
       "saveError": "Could not save. Please try again.",
       "materializeSection": "Run now",
       "materializeThroughLabel": "Run through date"
+    },
+    "prep": {
+      "laneLabel": "Prep",
+      "empty": "No prep this day",
+      "moveLabel": "Move to",
+      "timeLabel": "Time",
+      "actions": {
+        "done": "Done",
+        "skip": "Skip",
+        "moved": "Moved",
+        "split": "Split",
+        "splitHint": "Split — coming soon"
+      }
     }
   },
   "calendar": {
