@@ -17,6 +17,7 @@ import { MEMBER_COLORS } from './memberColors'
 import { DayMacroStrip } from './DayMacroStrip'
 import { dndCellId, nextServings } from './templateDnd'
 import { PrepLaneRow } from './PrepLaneRow'
+import { PrepHoldViolationBanner } from './PrepHoldViolationBanner'
 import type { PlanTemplate, Recipe, TemplateMeal, MealType, TemplatePrepSlot } from '@/types'
 import type { MacroTargets, MacroTotals } from '@/lib/planMacros'
 
@@ -65,6 +66,18 @@ interface TemplateGridProps {
   onPrepAddClick: (dayIndex: number, window: 'MORNING' | 'EVENING') => void
   /** Delete a prep slot. */
   onPrepDelete: (slotId: string) => void
+  // ── Prep-hold violation banner (KALMIO-268) ───────────────────────────────
+  /**
+   * The plan id used to query /api/plans/{planId}/prep-hold-violations.
+   * Passed to PrepHoldViolationBanner inside each filled meal cell.
+   */
+  planId: string
+  /**
+   * Set of templateMealIds that currently have a prep-hold violation.
+   * When non-empty, each corresponding filled cell renders the banner above it.
+   * Kept as a Set for O(1) lookup in a list of potentially many cells.
+   */
+  violatingMealIds: Set<string>
 }
 
 /** Returns the template meal for a given (dayIndex, mealType, memberId) or null. */
@@ -79,7 +92,7 @@ function findCell(
   ) ?? null
 }
 
-export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, daily, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceId, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete }: TemplateGridProps) {
+export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, daily, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceId, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds }: TemplateGridProps) {
   const { t } = useTranslation()
 
   const days = Array.from({ length: plan.lengthDays }, (_, i) => i)
@@ -127,6 +140,8 @@ export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, dail
           isPrepSlotDragging={isPrepSlotDragging}
           onPrepAddClick={onPrepAddClick}
           onPrepDelete={onPrepDelete}
+          planId={planId}
+          violatingMealIds={violatingMealIds}
           t={t}
         />
       ))}
@@ -162,11 +177,14 @@ interface DayCardProps {
   isPrepSlotDragging: boolean
   onPrepAddClick: TemplateGridProps['onPrepAddClick']
   onPrepDelete: TemplateGridProps['onPrepDelete']
+  // ── Prep-hold violation banner (KALMIO-268) ───────────────────────────────
+  planId: string
+  violatingMealIds: Set<string>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: any
 }
 
-function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesById, meals, dayTotals, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, t }: DayCardProps) {
+function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesById, meals, dayTotals, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds, t }: DayCardProps) {
   return (
     <section
       aria-label={t('plan.detail.dayLabel', { day: dayIndex + 1 })}
@@ -203,6 +221,8 @@ function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesBy
             dragOverRecipeName={dragOverRecipeName}
             onCellClick={onCellClick}
             onServingsChange={onServingsChange}
+            planId={planId}
+            violatingMealIds={violatingMealIds}
             t={t}
           />
         ))}
@@ -242,11 +262,13 @@ interface SlotRowProps {
   dragOverRecipeName: string | null
   onCellClick: TemplateGridProps['onCellClick']
   onServingsChange: TemplateGridProps['onServingsChange']
+  planId: string
+  violatingMealIds: Set<string>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: any
 }
 
-function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesById, meals, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, t }: SlotRowProps) {
+function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesById, meals, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, planId, violatingMealIds, t }: SlotRowProps) {
   return (
     <div className="flex items-start gap-0 min-h-[52px]">
       {/* Slot label */}
@@ -309,6 +331,8 @@ function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesByI
               dragOverRecipeName={dragOverRecipeName}
               onCellClick={() => onCellClick(dayIndex, slot, memberId, cell)}
               onServingsChange={onServingsChange}
+              planId={planId}
+              violatingMealIds={violatingMealIds}
               t={t}
             />
           )
@@ -345,6 +369,8 @@ interface MemberCellProps {
   dragOverRecipeName: string | null
   onCellClick: () => void
   onServingsChange: TemplateGridProps['onServingsChange']
+  planId: string
+  violatingMealIds: Set<string>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   t: any
 }
@@ -352,7 +378,22 @@ interface MemberCellProps {
 function MemberCell(props: MemberCellProps) {
   const isEmpty = props.cell == null
     || (props.cell.recipeId == null && props.cell.offPlanMealTemplateId == null)
-  return isEmpty ? <EmptyMemberCell {...props} /> : <FilledMemberCell {...props} />
+
+  // Show violation banner above a filled cell when this meal is in the violating set.
+  const hasViolation = !isEmpty && props.cell != null && props.violatingMealIds.has(props.cell.id)
+
+  return (
+    <div className="flex flex-col min-w-0">
+      {hasViolation && props.cell != null && (
+        <PrepHoldViolationBanner
+          surface="template"
+          planOrScheduleId={props.planId}
+          mealId={props.cell.id}
+        />
+      )}
+      {isEmpty ? <EmptyMemberCell {...props} /> : <FilledMemberCell {...props} />}
+    </div>
+  )
 }
 
 function EmptyMemberCell({ dayIndex, slot, memberId, memberName, colorClass, isDropTarget, nonPreferred, dragSourceRecipeName, onCellClick, t }: MemberCellProps) {

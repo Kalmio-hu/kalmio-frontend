@@ -25,7 +25,9 @@ import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
 import { planTemplateService } from '@/services/plans'
 import { prepTasksService } from '@/services/prepTasks'
+import { api } from '@/lib/api'
 import { PrepLane } from '@/components/schedule/PrepLane'
+import { PrepHoldViolationBanner } from '@/components/plan/PrepHoldViolationBanner'
 import type { PrepTaskDto } from '@/services/prepTasks'
 import type { ScheduleStatus } from '@/types'
 
@@ -236,6 +238,19 @@ export function ScheduleDetail() {
   const { data: plans = [] } = useQuery({
     queryKey: ['plan-templates'],
     queryFn: planTemplateService.list,
+    staleTime: 30_000,
+  })
+
+  // ── Prep-hold violations for this schedule (KALMIO-268 / Prep-H) ────────────
+  const { data: prepHoldViolations = [] } = useQuery({
+    queryKey: ['prep-hold-violations', 'schedule', id] as const,
+    queryFn: () =>
+      api
+        .get<Array<{ plannedMealId: string; prepTaskId: string; dayGap: number; fridgeWindow: number; recipeId: string }>>(
+          `/api/schedules/${id}/prep-hold-violations`,
+        )
+        .then(r => r.data),
+    enabled: !!id && !!schedule,
     staleTime: 30_000,
   })
 
@@ -468,6 +483,22 @@ export function ScheduleDetail() {
           <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-3">
             {t('schedules.prep.laneLabel')}
           </p>
+
+          {/* Prep-hold violation banners — one per violating planned meal (KALMIO-268).
+              Rendered above the lane so the user sees them before the task chips. */}
+          {prepHoldViolations.length > 0 && (
+            <div className="space-y-1 mb-3">
+              {prepHoldViolations.map(v => (
+                <PrepHoldViolationBanner
+                  key={v.plannedMealId}
+                  surface="schedule"
+                  planOrScheduleId={id!}
+                  mealId={v.plannedMealId}
+                />
+              ))}
+            </div>
+          )}
+
           {prepTaskResults.some(r => r.isLoading) ? (
             <div className="flex justify-center py-4" aria-live="polite" aria-busy="true">
               <Spinner />

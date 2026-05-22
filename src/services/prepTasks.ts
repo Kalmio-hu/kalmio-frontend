@@ -42,6 +42,14 @@ export const prepTasksService = {
     api.patch(`/api/prep-tasks/${taskId}/scheduled-time`, { scheduledTime }).then(() => undefined),
 
   /**
+   * POST /api/prep-tasks/{id}/split — split a batched prep task into two
+   * when the gap to a served meal exceeds the recipe's fridge hold window.
+   * Returns the resulting tasks (KALMIO-268 / Prep-H).
+   */
+  split: (taskId: string): Promise<PrepTaskDto[]> =>
+    api.post<PrepTaskDto[]>(`/api/prep-tasks/${taskId}/split`).then(r => r.data),
+
+  /**
    * Convert a PrepTaskDto to the PrepTaskCard shape used by the dashboard
    * TodaysPrepModule — lets the PrepLane reuse the same display helpers.
    */
