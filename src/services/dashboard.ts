@@ -1,5 +1,12 @@
 import { api } from '@/lib/api'
-import type { CalendarDayDto, DailyMacroDto, DashboardDto, LogOffPlanMealRequest, WeeklySummaryDto } from '@/types'
+import type {
+  CalendarDayDto,
+  DailyMacroDto,
+  DashboardDto,
+  LogOffPlanMealRequest,
+  UpdateOffPlanMealRequest,
+  WeeklySummaryDto,
+} from '@/types'
 
 export const dashboardService = {
   get: (date?: string): Promise<DashboardDto> => {
@@ -12,6 +19,9 @@ export const dashboardService = {
 
   logOffPlanMeal: (req: LogOffPlanMealRequest): Promise<unknown> =>
     api.post('/api/off-plan-meals', req).then(r => r.data),
+
+  updateOffPlanMeal: (id: string, req: UpdateOffPlanMealRequest): Promise<unknown> =>
+    api.patch(`/api/off-plan-meals/${id}`, req).then(r => r.data),
 
   deleteOffPlanMeal: (id: string): Promise<void> =>
     api.delete(`/api/off-plan-meals/${id}`).then(r => r.data),

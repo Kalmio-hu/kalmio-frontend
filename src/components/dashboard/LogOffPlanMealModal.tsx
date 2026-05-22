@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/toast'
 import { capture } from '@/lib/analytics'
 import { dashboardService } from '@/services/dashboard'
 import { planService } from '@/services/plans'
+import type { OffPlanMealCard } from '@/types'
 
 interface LogOffPlanMealModalProps {
   open: boolean
@@ -18,6 +19,8 @@ interface LogOffPlanMealModalProps {
   /** When opened from a MealCard, skip the planned meal to avoid double-counting */
   planId?: string
   mealId?: string
+  /** When set, the modal edits this off-plan entry instead of creating a new one. */
+  editing?: OffPlanMealCard
 }
 
 export function LogOffPlanMealModal({
@@ -27,15 +30,33 @@ export function LogOffPlanMealModal({
   date,
   planId,
   mealId,
+  editing,
 }: LogOffPlanMealModalProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const isEditing = editing !== undefined
 
   const [displayName, setDisplayName] = useState('')
   const [kcal, setKcal] = useState('')
   const [proteinG, setProteinG] = useState('')
   const [fatG, setFatG] = useState('')
   const [carbG, setCarbG] = useState('')
+
+  // Reset form state during render when the modal opens (or switches between log/edit
+  // contexts), per React's "Adjusting State When a Prop Changes" recipe — avoids the
+  // cascading-render problems of resetting in an effect.
+  const formKey = open ? (editing?.id ?? 'new') : 'closed'
+  const [prevFormKey, setPrevFormKey] = useState(formKey)
+  if (prevFormKey !== formKey) {
+    setPrevFormKey(formKey)
+    if (open) {
+      setDisplayName(editing?.displayName ?? '')
+      setKcal(editing?.macros ? String(editing.macros.kcal) : '')
+      setProteinG(editing?.macros ? String(editing.macros.protein) : '')
+      setFatG(editing?.macros ? String(editing.macros.fat) : '')
+      setCarbG(editing?.macros ? String(editing.macros.carbs) : '')
+    }
+  }
 
   function resetForm() {
     setDisplayName('')
@@ -45,27 +66,43 @@ export function LogOffPlanMealModal({
     setCarbG('')
   }
 
-  const logMeal = useMutation({
+  const saveMeal = useMutation({
     mutationFn: async () => {
-      await dashboardService.logOffPlanMeal({
-        date,
-        mealType,
+      const payload = {
         displayName: displayName.trim(),
         kcal: Number(kcal),
         proteinG: proteinG !== '' ? Number(proteinG) : undefined,
         fatG: fatG !== '' ? Number(fatG) : undefined,
         carbG: carbG !== '' ? Number(carbG) : undefined,
-      })
-      // Mark the original planned meal as SKIPPED so it doesn't also count toward the daily total.
-      if (planId && mealId) {
-        await planService.updateMeal(planId, mealId, { status: 'SKIPPED' })
+      }
+      if (isEditing && editing) {
+        await dashboardService.updateOffPlanMeal(editing.id, {
+          mealType: editing.mealType,
+          ...payload,
+        })
+      } else {
+        await dashboardService.logOffPlanMeal({
+          date,
+          mealType,
+          ...payload,
+        })
+        // Mark the original planned meal as SKIPPED so it doesn't also count toward the daily total.
+        if (planId && mealId) {
+          await planService.updateMeal(planId, mealId, { status: 'SKIPPED' })
+        }
       }
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', date] })
       void queryClient.invalidateQueries({ queryKey: ['macros', date] })
-      capture('off_plan_meal_logged')
-      toast({ title: t('dashboard.meals.logOtherModal.logged') })
+      capture(isEditing ? 'off_plan_meal_edited' : 'off_plan_meal_logged')
+      toast({
+        title: t(
+          isEditing
+            ? 'dashboard.meals.logOtherModal.saved'
+            : 'dashboard.meals.logOtherModal.logged',
+        ),
+      })
       onOpenChange(false)
       resetForm()
     },
@@ -80,7 +117,13 @@ export function LogOffPlanMealModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{t('dashboard.meals.logOtherModal.title')}</DialogTitle>
+          <DialogTitle>
+            {t(
+              isEditing
+                ? 'dashboard.meals.logOtherModal.titleEdit'
+                : 'dashboard.meals.logOtherModal.title',
+            )}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
@@ -155,22 +198,30 @@ export function LogOffPlanMealModal({
             type="button"
             variant="ghost"
             onClick={() => { onOpenChange(false); resetForm() }}
-            disabled={logMeal.isPending}
+            disabled={saveMeal.isPending}
           >
             {t('common.cancel')}
           </Button>
           <Button
             type="button"
-            onClick={() => logMeal.mutate()}
-            disabled={!canSubmit || logMeal.isPending}
+            onClick={() => saveMeal.mutate()}
+            disabled={!canSubmit || saveMeal.isPending}
           >
-            {logMeal.isPending ? (
+            {saveMeal.isPending ? (
               <>
                 <Spinner className="mr-2 h-3.5 w-3.5" />
-                {t('dashboard.meals.logOtherModal.logging')}
+                {t(
+                  isEditing
+                    ? 'dashboard.meals.logOtherModal.saving'
+                    : 'dashboard.meals.logOtherModal.logging',
+                )}
               </>
             ) : (
-              t('dashboard.meals.logOtherModal.log')
+              t(
+                isEditing
+                  ? 'dashboard.meals.logOtherModal.save'
+                  : 'dashboard.meals.logOtherModal.log',
+              )
             )}
           </Button>
         </div>

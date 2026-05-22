@@ -109,8 +109,10 @@
       "offPlanBadge": "Saját bejegyzés",
       "undoStatus": "Visszaállítás",
       "deleteOffPlan": "Törlés",
+      "editOffPlan": "Szerkesztés",
       "logOtherModal": {
         "title": "Mást ettem",
+        "titleEdit": "Bejegyzés szerkesztése",
         "name": "Mit ettél?",
         "kcal": "Kalória (kcal)",
         "protein": "Fehérje (g)",
@@ -118,7 +120,10 @@
         "carbs": "Szénhidrát (g)",
         "log": "Rögzítés",
         "logging": "Rögzítés…",
-        "logged": "Rögzítve."
+        "logged": "Rögzítve.",
+        "save": "Mentés",
+        "saving": "Mentés…",
+        "saved": "Mentve."
       }
     },
     "aiOffPlan": {

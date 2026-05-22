@@ -109,8 +109,10 @@
       "offPlanBadge": "Off-plan",
       "undoStatus": "Undo",
       "deleteOffPlan": "Delete entry",
+      "editOffPlan": "Edit entry",
       "logOtherModal": {
         "title": "Log something else",
+        "titleEdit": "Edit entry",
         "name": "What did you eat?",
         "kcal": "Calories (kcal)",
         "protein": "Protein (g)",
@@ -118,7 +120,10 @@
         "carbs": "Carbs (g)",
         "log": "Log",
         "logging": "Logging…",
-        "logged": "Logged."
+        "logged": "Logged.",
+        "save": "Save",
+        "saving": "Saving…",
+        "saved": "Saved."
       }
     },
     "aiOffPlan": {

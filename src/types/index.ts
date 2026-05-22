@@ -509,6 +509,10 @@ export interface OffPlanMealCard {
   mealType?: string
   displayName: string
   macros: { kcal: number; protein: number; fat: number; carbs: number } | null
+  /** ISO Instant — when the user pressed log. Used to place the card on the timeline. */
+  createdAt: string
+  /** HH:mm user-overridden timeline slot. Null means infer from createdAt. */
+  scheduledTime?: string | null
 }
 
 export interface PrepTaskCard {
@@ -562,6 +566,19 @@ export interface DailyMacroDto {
 
 export interface LogOffPlanMealRequest {
   date: string
+  mealType?: string
+  displayName: string
+  kcal: number
+  proteinG?: number
+  fatG?: number
+  carbG?: number
+}
+
+/**
+ * Request body for editing an existing off-plan meal entry
+ * (`PATCH /api/off-plan-meals/{id}`). The date and source are immutable.
+ */
+export interface UpdateOffPlanMealRequest {
   mealType?: string
   displayName: string
   kcal: number
@@ -972,6 +989,12 @@ export interface ImpersonationPermissionDto {
   id: string
   familyId: string
   requesterId: string
+  /**
+   * Resolved display name of the requester. Populated by the pending-list endpoint
+   * (where the UI needs to show a human label); null on request/grant/deny responses
+   * where the caller already knows the actor.
+   */
+  requesterName: string | null
   targetId: string
   status: 'PENDING' | 'GRANTED' | 'DENIED' | 'REVOKED'
   createdAt: string  // ISO-8601

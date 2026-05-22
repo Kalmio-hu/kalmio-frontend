@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Check, MoreHorizontal, Sparkles, Trash2 } from 'lucide-react'
+import { Check, MoreHorizontal, Pencil, Sparkles, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
@@ -269,6 +269,7 @@ function MealCard({ meal, planId, today }: MealCardProps) {
 function OffPlanMealCardItem({ meal, today }: { meal: OffPlanMealCard; today: string }) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const [editOpen, setEditOpen] = useState(false)
 
   const deleteMeal = useMutation({
     mutationFn: () => dashboardService.deleteOffPlanMeal(meal.id),
@@ -300,6 +301,14 @@ function OffPlanMealCardItem({ meal, today }: { meal: OffPlanMealCard; today: st
             </span>
             <button
               type="button"
+              aria-label={t('dashboard.meals.editOffPlan')}
+              onClick={() => setEditOpen(true)}
+              className="p-1.5 rounded-lg text-gray-300 hover:text-[#1A1A1A] hover:bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
+            >
+              <Pencil className="h-4 w-4" aria-hidden />
+            </button>
+            <button
+              type="button"
               aria-label={t('dashboard.meals.deleteOffPlan')}
               onClick={() => deleteMeal.mutate()}
               disabled={deleteMeal.isPending}
@@ -314,6 +323,12 @@ function OffPlanMealCardItem({ meal, today }: { meal: OffPlanMealCard; today: st
           </div>
         </div>
       </div>
+      <LogOffPlanMealModal
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        date={today}
+        editing={meal}
+      />
     </div>
   )
 }
