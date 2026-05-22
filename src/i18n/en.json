@@ -1495,8 +1495,8 @@
       },
       "violation": {
         "title": "Too far from the last prep",
-        "body": "{{dayGap}} days more than this recipe stays fresh in the fridge ({{fridgeWindow}} days). Add another prep slot so it arrives on the plate at its best.",
-        "cta": "Add another prep slot",
+        "body": "{{dayGap}} days longer than this recipe keeps in the fridge ({{fridgeWindow}} days). Add a prep slot to keep it fresh.",
+        "cta": "Add prep",
         "splitSuccess": "New prep slot added"
       }
     },
@@ -2306,9 +2306,9 @@
         "splitHint": "Split — coming soon"
       },
       "violation": {
-        "title": "Too far from the next prep",
-        "body": "{{dayGap}} days more than this recipe stays fresh in the fridge ({{fridgeWindow}} days). Add another prep slot so it arrives on the plate at its best.",
-        "cta": "Add another prep slot",
+        "title": "Too far from the last prep",
+        "body": "{{dayGap}} days longer than this recipe keeps in the fridge ({{fridgeWindow}} days). Add a prep slot to keep it fresh.",
+        "cta": "Add prep",
         "splitSuccess": "New prep slot added"
       }
     }

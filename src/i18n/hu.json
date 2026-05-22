@@ -1495,8 +1495,8 @@
       },
       "violation": {
         "title": "Túl messze van az előkészítéstől",
-        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben kibír ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést, hogy frissebben kerüljön a tányérra.",
-        "cta": "Adj hozzá újabb előkészítést",
+        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben eltart ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést a frissesség megtartásához.",
+        "cta": "Új előkészítés",
         "splitSuccess": "Új előkészítés hozzáadva"
       }
     },
@@ -2306,9 +2306,9 @@
         "splitHint": "Szétbontás – hamarosan elérhető"
       },
       "violation": {
-        "title": "Túl távol a következő előkészítéstől",
-        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben kibír ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést, hogy frissebben kerüljön a tányérra.",
-        "cta": "Adj hozzá újabb előkészítést",
+        "title": "Túl messze van az előkészítéstől",
+        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben eltart ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést a frissesség megtartásához.",
+        "cta": "Új előkészítés",
         "splitSuccess": "Új előkészítés hozzáadva"
       }
     }
