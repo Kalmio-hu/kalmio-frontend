@@ -54,6 +54,7 @@ import { recipesService } from '@/services/recipes'
 import { usersService } from '@/services/users'
 import { familyService } from '@/services/family'
 import { templatePrepSlotsService } from '@/services/templatePrepSlots'
+import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
 import { toast } from '@/components/ui/toast'
@@ -159,6 +160,23 @@ export function PlanDetail() {
     staleTime: 30_000,
   })
 
+  // Prep-hold violations for this template — fetched from the Prep-H endpoint
+  // (KALMIO-265). Used to render PrepHoldViolationBanner above offending cells.
+  const { data: prepHoldViolations = [] } = useQuery({
+    queryKey: ['prep-hold-violations', 'template', id] as const,
+    queryFn: () =>
+      api
+        .get<Array<{ templateMealId: string; templatePrepSlotId: string; dayGap: number; fridgeWindow: number; recipeId: string }>>(
+          `/api/plans/${id}/prep-hold-violations`,
+        )
+        .then(r => r.data),
+    enabled: !!id && !!plan,
+    staleTime: 30_000,
+  })
+
+  // Build a Set of violating templateMealIds for O(1) lookup in TemplateGrid.
+  const violatingMealIds = new Set(prepHoldViolations.map(v => v.templateMealId))
+
   // Build recipe name + lookup map (lookup is used for macro rollups below)
   const recipeNames: Record<string, string> = {}
   const recipesById: Record<string, typeof recipes[number]> = {}
@@ -225,7 +243,10 @@ export function PlanDetail() {
         },
         vars.cell.id,
       ),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
   })
 
@@ -293,7 +314,10 @@ export function PlanDetail() {
   const swapMutation = useMutation({
     mutationFn: (vars: { firstId: string; secondId: string }) =>
       planTemplateService.swapTemplateMeals(id!, vars.firstId, vars.secondId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
   })
 
@@ -320,7 +344,10 @@ export function PlanDetail() {
       },
       vars.mealId,
     ),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
   })
 
@@ -558,6 +585,7 @@ export function PlanDetail() {
     mutationFn: () => planTemplateService.clearAllTemplateMeals(id!),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       toast({ title: t('plan.detail.clearAllSuccess'), variant: 'success' })
       setClearAllConfirmOpen(false)
     },
@@ -885,6 +913,8 @@ export function PlanDetail() {
                     setPrepPickerCell({ dayIndex, window })
                   }
                   onPrepDelete={(slotId) => prepRemoveMutation.mutate(slotId)}
+                  planId={id!}
+                  violatingMealIds={violatingMealIds}
                 />
               </div>
               <aside className="order-3">

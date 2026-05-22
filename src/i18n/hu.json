@@ -1477,6 +1477,7 @@
       "empty": "Még nincs előkészítés",
       "windowMorning": "reggel",
       "windowEvening": "este",
+      "servings": "{{count}} adag",
       "servings_one": "{{count}} adag",
       "servings_other": "{{count}} adag",
       "freezeMarker": "fagyasztandó",
@@ -1491,6 +1492,12 @@
         "delete": "Törlés",
         "split": "Felosztás",
         "moved": "Előkészítés áthelyezve."
+      },
+      "violation": {
+        "title": "Túl messze van az előkészítéstől",
+        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben kibír ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést, hogy frissebben kerüljön a tányérra.",
+        "cta": "Adj hozzá újabb előkészítést",
+        "splitSuccess": "Új előkészítés hozzáadva"
       }
     },
     "member": {

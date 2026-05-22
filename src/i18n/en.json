@@ -1477,6 +1477,7 @@
       "empty": "No prep yet",
       "windowMorning": "morning",
       "windowEvening": "evening",
+      "servings": "{{count}} servings",
       "servings_one": "{{count}} serving",
       "servings_other": "{{count}} servings",
       "freezeMarker": "to freeze",
@@ -1491,6 +1492,12 @@
         "delete": "Delete",
         "split": "Split",
         "moved": "Prep slot moved."
+      },
+      "violation": {
+        "title": "Too far from the last prep",
+        "body": "{{dayGap}} days more than this recipe stays fresh in the fridge ({{fridgeWindow}} days). Add another prep slot so it arrives on the plate at its best.",
+        "cta": "Add another prep slot",
+        "splitSuccess": "New prep slot added"
       }
     },
     "member": {
