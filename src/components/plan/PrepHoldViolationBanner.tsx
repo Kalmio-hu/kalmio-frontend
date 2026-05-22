@@ -74,6 +74,10 @@ export function PrepHoldViolationBanner({
   const { t } = useTranslation()
   const qc = useQueryClient()
 
+  // Namespace for i18n keys — template surface uses plan.prep.violation,
+  // schedule surface uses schedules.prep.violation.
+  const ns = surface === 'template' ? 'plan.prep.violation' : 'schedules.prep.violation'
+
   // ── Query — list all violations for this plan or schedule ─────────────────
 
   const templateQuery = useQuery({
@@ -129,7 +133,7 @@ export function PrepHoldViolationBanner({
       }
     },
     onSuccess: () => {
-      toast({ title: t('plan.prep.violation.splitSuccess'), variant: 'success' })
+      toast({ title: t(`${ns}.splitSuccess`), variant: 'success' })
       if (surface === 'template') {
         void qc.invalidateQueries({ queryKey: ['template-prep-slots', planOrScheduleId] })
         void qc.invalidateQueries({ queryKey: ['prep-hold-violations', 'template', planOrScheduleId] })
@@ -168,10 +172,10 @@ export function PrepHoldViolationBanner({
       {/* Text block */}
       <div className="flex-1 min-w-0">
         <p className="text-xs font-semibold text-amber-900 leading-snug">
-          {t('plan.prep.violation.title')}
+          {t(`${ns}.title`)}
         </p>
         <p className="text-xs text-amber-800 mt-0.5 leading-snug">
-          {t('plan.prep.violation.body', { dayGap, fridgeWindow })}
+          {t(`${ns}.body`, { dayGap, fridgeWindow })}
         </p>
       </div>
 
@@ -190,12 +194,12 @@ export function PrepHoldViolationBanner({
           focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
           disabled:opacity-50 disabled:cursor-not-allowed
         "
-        aria-label={t('plan.prep.violation.cta')}
+        aria-label={t(`${ns}.cta`)}
       >
         {splitMutation.isPending ? (
           <Spinner className="h-3 w-3" />
         ) : null}
-        {t('plan.prep.violation.cta')}
+        {t(`${ns}.cta`)}
       </button>
     </div>
   )

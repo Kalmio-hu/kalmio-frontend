@@ -2304,6 +2304,12 @@
         "moved": "Áthelyezve",
         "split": "Bontás",
         "splitHint": "Szétbontás – hamarosan elérhető"
+      },
+      "violation": {
+        "title": "Túl távol a következő előkészítéstől",
+        "body": "{{dayGap}} nappal több, mint amennyit a hűtőben kibír ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést, hogy frissebben kerüljön a tányérra.",
+        "cta": "Adj hozzá újabb előkészítést",
+        "splitSuccess": "Új előkészítés hozzáadva"
       }
     }
   },
