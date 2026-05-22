@@ -953,8 +953,29 @@ export interface FamilyMemberDto {
   displayName: string
   /** True for managed profiles (a users row with managed_by_user_id set). */
   isManaged: boolean
-  /** True when the family planner has granted (or been granted) impersonation permission for this real account. [PENDING_BE] */
+  /** True when the caller (a family PLANNER) currently holds a GRANTED impersonation permission for this member. */
   impersonationPermissionGranted?: boolean
+  /**
+   * Meal-type identifiers the member has marked as preferred in their meal-plan
+   * preferences (e.g. ["LUNCH", "DINNER"]). Empty list = no preference set
+   * (treated as "all slots are fine" by the wizard, solver, and grid dim).
+   */
+  preferredMealTypes: MealType[]
+}
+
+/**
+ * Planner-requested, member-granted permission to impersonate a real (non-managed)
+ * family member. Returned from the request/grant/deny endpoints and from the
+ * pending-list endpoint. See `familyService.requestImpersonationPermission` etc.
+ */
+export interface ImpersonationPermissionDto {
+  id: string
+  familyId: string
+  requesterId: string
+  targetId: string
+  status: 'PENDING' | 'GRANTED' | 'DENIED' | 'REVOKED'
+  createdAt: string  // ISO-8601
+  respondedAt: string | null
 }
 
 /** [PENDING_BE] Represents an invite the planner sent — from GET /api/families/{id}/invites. */
@@ -1045,6 +1066,52 @@ export interface MergePreviewResponse {
 
 export interface ImpersonateResponse {
   sessionToken: string
+}
+
+// ── Template Prep Slots (Prep-C / KALMIO-263) ────────────────────────────
+
+/** Source of a template prep slot assignment. */
+export type TemplatePrepSlotSource = 'SOLVER' | 'MANUAL'
+
+/**
+ * A prep slot attached to a plan template.
+ * Mirrors TemplatePrepSlotResponse from the backend (KALMIO-263).
+ *
+ * The slot is calendar-free — it is anchored to a zero-based day index
+ * within the template (not a calendar date).
+ */
+export interface TemplatePrepSlot {
+  id: string
+  planId: string
+  /** Zero-based day index within the template (0 = day 1). */
+  dayIndex: number
+  recipeId: string
+  /** MORNING = reggel cook session; EVENING = este cook session. */
+  window: 'MORNING' | 'EVENING'
+  /** Total servings to prepare in this session. */
+  servingsToMake: number
+  /** Subset of servingsToMake to freeze immediately after prep; 0 = no freeze. */
+  servingsToFreeze: number
+  source: TemplatePrepSlotSource
+  createdAt: string   // ISO-8601
+  updatedAt: string   // ISO-8601
+}
+
+/** Request body for POST /api/plans/{planId}/template-prep-slots. */
+export interface CreateTemplatePrepSlotRequest {
+  recipeId: string
+  dayIndex: number
+  window: 'MORNING' | 'EVENING'
+  servingsToMake: number
+  servingsToFreeze?: number
+}
+
+/** Request body for PATCH /api/template-prep-slots/{slotId}. */
+export interface PatchTemplatePrepSlotRequest {
+  dayIndex?: number
+  window?: 'MORNING' | 'EVENING'
+  servingsToMake?: number
+  servingsToFreeze?: number
 }
 
 // ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────

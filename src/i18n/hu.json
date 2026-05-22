@@ -1472,6 +1472,27 @@
         "dayShort": "{{day}}. nap"
       }
     },
+    "prep": {
+      "rowLabel": "Előkészítés",
+      "empty": "Még nincs előkészítés",
+      "windowMorning": "reggel",
+      "windowEvening": "este",
+      "servings_one": "{{count}} adag",
+      "servings_other": "{{count}} adag",
+      "freezeMarker": "fagyasztandó",
+      "picker": {
+        "title": "Előkészítés hozzáadása",
+        "recipeLabel": "Recept",
+        "windowLabel": "Időpont",
+        "servingsLabel": "Adagok száma",
+        "submit": "Hozzáadás"
+      },
+      "actions": {
+        "delete": "Törlés",
+        "split": "Felosztás",
+        "moved": "Előkészítés áthelyezve."
+      }
+    },
     "member": {
       "allergenWarningAria": "Allergén figyelmeztetés"
     }

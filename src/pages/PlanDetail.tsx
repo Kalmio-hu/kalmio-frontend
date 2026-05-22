@@ -26,10 +26,34 @@ import { MemberChip, OverflowChip } from '@/components/plan/MemberChip'
 import { MEMBER_COLORS } from '@/components/plan/memberColors'
 import { TemplateGrid } from '@/components/plan/TemplateGrid'
 import { TemplateCellPicker } from '@/components/plan/TemplateCellPicker'
+import { PrepSlotPicker } from '@/components/plan/PrepSlotPicker'
+import {
+  parsePrepSlotDragId,
+  parsePrepCellDropId,
+} from '@/components/plan/prepLaneDnd'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+  type DragOverEvent,
+} from '@dnd-kit/core'
+import { PlanMacroSummary } from '@/components/plan/PlanMacroSummary'
+import { aggregateTargets, dailyTotals, weeklyAverage, targetsFromLive, targetsForMember, preferredSlotsByMember } from '@/lib/planMacros'
+import { RecipePalette } from '@/components/plan/RecipePalette'
+import { TrashDropZone, TRASH_DROP_ID } from '@/components/plan/TrashDropZone'
+import { PlanSidePanel } from '@/components/plan/PlanSidePanel'
 import type { TemplateCellPickerResult } from '@/components/plan/TemplateCellPicker'
+import type { PrepSlotPickerResult } from '@/components/plan/PrepSlotPicker'
 import { planTemplateService } from '@/services/plans'
 import { recipesService } from '@/services/recipes'
 import { usersService } from '@/services/users'
+import { familyService } from '@/services/family'
+import { templatePrepSlotsService } from '@/services/templatePrepSlots'
 import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
 import { toast } from '@/components/ui/toast'
@@ -63,7 +87,22 @@ export function PlanDetail() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
   const [fillConfirmOpen, setFillConfirmOpen] = useState(false)
+  const [clearAllConfirmOpen, setClearAllConfirmOpen] = useState(false)
+  // Pending palette-drop onto a filled slot — drives the replace-confirm dialog.
+  const [paletteReplace, setPaletteReplace] = useState<
+    { recipeId: string; target: TemplateMeal; targetRecipeName: string; sourceRecipeName: string } | null
+  >(null)
   const [fillMode, setFillMode] = useState<FillMode>('empty')
+  // Drag-and-drop transient state — drives DragOverlay + drop preview.
+  const [dragSourceId, setDragSourceId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
+  // Prep-slot picker state — null = closed; set = open on (dayIndex, window).
+  const [prepPickerCell, setPrepPickerCell] = useState<{
+    dayIndex: number
+    window: 'MORNING' | 'EVENING'
+  } | null>(null)
+  // True while a prep-slot chip is being dragged (drives PrepLaneRow styling).
+  const [isPrepSlotDragging, setIsPrepSlotDragging] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
 
   // ── Data fetching ────────────────────────────────────────────────────────
@@ -93,23 +132,62 @@ export function PlanDetail() {
     enabled: !!plan,
   })
 
-  // Build recipe name lookup
+  // Fetch the family when the plan is family-owned so we can resolve member
+  // display names (anything else falls back to the current user's name or a
+  // short UUID).
+  const { data: family } = useQuery({
+    queryKey: ['family', plan?.familyId],
+    queryFn: () => familyService.getFamily(plan!.familyId!),
+    enabled: !!plan?.familyId,
+    staleTime: 60_000,
+  })
+
+  // Live goal-derived targets for the current user. Used to patch a frozen
+  // preferences_snapshot that was taken before the user set their goal.
+  const { data: liveTargets } = useQuery({
+    queryKey: ['my-targets'],
+    queryFn: usersService.getTargets,
+    staleTime: 60_000,
+  })
+
+  // Prep slots for this plan template — populated/reconciled server-side by
+  // the PrepScheduler (KALMIO-262) whenever a template_meal changes.
+  const { data: prepSlots = [] } = useQuery({
+    queryKey: ['template-prep-slots', id],
+    queryFn: () => templatePrepSlotsService.list(id!),
+    enabled: !!id && !!plan,
+    staleTime: 30_000,
+  })
+
+  // Build recipe name + lookup map (lookup is used for macro rollups below)
   const recipeNames: Record<string, string> = {}
+  const recipesById: Record<string, typeof recipes[number]> = {}
   for (const r of recipes) {
     recipeNames[r.id] = getRecipeName(r, lang)
+    recipesById[r.id] = r
   }
 
   // Build member name lookup
-  const memberNames: Record<string, string> = {}
-  if (plan && me) {
-    for (const uid of plan.memberIds) {
-      if (uid === currentUserId) {
-        const full = [me.firstName, me.lastName].filter(Boolean).join(' ')
-        memberNames[uid] = full || me.email || uid.slice(0, 8)
-      } else {
-        memberNames[uid] = uid.slice(0, 8)
-      }
+  const familyDisplayName: Record<string, string> = {}
+  if (family) {
+    for (const m of family.members) {
+      familyDisplayName[m.userId] = m.displayName
     }
+  }
+  const memberNames: Record<string, string> = {}
+  if (plan) {
+    plan.memberIds.forEach((uid, idx) => {
+      if (uid === currentUserId && me) {
+        const full = [me.firstName, me.lastName].filter(Boolean).join(' ')
+        memberNames[uid] = full || me.email || t('plan.detail.memberFallback', { index: idx + 1 })
+      } else if (familyDisplayName[uid]) {
+        memberNames[uid] = familyDisplayName[uid]
+      } else {
+        // Family hasn't loaded the row yet OR the member was removed —
+        // either way, show a friendly label so the user never sees a UUID.
+        memberNames[uid] = t('plan.detail.memberFallback', { index: idx + 1 })
+      }
+    })
   }
 
   // ── Mutations ────────────────────────────────────────────────────────────
@@ -121,6 +199,8 @@ export function PlanDetail() {
     }) => planTemplateService.upsertTemplateMeal(id!, vars.body, vars.existingId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      // PrepScheduler reconciles prep slots server-side after every meal change.
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       toast({ title: t('plan.detail.cell.saved'), variant: 'success' })
       setActiveCell(null)
     },
@@ -129,11 +209,32 @@ export function PlanDetail() {
     },
   })
 
+  // In-place servings stepper on a meal card. PUTs the existing template_meal
+  // with the same coords and recipe, only the servings number changes.
+  const servingsMutation = useMutation({
+    mutationFn: (vars: { cell: TemplateMeal; servings: number }) =>
+      planTemplateService.upsertTemplateMeal(
+        id!,
+        {
+          dayIndex: vars.cell.dayIndex,
+          mealType: vars.cell.mealType,
+          memberId: vars.cell.memberId,
+          recipeId: vars.cell.recipeId,
+          offPlanMealTemplateId: vars.cell.offPlanMealTemplateId,
+          servings: vars.servings,
+        },
+        vars.cell.id,
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
   const clearMutation = useMutation({
     mutationFn: (templateMealId: string) =>
       planTemplateService.clearTemplateMeal(id!, templateMealId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       setActiveCell(null)
     },
     onError: () => {
@@ -165,6 +266,282 @@ export function PlanDetail() {
     },
   })
 
+  const solveMutation = useMutation({
+    mutationFn: (mode: FillMode) =>
+      planTemplateService.solve(id!, mode === 'empty' ? 'EMPTY' : 'ALL'),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      toast({ title: t('plan.detail.fillSuccess'), variant: 'success' })
+      setFillConfirmOpen(false)
+    },
+    onError: () => {
+      toast({ title: t('plan.detail.fillFailed'), variant: 'destructive' })
+      setFillConfirmOpen(false)
+    },
+  })
+
+  // Drag-and-drop ───────────────────────────────────────────────────────────
+  //
+  // Sensor with an 8 px activation distance so a tap-to-edit still works on
+  // the grip area, and a keyboard sensor for accessibility.
+  const dndSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor),
+  )
+
+  // Atomic swap of two filled cells via the dedicated backend endpoint.
+  const swapMutation = useMutation({
+    mutationFn: (vars: { firstId: string; secondId: string }) =>
+      planTemplateService.swapTemplateMeals(id!, vars.firstId, vars.secondId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
+  // Move a single meal to a new (day, slot, member) coord set when the drop
+  // target is empty — reuses the existing PUT upsert endpoint.
+  const moveMutation = useMutation({
+    mutationFn: (vars: {
+      mealId: string
+      dayIndex: number
+      mealType: MealType
+      memberId: string
+      recipeId: string | null
+      offPlanMealTemplateId: string | null
+      servings: number
+    }) => planTemplateService.upsertTemplateMeal(
+      id!,
+      {
+        dayIndex: vars.dayIndex,
+        mealType: vars.mealType,
+        memberId: vars.memberId,
+        recipeId: vars.recipeId,
+        offPlanMealTemplateId: vars.offPlanMealTemplateId,
+        servings: vars.servings,
+      },
+      vars.mealId,
+    ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['plan-template', id] }),
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
+  // ── Prep-slot mutations ──────────────────────────────────────────────────
+
+  const prepUpsertMutation = useMutation({
+    mutationFn: (vars: { dayIndex: number; window: 'MORNING' | 'EVENING'; recipeId: string; servingsToMake: number }) =>
+      templatePrepSlotsService.upsert(id!, {
+        recipeId: vars.recipeId,
+        dayIndex: vars.dayIndex,
+        window: vars.window,
+        servingsToMake: vars.servingsToMake,
+        servingsToFreeze: 0,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+      setPrepPickerCell(null)
+      toast({ title: t('plan.detail.cell.saved'), variant: 'success' })
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
+  const prepPatchMutation = useMutation({
+    mutationFn: (vars: { slotId: string; dayIndex: number; window: 'MORNING' | 'EVENING' }) =>
+      templatePrepSlotsService.patch(vars.slotId, {
+        dayIndex: vars.dayIndex,
+        window: vars.window,
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+      toast({ title: t('plan.prep.actions.moved'), variant: 'success' })
+    },
+    onError: () => {
+      // Rollback: re-fetch to restore server state.
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
+  const prepRemoveMutation = useMutation({
+    mutationFn: (slotId: string) => templatePrepSlotsService.remove(slotId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
+  function handleDragStart(event: DragStartEvent) {
+    const activeId = String(event.active.id)
+    setDragSourceId(activeId)
+    setDragOverId(null)
+    // Track whether a prep-slot chip is being dragged (drives prep-lane styling).
+    setIsPrepSlotDragging(parsePrepSlotDragId(activeId) !== null)
+  }
+
+  function handleDragOver(event: DragOverEvent) {
+    setDragOverId(event.over ? String(event.over.id) : null)
+  }
+
+  // Drop a palette item into a cell — creates a fresh template_meal with the
+  // chosen recipe at the target coords. Palette source remains in place.
+  const copyToCellMutation = useMutation({
+    mutationFn: (vars: {
+      recipeId: string
+      dayIndex: number
+      mealType: MealType
+      memberId: string
+    }) => planTemplateService.upsertTemplateMeal(id!, {
+      dayIndex: vars.dayIndex,
+      mealType: vars.mealType,
+      memberId: vars.memberId,
+      recipeId: vars.recipeId,
+      offPlanMealTemplateId: null,
+      servings: 1,
+    }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
+  // User confirmed they want to overwrite a filled slot from the palette.
+  // PUT the existing template_meal so its recipeId becomes the new one —
+  // the row's id and member coords stay the same.
+  const replaceFromPaletteMutation = useMutation({
+    mutationFn: (vars: { target: TemplateMeal; recipeId: string }) =>
+      planTemplateService.upsertTemplateMeal(
+        id!,
+        {
+          dayIndex: vars.target.dayIndex,
+          mealType: vars.target.mealType,
+          memberId: vars.target.memberId,
+          recipeId: vars.recipeId,
+          offPlanMealTemplateId: null,
+          servings: Number(vars.target.servings),
+        },
+        vars.target.id,
+      ),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      setPaletteReplace(null)
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+      setPaletteReplace(null)
+    },
+  })
+
+  // Drop a cell onto the trash — clears it.
+  const trashMutation = useMutation({
+    mutationFn: (templateMealId: string) =>
+      planTemplateService.clearTemplateMeal(id!, templateMealId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+    },
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
+  function handleDragEnd(event: DragEndEvent) {
+    setDragSourceId(null)
+    setDragOverId(null)
+    setIsPrepSlotDragging(false)
+    if (!plan) return
+    if (!event.over) return
+
+    const sourceId = String(event.active.id)
+    const dropId = String(event.over.id)
+
+    // ── Prep-slot drag: prep-slot:{slotId} → prep-cell:{dayIndex}:{window} ──
+    const prepSlotId = parsePrepSlotDragId(sourceId)
+    if (prepSlotId !== null) {
+      const target = parsePrepCellDropId(dropId)
+      if (!target) return
+      const slot = prepSlots.find(s => s.id === prepSlotId)
+      if (!slot) return
+      // No-op if dropped on same cell.
+      if (slot.dayIndex === target.dayIndex && slot.window === target.window) return
+      prepPatchMutation.mutate({ slotId: prepSlotId, dayIndex: target.dayIndex, window: target.window })
+      return
+    }
+
+    // Trash takes precedence — clear the source cell.
+    if (dropId === TRASH_DROP_ID) {
+      if (sourceId.startsWith('palette:')) return
+      // sourceId is a template_meal id when dragging an in-grid cell.
+      const sourceMeal = plan.templateMeals.find(m => m.id === sourceId)
+      if (sourceMeal) trashMutation.mutate(sourceMeal.id)
+      return
+    }
+
+    // Beyond trash we only deal with cell drop targets.
+    if (!dropId.startsWith('cell:')) return
+    const [, dayStr, slotStr, memberId] = dropId.split(':')
+    const targetDay = Number(dayStr)
+    const targetSlot = slotStr as MealType
+
+    // Palette drag → copy the chosen recipe into the target. If the slot is
+    // already filled we surface a confirm dialog instead of overwriting silently.
+    if (sourceId.startsWith('palette:')) {
+      const recipeId = sourceId.slice('palette:'.length)
+      const occupant = plan.templateMeals.find(m =>
+        m.dayIndex === targetDay && m.mealType === targetSlot && m.memberId === memberId
+      )
+      if (occupant) {
+        const sourceRecipeName =
+          recipeNames[recipeId] ?? recipeId.slice(0, 8)
+        const targetRecipeName =
+          occupant.recipeId
+            ? (recipeNames[occupant.recipeId] ?? occupant.recipeId.slice(0, 8))
+            : t('plan.detail.cell.emptyLabel')
+        setPaletteReplace({
+          recipeId,
+          target: occupant,
+          sourceRecipeName,
+          targetRecipeName,
+        })
+        return
+      }
+      copyToCellMutation.mutate({
+        recipeId, dayIndex: targetDay, mealType: targetSlot, memberId,
+      })
+      return
+    }
+
+    const sourceMeal = plan.templateMeals.find(m => m.id === sourceId)
+    if (!sourceMeal) return
+
+    // No-op if dropped on its own slot.
+    if (
+      sourceMeal.dayIndex === targetDay &&
+      sourceMeal.mealType === targetSlot &&
+      sourceMeal.memberId === memberId
+    ) {
+      return
+    }
+
+    const targetMeal = plan.templateMeals.find(m =>
+      m.dayIndex === targetDay && m.mealType === targetSlot && m.memberId === memberId
+    )
+
+    if (targetMeal) {
+      swapMutation.mutate({ firstId: sourceMeal.id, secondId: targetMeal.id })
+    } else {
+      moveMutation.mutate({
+        mealId: sourceMeal.id,
+        dayIndex: targetDay,
+        mealType: targetSlot,
+        memberId,
+        recipeId: sourceMeal.recipeId,
+        offPlanMealTemplateId: sourceMeal.offPlanMealTemplateId,
+        servings: Number(sourceMeal.servings),
+      })
+    }
+  }
+
   const archiveMutation = useMutation({
     mutationFn: () => planTemplateService.archive(id!),
     onSuccess: () => {
@@ -173,6 +550,20 @@ export function PlanDetail() {
     },
     onError: () => {
       toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
+  // Bulk clear: wipe every template_meal row on this plan.
+  const clearAllMutation = useMutation({
+    mutationFn: () => planTemplateService.clearAllTemplateMeals(id!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      toast({ title: t('plan.detail.clearAllSuccess'), variant: 'success' })
+      setClearAllConfirmOpen(false)
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+      setClearAllConfirmOpen(false)
     },
   })
 
@@ -254,7 +645,7 @@ export function PlanDetail() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-10">
+    <div className="max-w-6xl mx-auto px-4 pb-10">
       {/* Page header */}
       <Header
         title={plan.name}
@@ -328,6 +719,15 @@ export function PlanDetail() {
                     <MenuButton
                       onClick={() => {
                         setMenuOpen(false)
+                        setClearAllConfirmOpen(true)
+                      }}
+                      className="text-red-500"
+                    >
+                      {t('plan.detail.actions.clearAll')}
+                    </MenuButton>
+                    <MenuButton
+                      onClick={() => {
+                        setMenuOpen(false)
                         setArchiveConfirmOpen(true)
                       }}
                       className="text-red-500"
@@ -388,13 +788,163 @@ export function PlanDetail() {
         </div>
       </div>
 
-      {/* Template grid */}
-      <TemplateGrid
-        plan={plan}
-        memberNames={memberNames}
-        recipeNames={recipeNames}
-        onCellClick={handleCellClick}
-      />
+      {/* Macro summary + per-day rollup vs targets */}
+      {(() => {
+        const daily = dailyTotals(plan, recipesById)
+        const weekly = weeklyAverage(daily)
+        const liveOverride = targetsFromLive(liveTargets ?? null)
+        const overrides = liveOverride ? { [currentUserId]: liveOverride } : {}
+        const targets = aggregateTargets(plan, overrides)
+        // Per-member slot kcal target = that member's daily kcal / # slots.
+        // Resolved per-member so a family plan where some members lack goals
+        // still renders bars for the members who DO have goals.
+        const slotsCount = plan.mealSlotsCovered.length
+        const slotKcalTargetByMember: Record<string, number | null> = {}
+        for (const uid of plan.memberIds) {
+          const memberTarget = targetsForMember(plan, uid, overrides)
+          slotKcalTargetByMember[uid] =
+            memberTarget.kcal != null && slotsCount > 0
+              ? memberTarget.kcal / slotsCount
+              : null
+        }
+        const memberPreferredSlots = preferredSlotsByMember(plan)
+        // Source meal currently being dragged (drives the floating overlay
+        // and the swap-preview rendering in target cells).
+        const draggedMeal = dragSourceId
+          ? plan.templateMeals.find(m => m.id === dragSourceId) ?? null
+          : null
+        const draggedRecipe = draggedMeal?.recipeId
+          ? recipesById[draggedMeal.recipeId]
+          : undefined
+
+        // Meal currently sitting in the hovered drop target — drives the
+        // source cell's "what you'll get back after swap" preview. Null when
+        // hovering over an empty cell or over the source itself.
+        let dragOverMeal: TemplateMeal | null = null
+        if (dragOverId && dragOverId.startsWith('cell:')) {
+          const [, dayStr, slotStr, memberStr] = dragOverId.split(':')
+          const overDay = Number(dayStr)
+          const overSlot = slotStr as MealType
+          dragOverMeal = plan.templateMeals.find(m =>
+            m.dayIndex === overDay && m.mealType === overSlot && m.memberId === memberStr
+          ) ?? null
+          if (dragOverMeal && draggedMeal && dragOverMeal.id === draggedMeal.id) {
+            dragOverMeal = null
+          }
+        }
+        const dragOverRecipe = dragOverMeal?.recipeId
+          ? recipesById[dragOverMeal.recipeId]
+          : undefined
+        const dragOverRecipeName = dragOverMeal?.recipeId
+          ? (recipeNames[dragOverMeal.recipeId] ?? dragOverMeal.recipeId.slice(0, 8))
+          : null
+
+        return (
+          <DndContext
+            sensors={dndSensors}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+            onDragCancel={() => { setDragSourceId(null); setDragOverId(null); setIsPrepSlotDragging(false) }}
+          >
+            {/* Macro summary spans full width across all three columns. */}
+            <PlanMacroSummary weekly={weekly} targets={targets} />
+
+            {/*
+              3-column responsive layout:
+                ≥ lg: palette (left) · plan grid (center) · side panel (right)
+                < lg: palette and side panel stack above/below the grid so the
+                      grid stays the primary view on tablet/mobile.
+            */}
+            <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)_300px]">
+              <aside className="order-2 lg:order-1">
+                <RecipePalette plan={plan} recipesById={recipesById} lang={lang} />
+              </aside>
+              <div className="order-1 lg:order-2 min-w-0">
+                <TemplateGrid
+                  plan={plan}
+                  memberNames={memberNames}
+                  recipeNames={recipeNames}
+                  recipesById={recipesById}
+                  daily={daily}
+                  targets={targets}
+                  slotKcalTargetByMember={slotKcalTargetByMember}
+                  preferredSlotsByMember={memberPreferredSlots}
+                  dragSourceId={dragSourceId}
+                  dragOverId={dragOverId}
+                  dragOverMeal={dragOverMeal}
+                  dragOverRecipe={dragOverRecipe}
+                  dragOverRecipeName={dragOverRecipeName}
+                  onCellClick={handleCellClick}
+                  onServingsChange={(cell, servings) =>
+                    servingsMutation.mutate({ cell, servings })
+                  }
+                  prepSlots={prepSlots}
+                  isPrepSlotDragging={isPrepSlotDragging}
+                  onPrepAddClick={(dayIndex, window) =>
+                    setPrepPickerCell({ dayIndex, window })
+                  }
+                  onPrepDelete={(slotId) => prepRemoveMutation.mutate(slotId)}
+                />
+              </div>
+              <aside className="order-3">
+                <PlanSidePanel plan={plan} recipesById={recipesById} />
+              </aside>
+            </div>
+
+            {/* Follow-cursor floating preview — handles both cell drags and
+                palette drags so the user sees the same lift-and-drop feedback
+                regardless of origin. */}
+            <DragOverlay dropAnimation={null}>
+              {draggedMeal ? (
+                <DragGhost
+                  recipeName={
+                    draggedMeal.recipeId
+                      ? (recipeNames[draggedMeal.recipeId] ?? draggedMeal.recipeId.slice(0, 8))
+                      : t('plan.detail.cell.emptyLabel')
+                  }
+                  recipe={draggedRecipe}
+                  servings={Number(draggedMeal.servings)}
+                />
+              ) : dragSourceId?.startsWith('palette:') ? (() => {
+                const recipeId = dragSourceId.slice('palette:'.length)
+                const recipe = recipesById[recipeId]
+                if (!recipe) return null
+                return (
+                  <DragGhost
+                    recipeName={recipeNames[recipeId] ?? recipeId.slice(0, 8)}
+                    recipe={recipe}
+                    servings={1}
+                  />
+                )
+              })() : null}
+            </DragOverlay>
+
+            {/* Floating trash zone — only visible while dragging an existing cell. */}
+            <TrashDropZone
+              visible={dragSourceId != null && !dragSourceId.startsWith('palette:')}
+            />
+          </DndContext>
+        )
+      })()}
+
+      {/* Prep slot picker modal */}
+      {prepPickerCell && (
+        <PrepSlotPicker
+          open={prepPickerCell != null}
+          onConfirm={(result: PrepSlotPickerResult) => {
+            if (!prepPickerCell) return
+            prepUpsertMutation.mutate({
+              dayIndex: prepPickerCell.dayIndex,
+              window: prepPickerCell.window,
+              recipeId: result.recipe.id,
+              servingsToMake: result.servingsToMake,
+            })
+          }}
+          onClose={() => setPrepPickerCell(null)}
+          isSaving={prepUpsertMutation.isPending}
+        />
+      )}
 
       {/* Cell picker modal */}
       {activeCell && (
@@ -409,6 +959,90 @@ export function PlanDetail() {
           isSaving={isMutating}
         />
       )}
+
+      {/* Palette → filled slot replace confirm */}
+      <Dialog
+        open={paletteReplace != null}
+        onOpenChange={(open) => {
+          if (replaceFromPaletteMutation.isPending) return
+          if (!open) setPaletteReplace(null)
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t('plan.detail.palette.replaceTitle')}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-[#6b7280] mb-5">
+            {t('plan.detail.palette.replaceBody', {
+              source: paletteReplace?.sourceRecipeName ?? '',
+              target: paletteReplace?.targetRecipeName ?? '',
+            })}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setPaletteReplace(null)}
+              disabled={replaceFromPaletteMutation.isPending}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => paletteReplace && replaceFromPaletteMutation.mutate({
+                target: paletteReplace.target,
+                recipeId: paletteReplace.recipeId,
+              })}
+              disabled={replaceFromPaletteMutation.isPending || paletteReplace == null}
+            >
+              {replaceFromPaletteMutation.isPending ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                t('plan.detail.palette.replaceOk')
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear-all confirm dialog */}
+      <Dialog open={clearAllConfirmOpen} onOpenChange={(open) => {
+        if (clearAllMutation.isPending) return
+        setClearAllConfirmOpen(open)
+      }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{t('plan.detail.actions.clearAllConfirmTitle')}</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-[#6b7280] mb-5">
+            {t('plan.detail.actions.clearAllConfirmBody', {
+              count: plan.templateMeals.length,
+            })}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setClearAllConfirmOpen(false)}
+              disabled={clearAllMutation.isPending}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => clearAllMutation.mutate()}
+              disabled={clearAllMutation.isPending || plan.templateMeals.length === 0}
+            >
+              {clearAllMutation.isPending ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                t('plan.detail.actions.clearAllConfirmOk')
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Archive confirm dialog */}
       <Dialog open={archiveConfirmOpen} onOpenChange={setArchiveConfirmOpen}>
@@ -448,53 +1082,71 @@ export function PlanDetail() {
       </Dialog>
 
       {/* Fill confirm dialog */}
-      <Dialog open={fillConfirmOpen} onOpenChange={setFillConfirmOpen}>
+      <Dialog
+        open={fillConfirmOpen}
+        onOpenChange={(open) => {
+          // Block dismiss while the solver is running so the user sees clear progress.
+          if (solveMutation.isPending) return
+          setFillConfirmOpen(open)
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{t('plan.detail.actions.fillConfirmTitle')}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2 mb-5">
-            {(['empty', 'all'] as FillMode[]).map(mode => (
-              <button
-                key={mode}
-                type="button"
-                onClick={() => setFillMode(mode)}
-                className={`
-                  w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] border text-left
-                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-                  ${fillMode === mode
-                    ? 'border-[#4f46e5] bg-[#4f46e5]/5'
-                    : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'}
-                `}
-              >
-                <span className="flex-1 text-sm text-[#1A1A1A]">
-                  {mode === 'empty'
-                    ? t('plan.detail.actions.fillConfirmEmpty')
-                    : t('plan.detail.actions.fillConfirmAll')}
-                </span>
-                {fillMode === mode && (
-                  <Check className="h-4 w-4 text-[#4f46e5] shrink-0" aria-hidden />
-                )}
-              </button>
-            ))}
-          </div>
+          {solveMutation.isPending ? (
+            <div className="flex flex-col items-center gap-3 py-6">
+              <Spinner className="h-6 w-6" />
+              <p className="text-sm text-[#6b7280] text-center">
+                {t('plan.detail.actions.fillProgress')}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2 mb-5">
+              {(['empty', 'all'] as FillMode[]).map(mode => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setFillMode(mode)}
+                  className={`
+                    w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] border text-left
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                    ${fillMode === mode
+                      ? 'border-[#4f46e5] bg-[#4f46e5]/5'
+                      : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'}
+                  `}
+                >
+                  <span className="flex-1 text-sm text-[#1A1A1A]">
+                    {mode === 'empty'
+                      ? t('plan.detail.actions.fillConfirmEmpty')
+                      : t('plan.detail.actions.fillConfirmAll')}
+                  </span>
+                  {fillMode === mode && (
+                    <Check className="h-4 w-4 text-[#4f46e5] shrink-0" aria-hidden />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="flex justify-end gap-2">
             <Button
               variant="secondary"
               size="sm"
               onClick={() => setFillConfirmOpen(false)}
+              disabled={solveMutation.isPending}
             >
               {t('common.cancel')}
             </Button>
             <Button
               size="sm"
-              onClick={() => {
-                setFillConfirmOpen(false)
-                // Solver fill is a future ticket (A6/A7) — no-op for now.
-                toast({ title: t('common.comingSoon') })
-              }}
+              onClick={() => solveMutation.mutate(fillMode)}
+              disabled={solveMutation.isPending}
             >
-              {t('plan.detail.actions.fillConfirmOk')}
+              {solveMutation.isPending ? (
+                <Spinner className="h-4 w-4" />
+              ) : (
+                t('plan.detail.actions.fillConfirmOk')
+              )}
             </Button>
           </div>
         </DialogContent>
@@ -530,5 +1182,63 @@ function MenuButton({
     >
       {children}
     </button>
+  )
+}
+
+// ── Drag overlay ghost card ───────────────────────────────────────────────
+
+/**
+ * Floating preview of the meal being dragged. Renders inside @dnd-kit's
+ * <DragOverlay> so it follows the cursor without re-layouting the grid.
+ */
+function DragGhost({
+  recipeName,
+  recipe,
+  servings,
+}: {
+  recipeName: string
+  recipe: import('@/types').Recipe | undefined
+  servings: number
+}) {
+  let kcal = 0
+  let protein = 0
+  let fat = 0
+  let carbs = 0
+  if (recipe?.macros && recipe.servings > 0) {
+    const factor = servings / recipe.servings
+    if (Number.isFinite(factor) && factor > 0) {
+      kcal = recipe.macros.kcal * factor
+      protein = recipe.macros.protein * factor
+      fat = recipe.macros.fat * factor
+      carbs = recipe.macros.carbs * factor
+    }
+  }
+  return (
+    <div
+      className="
+        flex flex-col gap-1 px-3 py-2 rounded-[12px]
+        bg-[#F0EDE6] text-[#1A1A1A] text-xs font-medium
+        shadow-xl ring-2 ring-[#4f46e5] cursor-grabbing
+        w-full h-full
+      "
+      style={{ transform: 'rotate(-2deg)' }}
+    >
+      <div className="flex items-center gap-1.5 min-w-0 w-full">
+        <span className="w-2 h-2 rounded-full shrink-0 bg-[#4f46e5]" aria-hidden />
+        <span className="truncate">{recipeName}</span>
+      </div>
+      {kcal > 0 && (
+        <p className="text-[10.5px] text-[#6b7280] tabular-nums leading-tight text-left">
+          <span className="font-semibold text-[#1A1A1A]">{Math.round(kcal)}</span>
+          <span className="ml-0.5">kcal</span>
+          <span className="mx-1 text-[#d1d5db]" aria-hidden>·</span>
+          {Math.round(protein)}P
+          <span className="mx-0.5 text-[#d1d5db]" aria-hidden>·</span>
+          {Math.round(fat)}F
+          <span className="mx-0.5 text-[#d1d5db]" aria-hidden>·</span>
+          {Math.round(carbs)}C
+        </p>
+      )}
+    </div>
   )
 }

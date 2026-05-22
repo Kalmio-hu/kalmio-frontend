@@ -1472,6 +1472,27 @@
         "dayShort": "Day {{day}}"
       }
     },
+    "prep": {
+      "rowLabel": "Prep",
+      "empty": "No prep yet",
+      "windowMorning": "morning",
+      "windowEvening": "evening",
+      "servings_one": "{{count}} serving",
+      "servings_other": "{{count}} servings",
+      "freezeMarker": "to freeze",
+      "picker": {
+        "title": "Add prep slot",
+        "recipeLabel": "Recipe",
+        "windowLabel": "Time of day",
+        "servingsLabel": "Servings to make",
+        "submit": "Add"
+      },
+      "actions": {
+        "delete": "Delete",
+        "split": "Split",
+        "moved": "Prep slot moved."
+      }
+    },
     "member": {
       "allergenWarningAria": "Allergen warning"
     }
