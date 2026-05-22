@@ -2268,6 +2268,8 @@
       "empty": "Erre a napra nincs előkészítés",
       "moveLabel": "Áthelyezés",
       "timeLabel": "Időpont",
+      "dragHint": "Húzd másik napra az áthelyezéshez",
+      "dropHere": "Ide helyezd",
       "actions": {
         "done": "Megcsináltam",
         "skip": "Kihagyom",

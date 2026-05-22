@@ -63,6 +63,7 @@ function MaterializeDialog({ scheduleId, cadenceDays, open, onOpenChange }: Mate
       void qc.invalidateQueries({ queryKey: ['schedules'] })
       void qc.invalidateQueries({ queryKey: ['schedule', scheduleId] })
       void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      void qc.invalidateQueries({ queryKey: ['prep-tasks', scheduleId] })
       onOpenChange(false)
     },
     onError: () => {
