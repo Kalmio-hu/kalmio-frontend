@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { supabase } from './supabase'
 import { useAuthStore, waitForAuthInit } from '@/store/auth'
+import { buildSessionFromAccessToken, persistPasskeyToken } from './passkeySession'
 import { toast } from '@/components/ui/toast'
 import i18n from '../i18n'
 
@@ -119,8 +120,31 @@ export function _resetHandling401(): void {
   _isHandling401 = false
 }
 
+// ── Sliding-refresh: swap in fresh passkey JWT when backend sends one ────────
+//
+// The backend (`JwtSlidingRefreshFilter`) attaches `X-Refresh-Token` to
+// responses whenever the bearer's expiry is within 15 minutes. We swap it into
+// local storage + Zustand so the next request uses the fresh token. The user
+// never notices.
+function _consumeRefreshHeader(headers: unknown): void {
+  if (!headers || typeof headers !== 'object') return
+  const raw = (headers as Record<string, unknown>)['x-refresh-token']
+    ?? (headers as Record<string, unknown>)['X-Refresh-Token']
+  if (typeof raw !== 'string' || raw.length === 0) return
+  try {
+    const session = buildSessionFromAccessToken(raw)
+    persistPasskeyToken(raw)
+    useAuthStore.getState().updateSession(session)
+  } catch {
+    // Malformed token — ignore; the next 401 (if any) will trigger sign-out.
+  }
+}
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    _consumeRefreshHeader(response.headers)
+    return response
+  },
   async (error) => {
     const status = error?.response?.status
 

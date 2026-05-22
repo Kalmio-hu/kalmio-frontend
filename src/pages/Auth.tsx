@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -32,9 +32,14 @@ export function Auth() {
   // `returnTo` comes from the expired-session redirect; `next` is the legacy param.
   // Guard against open-redirect: only accept same-origin relative paths (must start
   // with exactly one `/`; `//evil.com` is rejected because it starts with `//`).
+  // Also reject `/auth*` so a captured-while-on-auth path can't loop us back here.
   const returnTo = searchParams.get('returnTo')
   const raw = returnTo ?? searchParams.get('next')
-  const nextPath = (raw && raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/app'
+  const isSafePath = !!raw
+    && raw.startsWith('/')
+    && !raw.startsWith('//')
+    && !raw.startsWith('/auth')
+  const nextPath = isSafePath ? raw : '/app'
   const isExpiredSession = searchParams.get('expired') === '1'
   const setSession = useAuthStore((s) => s.setSession)
 
@@ -229,11 +234,13 @@ export function Auth() {
         <div className="w-full max-w-md">
 
           <div className="mb-8">
-            <img
-              src="/assets/images/logo-dark.png"
-              alt="Kalmio"
-              className="h-9 object-contain object-left"
-            />
+            <Link to="/" aria-label={t('auth.backToHome')} className="inline-block">
+              <img
+                src="/assets/images/logo-dark.png"
+                alt="Kalmio"
+                className="h-9 object-contain object-left"
+              />
+            </Link>
             <p className="mt-1.5 text-xs text-gray-400 tracking-wide">{t('auth.tagline')}</p>
           </div>
 
