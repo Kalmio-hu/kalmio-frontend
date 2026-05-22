@@ -292,6 +292,7 @@ export function PlanDetail() {
       planTemplateService.solve(id!, mode === 'empty' ? 'EMPTY' : 'ALL'),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       toast({ title: t('plan.detail.fillSuccess'), variant: 'success' })
       setFillConfirmOpen(false)
     },

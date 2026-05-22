@@ -123,7 +123,7 @@ function PrepDropCell({
     <div
       ref={setNodeRef}
       className={`
-        flex flex-col gap-1 flex-1 min-h-[36px] rounded-[8px] p-1 transition-colors
+        flex flex-row flex-wrap items-center gap-1 flex-1 min-w-0 min-h-[28px] rounded-[8px] p-1 transition-colors
         ${isAnyDragging && isOver
           ? 'bg-[#eef2ff] ring-2 ring-[#4f46e5]'
           : isAnyDragging
@@ -210,20 +210,28 @@ export function PrepLaneRow({
         </span>
       </div>
 
-      {/* Two window sub-cells side by side */}
-      <div className="flex-1 flex gap-1 px-2 py-2 min-w-0">
+      {/* Two window sub-rows stacked vertically — gives each window the full row
+          width so chips don't get squeezed on narrow viewports. */}
+      <div className="flex-1 flex flex-col gap-1 px-2 py-2 min-w-0">
         {(['MORNING', 'EVENING'] as const).map(win => (
-          <PrepDropCell
-            key={win}
-            dayIndex={dayIndex}
-            window={win}
-            slots={win === 'MORNING' ? morningSlots : eveningSlots}
-            recipeNames={recipeNames}
-            isAnyDragging={isAnyDragging}
-            onAddClick={onAddClick}
-            onContextMenu={setContextMenu}
-            t={t}
-          />
+          <div key={win} className="flex items-start gap-2 min-w-0">
+            <span
+              className="w-10 shrink-0 pt-1 text-[10px] uppercase tracking-wide text-[#9ca3af]"
+              aria-hidden
+            >
+              {win === 'MORNING' ? t('plan.prep.windowMorning') : t('plan.prep.windowEvening')}
+            </span>
+            <PrepDropCell
+              dayIndex={dayIndex}
+              window={win}
+              slots={win === 'MORNING' ? morningSlots : eveningSlots}
+              recipeNames={recipeNames}
+              isAnyDragging={isAnyDragging}
+              onAddClick={onAddClick}
+              onContextMenu={setContextMenu}
+              t={t}
+            />
+          </div>
         ))}
       </div>
 
