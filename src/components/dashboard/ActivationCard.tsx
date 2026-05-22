@@ -16,7 +16,7 @@ export function ActivationCard() {
         <p className="text-sm text-gray-500 mb-4">
           {t('dashboard.activation.description')}
         </p>
-        <Button onClick={() => navigate('/app/meal-plans')}>
+        <Button onClick={() => navigate('/app/plans')}>
           {t('dashboard.activation.cta')}
         </Button>
       </CardContent>

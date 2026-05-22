@@ -32,7 +32,7 @@ export function PlanGlanceModule({ glance }: PlanGlanceModuleProps) {
   return (
     <button
       type="button"
-      onClick={() => navigate('/app/meal-plans')}
+      onClick={() => navigate('/app/plans')}
       className="w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded-[16px]"
       aria-label={t('dashboard.planGlance.viewFull')}
     >

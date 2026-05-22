@@ -26,4 +26,4 @@ Most people don't fail at eating well because they lack willpower. They fail bec
 
 ## Try it
 
-Kalmio is in early access. The planner works today, and the auto-tracking and replan flows ship next. [Plan your first week.](/app/meal-plans)
+Kalmio is in early access. The planner works today, and the auto-tracking and replan flows ship next. [Plan your first week.](/app/plans)

@@ -205,7 +205,7 @@ export function Grooming() {
       const kept = Object.values(decisions).filter(d => d.action === 'KEEP' || d.action === 'ADJUST_QUANTITY').length
       const discarded = Object.values(decisions).filter(d => d.action === 'DISCARD').length
       capture('grooming_session_completed', { items_kept: kept, items_discarded: discarded })
-      navigate('/app/meal-plans')
+      navigate('/app/plans')
     },
   })
 
@@ -241,7 +241,7 @@ export function Grooming() {
         <Card>
           <CardContent className="py-10 text-center">
             <p className="text-sm text-gray-500 mb-4">{t('grooming.error')}</p>
-            <Button variant="secondary" onClick={() => navigate('/app/meal-plans')}>
+            <Button variant="secondary" onClick={() => navigate('/app/plans')}>
               {t('grooming.skipCta')}
             </Button>
           </CardContent>
@@ -259,7 +259,7 @@ export function Grooming() {
         <Card>
           <CardContent className="py-12 flex flex-col items-center text-center">
             <p className="text-sm text-gray-500 mb-4">{t('grooming.emptyFridge')}</p>
-            <Button onClick={() => navigate('/app/meal-plans')}>
+            <Button onClick={() => navigate('/app/plans')}>
               {t('grooming.skipCta')}
             </Button>
           </CardContent>

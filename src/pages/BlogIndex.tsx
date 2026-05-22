@@ -55,7 +55,7 @@ export function BlogIndex() {
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
             <Link
-              to="/app/meal-plans"
+              to="/app/plans"
               className="inline-flex items-center gap-1.5 bg-[#F28C28] text-white text-sm font-semibold px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
             >
               {user ? t('landing.nav.ctaLoggedIn') : t('landing.nav.cta')}

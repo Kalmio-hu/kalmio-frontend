@@ -26,4 +26,4 @@ A legtöbb ember nem azért bukik el az egészséges étkezésnél, mert kevés 
 
 ## Próbáld ki
 
-A Kalmio korai hozzáférésben van. A tervező ma már működik, az auto-tracking és a replan funkciók a következő körben jönnek. [Tervezd meg az első heted.](/app/meal-plans)
+A Kalmio korai hozzáférésben van. A tervező ma már működik, az auto-tracking és a replan funkciók a következő körben jönnek. [Tervezd meg az első heted.](/app/plans)

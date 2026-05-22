@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, Store, LogOut, Settings, ShieldCheck, MessageSquarePlus, Vault, ChevronRight, Refrigerator, ClipboardList, Users, SlidersHorizontal, CalendarClock, CalendarDays } from 'lucide-react'
+import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, Store, LogOut, Settings, ShieldCheck, MessageSquarePlus, Vault, ChevronRight, Refrigerator, ClipboardList, Users, SlidersHorizontal, CalendarClock, CalendarDays, NotebookPen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -40,6 +40,7 @@ export function Sidebar() {
     { to: '/app/retail-products', icon: Store, label: t('nav.retail') },
     { to: '/app/family', icon: Users, label: t('nav.family') },
     { to: '/app/preferences', icon: SlidersHorizontal, label: t('nav.preferences') },
+    { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
     { to: '/app/schedules', icon: CalendarClock, label: t('nav.schedules') },
     { to: '/app/calendar', icon: CalendarDays, label: t('nav.calendar') },
   ]

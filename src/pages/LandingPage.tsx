@@ -169,7 +169,7 @@ export function LandingPage() {
               {t('blog.nav')}
             </Link>
             <Link
-              to="/app/meal-plans"
+              to="/app/plans"
               className="inline-flex items-center gap-1.5 bg-[#F28C28] text-white text-sm font-semibold px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
             >
               {user ? t('landing.nav.ctaLoggedIn') : t('landing.nav.cta')}
@@ -225,7 +225,7 @@ export function LandingPage() {
             transition={{ delay: 0.65, duration: 0.5 }}
           >
             <Link
-              to="/app/meal-plans"
+              to="/app/plans"
               className="inline-flex items-center gap-2 bg-[#F28C28] hover:bg-[#e07820] text-white font-bold text-lg px-8 py-4 rounded-full transition-colors shadow-lg"
             >
               {user ? t('landing.hero.ctaLoggedIn') : t('landing.hero.cta')}
@@ -306,7 +306,7 @@ export function LandingPage() {
             {t('landing.fomo.text')}
           </p>
           <Link
-            to="/app/meal-plans"
+            to="/app/plans"
             className="inline-flex items-center gap-2 bg-white text-[#F28C28] font-bold text-base px-8 py-4 rounded-full hover:bg-white/90 transition-colors"
           >
             {user ? t('landing.hero.ctaLoggedIn') : t('landing.hero.cta')}
@@ -374,7 +374,7 @@ export function LandingPage() {
             {t('landing.finalCta.subtitle')}
           </p>
           <Link
-            to="/app/meal-plans"
+            to="/app/plans"
             className="inline-flex items-center gap-2 bg-[#F28C28] hover:bg-[#e07820] text-white font-bold text-lg px-10 py-4 rounded-full transition-colors"
           >
             {user ? t('landing.finalCta.buttonLoggedIn') : t('landing.finalCta.button')}
