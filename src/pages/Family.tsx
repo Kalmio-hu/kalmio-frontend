@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/toast'
 import { FamilyMemberRow } from '@/components/family/FamilyMemberRow'
 import { ManagedProfileEditor } from '@/components/family/ManagedProfileEditor'
 import { InviteFlow } from '@/components/family/InviteFlow'
+import { PendingImpersonationRequests } from '@/components/family/PendingImpersonationRequests'
 import { familyService } from '@/services/family'
 import { usersService } from '@/services/users'
 import { useAuthStore } from '@/store/auth'
@@ -198,6 +199,9 @@ export function Family() {
         title={t('family.title')}
         subtitle={t('family.capacityCounter', { used: memberCount, cap: FAMILY_CAP })}
       />
+
+      {/* Pending impersonation-permission requests — renders nothing if none. */}
+      <PendingImpersonationRequests />
 
       {/* Member list */}
       <Card>

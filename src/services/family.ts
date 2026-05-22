@@ -8,6 +8,7 @@ import type {
   AcceptInviteRequest,
   MergePreviewResponse,
   ImpersonateResponse,
+  ImpersonationPermissionDto,
   UserPreferencesDto,
   SentInviteDto,
 } from '@/types'
@@ -91,11 +92,38 @@ export const familyService = {
       .post<ImpersonateResponse>(`/api/families/${familyId}/impersonate/${userId}`)
       .then((r) => r.data),
 
-  /** [PENDING_BE] POST /api/families/{id}/impersonate/{userId}/request-permission — request impersonation permission for a real account. */
-  requestImpersonationPermission: (familyId: string, userId: string): Promise<void> =>
+  /** POST /api/families/{id}/impersonate/{userId}/request-permission — planner asks a real member for impersonation permission. */
+  requestImpersonationPermission: (
+    familyId: string,
+    userId: string,
+  ): Promise<ImpersonationPermissionDto> =>
     api
-      .post(`/api/families/${familyId}/impersonate/${userId}/request-permission`)
+      .post<ImpersonationPermissionDto>(`/api/families/${familyId}/impersonate/${userId}/request-permission`)
+      .then((r) => r.data),
+
+  /** DELETE /api/families/{id}/impersonate/{userId}/permission — planner revokes a previously-granted permission. */
+  revokeImpersonationPermission: (familyId: string, userId: string): Promise<void> =>
+    api
+      .delete(`/api/families/${familyId}/impersonate/${userId}/permission`)
       .then(() => undefined),
+
+  /** GET /api/me/impersonation-permission-requests/pending — pending requests the CALLER must respond to (as target). */
+  listPendingImpersonationRequests: (): Promise<ImpersonationPermissionDto[]> =>
+    api
+      .get<ImpersonationPermissionDto[]>('/api/me/impersonation-permission-requests/pending')
+      .then((r) => r.data),
+
+  /** POST /api/impersonation-permissions/{permissionId}/grant — target grants a pending request. */
+  grantImpersonationPermission: (permissionId: string): Promise<ImpersonationPermissionDto> =>
+    api
+      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/grant`)
+      .then((r) => r.data),
+
+  /** POST /api/impersonation-permissions/{permissionId}/deny — target denies a pending request. */
+  denyImpersonationPermission: (permissionId: string): Promise<ImpersonationPermissionDto> =>
+    api
+      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/deny`)
+      .then((r) => r.data),
 
   /** [PENDING_BE] GET /api/families/{id}/invites — list sent invites (planner only). */
   listInvites: (familyId: string): Promise<SentInviteDto[]> =>
