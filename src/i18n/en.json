@@ -2268,8 +2268,8 @@
       "empty": "No prep this day",
       "moveLabel": "Move to",
       "timeLabel": "Time",
-      "dragHint": "Drag to another day to move",
-      "dropHere": "Drop here",
+      "dragHint": "Drag to move",
+      "dropHere": "Place here",
       "actions": {
         "done": "Done",
         "skip": "Skip",

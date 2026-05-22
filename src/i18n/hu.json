@@ -2269,7 +2269,7 @@
       "moveLabel": "Áthelyezés",
       "timeLabel": "Időpont",
       "dragHint": "Húzd másik napra az áthelyezéshez",
-      "dropHere": "Ide helyezd",
+      "dropHere": "Ide kerüljön",
       "actions": {
         "done": "Megcsináltam",
         "skip": "Kihagyom",
