@@ -484,9 +484,14 @@ export function PlanDetail() {
     const sourceId = String(event.active.id)
     const dropId = String(event.over.id)
 
-    // ── Prep-slot drag: prep-slot:{slotId} → prep-cell:{dayIndex}:{window} ──
+    // ── Prep-slot drag: prep-slot:{slotId} → prep-cell:* OR trash ──
     const prepSlotId = parsePrepSlotDragId(sourceId)
     if (prepSlotId !== null) {
+      // Trash drop deletes the slot.
+      if (dropId === TRASH_DROP_ID) {
+        prepRemoveMutation.mutate(prepSlotId)
+        return
+      }
       const target = parsePrepCellDropId(dropId)
       if (!target) return
       const slot = prepSlots.find(s => s.id === prepSlotId)
@@ -948,6 +953,27 @@ export function PlanDetail() {
                     recipe={recipe}
                     servings={1}
                   />
+                )
+              })() : dragSourceId?.startsWith('prep-slot:') ? (() => {
+                const slotId = dragSourceId.slice('prep-slot:'.length)
+                const slot = prepSlots.find(s => s.id === slotId)
+                if (!slot) return null
+                const recipeName = recipeNames[slot.recipeId] ?? slot.recipeId.slice(0, 8)
+                return (
+                  <div
+                    className="
+                      flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px]
+                      bg-[#F0EDE6] text-[#1A1A1A] text-xs font-medium
+                      shadow-xl ring-2 ring-[#4f46e5] cursor-grabbing
+                    "
+                    style={{ transform: 'rotate(-2deg)' }}
+                  >
+                    <span className="w-2 h-2 rounded-full shrink-0 bg-[#4f46e5]" aria-hidden />
+                    <span className="truncate max-w-[140px]">{recipeName}</span>
+                    <span className="shrink-0 tabular-nums text-[10.5px] text-[#6b7280]" aria-hidden>
+                      {Number(slot.servingsToMake)}×
+                    </span>
+                  </div>
                 )
               })() : null}
             </DragOverlay>
