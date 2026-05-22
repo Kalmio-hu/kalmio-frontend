@@ -97,10 +97,10 @@ export function PlanDetail() {
   // Drag-and-drop transient state — drives DragOverlay + drop preview.
   const [dragSourceId, setDragSourceId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
-  // Prep-slot picker state — null = closed; set = open on (dayIndex, window).
+  // Prep-slot picker state — null = closed; set = open on (dayIndex, scheduledWindow).
   const [prepPickerCell, setPrepPickerCell] = useState<{
     dayIndex: number
-    window: 'MORNING' | 'EVENING'
+    scheduledWindow: 'MORNING' | 'EVENING'
   } | null>(null)
   // True while a prep-slot chip is being dragged (drives PrepLaneRow styling).
   const [isPrepSlotDragging, setIsPrepSlotDragging] = useState(false)
@@ -354,11 +354,12 @@ export function PlanDetail() {
   // ── Prep-slot mutations ──────────────────────────────────────────────────
 
   const prepUpsertMutation = useMutation({
-    mutationFn: (vars: { dayIndex: number; window: 'MORNING' | 'EVENING'; recipeId: string; servingsToMake: number }) =>
+    mutationFn: (vars: { dayIndex: number; scheduledWindow: 'MORNING' | 'EVENING'; recipeId: string; servingsToMake: number; feedsTemplateMealIds: string[] }) =>
       templatePrepSlotsService.upsert(id!, {
         recipeId: vars.recipeId,
         dayIndex: vars.dayIndex,
-        window: vars.window,
+        scheduledWindow: vars.scheduledWindow,
+        feedsTemplateMealIds: vars.feedsTemplateMealIds,
         servingsToMake: vars.servingsToMake,
         servingsToFreeze: 0,
       }),
@@ -373,10 +374,10 @@ export function PlanDetail() {
   })
 
   const prepPatchMutation = useMutation({
-    mutationFn: (vars: { slotId: string; dayIndex: number; window: 'MORNING' | 'EVENING' }) =>
+    mutationFn: (vars: { slotId: string; dayIndex: number; scheduledWindow: 'MORNING' | 'EVENING' }) =>
       templatePrepSlotsService.patch(vars.slotId, {
         dayIndex: vars.dayIndex,
-        window: vars.window,
+        scheduledWindow: vars.scheduledWindow,
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
@@ -490,8 +491,8 @@ export function PlanDetail() {
       const slot = prepSlots.find(s => s.id === prepSlotId)
       if (!slot) return
       // No-op if dropped on same cell.
-      if (slot.dayIndex === target.dayIndex && slot.window === target.window) return
-      prepPatchMutation.mutate({ slotId: prepSlotId, dayIndex: target.dayIndex, window: target.window })
+      if (slot.dayIndex === target.dayIndex && slot.scheduledWindow === target.scheduledWindow) return
+      prepPatchMutation.mutate({ slotId: prepSlotId, dayIndex: target.dayIndex, scheduledWindow: target.scheduledWindow })
       return
     }
 
@@ -909,8 +910,8 @@ export function PlanDetail() {
                   }
                   prepSlots={prepSlots}
                   isPrepSlotDragging={isPrepSlotDragging}
-                  onPrepAddClick={(dayIndex, window) =>
-                    setPrepPickerCell({ dayIndex, window })
+                  onPrepAddClick={(dayIndex, scheduledWindow) =>
+                    setPrepPickerCell({ dayIndex, scheduledWindow })
                   }
                   onPrepDelete={(slotId) => prepRemoveMutation.mutate(slotId)}
                   planId={id!}
@@ -964,11 +965,15 @@ export function PlanDetail() {
           open={prepPickerCell != null}
           onConfirm={(result: PrepSlotPickerResult) => {
             if (!prepPickerCell) return
+            // KALMIO-272 follow-up: picker doesn't yet collect which template_meal rows
+            // this slot feeds — backend requires non-empty feeds_template_meal_ids.
+            // Manual create from the picker will 400 until that UX is built.
             prepUpsertMutation.mutate({
               dayIndex: prepPickerCell.dayIndex,
-              window: prepPickerCell.window,
+              scheduledWindow: prepPickerCell.scheduledWindow,
               recipeId: result.recipe.id,
               servingsToMake: result.servingsToMake,
+              feedsTemplateMealIds: [],
             })
           }}
           onClose={() => setPrepPickerCell(null)}

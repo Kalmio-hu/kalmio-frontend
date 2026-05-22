@@ -1087,7 +1087,7 @@ export interface TemplatePrepSlot {
   dayIndex: number
   recipeId: string
   /** MORNING = reggel cook session; EVENING = este cook session. */
-  window: 'MORNING' | 'EVENING'
+  scheduledWindow: 'MORNING' | 'EVENING'
   /** Total servings to prepare in this session. */
   servingsToMake: number
   /** Subset of servingsToMake to freeze immediately after prep; 0 = no freeze. */
@@ -1101,7 +1101,9 @@ export interface TemplatePrepSlot {
 export interface CreateTemplatePrepSlotRequest {
   recipeId: string
   dayIndex: number
-  window: 'MORNING' | 'EVENING'
+  scheduledWindow: 'MORNING' | 'EVENING'
+  /** UUIDs of template_meal rows this slot will serve. Required, non-empty. */
+  feedsTemplateMealIds: string[]
   servingsToMake: number
   servingsToFreeze?: number
 }
@@ -1109,7 +1111,7 @@ export interface CreateTemplatePrepSlotRequest {
 /** Request body for PATCH /api/template-prep-slots/{slotId}. */
 export interface PatchTemplatePrepSlotRequest {
   dayIndex?: number
-  window?: 'MORNING' | 'EVENING'
+  scheduledWindow?: 'MORNING' | 'EVENING'
   servingsToMake?: number
   servingsToFreeze?: number
 }

@@ -13,14 +13,14 @@ export function prepCellDropId(dayIndex: number, window: 'MORNING' | 'EVENING'):
   return `prep-cell:${dayIndex}:${window}`
 }
 
-export function parsePrepCellDropId(id: string): { dayIndex: number; window: 'MORNING' | 'EVENING' } | null {
+export function parsePrepCellDropId(id: string): { dayIndex: number; scheduledWindow: 'MORNING' | 'EVENING' } | null {
   if (!id.startsWith('prep-cell:')) return null
   const parts = id.split(':')
   if (parts.length !== 3) return null
   const dayIndex = Number(parts[1])
-  const window = parts[2] as 'MORNING' | 'EVENING'
-  if (isNaN(dayIndex) || (window !== 'MORNING' && window !== 'EVENING')) return null
-  return { dayIndex, window }
+  const scheduledWindow = parts[2] as 'MORNING' | 'EVENING'
+  if (isNaN(dayIndex) || (scheduledWindow !== 'MORNING' && scheduledWindow !== 'EVENING')) return null
+  return { dayIndex, scheduledWindow }
 }
 
 export function parsePrepSlotDragId(id: string): string | null {

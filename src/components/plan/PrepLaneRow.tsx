@@ -49,7 +49,7 @@ function PrepSlotChip({ slot, recipeName, onContextMenu }: PrepSlotChipProps) {
   const servingsCount = Number(slot.servingsToMake)
   const servingsLabel = t('plan.prep.servings', { count: servingsCount })
   const frozenCount = Number(slot.servingsToFreeze)
-  const windowLabel = slot.window === 'MORNING'
+  const windowLabel = slot.scheduledWindow === 'MORNING'
     ? t('plan.prep.windowMorning')
     : t('plan.prep.windowEvening')
 
@@ -72,7 +72,7 @@ function PrepSlotChip({ slot, recipeName, onContextMenu }: PrepSlotChipProps) {
       }}
     >
       <GripVertical className="h-3 w-3 shrink-0 text-[#9ca3af]" aria-hidden />
-      <WindowIcon window={slot.window} />
+      <WindowIcon window={slot.scheduledWindow} />
       <span className="truncate max-w-[120px]">{recipeName}</span>
       <span
         className="shrink-0 tabular-nums text-[10.5px] text-[#6b7280]"
@@ -193,8 +193,8 @@ export function PrepLaneRow({
   const { t } = useTranslation()
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null)
 
-  const morningSlots = slots.filter(s => s.window === 'MORNING')
-  const eveningSlots = slots.filter(s => s.window === 'EVENING')
+  const morningSlots = slots.filter(s => s.scheduledWindow === 'MORNING')
+  const eveningSlots = slots.filter(s => s.scheduledWindow === 'EVENING')
 
   function handleDelete(slotId: string) {
     setContextMenu(null)

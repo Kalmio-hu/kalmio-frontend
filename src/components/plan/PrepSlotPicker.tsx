@@ -24,7 +24,7 @@ import type { Recipe } from '@/types'
 
 export interface PrepSlotPickerResult {
   recipe: Recipe
-  window: 'MORNING' | 'EVENING'
+  scheduledWindow: 'MORNING' | 'EVENING'
   servingsToMake: number
 }
 
@@ -43,7 +43,7 @@ export function PrepSlotPicker({ open, onConfirm, onClose, isSaving }: PrepSlotP
 
   const [search, setSearch] = useState('')
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
-  const [window, setWindow] = useState<'MORNING' | 'EVENING'>('MORNING')
+  const [scheduledWindow, setScheduledWindow] = useState<'MORNING' | 'EVENING'>('MORNING')
   const [servingsToMake, setServingsToMake] = useState(2)
 
   const { data: recipes = [], isLoading } = useQuery({
@@ -61,7 +61,7 @@ export function PrepSlotPicker({ open, onConfirm, onClose, isSaving }: PrepSlotP
 
   function handleConfirm() {
     if (!selectedRecipe) return
-    onConfirm({ recipe: selectedRecipe, window, servingsToMake })
+    onConfirm({ recipe: selectedRecipe, scheduledWindow, servingsToMake })
   }
 
   const canConfirm = selectedRecipe != null && servingsToMake > 0
@@ -145,15 +145,15 @@ export function PrepSlotPicker({ open, onConfirm, onClose, isSaving }: PrepSlotP
             <button
               key={w}
               type="button"
-              onClick={() => setWindow(w)}
+              onClick={() => setScheduledWindow(w)}
               className={`
                 flex-1 py-2 rounded-[10px] text-sm font-medium border transition-colors
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-                ${window === w
+                ${scheduledWindow === w
                   ? 'border-[#4f46e5] bg-[#4f46e5]/5 text-[#4f46e5]'
                   : 'border-[#e5e7eb] text-[#6b7280] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
               `}
-              aria-pressed={window === w}
+              aria-pressed={scheduledWindow === w}
             >
               {w === 'MORNING'
                 ? t('plan.prep.windowMorning')
