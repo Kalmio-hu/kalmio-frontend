@@ -79,6 +79,16 @@ export const planTemplateService = {
   refreshSnapshot: (id: string): Promise<PlanTemplate> =>
     api.post<PlanTemplate>(`/api/plans/${id}/snapshot/refresh`).then(r => r.data),
 
+  /**
+   * POST /api/plans/{id}/solve — runs the Timefold solver and writes
+   * the resulting assignments back as template_meal rows.
+   *
+   * mode='EMPTY' (default) preserves existing cells; mode='ALL' wipes them
+   * and replaces the whole grid.
+   */
+  solve: (id: string, mode: 'EMPTY' | 'ALL' = 'EMPTY'): Promise<PlanTemplate> =>
+    api.post<PlanTemplate>(`/api/plans/${id}/solve`, null, { params: { mode } }).then(r => r.data),
+
   /** DELETE /api/plans/{id} — soft-archive the plan. */
   archive: (id: string): Promise<void> =>
     api.delete(`/api/plans/${id}`).then(() => undefined),
@@ -112,4 +122,23 @@ export const planTemplateService = {
    */
   clearTemplateMeal: (planId: string, templateMealId: string): Promise<void> =>
     api.delete(`/api/plans/${planId}/template-meals/${templateMealId}`).then(() => undefined),
+
+  /**
+   * DELETE /api/plans/{id}/template-meals — wipe every template_meal row on
+   * the plan in one shot. Used by the "Terv ürítése" menu item. Plan metadata
+   * stays intact.
+   */
+  clearAllTemplateMeals: (planId: string): Promise<void> =>
+    api.delete(`/api/plans/${planId}/template-meals`).then(() => undefined),
+
+  /**
+   * POST /api/plans/{id}/template-meals/swap — atomically swap the
+   * (day_index, meal_type, member_id) coords of two filled cells.
+   *
+   * Used by the drag-and-drop editor when the drop target already holds a
+   * meal. Returns 204.
+   */
+  swapTemplateMeals: (planId: string, firstId: string, secondId: string): Promise<void> =>
+    api.post(`/api/plans/${planId}/template-meals/swap`, { firstId, secondId })
+      .then(() => undefined),
 }

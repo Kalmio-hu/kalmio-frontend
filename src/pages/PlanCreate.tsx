@@ -8,13 +8,14 @@
  *                         ("Tervező töltse fel" / "Üresen kezdem").
  *
  * On submit: POST /api/plans (CreatePlanTemplateRequest).
- * On "Auto-fill": additionally calls POST /api/plans/{id}/snapshot/refresh,
- *                 then navigates to /app/plans/{id}.
+ * On "Auto-fill": additionally calls POST /api/plans/{id}/solve?mode=ALL to run
+ *                 Timefold against the frozen preferences snapshot, then
+ *                 navigates to /app/plans/{id}.
  * On "Start empty": navigates directly to /app/plans/{id}.
  *
  * No conflict check — templates are calendar-free.
  */
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -71,7 +72,10 @@ export function PlanCreate() {
 
   // Step 2
   const [lengthDays, setLengthDays] = useState(7)
-  const [mealSlots, setMealSlots] = useState<MealType[]>(['LUNCH', 'DINNER'])
+  // Null until the user toggles a slot; until then the meal slots are derived
+  // from the union of selected members' preferredMealTypes (see useMemo
+  // below). Once the user touches a chip we switch to the controlled list.
+  const [userMealSlots, setUserMealSlots] = useState<MealType[] | null>(null)
 
   // Step 3
   const [editingName, setEditingName] = useState(false)
@@ -115,15 +119,33 @@ export function PlanCreate() {
   const autoName = generateTemplateName(memberDisplayNames, t)
   const displayName = planName || autoName
 
+  // Derived union of preferredMealTypes across the selected family members.
+  // Used as the default selection before the user has touched any chip — once
+  // they do, `userMealSlots` takes over and this derivation stops applying.
+  const autoMealSlots = useMemo<MealType[] | null>(() => {
+    if (!family) return null
+    const union = new Set<MealType>()
+    for (const uid of selectedMemberIds) {
+      const member = family.members.find(m => m.userId === uid)
+      if (!member) continue
+      for (const mt of member.preferredMealTypes ?? []) {
+        union.add(mt)
+      }
+    }
+    return union.size > 0 ? Array.from(union) : null
+  }, [family, selectedMemberIds])
+
+  const mealSlots: MealType[] = userMealSlots ?? autoMealSlots ?? ['LUNCH', 'DINNER']
+
   function toggleMealSlot(mt: MealType) {
-    setMealSlots((prev) =>
-      prev.includes(mt) ? prev.filter((s) => s !== mt) : [...prev, mt]
-    )
+    const base = userMealSlots ?? mealSlots
+    setUserMealSlots(base.includes(mt) ? base.filter(s => s !== mt) : [...base, mt])
   }
 
-  // Snapshot mutation — called after create when source === 'AUTO'
-  const snapshotMut = useMutation({
-    mutationFn: (planId: string) => planTemplateService.refreshSnapshot(planId),
+  // Solve mutation — called after create when source === 'AUTO' to fill
+  // the freshly-created (empty) template via Timefold.
+  const solveMut = useMutation({
+    mutationFn: (planId: string) => planTemplateService.solve(planId, 'ALL'),
   })
 
   const createMut = useMutation({
@@ -132,10 +154,13 @@ export function PlanCreate() {
       qc.invalidateQueries({ queryKey: ['plan-templates'] })
       if (source === 'AUTO') {
         try {
-          await snapshotMut.mutateAsync(plan.id)
+          await solveMut.mutateAsync(plan.id)
         } catch {
-          // Snapshot refresh failure is non-fatal — the plan exists and the
-          // solver can still run with stale prefs.
+          // Solver failure is non-fatal — the empty plan still exists;
+          // the user can hit "Tervező töltse fel" again from PlanDetail.
+          toast({ title: t('plan.wizard.solveFailed'), variant: 'destructive' })
+          navigate(`/app/plans/${plan.id}`)
+          return
         }
       }
       toast({ title: t('plan.wizard.created') })
@@ -163,7 +188,7 @@ export function PlanCreate() {
     return false
   }
 
-  const isPending = createMut.isPending || snapshotMut.isPending
+  const isPending = createMut.isPending || solveMut.isPending
 
   const stepLabels = [
     t('plan.wizard.step1Label'),
@@ -442,7 +467,9 @@ export function PlanCreate() {
             {isPending ? (
               <>
                 <Spinner className="w-4 h-4" />
-                {t('plan.wizard.creating')}
+                {solveMut.isPending
+                  ? t('plan.wizard.solving')
+                  : t('plan.wizard.creating')}
               </>
             ) : (
               t('plan.wizard.create')

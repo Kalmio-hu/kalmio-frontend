@@ -12,7 +12,10 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
+import { ingredientsService } from '@/services/ingredients'
 import { getRecipeName } from '@/lib/i18nRecipe'
+import { emptyFilterState, filterRecipes, type RecipeFilterState } from './recipeFilters'
+import { RecipeFilterChips } from './RecipeFilterChips'
 import type { Recipe } from '@/types'
 
 interface RecipePickerDialogProps {
@@ -25,7 +28,7 @@ interface RecipePickerDialogProps {
 export function RecipePickerDialog({ open, currentRecipeId, onSelect, onClose }: RecipePickerDialogProps) {
   const { t, i18n } = useTranslation()
   const lang = (i18n.resolvedLanguage === 'hu' ? 'hu' : 'en') as 'hu' | 'en'
-  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState<RecipeFilterState>(emptyFilterState())
 
   const { data: recipes = [], isLoading } = useQuery({
     queryKey: ['recipes'],
@@ -34,9 +37,15 @@ export function RecipePickerDialog({ open, currentRecipeId, onSelect, onClose }:
     enabled: open,
   })
 
-  const filtered = recipes.filter(r =>
-    getRecipeName(r, lang).toLowerCase().includes(search.toLowerCase()),
-  )
+  const { data: ingredients = [] } = useQuery({
+    queryKey: ['ingredients'],
+    queryFn: ingredientsService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: open && filters.dietary.size > 0,
+  })
+  const ingredientConstraintsMap = new Map(ingredients.map(i => [i.id, i.constraints]))
+
+  const filtered = filterRecipes(recipes, filters, lang, ingredientConstraintsMap)
 
   return (
     <Dialog open={open} onOpenChange={open => !open && onClose()}>
@@ -47,13 +56,16 @@ export function RecipePickerDialog({ open, currentRecipeId, onSelect, onClose }:
 
         <Input
           placeholder={t('mealPlan.recipePicker.search')}
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="mb-3"
+          value={filters.search}
+          onChange={e => setFilters({ ...filters, search: e.target.value })}
+          className="mb-2"
           autoFocus
         />
+        <div className="mb-3">
+          <RecipeFilterChips state={filters} onChange={setFilters} compact />
+        </div>
 
-        <div className="space-y-2 max-h-[55dvh] overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-[50dvh] overflow-y-auto pr-1">
           {isLoading && (
             <div className="flex justify-center py-8"><Spinner className="h-5 w-5" /></div>
           )}

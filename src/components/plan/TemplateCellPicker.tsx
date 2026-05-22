@@ -18,7 +18,10 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
+import { ingredientsService } from '@/services/ingredients'
 import { getRecipeName } from '@/lib/i18nRecipe'
+import { emptyFilterState, filterRecipes, type RecipeFilterState } from './recipeFilters'
+import { RecipeFilterChips } from './RecipeFilterChips'
 import type { Recipe } from '@/types'
 
 export interface TemplateCellPickerResult {
@@ -68,7 +71,7 @@ export function TemplateCellPicker({
   const lang = (i18n.resolvedLanguage === 'hu' ? 'hu' : 'en') as 'hu' | 'en'
 
   const [tab, setTab] = useState<Tab>('recipe')
-  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState<RecipeFilterState>(emptyFilterState())
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [servings, setServings] = useState(currentServings > 0 ? currentServings : 1)
 
@@ -83,9 +86,18 @@ export function TemplateCellPicker({
     enabled: open && tab === 'recipe',
   })
 
-  const filtered = recipes.filter(r =>
-    getRecipeName(r, lang).toLowerCase().includes(search.toLowerCase()),
-  )
+  // Ingredient catalog feeds the dietary filter — a recipe passes only when
+  // every ingredient passes. The query is shared (same key) with the Recipes
+  // page so users navigating here pay no extra round-trip.
+  const { data: ingredients = [] } = useQuery({
+    queryKey: ['ingredients'],
+    queryFn: ingredientsService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: open && tab === 'recipe' && filters.dietary.size > 0,
+  })
+  const ingredientConstraintsMap = new Map(ingredients.map(i => [i.id, i.constraints]))
+
+  const filtered = filterRecipes(recipes, filters, lang, ingredientConstraintsMap)
 
   const effectiveRecipeId = selectedRecipe?.id ?? currentRecipeId
 
@@ -132,11 +144,14 @@ export function TemplateCellPicker({
           <>
             <Input
               placeholder={t('common.search')}
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="mb-3"
+              value={filters.search}
+              onChange={e => setFilters({ ...filters, search: e.target.value })}
+              className="mb-2"
               autoFocus
             />
+            <div className="mb-3">
+              <RecipeFilterChips state={filters} onChange={setFilters} compact />
+            </div>
 
             <div className="space-y-2 max-h-[42dvh] overflow-y-auto pr-1">
               {isLoading && (
@@ -211,11 +226,11 @@ export function TemplateCellPicker({
                 <Input
                   id="cell-servings"
                   type="number"
-                  min={0.5}
+                  min={0.1}
                   max={10}
-                  step={0.5}
+                  step={0.1}
                   value={servings}
-                  onChange={e => setServings(Math.max(0.5, Number(e.target.value)))}
+                  onChange={e => setServings(Math.max(0.1, Number(e.target.value)))}
                   className="w-20"
                 />
               </div>
