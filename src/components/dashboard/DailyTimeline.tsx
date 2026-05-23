@@ -699,6 +699,7 @@ interface PendingFeedback {
 
 export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals }: DailyTimelineProps) {
   const { t, i18n } = useTranslation()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const isPremium = useIsUserPremium()
 
