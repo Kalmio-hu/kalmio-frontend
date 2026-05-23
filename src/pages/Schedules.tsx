@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
+import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
 import type { Schedule, ScheduleStatus } from '@/types'
 
 function statusBadge(status: ScheduleStatus) {
@@ -45,7 +46,7 @@ function MaterializeDialog({ schedule, open, onOpenChange }: MaterializeDialogPr
   const defaultThrough = (() => {
     const d = new Date()
     d.setDate(d.getDate() + schedule.cadenceDays)
-    return d.toISOString().split('T')[0]
+    return dateToIsoLocal(d)
   })()
 
   const [throughDate, setThroughDate] = useState(defaultThrough)
@@ -76,7 +77,7 @@ function MaterializeDialog({ schedule, open, onOpenChange }: MaterializeDialogPr
               id="through-date"
               type="date"
               value={throughDate}
-              min={new Date().toISOString().split('T')[0]}
+              min={todayIsoLocal()}
               onChange={e => setThroughDate(e.target.value)}
               className="mt-1"
             />
@@ -184,7 +185,7 @@ function ScheduleCard({ schedule }: ScheduleCardProps) {
             const base = schedule.lastMaterializedDate ?? schedule.startDate
             const d = new Date(base)
             d.setDate(d.getDate() + schedule.cadenceDays)
-            const nextWindow = d.toISOString().split('T')[0]
+            const nextWindow = dateToIsoLocal(d)
             return (
               <p>
                 {t('schedules.card.nextWindow')}:{' '}

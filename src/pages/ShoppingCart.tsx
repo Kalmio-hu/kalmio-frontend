@@ -12,16 +12,22 @@
  *   (BE4 data not yet available — placeholder rendered, not yet populated)
  *
  * Route: /app/cart
+ *
+ * KALMIO-289: Converted from useMutation+useEffect to useQuery so the cart is
+ * cached for `staleTime` and survives tab switching without a re-fetch.
+ * Check-off state is now keyed on a stable date-range hash (windowDays) rather
+ * than the server-generated cartId, so back-navigation restores checkmarks.
  */
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CheckCircle, ShoppingCart as CartIcon, Info, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Spinner } from '@/components/ui/spinner'
 import { shoppingCartService } from '@/services/shoppingCartService'
 import { useAuthStore } from '@/store/auth'
+import { todayIsoLocal, addDaysIsoLocal } from '@/lib/utils'
 import type { ShoppingCartResponse, CartLineItemResponse } from '@/types'
 
 const WINDOW_OPTIONS = [
@@ -31,18 +37,29 @@ const WINDOW_OPTIONS = [
   { days: 30, labelKey: 'cart.window.days30' },
 ]
 
-function addDays(n: number): string {
-  const d = new Date()
-  d.setDate(d.getDate() + n)
-  return d.toISOString().split('T')[0]
+/**
+ * Stable localStorage key: keyed on userId + windowDays (not server cartId).
+ * This means check state survives a tab switch because the query key is the same.
+ */
+const CART_CHECK_KEY = (userId: string, windowDays: number) =>
+  `cart-checked-${userId}-${windowDays}d`
+
+function readChecked(userId: string, windowDays: number): Set<string> {
+  try {
+    const raw = localStorage.getItem(CART_CHECK_KEY(userId, windowDays))
+    return raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set<string>()
+  } catch {
+    return new Set<string>()
+  }
 }
 
-function todayIso(): string {
-  return new Date().toISOString().split('T')[0]
+function writeChecked(userId: string, windowDays: number, checked: Set<string>) {
+  try {
+    localStorage.setItem(CART_CHECK_KEY(userId, windowDays), JSON.stringify([...checked]))
+  } catch {
+    /* storage unavailable */
+  }
 }
-
-/** User-scoped key prevents one user seeing another's check state on a shared device. */
-const CART_CHECK_KEY = (userId: string, cartId: string) => `cart-checked-${userId}-${cartId}`
 
 export function ShoppingCart() {
   const { t } = useTranslation()
@@ -50,61 +67,38 @@ export function ShoppingCart() {
   const userId = useAuthStore(s => s.user?.id ?? '')
 
   const [windowDays, setWindowDays] = useState(7)
-  const [cart, setCart] = useState<ShoppingCartResponse | null>(null)
-  const [checked, setChecked] = useState<Set<string>>(new Set())
   const [markedShopped, setMarkedShopped] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
-  // ── Generate cart mutation ────────────────────────────────────────────────
-  // mutationFn receives windowDays explicitly to avoid stale-closure bugs:
-  // setState is async so calling mutate() immediately after setWindowDays()
-  // would capture the previous windowDays value from the closure.
-  const generateMutation = useMutation({
-    mutationFn: (days: number) =>
-      shoppingCartService.generate({
-        windowStart: todayIso(),
-        windowEnd: addDays(days),
-      }),
-    onSuccess: data => {
-      setCart(data)
-      setMarkedShopped(false)
-      // Restore check state from localStorage (user-scoped key)
-      try {
-        const raw = localStorage.getItem(CART_CHECK_KEY(userId, data.cartId))
-        setChecked(raw ? new Set<string>(JSON.parse(raw) as string[]) : new Set<string>())
-      } catch {
-        setChecked(new Set<string>())
-      }
-    },
+  // ── Derive date window ────────────────────────────────────────────────────
+  const windowStart = todayIsoLocal()
+  const windowEnd = addDaysIsoLocal(new Date(), windowDays)
+
+  // ── Fetch cart via useQuery — cached for 60s, shared across tab switches ──
+  const {
+    data: cart,
+    isFetching,
+    isError,
+  } = useQuery<ShoppingCartResponse>({
+    queryKey: ['shopping-cart', windowDays],
+    queryFn: () => shoppingCartService.generate({ windowStart, windowEnd }),
+    staleTime: 60_000,
   })
 
-  // Generate on first render
-  useEffect(() => {
-    generateMutation.mutate(windowDays)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // ── Check-off state — localStorage keyed on (userId, windowDays) ──────────
+  // Initialised lazily from localStorage so back-nav restores checkmarks.
+  const [checked, setChecked] = useState<Set<string>>(() =>
+    readChecked(userId, windowDays),
+  )
 
-  // Re-generate when window changes — pass days directly to avoid stale closure.
   function handleWindowChange(days: number) {
     setWindowDays(days)
-    setCart(null)
-    setChecked(new Set())
-    generateMutation.mutate(days)
+    setMarkedShopped(false)
+    // Load persisted check state for the new window immediately
+    setChecked(readChecked(userId, days))
   }
 
-  // ── Mark shopped mutation ─────────────────────────────────────────────────
-  const markShoppedMutation = useMutation({
-    mutationFn: () => shoppingCartService.markShopped(cart!.cartId),
-    onSuccess: data => {
-      setCart(data)
-      setMarkedShopped(true)
-      queryClient.invalidateQueries({ queryKey: ['multiMemberPlan'] })
-    },
-  })
-
-  // ── Check-off (localStorage, session state) ───────────────────────────────
   function toggleCheck(ingredientId: string) {
-    if (!cart) return
     setChecked(prev => {
       const next = new Set(prev)
       if (next.has(ingredientId)) {
@@ -112,11 +106,7 @@ export function ShoppingCart() {
       } else {
         next.add(ingredientId)
       }
-      try {
-        localStorage.setItem(CART_CHECK_KEY(userId, cart.cartId), JSON.stringify([...next]))
-      } catch {
-        /* storage unavailable */
-      }
+      writeChecked(userId, windowDays, next)
       return next
     })
   }
@@ -132,6 +122,17 @@ export function ShoppingCart() {
       return next
     })
   }
+
+  // ── Mark shopped mutation ─────────────────────────────────────────────────
+  const markShoppedMutation = useMutation({
+    mutationFn: () => shoppingCartService.markShopped(cart!.cartId),
+    onSuccess: data => {
+      // Update the cached cart in place
+      queryClient.setQueryData<ShoppingCartResponse>(['shopping-cart', windowDays], data)
+      setMarkedShopped(true)
+      queryClient.invalidateQueries({ queryKey: ['multiMemberPlan'] })
+    },
+  })
 
   const allChecked =
     (cart?.lineItems.length ?? 0) > 0 &&
@@ -165,7 +166,7 @@ export function ShoppingCart() {
       </div>
 
       {/* Loading */}
-      {generateMutation.isPending && (
+      {isFetching && !cart && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <Spinner className="h-8 w-8" />
           <p className="text-sm text-[#6b7280]">{t('cart.generating')}</p>
@@ -173,7 +174,7 @@ export function ShoppingCart() {
       )}
 
       {/* Error */}
-      {generateMutation.isError && (
+      {isError && (
         <Card className="border-red-200">
           <CardContent className="py-6">
             <p className="text-sm text-red-600">{t('common.errorGeneric')}</p>

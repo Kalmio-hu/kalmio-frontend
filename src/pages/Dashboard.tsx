@@ -27,6 +27,7 @@ import type { DiofaStage, DiofaMoisture } from '@/components/diofa/DiofaWidget'
 import { TeachOnReturnHint } from '@/components/dashboard/TeachOnReturnHint'
 import { useEngagementGap } from '@/hooks/useEngagementGap'
 import { useAuthStore } from '@/store/auth'
+import { todayIsoLocal } from '@/lib/utils'
 
 // Maps the 4-value MoistureBand from the backend to the 3-value DiofaMoisture used by the widget.
 function toWidgetMoisture(band: MoistureBand): DiofaMoisture {
@@ -106,7 +107,7 @@ function BodyDataHintCard({ userId }: { userId: string }) {
 
 export function Dashboard() {
   const { t } = useTranslation()
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayIsoLocal()
   const [selectedDate, setSelectedDate] = useState<string>(today)
   const [selectedDayData, setSelectedDayData] = useState<CalendarDayDto | undefined>()
   const [replanDismissed, setReplanDismissed] = useState(false)

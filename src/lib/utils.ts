@@ -6,9 +6,42 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatCurrency(value: number | null | undefined, currency = 'HUF'): string {
+/**
+ * Returns today's date as a "YYYY-MM-DD" string in the **local** timezone.
+ *
+ * `new Date().toISOString()` is UTC-based: after 22:00 HU time (UTC+2) it
+ * would return tomorrow's date.  `en-CA` locale reliably yields yyyy-mm-dd.
+ *
+ * Use this everywhere "today" is needed as a calendar key or date-input min.
+ */
+export function todayIsoLocal(): string {
+  return new Date().toLocaleDateString('en-CA')
+}
+
+/**
+ * Returns `date + n days` as a "YYYY-MM-DD" string in local timezone.
+ * Handles DST correctly because arithmetic is on local midnight.
+ */
+export function addDaysIsoLocal(date: Date, n: number): string {
+  const d = new Date(date)
+  d.setDate(d.getDate() + n)
+  return d.toLocaleDateString('en-CA')
+}
+
+/**
+ * Converts a Date to a "YYYY-MM-DD" string in the **local** timezone.
+ * Drop-in replacement for the `toISOString().split('T')[0]` pattern.
+ */
+export function dateToIsoLocal(d: Date): string {
+  return d.toLocaleDateString('en-CA')
+}
+
+export function formatCurrency(value: number | null | undefined, currency = 'HUF', lang?: string): string {
   if (value == null) return '—'
-  return new Intl.NumberFormat('hu-HU', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value)
+  // Respect the active UI language so English-locale users get their own
+  // number-formatting convention instead of always seeing Hungarian style.
+  const locale = lang === 'en' ? 'en-GB' : 'hu-HU'
+  return new Intl.NumberFormat(locale, { style: 'currency', currency, maximumFractionDigits: 0 }).format(value)
 }
 
 export function formatMacro(value: number | null | undefined, unit = 'g'): string {

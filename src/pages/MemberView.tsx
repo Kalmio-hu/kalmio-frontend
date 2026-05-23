@@ -30,6 +30,7 @@ import { OffPlanLogSheet } from '@/components/member/OffPlanLogSheet'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { offPlanMealsService } from '@/services/offPlanMeals'
 import { useAuthStore } from '@/store/auth'
+import { todayIsoLocal } from '@/lib/utils'
 import type { MealType, MaterializedPlannedMeal } from '@/types'
 
 const MEAL_TYPE_ORDER: MealType[] = [
@@ -41,10 +42,6 @@ const MEAL_TYPE_ORDER: MealType[] = [
   'SNACK',
 ]
 
-function todayIso(): string {
-  return new Date().toISOString().split('T')[0]
-}
-
 export function MemberView() {
   const { memberId } = useParams<{ memberId: string }>()
   const [searchParams] = useSearchParams()
@@ -52,7 +49,7 @@ export function MemberView() {
   const queryClient = useQueryClient()
   const session = useAuthStore(s => s.session)
 
-  const viewDate = searchParams.get('date') ?? todayIso()
+  const viewDate = searchParams.get('date') ?? todayIsoLocal()
   const isOwnView = !memberId || memberId === session?.user.id
   const targetMemberId = memberId ?? session?.user.id ?? ''
 

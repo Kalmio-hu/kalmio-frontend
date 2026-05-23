@@ -22,6 +22,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
 import { planTemplateService } from '@/services/plans'
+import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
 import type { PlanTemplate } from '@/types'
 
 // ── Step indicators ────────────────────────────────────────────────────────
@@ -64,7 +65,7 @@ function nextMonday(): string {
   const day = d.getDay()          // 0=Sun … 6=Sat
   const daysUntilMonday = day === 0 ? 1 : 8 - day
   d.setDate(d.getDate() + daysUntilMonday)
-  return d.toISOString().split('T')[0]
+  return dateToIsoLocal(d)
 }
 
 type RecurrenceMode = 'once' | 'continuous' | 'n-times'
@@ -129,12 +130,12 @@ export function ScheduleNew() {
     if (recurrenceMode === 'once') {
       const d = new Date(startDate)
       d.setDate(d.getDate() + effectiveCadence - 1)
-      return d.toISOString().split('T')[0]
+      return dateToIsoLocal(d)
     }
     if (recurrenceMode === 'n-times') {
       const d = new Date(startDate)
       d.setDate(d.getDate() + effectiveCadence * occurrences - 1)
-      return d.toISOString().split('T')[0]
+      return dateToIsoLocal(d)
     }
     return endDate || null
   })()
@@ -380,7 +381,7 @@ export function ScheduleNew() {
               id="start-date"
               type="date"
               value={startDate}
-              min={new Date().toISOString().split('T')[0]}
+              min={todayIsoLocal()}
               onChange={e => setStartDate(e.target.value)}
               className="mt-1"
               required

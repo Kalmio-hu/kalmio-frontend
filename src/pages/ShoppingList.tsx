@@ -241,13 +241,28 @@ export function ShoppingList() {
       resolved_count: resolvedCount,
     })
 
-    // Use RetailProductIngredientMapping remoteUrl when available; fall back to
-    // ingredient-name search on www.tesco.hu
-    items.forEach(item => {
-      const url = item.retailProduct?.remoteUrl
-        ?? `https://www.tesco.hu/groceries/hu-HU/search?query=${encodeURIComponent(item.ingredientName)}`
-      window.open(url, '_blank', 'noopener,noreferrer')
-    })
+    // KALMIO-289 fix: open exactly ONE tab instead of N tabs.
+    //
+    // Strategy: if any item has a direct RetailProduct remoteUrl we cannot
+    // batch into a single Tesco URL (they are product-specific deep links).
+    // In that case, and for the general search fallback, we build a single
+    // Tesco search query containing all ingredient names joined by commas.
+    // Tesco's search page accepts a comma-separated `query` parameter.
+    //
+    // If every item has a remoteUrl and there is exactly one item, we open
+    // that product page directly.  For multiple items with mixed URLs the
+    // batched-search approach is used so browsers do not block the pop-up.
+    const directUrl =
+      items.length === 1 && items[0].retailProduct?.remoteUrl
+        ? items[0].retailProduct.remoteUrl
+        : (() => {
+            const allNames = items
+              .map(item => item.ingredientName)
+              .join(', ')
+            return `https://www.tesco.hu/groceries/hu-HU/search?query=${encodeURIComponent(allNames)}`
+          })()
+
+    window.open(directUrl, '_blank', 'noopener,noreferrer')
   }
 
   // ── No plan guard ─────────────────────────────────────────────────────────

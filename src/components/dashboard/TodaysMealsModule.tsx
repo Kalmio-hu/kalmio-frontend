@@ -11,6 +11,7 @@ import { dashboardService } from '@/services/dashboard'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { LogOffPlanMealModal } from './LogOffPlanMealModal'
+import { todayIsoLocal } from '@/lib/utils'
 import type { TodaysMealCard, OffPlanMealCard, Plan } from '@/types'
 
 interface TodaysMealsModuleProps {
@@ -335,7 +336,7 @@ function OffPlanMealCardItem({ meal, today }: { meal: OffPlanMealCard; today: st
 
 export function TodaysMealsModule({ meals, offPlanMeals, activePlan, isLoading }: TodaysMealsModuleProps) {
   const { t } = useTranslation()
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayIsoLocal()
   const [addModalOpen, setAddModalOpen] = useState(false)
 
   if (isLoading) {

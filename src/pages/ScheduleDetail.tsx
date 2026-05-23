@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
 import { planTemplateService } from '@/services/plans'
+import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
 import { prepTasksService } from '@/services/prepTasks'
 import { api } from '@/lib/api'
 import { PrepLane } from '@/components/schedule/PrepLane'
@@ -53,7 +54,7 @@ function MaterializeDialog({ scheduleId, cadenceDays, open, onOpenChange }: Mate
   const defaultThrough = (() => {
     const d = new Date()
     d.setDate(d.getDate() + cadenceDays)
-    return d.toISOString().split('T')[0]
+    return dateToIsoLocal(d)
   })()
 
   const [throughDate, setThroughDate] = useState(defaultThrough)
@@ -86,7 +87,7 @@ function MaterializeDialog({ scheduleId, cadenceDays, open, onOpenChange }: Mate
               id="through-date-detail"
               type="date"
               value={throughDate}
-              min={new Date().toISOString().split('T')[0]}
+              min={todayIsoLocal()}
               onChange={e => setThroughDate(e.target.value)}
               className="mt-1"
             />

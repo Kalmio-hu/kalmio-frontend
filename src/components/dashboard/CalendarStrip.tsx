@@ -3,12 +3,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { dashboardService } from '@/services/dashboard'
+import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
 import type { CalendarDayDto } from '@/types'
 
 // ── helpers ──────────────────────────────────────────────────────────────
 
+/** Returns a Date as "YYYY-MM-DD" in local timezone. */
 function isoDate(d: Date): string {
-  return d.toISOString().split('T')[0]
+  return dateToIsoLocal(d)
 }
 
 /** Return the Monday of the week containing `d`. */
@@ -69,7 +71,7 @@ interface CalendarStripProps {
 
 export function CalendarStrip({ selectedDate, onSelectDate, onDayData }: CalendarStripProps) {
   const { t, i18n } = useTranslation()
-  const today = isoDate(new Date())
+  const today = todayIsoLocal()
   const [weekStart, setWeekStart] = useState<Date>(() => weekMonday(new Date()))
 
   const weekEnd = addDays(weekStart, 6)

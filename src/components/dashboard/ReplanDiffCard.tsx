@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { toast } from '@/components/ui/toast'
 import { planService } from '@/services/plans'
 import { capture } from '@/lib/analytics'
+import { todayIsoLocal } from '@/lib/utils'
 
 interface Props {
   planId: string
@@ -15,7 +16,7 @@ interface Props {
 export function ReplanDiffCard({ planId, onAccept, onDecline }: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const today = new Date().toISOString().split('T')[0]
+  const today = todayIsoLocal()
 
   const [showDetails, setShowDetails] = useState(false)
 
