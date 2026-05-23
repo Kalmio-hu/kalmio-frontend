@@ -2365,7 +2365,7 @@
     "invalidRequest": "Invalid authorization request.",
     "authFailed": "Authorization failed. Please restart the process from Claude Desktop.",
     "title": "Connect Claude Desktop",
-    "description": "Claude Desktop is requesting access to your Kalmio account. It will be able to read your meal plan and fridge, and generate new plans on your behalf.",
+    "description": "Claude Desktop is requesting access to your Kalmio account — it will be able to view your meal plans and fridge, and generate new plans on your behalf.",
     "signedInAs": "Signed in as",
     "authorize": "Authorize",
     "cancel": "Cancel"

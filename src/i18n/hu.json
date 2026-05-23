@@ -2365,7 +2365,7 @@
     "invalidRequest": "Érvénytelen hitelesítési kérés.",
     "authFailed": "A hitelesítés nem sikerült. Indítsd újra a folyamatot Claude Desktop alkalmazásból.",
     "title": "Claude Desktop csatlakoztatása",
-    "description": "A Claude Desktop hozzáférést kér a Kalmio-fiókodhoz. Olvashatja az étrendtervedet és a hűtőtartalmadat, illetve új terveket készíthet a nevedben.",
+    "description": "A Claude Desktop hozzáférést kér a Kalmio-fiókodhoz — megtekintheti az étrendterveidet és a hűtőtartalmadat, és új terveket hozhat létre a nevedben.",
     "signedInAs": "Bejelentkezve:",
     "authorize": "Engedélyezés",
     "cancel": "Mégse"
