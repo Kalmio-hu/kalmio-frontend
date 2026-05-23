@@ -4,17 +4,16 @@ import { Shield } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { ipVaultService } from '@/services/ipVault'
 
-const API_BASE = import.meta.env.VITE_API_URL ?? ''
-
 export function Valuation() {
   const [params] = useSearchParams()
   const token = params.get('token') ?? ''
 
-  const { isLoading, isError, isSuccess } = useQuery({
-    queryKey: ['ip-vault-verify', token],
-    queryFn: () => ipVaultService.verifyToken(token),
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['ip-vault-valuation', token],
+    queryFn: () => ipVaultService.fetchValuationHtml(token),
     enabled: !!token,
     retry: false,
+    staleTime: Infinity,
   })
 
   if (!token) {
@@ -36,7 +35,7 @@ export function Valuation() {
     )
   }
 
-  if (isError) {
+  if (isError || !data) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -48,15 +47,9 @@ export function Valuation() {
     )
   }
 
-  if (!isSuccess) return null
-
-  const src = `${API_BASE}/api/ip-vault/public/valuation?token=${encodeURIComponent(token)}`
-
-  return (
-    <iframe
-      src={src}
-      title="Kalmio Valuation"
-      className="fixed inset-0 w-full h-full border-0"
-    />
-  )
+  // The HTML is server-controlled (IpVaultService.getValuationHtml renders a
+  // classpath resource for investor-token holders), so inline injection is safe
+  // here. We render inline instead of iframing because Spring Security's
+  // default X-Frame-Options: DENY blocks the iframe across origins.
+  return <div dangerouslySetInnerHTML={{ __html: data }} />
 }

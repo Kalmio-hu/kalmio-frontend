@@ -60,4 +60,10 @@ export const ipVaultService = {
     api.get<IpDocument>(`/api/ip-vault/public/${slug}`, { params: { token } }).then(r => r.data),
   verifyToken: (token: string) =>
     api.get<{ valid: boolean }>('/api/ip-vault/public/verify', { params: { token } }).then(r => r.data),
+  fetchValuationHtml: (token: string) =>
+    api.get<string>('/api/ip-vault/public/valuation', {
+      params: { token },
+      responseType: 'text',
+      transformResponse: (data) => data,
+    }).then(r => r.data),
 }
