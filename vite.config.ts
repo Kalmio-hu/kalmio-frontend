@@ -41,6 +41,9 @@ export default defineConfig({
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,ico,svg,woff2}', 'assets/images/*.png'],
+      // Main bundle is ~2.1 MB after the Wave 1-4 ticket sweep; raise the precache
+      // ceiling so CI passes. Follow-up: KALMIO-XXX to code-split via dynamic import().
+      maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       navigateFallback: 'index.html',
       runtimeCaching: [{
         urlPattern: ({
