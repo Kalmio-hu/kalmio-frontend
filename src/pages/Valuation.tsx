@@ -48,8 +48,19 @@ export function Valuation() {
   }
 
   // The HTML is server-controlled (IpVaultService.getValuationHtml renders a
-  // classpath resource for investor-token holders), so inline injection is safe
-  // here. We render inline instead of iframing because Spring Security's
-  // default X-Frame-Options: DENY blocks the iframe across origins.
-  return <div dangerouslySetInnerHTML={{ __html: data }} />
+  // classpath resource for investor-token holders). We render via iframe srcDoc
+  // rather than dangerouslySetInnerHTML because the valuation document relies on
+  // its own inline <script> (the render() call that populates every number) —
+  // scripts inserted via innerHTML do not execute, so an inline injection
+  // shows the markup but leaves all values blank.
+  //
+  // srcDoc inlines the HTML into the iframe instead of fetching it cross-origin,
+  // which sidesteps Spring Security's default X-Frame-Options: DENY entirely.
+  return (
+    <iframe
+      srcDoc={data}
+      title="Kalmio Valuation"
+      className="fixed inset-0 w-full h-full border-0"
+    />
+  )
 }
