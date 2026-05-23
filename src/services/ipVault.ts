@@ -58,4 +58,6 @@ export const ipVaultService = {
     api.get<IpDocument[]>('/api/ip-vault/public', { params: { token } }).then(r => r.data),
   getPublished: (slug: string, token: string) =>
     api.get<IpDocument>(`/api/ip-vault/public/${slug}`, { params: { token } }).then(r => r.data),
+  verifyToken: (token: string) =>
+    api.get<{ valid: boolean }>('/api/ip-vault/public/verify', { params: { token } }).then(r => r.data),
 }

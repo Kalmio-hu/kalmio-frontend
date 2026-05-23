@@ -22,6 +22,7 @@ import { UserManagement } from '@/pages/admin/UserManagement'
 import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
 import { InvestorVault } from '@/pages/InvestorVault'
+import { Valuation } from '@/pages/Valuation'
 import { BlogIndex } from '@/pages/BlogIndex'
 import { BlogPost } from '@/pages/BlogPost'
 import { Privacy } from '@/pages/Privacy'
@@ -199,6 +200,7 @@ export default function App() {
             </Route>
             <Route path="/oauth/consent" element={<OAuthConsent />} />
             <Route path="/vault" element={<InvestorVault />} />
+            <Route path="/valuation" element={<Valuation />} />
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<Navigate to="/" replace />} />
