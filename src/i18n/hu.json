@@ -1128,7 +1128,7 @@
     "bought": "Megvettem",
     "allInFridge": {
       "title": "Minden megvan a hűtőben",
-      "desc": "A tervhez szükséges összes hozzávaló rendelkezésre áll."
+      "desc": "A tervhez szükséges összes hozzávaló megvan."
     }
   },
   "feedback": {
@@ -2196,7 +2196,7 @@
     "generating": "Összerakom a listát…",
     "itemCount": "{{count}} hozzávaló",
     "markShoppedCta": "Mindent megvettem — tervek lezárása",
-    "markedShopped": "A tervek sikeresen lezárva.",
+    "markedShopped": "A tervek lezárva.",
     "allCheckedNudge": "Mindent kipipáltál. Lezárhatod a terveket.",
     "ingredientsTitle": "Hozzávalók",
     "checkItem": "{{name}} megjelölése",

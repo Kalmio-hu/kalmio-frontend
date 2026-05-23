@@ -1165,7 +1165,7 @@
     "bought": "I bought this",
     "allInFridge": {
       "title": "Everything's in the fridge",
-      "desc": "All ingredients for your plan are already available."
+      "desc": "All ingredients for your plan are in the fridge."
     }
   },
   "fridge": {
@@ -2196,7 +2196,7 @@
     "generating": "Building your list…",
     "itemCount": "{{count}} ingredients",
     "markShoppedCta": "All done — close plans as shopped",
-    "markedShopped": "Plans successfully marked as shopped.",
+    "markedShopped": "Plans marked as shopped.",
     "allCheckedNudge": "Everything checked off. You can close out the plans.",
     "ingredientsTitle": "Ingredients",
     "checkItem": "Mark {{name}}",
