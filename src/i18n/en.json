@@ -1,6 +1,6 @@
 {
   "meta": {
-    "tabTitle": "Kalmio – Healthy eating. Math, not magic."
+    "tabTitle": "Kalmio"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -23,14 +23,14 @@
     "more": "More",
     "family": "Family",
     "preferences": "My Preferences",
-    "schedules": "Schedules",
+    "schedules": "My Rhythm",
     "calendar": "Calendar",
     "grooming": "Fridge rhythm",
     "foundingMember": "Founding Member",
     "grove": "Grove"
   },
   "common": {
-    "version": "Nutrition Engine v0.1",
+    "version": "",
     "required": "Required",
     "optional": "optional",
     "cancel": "Cancel",
@@ -45,7 +45,7 @@
     "offline": "No internet connection",
     "back": "Back",
     "comingSoon": "Coming soon",
-    "errorGeneric": "Something went wrong. Please try again.",
+    "errorGeneric": "That didn't go through — one moment.",
     "moveLabel": "Move",
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
@@ -267,7 +267,7 @@
   },
   "mealPlan": {
     "title": "Meal Plan",
-    "subtitle": "Solver-generated, nutrition-optimised weekly plans",
+    "subtitle": "Your week, at your pace.",
     "shoppingList": "Shopping List",
     "meals": {
       "BREAKFAST": "Breakfast",
@@ -300,7 +300,7 @@
       "weightDisabled": "Set a value above to enable",
       "generate": "Generate Plan",
       "solving": "Solving…",
-      "solverNote": "The solver may take up to 15 seconds…",
+      "solverNote": "Checking what you have and putting it together — one moment.",
       "queuePending": "Queued, position {{position}}",
       "queueRunning": "Composing your plan…",
       "queueEta": "About {{seconds}} s",

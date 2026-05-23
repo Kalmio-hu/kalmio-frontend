@@ -1,6 +1,6 @@
 {
   "meta": {
-    "tabTitle": "Kalmio – Egészséges étkezés. Matek, nem mágia."
+    "tabTitle": "Kalmio"
   },
   "nav": {
     "dashboard": "Irányítópult",
@@ -23,14 +23,14 @@
     "more": "Több",
     "family": "Család",
     "preferences": "Beállításaim",
-    "schedules": "Ütemezések",
+    "schedules": "Ritmusom",
     "calendar": "Naptár",
     "grooming": "Hűtő ritmusa",
     "foundingMember": "Alapító tagság",
     "grove": "Erdő"
   },
   "common": {
-    "version": "Táplálkozási Motor v0.1",
+    "version": "",
     "required": "Kötelező",
     "optional": "opcionális",
     "cancel": "Mégse",
@@ -45,7 +45,7 @@
     "offline": "Nincs internetkapcsolat",
     "back": "Vissza",
     "comingSoon": "Hamarosan",
-    "errorGeneric": "Valami hiba történt. Próbáld újra.",
+    "errorGeneric": "Most nem sikerült — egy másodperc.",
     "moveLabel": "Áthelyezés",
     "prevWeek": "Előző hét",
     "nextWeek": "Következő hét",
@@ -267,7 +267,7 @@
   },
   "mealPlan": {
     "title": "Étrend",
-    "subtitle": "Megoldómotor által generált, táplálkozásilag optimalizált heti tervek",
+    "subtitle": "A heted, a Te ritmusodban.",
     "shoppingList": "Bevásárlólista",
     "meals": {
       "BREAKFAST": "Reggeli",
@@ -300,7 +300,7 @@
       "weightDisabled": "Adj meg értéket fent az engedélyezéshez",
       "generate": "Terv generálása",
       "solving": "Megoldás folyamatban…",
-      "solverNote": "A megoldómotor akár 15 másodpercet is igénybe vehet…",
+      "solverNote": "Megnézem, mi van a hűtődben, és összerakom — egy pillanat.",
       "queuePending": "Sorban, {{position}}. helyen",
       "queueRunning": "Most állítom össze az étrendedet…",
       "queueEta": "Kb. {{seconds}} mp",
