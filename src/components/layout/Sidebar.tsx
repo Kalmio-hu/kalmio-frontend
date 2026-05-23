@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, Store, LogOut, Settings, ShieldCheck, MessageSquarePlus, Vault, ChevronRight, Refrigerator, ClipboardList, Users, SlidersHorizontal, CalendarClock, CalendarDays, NotebookPen } from 'lucide-react'
+import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, Store, LogOut, Settings, ShieldCheck, MessageSquarePlus, Vault, ChevronRight, Refrigerator, ClipboardList, Users, CalendarClock, CalendarDays, NotebookPen, Sprout, Star, Trees } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -31,15 +31,31 @@ export function Sidebar() {
     staleTime: 60_000,
   })
 
+  const { data: stageData } = useQuery({
+    queryKey: ['me', 'stage'],
+    queryFn: usersService.getMyStage,
+    staleTime: 30_000,
+  })
+
+  const isGraduated =
+    stageData?.currentStage === 'FIATAL' || stageData?.currentStage === 'TERMO'
+
+  const navItemClass = (isActive: boolean) =>
+    cn(
+      'flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
+      isActive
+        ? 'bg-[#F28C28] text-white'
+        : 'text-white/70 hover:bg-white/10 hover:text-white'
+    )
+
   const navItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.dashboard') },
     { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
     { to: '/app/ingredients', icon: Leaf, label: t('nav.ingredients') },
     { to: '/app/shopping-list', icon: ShoppingCart, label: t('nav.shoppingList') },
     { to: '/app/fridge', icon: Refrigerator, label: t('nav.fridge') },
-    { to: '/app/retail-products', icon: Store, label: t('nav.retail') },
+    { to: '/app/grooming', icon: Sprout, label: t('nav.grooming') },
     { to: '/app/family', icon: Users, label: t('nav.family') },
-    { to: '/app/preferences', icon: SlidersHorizontal, label: t('nav.preferences') },
     { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
     { to: '/app/schedules', icon: CalendarClock, label: t('nav.schedules') },
     { to: '/app/calendar', icon: CalendarDays, label: t('nav.calendar') },
@@ -85,66 +101,60 @@ export function Sidebar() {
       </NavLink>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             end={to === '/app'}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-[#F28C28] text-white'
-                  : 'text-white/70 hover:bg-white/10 hover:text-white'
-              )
-            }
+            className={({ isActive }) => navItemClass(isActive)}
           >
             <Icon className="h-4 w-4 shrink-0" />
             {label}
           </NavLink>
         ))}
 
+        {/* Grove — visible only to graduated users (FIATAL / TERMO) */}
+        {isGraduated && (
+          <NavLink
+            to="/app/grove"
+            className={({ isActive }) => navItemClass(isActive)}
+          >
+            <Trees className="h-4 w-4 shrink-0" />
+            {t('nav.grove')}
+          </NavLink>
+        )}
+
+        {/* Retail Products — admin only */}
+        {isAdmin && (
+          <NavLink
+            to="/app/retail-products"
+            className={({ isActive }) => navItemClass(isActive)}
+          >
+            <Store className="h-4 w-4 shrink-0" />
+            {t('nav.retail')}
+          </NavLink>
+        )}
+
         {isAdmin && (
           <>
             <NavLink
               to="/app/admin/users"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-[#F28C28] text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                )
-              }
+              className={({ isActive }) => navItemClass(isActive)}
             >
               <ShieldCheck className="h-4 w-4 shrink-0" />
               {t('nav.admin')}
             </NavLink>
             <NavLink
               to="/app/admin/ip-vault"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-[#F28C28] text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                )
-              }
+              className={({ isActive }) => navItemClass(isActive)}
             >
               <Vault className="h-4 w-4 shrink-0" />
               {t('nav.ipVault')}
             </NavLink>
             <NavLink
               to="/app/admin/content-review"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-[12px] text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-[#F28C28] text-white'
-                    : 'text-white/70 hover:bg-white/10 hover:text-white'
-                )
-              }
+              className={({ isActive }) => navItemClass(isActive)}
             >
               <ClipboardList className="h-4 w-4 shrink-0" />
               {t('nav.contentReview')}
@@ -153,51 +163,69 @@ export function Sidebar() {
         )}
       </nav>
 
-      <div className="px-4 py-4 border-t border-white/10 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <p className="text-xs text-white/40 truncate">{t('common.version')}</p>
-          {points !== undefined && (
-            <span
-              aria-label={t('points.total', { count: points.total })}
-              className="shrink-0 text-[10px] font-semibold font-mono tabular-nums text-amber-400/80 bg-amber-400/10 px-1.5 py-0.5 rounded-full leading-none"
-            >
-              {points.total} pt
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            onClick={() => setFeedbackOpen(true)}
-            title={t('feedback.buttonTitle')}
-            className="relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <MessageSquarePlus className="h-4 w-4" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center h-4 min-w-[1rem] px-0.5 rounded-full bg-[#F28C28] text-[9px] font-bold text-white leading-none">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
+      {/* Footer — Founding Member entry + utility controls */}
+      <div className="border-t border-white/10">
+        {/* Founding Member — for non-founding-member users as an upgrade prompt */}
+        {!me?.foundingMember && (
           <NavLink
-            to="/app/settings"
-            title={t('nav.settings')}
+            to="/app/founding-member"
             className={({ isActive }) =>
               cn(
-                'p-2 rounded-lg transition-colors',
-                isActive ? 'text-[#F28C28]' : 'text-white/50 hover:text-white hover:bg-white/10'
+                'flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-b border-white/10',
+                isActive ? 'text-amber-400' : 'text-amber-400/70 hover:text-amber-400 hover:bg-white/5'
               )
             }
           >
-            <Settings className="h-4 w-4" />
+            <Star className="h-4 w-4 shrink-0" aria-hidden="true" />
+            {t('nav.foundingMember')}
           </NavLink>
-          <LanguageSwitcher />
-          <button
-            onClick={signOut}
-            title={t('common.signOut')}
-            className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
+        )}
+
+        <div className="px-4 py-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            {points !== undefined && (
+              <span
+                aria-label={t('points.total', { count: points.total })}
+                className="shrink-0 text-[10px] font-semibold font-mono tabular-nums text-amber-400/80 bg-amber-400/10 px-1.5 py-0.5 rounded-full leading-none"
+              >
+                {points.total} pt
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => setFeedbackOpen(true)}
+              title={t('feedback.buttonTitle')}
+              className="relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <MessageSquarePlus className="h-4 w-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center h-4 min-w-[1rem] px-0.5 rounded-full bg-[#F28C28] text-[9px] font-bold text-white leading-none">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+            <NavLink
+              to="/app/settings"
+              title={t('nav.settings')}
+              className={({ isActive }) =>
+                cn(
+                  'p-2 rounded-lg transition-colors',
+                  isActive ? 'text-[#F28C28]' : 'text-white/50 hover:text-white hover:bg-white/10'
+                )
+              }
+            >
+              <Settings className="h-4 w-4" />
+            </NavLink>
+            <LanguageSwitcher />
+            <button
+              onClick={signOut}
+              title={t('common.signOut')}
+              className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 

@@ -24,7 +24,10 @@
     "family": "Family",
     "preferences": "My Preferences",
     "schedules": "Schedules",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "grooming": "Fridge rhythm",
+    "foundingMember": "Founding Member",
+    "grove": "Grove"
   },
   "common": {
     "version": "Nutrition Engine v0.1",

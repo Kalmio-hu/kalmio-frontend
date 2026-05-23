@@ -17,6 +17,9 @@ import {
   CalendarClock,
   CalendarDays,
   NotebookPen,
+  Sprout,
+  Star,
+  Trees,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -24,16 +27,21 @@ import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
 import { FeedbackPanel } from '@/components/FeedbackPanel'
 import { feedbackService } from '@/services/feedback'
+import { usersService } from '@/services/users'
 
 // Overflow routes — for checking active state of the "Több" trigger
 const OVERFLOW_ROUTES = [
-  '/app/recipes',
+  '/app/settings',
+  '/app/shopping-list',
   '/app/retail-products',
   '/app/family',
   '/app/preferences',
   '/app/plans',
   '/app/schedules',
   '/app/calendar',
+  '/app/grooming',
+  '/app/founding-member',
+  '/app/grove',
   '/app/admin',
 ]
 
@@ -52,6 +60,21 @@ export function MobileNav() {
     refetchInterval: 30_000,
   })
 
+  const { data: me } = useQuery({
+    queryKey: ['me'],
+    queryFn: usersService.getMe,
+    staleTime: 60_000,
+  })
+
+  const { data: stageData } = useQuery({
+    queryKey: ['me', 'stage'],
+    queryFn: usersService.getMyStage,
+    staleTime: 30_000,
+  })
+
+  const isGraduated =
+    stageData?.currentStage === 'FIATAL' || stageData?.currentStage === 'TERMO'
+
   // Close overflow when clicking outside
   useEffect(() => {
     if (!overflowOpen) return
@@ -69,10 +92,11 @@ export function MobileNav() {
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [overflowOpen])
 
+  // Primary slots: Home, Recipes (promoted from overflow), Shop, + Több
   const primaryItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.home') },
+    { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
     { to: '/app/shopping-list', icon: ShoppingCart, label: t('nav.shop') },
-    { to: '/app/settings', icon: Settings, label: t('nav.settings') },
   ]
 
   const current = i18n.language?.startsWith('en') ? 'en' : 'hu'
@@ -93,6 +117,12 @@ export function MobileNav() {
       isActive ? 'text-[#F28C28]' : 'text-white/60'
     )
 
+  const overflowItemClass = (isActive: boolean) =>
+    cn(
+      'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
+      isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
+    )
+
   return (
     <>
       {/* Overflow panel — rendered above the nav bar */}
@@ -104,76 +134,23 @@ export function MobileNav() {
           className="fixed bottom-16 right-0 left-0 z-50 md:hidden bg-[#1A1A1A] border-t border-white/10 shadow-lg"
         >
           <div className="flex flex-col py-1">
-            {/* Receptek */}
+            {/* Hűtő ritmusa */}
             <NavLink
-              to="/app/recipes"
+              to="/app/grooming"
               role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
             >
-              <ChefHat className="h-5 w-5 shrink-0" />
-              {t('nav.recipes')}
-            </NavLink>
-
-            {/* Bolti termékek */}
-            <NavLink
-              to="/app/retail-products"
-              role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
-            >
-              <Store className="h-5 w-5 shrink-0" />
-              {t('nav.retail')}
-            </NavLink>
-
-            {/* Család */}
-            <NavLink
-              to="/app/family"
-              role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
-            >
-              <Users className="h-5 w-5 shrink-0" />
-              {t('nav.family')}
-            </NavLink>
-
-            {/* Beállításaim */}
-            <NavLink
-              to="/app/preferences"
-              role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
-            >
-              <SlidersHorizontal className="h-5 w-5 shrink-0" />
-              {t('nav.preferences')}
+              <Sprout className="h-5 w-5 shrink-0" />
+              {t('nav.grooming')}
             </NavLink>
 
             {/* Tervek */}
             <NavLink
               to="/app/plans"
               role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
             >
               <NotebookPen className="h-5 w-5 shrink-0" />
               {t('nav.plans')}
@@ -183,12 +160,8 @@ export function MobileNav() {
             <NavLink
               to="/app/schedules"
               role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
             >
               <CalendarClock className="h-5 w-5 shrink-0" />
               {t('nav.schedules')}
@@ -198,16 +171,89 @@ export function MobileNav() {
             <NavLink
               to="/app/calendar"
               role="menuitem"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                  isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                )
-              }
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
             >
               <CalendarDays className="h-5 w-5 shrink-0" />
               {t('nav.calendar')}
             </NavLink>
+
+            {/* Beállításaim */}
+            <NavLink
+              to="/app/preferences"
+              role="menuitem"
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
+            >
+              <SlidersHorizontal className="h-5 w-5 shrink-0" />
+              {t('nav.preferences')}
+            </NavLink>
+
+            {/* Beállítások */}
+            <NavLink
+              to="/app/settings"
+              role="menuitem"
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
+            >
+              <Settings className="h-5 w-5 shrink-0" />
+              {t('nav.settings')}
+            </NavLink>
+
+            {/* Család */}
+            <NavLink
+              to="/app/family"
+              role="menuitem"
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
+            >
+              <Users className="h-5 w-5 shrink-0" />
+              {t('nav.family')}
+            </NavLink>
+
+            {/* Grove — graduated users only */}
+            {isGraduated && (
+              <NavLink
+                to="/app/grove"
+                role="menuitem"
+                onClick={() => setOverflowOpen(false)}
+                className={({ isActive }) => overflowItemClass(isActive)}
+              >
+                <Trees className="h-5 w-5 shrink-0" />
+                {t('nav.grove')}
+              </NavLink>
+            )}
+
+            {/* Founding Member — for non-founding-member users */}
+            {!me?.foundingMember && (
+              <NavLink
+                to="/app/founding-member"
+                role="menuitem"
+                onClick={() => setOverflowOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
+                    isActive ? 'text-amber-400' : 'text-amber-400/70 hover:text-amber-400 hover:bg-white/5'
+                  )
+                }
+              >
+                <Star className="h-5 w-5 shrink-0" />
+                {t('nav.foundingMember')}
+              </NavLink>
+            )}
+
+            {/* Retail Products — admin only */}
+            {isAdmin && (
+              <NavLink
+                to="/app/retail-products"
+                role="menuitem"
+                onClick={() => setOverflowOpen(false)}
+                className={({ isActive }) => overflowItemClass(isActive)}
+              >
+                <Store className="h-5 w-5 shrink-0" />
+                {t('nav.retail')}
+              </NavLink>
+            )}
 
             {isAdmin && (
               <>
@@ -215,12 +261,8 @@ export function MobileNav() {
                 <NavLink
                   to="/app/admin/users"
                   role="menuitem"
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                      isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                    )
-                  }
+                  onClick={() => setOverflowOpen(false)}
+                  className={({ isActive }) => overflowItemClass(isActive)}
                 >
                   <ShieldCheck className="h-5 w-5 shrink-0" />
                   {t('nav.admin')}
@@ -228,12 +270,8 @@ export function MobileNav() {
                 <NavLink
                   to="/app/admin/ip-vault"
                   role="menuitem"
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                      isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                    )
-                  }
+                  onClick={() => setOverflowOpen(false)}
+                  className={({ isActive }) => overflowItemClass(isActive)}
                 >
                   <Vault className="h-5 w-5 shrink-0" />
                   {t('nav.ipVault')}
@@ -241,12 +279,8 @@ export function MobileNav() {
                 <NavLink
                   to="/app/admin/content-review"
                   role="menuitem"
-                  className={({ isActive }) =>
-                    cn(
-                      'flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors',
-                      isActive ? 'text-[#F28C28]' : 'text-white/80 hover:text-white hover:bg-white/5'
-                    )
-                  }
+                  onClick={() => setOverflowOpen(false)}
+                  className={({ isActive }) => overflowItemClass(isActive)}
                 >
                   <ClipboardList className="h-5 w-5 shrink-0" />
                   {t('nav.contentReview')}
