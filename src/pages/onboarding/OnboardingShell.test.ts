@@ -120,7 +120,7 @@ describe('OnboardingShell — final-step completion calls writeOnboardingDone', 
 
   it('goNext on step < TOTAL_STEPS does NOT set the done-flag', () => {
     // Mid-flow navigation must not accidentally mark the user as done.
-    const midStep = 5
+    const midStep = 3
     simulateGoNextOnFinalStep(TEST_USER_ID, midStep)
     expect(readOnboardingDone(TEST_USER_ID)).toBe(false)
   })
