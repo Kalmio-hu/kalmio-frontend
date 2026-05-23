@@ -21,6 +21,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { schedulesService } from '@/services/schedules'
 import { planTemplateService } from '@/services/plans'
@@ -228,6 +229,7 @@ export function ScheduleDetail() {
   const qc = useQueryClient()
   const [editOpen, setEditOpen] = useState(false)
   const [materializeOpen, setMaterializeOpen] = useState(false)
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false)
 
   const { data: schedule, isLoading, isError } = useQuery({
     queryKey: ['schedule', id],
@@ -389,11 +391,7 @@ export function ScheduleDetail() {
               )}
 
               <button
-                onClick={() => {
-                  if (window.confirm(t('schedules.actions.deleteConfirm'))) {
-                    doEnd()
-                  }
-                }}
+                onClick={() => setEndConfirmOpen(true)}
                 disabled={isBusy}
                 className="flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50 ml-auto"
                 type="button"
@@ -544,6 +542,17 @@ export function ScheduleDetail() {
         cadenceDays={schedule.cadenceDays}
         open={materializeOpen}
         onOpenChange={setMaterializeOpen}
+      />
+
+      <ConfirmDialog
+        open={endConfirmOpen}
+        onOpenChange={setEndConfirmOpen}
+        title={t('confirm.delete.schedule.title')}
+        description={t('confirm.delete.schedule.body')}
+        destructiveLabel={t('confirm.delete.schedule.confirm')}
+        cancelLabel={t('confirm.delete.schedule.cancel')}
+        onConfirm={() => doEnd()}
+        isPending={isEnding}
       />
     </>
   )

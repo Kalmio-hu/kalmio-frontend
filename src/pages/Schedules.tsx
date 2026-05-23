@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from '@/components/ui/toast'
@@ -117,6 +118,7 @@ function ScheduleCard({ schedule }: ScheduleCardProps) {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const [materializeOpen, setMaterializeOpen] = useState(false)
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false)
 
   const { mutate: doPause, isPending: isPausing } = useMutation({
     mutationFn: () => schedulesService.pause(schedule.id),
@@ -244,11 +246,7 @@ function ScheduleCard({ schedule }: ScheduleCardProps) {
             </button>
 
             <button
-              onClick={() => {
-                if (window.confirm(t('schedules.actions.deleteConfirm'))) {
-                  doEnd()
-                }
-              }}
+              onClick={() => setEndConfirmOpen(true)}
               disabled={isBusy}
               className="flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50 ml-auto"
               type="button"
@@ -264,6 +262,17 @@ function ScheduleCard({ schedule }: ScheduleCardProps) {
         schedule={schedule}
         open={materializeOpen}
         onOpenChange={setMaterializeOpen}
+      />
+
+      <ConfirmDialog
+        open={endConfirmOpen}
+        onOpenChange={setEndConfirmOpen}
+        title={t('confirm.delete.schedule.title')}
+        description={t('confirm.delete.schedule.body')}
+        destructiveLabel={t('confirm.delete.schedule.confirm')}
+        cancelLabel={t('confirm.delete.schedule.cancel')}
+        onConfirm={() => doEnd()}
+        isPending={isEnding}
       />
     </>
   )

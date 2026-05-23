@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ChevronDown, LogOut, Pencil, Trash2, UserCog, UserMinus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { ManagedProfileEditor } from './ManagedProfileEditor'
 import { familyService } from '@/services/family'
@@ -42,6 +43,9 @@ export function FamilyMemberRow({
   const [editOpen, setEditOpen] = useState(false)
   const [roleMenuOpen, setRoleMenuOpen] = useState(false)
   const [permissionRequested, setPermissionRequested] = useState(false)
+  const [removeConfirmOpen, setRemoveConfirmOpen] = useState(false)
+  const [kickConfirmOpen, setKickConfirmOpen] = useState(false)
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false)
 
   const removeMutation = useMutation({
     mutationFn: () => familyService.removeManagedProfile(familyId, member.userId),
@@ -130,13 +134,11 @@ export function FamilyMemberRow({
   }
 
   function handleRemove() {
-    if (!confirm(t('family.memberRow.confirmRemove', { name: displayName }))) return
-    removeMutation.mutate()
+    setRemoveConfirmOpen(true)
   }
 
   function handleKick() {
-    if (!confirm(t('family.memberRow.confirmKick', { name: displayName }))) return
-    kickMutation.mutate()
+    setKickConfirmOpen(true)
   }
 
   function handleLeave() {
@@ -144,8 +146,7 @@ export function FamilyMemberRow({
       toast({ title: t('family.memberRow.cannotLeaveLastPlanner'), variant: 'destructive' })
       return
     }
-    if (!confirm(t('family.memberRow.confirmLeave'))) return
-    leaveMutation.mutate()
+    setLeaveConfirmOpen(true)
   }
 
   return (
@@ -338,6 +339,39 @@ export function FamilyMemberRow({
           />
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={removeConfirmOpen}
+        onOpenChange={setRemoveConfirmOpen}
+        title={t('confirm.family.remove.title', { name: displayName })}
+        description={t('confirm.family.remove.body')}
+        destructiveLabel={t('confirm.family.remove.confirm')}
+        cancelLabel={t('confirm.family.remove.cancel')}
+        onConfirm={() => removeMutation.mutate()}
+        isPending={removeMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={kickConfirmOpen}
+        onOpenChange={setKickConfirmOpen}
+        title={t('confirm.family.kick.title', { name: displayName })}
+        description={t('confirm.family.kick.body')}
+        destructiveLabel={t('confirm.family.kick.confirm')}
+        cancelLabel={t('confirm.family.kick.cancel')}
+        onConfirm={() => kickMutation.mutate()}
+        isPending={kickMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={leaveConfirmOpen}
+        onOpenChange={setLeaveConfirmOpen}
+        title={t('confirm.family.leave.title')}
+        description={t('confirm.family.leave.body')}
+        destructiveLabel={t('confirm.family.leave.confirm')}
+        cancelLabel={t('confirm.family.leave.cancel')}
+        onConfirm={() => leaveMutation.mutate()}
+        isPending={leaveMutation.isPending}
+      />
     </li>
   )
 }

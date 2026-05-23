@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { FamilyMemberRow } from '@/components/family/FamilyMemberRow'
 import { ManagedProfileEditor } from '@/components/family/ManagedProfileEditor'
@@ -41,6 +42,7 @@ export function Family() {
   const [addProfileOpen, setAddProfileOpen] = useState(false)
   const [inviteOpen, setInviteOpen] = useState(false)
   const [claimDialogOpen, setClaimDialogOpen] = useState(false)
+  const [revokeConfirmId, setRevokeConfirmId] = useState<string | null>(null)
 
   // Fetch current user's name for the member row
   const { data: me } = useQuery({
@@ -285,11 +287,7 @@ export function Family() {
                       <button
                         type="button"
                         disabled={revokeInviteMutation.isPending}
-                        onClick={() => {
-                          if (confirm(t('family.invite.revokeInviteConfirm'))) {
-                            revokeInviteMutation.mutate(inv.id)
-                          }
-                        }}
+                        onClick={() => setRevokeConfirmId(inv.id)}
                         className="text-xs px-2 py-1 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40 shrink-0"
                       >
                         {t('family.invite.revokeInviteCta')}
@@ -359,6 +357,19 @@ export function Family() {
           setClaimDialogOpen(false)
           qc.invalidateQueries({ queryKey: ['family'] })
         }}
+      />
+
+      <ConfirmDialog
+        open={revokeConfirmId !== null}
+        onOpenChange={open => { if (!open) setRevokeConfirmId(null) }}
+        title={t('confirm.family.revokeInvite.title')}
+        description={t('confirm.family.revokeInvite.body')}
+        destructiveLabel={t('confirm.family.revokeInvite.confirm')}
+        cancelLabel={t('confirm.family.revokeInvite.cancel')}
+        onConfirm={() => {
+          if (revokeConfirmId) revokeInviteMutation.mutate(revokeConfirmId)
+        }}
+        isPending={revokeInviteMutation.isPending}
       />
     </div>
   )

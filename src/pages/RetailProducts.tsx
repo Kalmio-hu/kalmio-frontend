@@ -14,6 +14,7 @@ import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { retailService } from '@/services/retail'
 import { ingredientsService } from '@/services/ingredients'
 import { useAuthStore } from '@/store/auth'
@@ -82,6 +83,7 @@ export function RetailProducts() {
   const isAdmin = useAuthStore((s) => s.isAdmin)
   const [search, setSearch] = useState('')
   const [editTarget, setEditTarget] = useState<RetailProduct | null | 'new'>(null)
+  const [deleteConfirmProduct, setDeleteConfirmProduct] = useState<{ id: string; name: string } | null>(null)
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['retail-products'],
@@ -185,7 +187,7 @@ export function RetailProducts() {
                       <Pencil className="h-3.5 w-3.5" /> {t('retail.edit')}
                     </Button>
                     <Button variant="danger" size="sm" onClick={() => {
-                      if (confirm(t('retail.delete', { name: product.name }))) deleteMutation.mutate(product.id)
+                      setDeleteConfirmProduct({ id: product.id, name: product.name })
                     }}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
@@ -212,6 +214,19 @@ export function RetailProducts() {
           }
         }}
         isPending={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmProduct !== null}
+        onOpenChange={open => { if (!open) setDeleteConfirmProduct(null) }}
+        title={t('confirm.delete.retailProduct.title')}
+        description={t('confirm.delete.retailProduct.body')}
+        destructiveLabel={t('confirm.delete.retailProduct.confirm')}
+        cancelLabel={t('confirm.delete.retailProduct.cancel')}
+        onConfirm={() => {
+          if (deleteConfirmProduct) deleteMutation.mutate(deleteConfirmProduct.id)
+        }}
+        isPending={deleteMutation.isPending}
       />
     </div>
   )

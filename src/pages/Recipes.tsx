@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { IngredientSearchDialog } from '@/components/IngredientSearchDialog'
 import { AiRecipeImportModal } from '@/components/recipes/AiRecipeImportModal'
@@ -151,6 +152,7 @@ export function Recipes() {
   const [editTarget, setEditTarget] = useState<Recipe | null | 'new'>(null)
   const [translationTarget, setTranslationTarget] = useState<Recipe | null>(null)
   const [detailTarget, setDetailTarget] = useState<Recipe | null>(null)
+  const [deleteConfirmRecipe, setDeleteConfirmRecipe] = useState<{ id: string; name: string } | null>(null)
 
   // AI recipe import state — preserved from the former MyRecipes page.
   const [importModalOpen, setImportModalOpen] = useState(false)
@@ -553,7 +555,7 @@ export function Recipes() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { if (confirm(t('recipes.delete', { name: displayName }))) deleteMutation.mutate(r.id) }}
+                      onClick={() => setDeleteConfirmRecipe({ id: r.id, name: displayName })}
                       className="p-1.5 rounded-lg bg-white/80 hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors shadow-sm"
                       aria-label={t('common.delete')}
                     >
@@ -753,6 +755,19 @@ export function Recipes() {
         }}
         excludeIds={importState?.recipe.ingredients.map(i => i.ingredientId) ?? []}
         onSelect={handleIngredientResolved}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmRecipe !== null}
+        onOpenChange={open => { if (!open) setDeleteConfirmRecipe(null) }}
+        title={t('confirm.delete.recipe.title')}
+        description={t('confirm.delete.recipe.body')}
+        destructiveLabel={t('confirm.delete.recipe.confirm')}
+        cancelLabel={t('confirm.delete.recipe.cancel')}
+        onConfirm={() => {
+          if (deleteConfirmRecipe) deleteMutation.mutate(deleteConfirmRecipe.id)
+        }}
+        isPending={deleteMutation.isPending}
       />
     </div>
   )

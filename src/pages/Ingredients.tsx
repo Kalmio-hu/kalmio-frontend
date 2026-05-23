@@ -14,6 +14,7 @@ import { Select } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { ingredientsService } from '@/services/ingredients'
 import { usersService } from '@/services/users'
@@ -124,6 +125,7 @@ export function Ingredients() {
   const [search, setSearch] = useState('')
   const [editTarget, setEditTarget] = useState<Ingredient | null | 'new'>(null)
   const [translationTarget, setTranslationTarget] = useState<Ingredient | null>(null)
+  const [deleteConfirmIngredient, setDeleteConfirmIngredient] = useState<{ id: string; name: string } | null>(null)
 
   const { data: ingredients = [], isLoading } = useQuery({
     queryKey: ['ingredients'],
@@ -289,7 +291,7 @@ export function Ingredients() {
                         <Pencil className="h-3.5 w-3.5" /> {t('ingredients.edit')}
                       </Button>
                       <Button variant="danger" size="sm" onClick={() => {
-                        if (confirm(t('ingredients.delete', { name: displayName }))) deleteMutation.mutate(ing.id)
+                        setDeleteConfirmIngredient({ id: ing.id, name: displayName })
                       }}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
@@ -353,6 +355,19 @@ export function Ingredients() {
           if (translationTarget) updateTranslationMutation.mutate({ id: translationTarget.id, body })
         }}
         isPending={updateTranslationMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={deleteConfirmIngredient !== null}
+        onOpenChange={open => { if (!open) setDeleteConfirmIngredient(null) }}
+        title={t('confirm.delete.ingredient.title')}
+        description={t('confirm.delete.ingredient.body')}
+        destructiveLabel={t('confirm.delete.ingredient.confirm')}
+        cancelLabel={t('confirm.delete.ingredient.cancel')}
+        onConfirm={() => {
+          if (deleteConfirmIngredient) deleteMutation.mutate(deleteConfirmIngredient.id)
+        }}
+        isPending={deleteMutation.isPending}
       />
     </div>
   )

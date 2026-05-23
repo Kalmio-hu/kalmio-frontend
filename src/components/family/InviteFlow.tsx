@@ -5,6 +5,7 @@ import { Copy, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { familyService } from '@/services/family'
 import type { FamilyMemberDto } from '@/types'
 
@@ -41,6 +42,7 @@ export function InviteFlow({
   const [claimCode, setClaimCode] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const autoFiredRef = useRef(false)
+  const [removeConfirmMember, setRemoveConfirmMember] = useState<{ id: string; name: string } | null>(null)
 
   // Used on step "cap-exceeded" — remove profile before creating a fresh invite
   const removeMutation = useMutation({
@@ -182,11 +184,7 @@ export function InviteFlow({
                   variant="danger"
                   size="sm"
                   disabled={removeMutation.isPending}
-                  onClick={() => {
-                    if (confirm(t('family.memberRow.confirmRemove', { name }))) {
-                      removeMutation.mutate(m.userId)
-                    }
-                  }}
+                  onClick={() => setRemoveConfirmMember({ id: m.userId, name })}
                 >
                   {t('common.delete')}
                 </Button>
@@ -198,6 +196,19 @@ export function InviteFlow({
         <Button type="button" variant="ghost" onClick={onClose} className="w-full">
           {t('common.cancel')}
         </Button>
+
+        <ConfirmDialog
+          open={removeConfirmMember !== null}
+          onOpenChange={open => { if (!open) setRemoveConfirmMember(null) }}
+          title={t('confirm.family.removeFromInvite.title', { name: removeConfirmMember?.name ?? '' })}
+          description={t('confirm.family.removeFromInvite.body')}
+          destructiveLabel={t('confirm.family.removeFromInvite.confirm')}
+          cancelLabel={t('confirm.family.removeFromInvite.cancel')}
+          onConfirm={() => {
+            if (removeConfirmMember) removeMutation.mutate(removeConfirmMember.id)
+          }}
+          isPending={removeMutation.isPending}
+        />
       </div>
     )
   }

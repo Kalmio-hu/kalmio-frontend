@@ -2372,5 +2372,77 @@
     "signedInAs": "Bejelentkezve:",
     "authorize": "Engedélyezés",
     "cancel": "Mégse"
+  },
+  "confirm": {
+    "delete": {
+      "fridgeItem": {
+        "title": "Törlöm ezt a tételt?",
+        "body": "A hűtőlistádból eltávolítom. Az előzmény nem marad meg.",
+        "confirm": "Törlés",
+        "cancel": "Mégse"
+      },
+      "schedule": {
+        "title": "Lezárom ezt az ütemezést?",
+        "body": "A lezárt ütemezés nem indítható újra.",
+        "confirm": "Lezárás",
+        "cancel": "Mégse"
+      },
+      "recipe": {
+        "title": "Törlöm ezt a receptet?",
+        "body": "A törlés nem vonható vissza.",
+        "confirm": "Törlés",
+        "cancel": "Mégse"
+      },
+      "ingredient": {
+        "title": "Törlöm ezt a hozzávalót?",
+        "body": "A törlés nem vonható vissza.",
+        "confirm": "Törlés",
+        "cancel": "Mégse"
+      },
+      "retailProduct": {
+        "title": "Törlöm ezt a terméket?",
+        "body": "A törlés nem vonható vissza.",
+        "confirm": "Törlés",
+        "cancel": "Mégse"
+      },
+      "feedback": {
+        "title": "Törlöm ezt a visszajelzést?",
+        "body": "A törlés nem vonható vissza.",
+        "confirm": "Törlés",
+        "cancel": "Mégse"
+      }
+    },
+    "family": {
+      "remove": {
+        "title": "Eltávolítom {{name}} tagot?",
+        "body": "A tag elveszíti a hozzáférést a közös étrendhez.",
+        "confirm": "Eltávolítás",
+        "cancel": "Mégse"
+      },
+      "kick": {
+        "title": "Kizárom {{name}} tagot?",
+        "body": "A tag elveszíti a hozzáférését.",
+        "confirm": "Kizárás",
+        "cancel": "Mégse"
+      },
+      "leave": {
+        "title": "Kilépek a családból?",
+        "body": "Elveszíted a hozzáférést a közös étrendhez.",
+        "confirm": "Kilépés",
+        "cancel": "Mégse"
+      },
+      "revokeInvite": {
+        "title": "Visszavonom a meghívót?",
+        "body": "A meghívott nem csatlakozhat ezzel a kóddal.",
+        "confirm": "Visszavonás",
+        "cancel": "Mégse"
+      },
+      "removeFromInvite": {
+        "title": "Eltávolítom {{name}} tagot?",
+        "body": "A tag elveszíti a hozzáférést a közös étrendhez.",
+        "confirm": "Eltávolítás",
+        "cancel": "Mégse"
+      }
+    }
   }
 }

@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Label } from '@/components/ui/label'
 import { IngredientSearchDialog } from '@/components/IngredientSearchDialog'
 import { fridgeService } from '@/services/fridge'
@@ -73,6 +74,7 @@ export function Fridge() {
   const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<Unit>('G')
   const [expiryDate, setExpiryDate] = useState('')
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['fridge'],
@@ -191,7 +193,7 @@ export function Fridge() {
           titleHint={t('fridge.nonPantryHint')}
           items={nonPantry}
           today={today}
-          onDelete={id => deleteMutation.mutate(id)}
+          onDelete={id => setDeleteConfirmId(id)}
           onUpdateExpiry={handleUpdateExpiry}
         />
       )}
@@ -202,10 +204,23 @@ export function Fridge() {
           titleHint={t('fridge.pantryHint')}
           items={pantry}
           today={today}
-          onDelete={id => deleteMutation.mutate(id)}
+          onDelete={id => setDeleteConfirmId(id)}
           onUpdateExpiry={handleUpdateExpiry}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteConfirmId !== null}
+        onOpenChange={open => { if (!open) setDeleteConfirmId(null) }}
+        title={t('confirm.delete.fridgeItem.title')}
+        description={t('confirm.delete.fridgeItem.body')}
+        destructiveLabel={t('confirm.delete.fridgeItem.confirm')}
+        cancelLabel={t('confirm.delete.fridgeItem.cancel')}
+        onConfirm={() => {
+          if (deleteConfirmId) deleteMutation.mutate(deleteConfirmId)
+        }}
+        isPending={deleteMutation.isPending}
+      />
 
       <IngredientSearchDialog
         open={ingredientDialogOpen}

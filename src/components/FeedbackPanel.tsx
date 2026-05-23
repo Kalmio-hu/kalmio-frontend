@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
@@ -324,6 +325,7 @@ function DetailView({
   const [reply, setReply] = useState('')
   const [statusNote, setStatusNote] = useState('')
   const [showStatusChange, setShowStatusChange] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const { data: detail, isLoading } = useQuery({
     queryKey: ['feedback', 'detail', id],
@@ -435,11 +437,7 @@ function DetailView({
                 {t('feedback.changeStatus')} →
               </button>
               <button
-                onClick={() => {
-                  if (window.confirm(t('feedback.deleteConfirm'))) {
-                    deleteMutation.mutate()
-                  }
-                }}
+                onClick={() => setDeleteConfirmOpen(true)}
                 disabled={deleteMutation.isPending}
                 className="flex items-center gap-1 text-xs text-red-400/60 hover:text-red-400 transition-colors disabled:opacity-40"
               >
@@ -532,6 +530,17 @@ function DetailView({
           <Send className="h-4 w-4" />
         </button>
       </div>
+
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title={t('confirm.delete.feedback.title')}
+        description={t('confirm.delete.feedback.body')}
+        destructiveLabel={t('confirm.delete.feedback.confirm')}
+        cancelLabel={t('confirm.delete.feedback.cancel')}
+        onConfirm={() => deleteMutation.mutate()}
+        isPending={deleteMutation.isPending}
+      />
     </>
   )
 }

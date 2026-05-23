@@ -2372,5 +2372,77 @@
     "signedInAs": "Signed in as",
     "authorize": "Authorize",
     "cancel": "Cancel"
+  },
+  "confirm": {
+    "delete": {
+      "fridgeItem": {
+        "title": "Remove this item?",
+        "body": "It will be removed from your fridge list. This cannot be undone.",
+        "confirm": "Remove",
+        "cancel": "Cancel"
+      },
+      "schedule": {
+        "title": "End this schedule?",
+        "body": "Ended schedules cannot be restarted.",
+        "confirm": "End schedule",
+        "cancel": "Cancel"
+      },
+      "recipe": {
+        "title": "Delete this recipe?",
+        "body": "This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "ingredient": {
+        "title": "Delete this ingredient?",
+        "body": "This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "retailProduct": {
+        "title": "Delete this product?",
+        "body": "This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      },
+      "feedback": {
+        "title": "Delete this feedback?",
+        "body": "This cannot be undone.",
+        "confirm": "Delete",
+        "cancel": "Cancel"
+      }
+    },
+    "family": {
+      "remove": {
+        "title": "Remove {{name}}?",
+        "body": "They will lose access to the shared meal plan.",
+        "confirm": "Remove",
+        "cancel": "Cancel"
+      },
+      "kick": {
+        "title": "Remove {{name}} from the family?",
+        "body": "They will lose access immediately.",
+        "confirm": "Remove",
+        "cancel": "Cancel"
+      },
+      "leave": {
+        "title": "Leave this family?",
+        "body": "You will lose access to the shared meal plan.",
+        "confirm": "Leave",
+        "cancel": "Cancel"
+      },
+      "revokeInvite": {
+        "title": "Revoke this invite?",
+        "body": "The recipient will no longer be able to join with this code.",
+        "confirm": "Revoke",
+        "cancel": "Cancel"
+      },
+      "removeFromInvite": {
+        "title": "Remove {{name}}?",
+        "body": "They will lose access to the shared meal plan.",
+        "confirm": "Remove",
+        "cancel": "Cancel"
+      }
+    }
   }
 }
