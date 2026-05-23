@@ -16,6 +16,7 @@ import {
   type UpdateProfileRequest,
   type BodyDataRequest,
   type UpdateGoalRequest,
+  USERS_ME_QUERY_KEY,
 } from '@/services/users'
 import type { BiologicalSex, ActivityLevel, Goal, HealthFeedbackItem } from '@/types'
 import { formatLocalDate } from '@/lib/utils'
@@ -132,7 +133,7 @@ export function Profile() {
 
   // ── Data fetches ─────────────────────────────────────────────────────────
   const { data: user, isLoading } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
   })
@@ -150,13 +151,13 @@ export function Profile() {
   }, [searchParams])
 
   const { data: targets, isLoading: targetsLoading } = useQuery({
-    queryKey: ['me', 'targets'],
+    queryKey: [...USERS_ME_QUERY_KEY, 'targets'],
     queryFn: usersService.getTargets,
     staleTime: 30_000,
   })
 
   const { data: feedbackItems = [] } = useQuery({
-    queryKey: ['me', 'goal-feedback'],
+    queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'],
     queryFn: usersService.getGoalFeedback,
     staleTime: 30_000,
   })
@@ -177,7 +178,7 @@ export function Profile() {
   const identityMutation = useMutation({
     mutationFn: (body: UpdateProfileRequest) => usersService.updateProfile(body),
     onSuccess: (data) => {
-      qc.setQueryData(['me'], data)
+      qc.setQueryData(USERS_ME_QUERY_KEY, data)
       toast({ title: t('profile.saveSuccess'), variant: 'success' })
     },
     onError: () => {
@@ -206,7 +207,7 @@ export function Profile() {
     setUploading(true)
     try {
       const updated = await usersService.uploadAvatar(file)
-      qc.setQueryData(['me'], updated)
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       toast({ title: t('profile.avatarUploadSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.avatarUploadError'), variant: 'destructive' })
@@ -260,10 +261,10 @@ export function Profile() {
         activityLevel: activityLevel || null,
       }
       const updated = await usersService.patchBodyData(payload)
-      qc.setQueryData(['me'], updated)
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       // Re-fetch targets as body data changed
-      await qc.invalidateQueries({ queryKey: ['me', 'targets'] })
-      await qc.invalidateQueries({ queryKey: ['me', 'goal-feedback'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'] })
       toast({ title: t('profile.bodyData.saveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.bodyData.saveError'), variant: 'destructive' })
@@ -276,14 +277,14 @@ export function Profile() {
     setBodyDataSaving(true)
     try {
       const updated = await usersService.deleteBodyData()
-      qc.setQueryData(['me'], updated)
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       setWeightKg('')
       setHeightCm('')
       setAgeYears('')
       setBiologicalSex('')
       setActivityLevel('')
-      await qc.invalidateQueries({ queryKey: ['me', 'targets'] })
-      await qc.invalidateQueries({ queryKey: ['me', 'goal-feedback'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'] })
       toast({ title: t('profile.bodyData.clearSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.bodyData.clearError'), variant: 'destructive' })
@@ -311,9 +312,9 @@ export function Profile() {
     try {
       const payload: UpdateGoalRequest = { goal }
       const updated = await usersService.updateGoal(payload)
-      qc.setQueryData(['me'], updated)
-      await qc.invalidateQueries({ queryKey: ['me', 'targets'] })
-      await qc.invalidateQueries({ queryKey: ['me', 'goal-feedback'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'] })
       toast({ title: t('profile.goal.saveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.goal.saveError'), variant: 'destructive' })
@@ -354,8 +355,8 @@ export function Profile() {
           proteinTarget: proteinOverride.trim() ? Number(proteinOverride) : undefined,
         },
       })
-      qc.setQueryData(['me'], updated)
-      await qc.invalidateQueries({ queryKey: ['me', 'targets'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
       toast({ title: t('profile.specialis.saveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.specialis.saveError'), variant: 'destructive' })

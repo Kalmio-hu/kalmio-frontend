@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Knob } from '@/components/ui/knob'
 import { toast } from '@/components/ui/toast'
 import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
-import { usersService, type DietaryPreferences } from '@/services/users'
+import { usersService, type DietaryPreferences, USERS_ME_QUERY_KEY } from '@/services/users'
 import type { DietaryRestrictionKey, MealType } from '@/types'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -81,7 +81,7 @@ export function Preferences() {
   const qc = useQueryClient()
 
   const { data: user, isLoading } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
   })
 
@@ -105,8 +105,8 @@ export function Preferences() {
     setDietarySaving(true)
     try {
       const updated = await usersService.updateSettings({ dietaryPreferences: dietary })
-      qc.setQueryData(['me'], updated)
-      qc.invalidateQueries({ queryKey: ['me'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       toast({ title: t('profile.dietarySaveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('profile.dietarySaveError'), variant: 'destructive' })
@@ -163,8 +163,8 @@ export function Preferences() {
           proteinTarget: proteinTarget.trim() ? Number(proteinTarget) : undefined,
         },
       })
-      qc.setQueryData(['me'], updated)
-      qc.invalidateQueries({ queryKey: ['me'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       toast({ title: t('profile.mealPrefSaved'), variant: 'success' })
     } catch {
       toast({ title: t('profile.mealPrefError'), variant: 'destructive' })
@@ -202,8 +202,8 @@ export function Preferences() {
           ? parseInt(preferredPrepDayOfWeek, 10)
           : null,
       })
-      qc.setQueryData(['me'], updated)
-      qc.invalidateQueries({ queryKey: ['me'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       toast({ title: t('settings.saveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('settings.saveError'), variant: 'destructive' })
@@ -237,8 +237,8 @@ export function Preferences() {
           forbiddenIngredientIds: forbiddenIngredientIds.length > 0 ? forbiddenIngredientIds : undefined,
         },
       })
-      qc.setQueryData(['me'], updated)
-      qc.invalidateQueries({ queryKey: ['me'] })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       toast({ title: t('settings.saveSuccess'), variant: 'success' })
     } catch {
       toast({ title: t('settings.saveError'), variant: 'destructive' })

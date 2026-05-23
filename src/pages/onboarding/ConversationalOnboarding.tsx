@@ -23,12 +23,86 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation } from '@tanstack/react-query'
-import {
-  conversationalOnboardingService,
-  type ChatTurn,
-  type PreferencesDraft,
-  type TurnResponse,
-} from '@/services/conversationalOnboarding'
+import { api } from '@/lib/api'
+
+// ── Inline conversational onboarding service (was services/conversationalOnboarding.ts — deleted KALMIO-293)
+// Backend endpoints (/api/onboarding/conversational/turn|finalize) confirmed removed in KALMIO-281.
+// Stub-only implementation kept here until the feature is re-scoped.
+
+interface ChatTurn {
+  role: 'assistant' | 'user'
+  content: string
+}
+
+interface PreferencesDraft {
+  householdSize: number | null
+  kcalTarget: number | null
+  dietaryRestrictions: string[]
+  shoppingCadenceDays: number | null
+  preferredShoppingDay: string | null
+  forbiddenIngredientIds: string[]
+}
+
+interface TurnResponse {
+  sessionId: string
+  assistantMessage: string
+  ready: boolean
+  extracted: PreferencesDraft | null
+}
+
+interface FinalizeRequest {
+  sessionId: string
+  confirmedDraft: PreferencesDraft
+}
+
+// ── Stub ──────────────────────────────────────────────────────────────────────
+const STUB_SESSION_ID = 'stub-session-186'
+const STUB_TURNS: string[] = [
+  'Szia! Mesélj egy kicsit az étkezési szokásaidról. Hány főre szoktál főzni általában?',
+  'Rendben. Mennyi kalóriát szeretnél naponta körülbelül bevinni?',
+  'Köszönöm. Van-e valamilyen étrendi megszorításod?',
+  'Értem. Milyen sűrűn szoktál bevásárolni?',
+  'Melyik nap szokott a legkényelmesebb lenni a bevásárláshoz?',
+  'Van-e valamilyen hozzávaló, amit feltétlenül ki szeretnél zárni az étrendedből?',
+  'Köszönöm, megvan minden, ami kell. Összesítem a preferenciáidat — egy pillanat.',
+]
+
+function buildStubDraft(turnIndex: number): PreferencesDraft | null {
+  if (turnIndex < STUB_TURNS.length - 1) return null
+  return { householdSize: 2, kcalTarget: 2000, dietaryRestrictions: [], shoppingCadenceDays: 7, preferredShoppingDay: 'SATURDAY', forbiddenIngredientIds: [] }
+}
+
+const createStub = () => {
+  let turn = 0
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    sendTurn: async (_messages: ChatTurn[]): Promise<TurnResponse> => {
+      await new Promise<void>((resolve) => setTimeout(resolve, 800))
+      const idx = turn
+      const isLast = idx >= STUB_TURNS.length - 1
+      const response: TurnResponse = { sessionId: STUB_SESSION_ID, assistantMessage: STUB_TURNS[Math.min(idx, STUB_TURNS.length - 1)], ready: isLast, extracted: buildStubDraft(idx) }
+      turn = Math.min(turn + 1, STUB_TURNS.length - 1)
+      return response
+    },
+    finalize: async (): Promise<void> => { turn = 0 },
+  }
+}
+
+let _stubInstance = createStub()
+
+const USE_STUB = true // flip to false when backend ships
+
+const conversationalOnboardingService = {
+  sendTurn: (messages: ChatTurn[]): Promise<TurnResponse> => {
+    if (USE_STUB) return _stubInstance.sendTurn(messages)
+    return api.post<TurnResponse>('/api/onboarding/conversational/turn', { messages }).then(r => r.data)
+  },
+  finalizeOnboarding: (req: FinalizeRequest): Promise<{ success: boolean }> => {
+    if (USE_STUB) { void _stubInstance.finalize(); return Promise.resolve({ success: true }) }
+    return api.post<{ success: boolean }>('/api/onboarding/conversational/finalize', req).then(r => r.data)
+  },
+  _resetStub: () => { _stubInstance = createStub() },
+}
 
 // ── Sub-components ─────────────────────────────────────────────────────────
 

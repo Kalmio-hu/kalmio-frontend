@@ -20,7 +20,7 @@ import { useQuery } from '@tanstack/react-query'
 import { motion, AnimatePresence, type Variants, type Easing } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { PlantingScene } from '@/components/onboarding/PlantingScene'
-import { usersService } from '@/services/users'
+import { usersService, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { markRevealShown } from '@/lib/firstPlanReveal'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ export function FirstPlanReveal({ onDismiss }: FirstPlanRevealProps) {
   // Verify stage via API (optimistic: we show the reveal regardless; the query
   // only informs the widget label / aria-label accuracy).
   useQuery({
-    queryKey: ['users', 'stage'],
+    queryKey: USERS_STAGE_QUERY_KEY,
     queryFn: usersService.getMyStage,
     staleTime: 30_000,
     retry: 1,

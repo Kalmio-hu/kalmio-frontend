@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { PlanTemplateCard } from '@/components/plan/PlanTemplateCard'
 import { planTemplateService } from '@/services/plans'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
 import type { PlanTemplateStatus } from '@/types'
 
@@ -49,7 +49,7 @@ export function Plans() {
   })
 
   const { data: me } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 60_000,
   })

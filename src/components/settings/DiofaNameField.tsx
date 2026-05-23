@@ -20,12 +20,12 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 
 const MAX_NAME_LENGTH = 30
 
 interface DiofaNameFieldProps {
-  /** Current diófa name from the ['me'] query. Null = not yet named. */
+  /** Current diófa name from the USERS_ME_QUERY_KEY query. Null = not yet named. */
   currentName: string | null
 }
 
@@ -42,10 +42,10 @@ export function DiofaNameField({ currentName }: DiofaNameFieldProps) {
     onSuccess: () => {
       // Optimistically patch the cached 'me' data so the name shows immediately.
       qc.setQueryData<{ diofaName: string | null } & Record<string, unknown>>(
-        ['me'],
+        USERS_ME_QUERY_KEY,
         (old) => (old ? { ...old, diofaName: draft.trim() } : old)
       )
-      qc.invalidateQueries({ queryKey: ['me'] })
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       toast({ title: t('settings.diofaName.success'), variant: 'success' })
       setOpen(false)
     },

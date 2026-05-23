@@ -20,7 +20,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { usersService } from '@/services/users'
+import { usersService, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import {
   hasCsemeteWelcomeBeenShown,
   markCsemeteWelcomeShown,
@@ -38,7 +38,7 @@ export function useCsemeteWelcomeMoment(): UseCsemeteWelcomeMomentReturn {
   const [dismissed, setDismissed] = useState(false)
 
   const { data: stageData } = useQuery({
-    queryKey: ['users', 'stage'],
+    queryKey: USERS_STAGE_QUERY_KEY,
     queryFn: usersService.getMyStage,
     staleTime: 30_000,
     retry: 1,

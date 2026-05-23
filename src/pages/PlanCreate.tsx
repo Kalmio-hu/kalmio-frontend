@@ -28,7 +28,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { MemberChipSelector, type SelectableMember } from '@/components/plan/MemberChipSelector'
 import { familyService } from '@/services/family'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { planTemplateService } from '@/services/plans'
 import { useAuthStore } from '@/store/auth'
 import { generateTemplateName } from './planUtils'
@@ -91,7 +91,7 @@ export function PlanCreate() {
   })
 
   const { data: me } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 60_000,
   })

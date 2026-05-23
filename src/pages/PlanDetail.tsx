@@ -51,7 +51,7 @@ import type { TemplateCellPickerResult } from '@/components/plan/TemplateCellPic
 import type { PrepSlotPickerResult } from '@/components/plan/PrepSlotPicker'
 import { planTemplateService } from '@/services/plans'
 import { recipesService } from '@/services/recipes'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { familyService } from '@/services/family'
 import { templatePrepSlotsService } from '@/services/templatePrepSlots'
 import { api } from '@/lib/api'
@@ -120,7 +120,7 @@ export function PlanDetail() {
   })
 
   const { data: me } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 60_000,
   })

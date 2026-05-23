@@ -17,7 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
 import { ingredientsService } from '@/services/ingredients'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { useAuthStore } from '@/store/auth'
 import type { Ingredient, IngredientCategory, IngredientTranslations } from '@/types'
 
@@ -131,7 +131,7 @@ export function Ingredients() {
     queryKey: ['ingredients'],
     queryFn: ingredientsService.list,
   })
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: usersService.getMe, enabled: !!session })
+  const { data: user } = useQuery({ queryKey: USERS_ME_QUERY_KEY, queryFn: usersService.getMe, enabled: !!session })
 
   const createMutation = useMutation({
     mutationFn: ingredientsService.create,

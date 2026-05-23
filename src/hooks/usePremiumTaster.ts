@@ -12,17 +12,13 @@
  *     by stage name (e.g. `kalmio:premiumTasterShown:SUHANG`).
  *   - Dismiss writes the flag and suppresses re-render within the session.
  *
- * Future upgrade path:
- *   When GET /api/users/me/premium-grants ships, replace the stage-derived
- *   logic with a grant-ID-keyed flag for finer control.
- *
  * Usage:
  *   const { shouldShow, tasterStage, dismiss } = usePremiumTaster()
  */
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { usersService } from '@/services/users'
+import { usersService, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { hasPremiumTasterBeenShown, markPremiumTasterShown } from '@/lib/firstPlanReveal'
 import type { UserStageValue } from '@/types'
 
@@ -45,7 +41,7 @@ export function usePremiumTaster(): UsePremiumTasterReturn {
   const [dismissed, setDismissed] = useState(false)
 
   const { data: stageData } = useQuery({
-    queryKey: ['users', 'stage'],
+    queryKey: USERS_STAGE_QUERY_KEY,
     queryFn: usersService.getMyStage,
     staleTime: 30_000,
     retry: 1,

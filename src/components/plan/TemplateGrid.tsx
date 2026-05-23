@@ -11,6 +11,7 @@
  *  - Empty:  shows a "+" affordance with `emptyLabel` text.
  */
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { Plus, GripVertical, Minus } from 'lucide-react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { MEMBER_COLORS } from './memberColors'
@@ -180,8 +181,7 @@ interface DayCardProps {
   // ── Prep-hold violation banner (KALMIO-268) ───────────────────────────────
   planId: string
   violatingMealIds: Set<string>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any
+  t: TFunction
 }
 
 function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesById, meals, dayTotals, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds, t }: DayCardProps) {
@@ -264,8 +264,7 @@ interface SlotRowProps {
   onServingsChange: TemplateGridProps['onServingsChange']
   planId: string
   violatingMealIds: Set<string>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any
+  t: TFunction
 }
 
 function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesById, meals, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, planId, violatingMealIds, t }: SlotRowProps) {
@@ -371,8 +370,7 @@ interface MemberCellProps {
   onServingsChange: TemplateGridProps['onServingsChange']
   planId: string
   violatingMealIds: Set<string>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any
+  t: TFunction
 }
 
 function MemberCell(props: MemberCellProps) {
@@ -637,8 +635,7 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
 interface ServingsStepperProps {
   servings: number
   onChange: (next: number) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any
+  t: TFunction
 }
 
 /**

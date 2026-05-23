@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -37,9 +37,6 @@ import { OfflineBanner } from '@/components/OfflineBanner'
 import { CookieConsent } from '@/components/CookieConsent'
 import { initAnalytics, identify, resetIdentity, registerSuperProperties, pageView } from '@/lib/analytics'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
-import { PlantingPreview } from '@/pages/_preview/PlantingPreview'
-import { DiofaPreview } from '@/pages/_preview/DiofaPreview'
-import { TasteSwipePreview } from '@/pages/_preview/TasteSwipePreview'
 import { Grove } from '@/pages/Grove'
 import { FoundingMember } from '@/pages/FoundingMember'
 import { FoundingMemberSuccess } from '@/pages/FoundingMemberSuccess'
@@ -57,6 +54,18 @@ import { MemberView } from '@/pages/MemberView'
 import { ShoppingCart } from '@/pages/ShoppingCart'
 import { CookMode } from '@/pages/CookMode'
 import { Calendar } from '@/pages/Calendar'
+
+// _preview pages — lazy-loaded and only registered as routes in DEV.
+// Vite's dead-code elimination ensures they are absent from production chunks.
+const PlantingPreview = import.meta.env.DEV
+  ? React.lazy(() => import('@/pages/_preview/PlantingPreview').then(m => ({ default: m.PlantingPreview })))
+  : null
+const DiofaPreview = import.meta.env.DEV
+  ? React.lazy(() => import('@/pages/_preview/DiofaPreview').then(m => ({ default: m.DiofaPreview })))
+  : null
+const TasteSwipePreview = import.meta.env.DEV
+  ? React.lazy(() => import('@/pages/_preview/TasteSwipePreview').then(m => ({ default: m.TasteSwipePreview })))
+  : null
 
 initAnalytics()
 
@@ -187,9 +196,13 @@ export default function App() {
                   <Route path="schedules/new" element={<ScheduleNew />} />
                   <Route path="schedules/:id" element={<ScheduleDetail />} />
                   <Route path="calendar" element={<Calendar />} />
-                  <Route path="_preview/planting" element={<PlantingPreview />} />
-                  <Route path="_preview/diofa" element={<DiofaPreview />} />
-                  <Route path="_preview/taste-swipe" element={<TasteSwipePreview />} />
+                  {import.meta.env.DEV && PlantingPreview && DiofaPreview && TasteSwipePreview && (
+                    <>
+                      <Route path="_preview/planting" element={<Suspense fallback={null}><PlantingPreview /></Suspense>} />
+                      <Route path="_preview/diofa" element={<Suspense fallback={null}><DiofaPreview /></Suspense>} />
+                      <Route path="_preview/taste-swipe" element={<Suspense fallback={null}><TasteSwipePreview /></Suspense>} />
+                    </>
+                  )}
                   <Route element={<AdminRoute />}>
                     <Route path="admin/users" element={<UserManagement />} />
                     <Route path="admin/ip-vault" element={<IpVault />} />

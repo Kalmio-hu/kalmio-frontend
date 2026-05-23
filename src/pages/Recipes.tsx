@@ -23,7 +23,7 @@ import { AiRecipeImportModal } from '@/components/recipes/AiRecipeImportModal'
 import { recipesService } from '@/services/recipes'
 import { ingredientsService } from '@/services/ingredients'
 import { aiRecipeImportService } from '@/services/aiRecipeImport'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { formatCurrency, recipePhotoUrl } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
 import { capture } from '@/lib/analytics'
@@ -163,7 +163,7 @@ export function Recipes() {
 
   const { data: recipes = [], isLoading } = useQuery({ queryKey: ['recipes'], queryFn: recipesService.list })
   const { data: ingredients = [] } = useQuery({ queryKey: ['ingredients'], queryFn: ingredientsService.list, staleTime: 30_000 })
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: usersService.getMe })
+  const { data: user } = useQuery({ queryKey: USERS_ME_QUERY_KEY, queryFn: usersService.getMe })
   const ingredientMap = new Map(ingredients.map(i => [i.id, i.translations?.[lang]?.name ?? i.name]))
   const ingredientConstraintsMap = new Map(ingredients.map(i => [i.id, i.constraints]))
 

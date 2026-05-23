@@ -14,7 +14,7 @@ import { ManagedProfileEditor } from '@/components/family/ManagedProfileEditor'
 import { InviteFlow } from '@/components/family/InviteFlow'
 import { PendingImpersonationRequests } from '@/components/family/PendingImpersonationRequests'
 import { familyService } from '@/services/family'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { useAuthStore } from '@/store/auth'
 import type { FamilyMemberDto, UserPreferencesDto, MergePreviewResponse, SentInviteDto } from '@/types'
 import { Input } from '@/components/ui/input'
@@ -46,7 +46,7 @@ export function Family() {
 
   // Fetch current user's name for the member row
   const { data: me } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 60_000,
   })

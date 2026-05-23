@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
@@ -15,7 +15,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast'
 import { UserAvatar } from '@/components/ui/UserAvatar'
-import { usersService, type UpdateSettingsRequest } from '@/services/users'
+import { usersService, type UpdateSettingsRequest, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { DiofaNameField } from '@/components/settings/DiofaNameField'
 import { listPasskeys, registerPasskey, deletePasskey, type PasskeyInfo } from '@/services/passkey'
 import { apiKeysService, type ApiKey, type ApiKeyCreated } from '@/services/apiKeys'
@@ -43,8 +43,6 @@ export function Settings() {
   const setAppRole = useAuthStore((s) => s.setAppRole)
   const signOut = useAuthStore((s) => s.signOut)
 
-  const [passkeys, setPasskeys] = useState<PasskeyInfo[]>([])
-  const [passkeysLoading, setPasskeysLoading] = useState(true)
   const [passkeyAdding, setPasskeyAdding] = useState(false)
   const [passkeyError, setPasskeyError] = useState<string | null>(null)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -59,20 +57,11 @@ export function Settings() {
   const [copiedKey, setCopiedKey] = useState(false)
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const loadPasskeys = useCallback(async () => {
-    setPasskeysLoading(true)
-    try {
-      const data = await listPasskeys()
-      setPasskeys(data)
-    } catch {
-      setPasskeys([])
-    } finally {
-      setPasskeysLoading(false)
-    }
-  }, [])
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { loadPasskeys() }, [loadPasskeys])
+  // ── Passkeys query ─────────────────────────────────────────────────────────
+  const { data: passkeys = [], isLoading: passkeysLoading } = useQuery<PasskeyInfo[]>({
+    queryKey: ['passkeys'],
+    queryFn: listPasskeys,
+  })
 
   // ── API Keys queries & mutations ───────────────────────────────────────────
   const { data: apiKeys = [], isLoading: apiKeysLoading } = useQuery<ApiKey[]>({
@@ -145,7 +134,7 @@ export function Settings() {
       const name = customName.trim() || deviceLabel()
       await registerPasskey(name)
       setCustomName('')
-      await loadPasskeys()
+      await qc.invalidateQueries({ queryKey: ['passkeys'] })
       capture('passkey_registered')
       toast({ title: t('settings.security.addSuccess'), variant: 'success' })
     } catch (err) {
@@ -165,7 +154,7 @@ export function Settings() {
     setPasskeyError(null)
     try {
       await deletePasskey(id)
-      await loadPasskeys()
+      await qc.invalidateQueries({ queryKey: ['passkeys'] })
       toast({ title: t('settings.security.removeSuccess'), variant: 'success' })
     } catch {
       setPasskeyError(t('settings.security.removeError'))
@@ -176,12 +165,12 @@ export function Settings() {
   }
 
   const { data: settings, isLoading } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
   })
 
   const { data: stageData } = useQuery({
-    queryKey: ['me', 'stage'],
+    queryKey: USERS_STAGE_QUERY_KEY,
     queryFn: usersService.getMyStage,
     staleTime: 30_000,
   })
@@ -202,7 +191,7 @@ export function Settings() {
   const mutation = useMutation({
     mutationFn: (body: UpdateSettingsRequest) => usersService.updateSettings(body),
     onSuccess: (data) => {
-      qc.setQueryData(['me'], data)
+      qc.setQueryData(USERS_ME_QUERY_KEY, data)
       setAppRole(data.role)
       if (data.languagePreference) {
         i18n.changeLanguage(data.languagePreference)

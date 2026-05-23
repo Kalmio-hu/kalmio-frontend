@@ -19,8 +19,38 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, TreePine } from 'lucide-react'
-import { groveService } from '@/services/grove'
+import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
+import type { GrovePinsResponse } from '@/types'
+
+// ── Inline grove service (was services/grove.ts — deleted KALMIO-293) ─────────
+const MOCK_GROVE_PINS: GrovePinsResponse = {
+  pins: [
+    { userId: 'mock-01', displayName: 'K.B.',  x: 48.2, y: 38.5, certificateId: null },
+    { userId: 'mock-02', displayName: 'Sz.M.', x: 53.7, y: 44.1, certificateId: null },
+    { userId: 'mock-03', displayName: 'V.A.',  x: 41.0, y: 51.3, certificateId: null },
+    { userId: 'mock-04', displayName: 'N.P.',  x: 60.4, y: 35.8, certificateId: null },
+    { userId: 'mock-05', displayName: 'H.Cs.', x: 35.6, y: 42.7, certificateId: null },
+    { userId: 'mock-06', displayName: 'T.L.',  x: 56.1, y: 57.2, certificateId: null },
+    { userId: 'mock-07', displayName: 'B.É.',  x: 44.8, y: 29.6, certificateId: null },
+    { userId: 'mock-08', displayName: 'F.K.',  x: 63.2, y: 48.9, certificateId: null },
+    { userId: 'mock-09', displayName: 'G.R.',  x: 38.3, y: 62.0, certificateId: null },
+    { userId: 'mock-10', displayName: 'D.T.',  x: 50.9, y: 67.4, certificateId: null },
+    { userId: 'mock-11', displayName: 'Cs.N.', x: 29.4, y: 55.1, certificateId: null },
+    { userId: 'mock-12', displayName: 'M.Zs.', x: 68.7, y: 40.3, certificateId: null },
+  ],
+}
+
+async function fetchGrovePins(): Promise<GrovePinsResponse> {
+  try {
+    const res = await api.get<GrovePinsResponse>('/api/grove/pins')
+    return res.data
+  } catch (err: unknown) {
+    const status = (err as { response?: { status?: number } })?.response?.status
+    if (status === 404) return MOCK_GROVE_PINS
+    throw err
+  }
+}
 import { GroveCelebrationSection } from '@/components/grove/GroveCelebrationSection'
 import type { GrovePin } from '@/types'
 
@@ -166,7 +196,7 @@ export function Grove() {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['grove', 'pins'] as const,
-    queryFn: groveService.fetchPins,
+    queryFn: fetchGrovePins,
     staleTime: 60_000,
   })
 

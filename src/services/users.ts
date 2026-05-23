@@ -98,6 +98,12 @@ export interface UpdateProfileRequest {
   username?: string | null
 }
 
+/** Canonical TanStack Query key for GET /api/users/me */
+export const USERS_ME_QUERY_KEY = ['users', 'me'] as const
+
+/** Canonical TanStack Query key for GET /api/users/me/stage */
+export const USERS_STAGE_QUERY_KEY = ['users', 'stage'] as const
+
 export const usersService = {
   getMe: () => api.get<UserSettings>('/api/users/me').then(r => r.data),
   updateSettings: (body: UpdateSettingsRequest) =>

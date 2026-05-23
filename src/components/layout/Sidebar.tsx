@@ -8,7 +8,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useAuthStore } from '@/store/auth'
 import { FeedbackPanel } from '@/components/FeedbackPanel'
 import { feedbackService } from '@/services/feedback'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usePoints } from '@/hooks/usePoints'
 
@@ -26,13 +26,13 @@ export function Sidebar() {
   })
 
   const { data: me } = useQuery({
-    queryKey: ['me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 60_000,
   })
 
   const { data: stageData } = useQuery({
-    queryKey: ['me', 'stage'],
+    queryKey: USERS_STAGE_QUERY_KEY,
     queryFn: usersService.getMyStage,
     staleTime: 30_000,
   })
