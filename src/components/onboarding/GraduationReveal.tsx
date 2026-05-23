@@ -29,6 +29,7 @@ import { Download, TreePine, X } from 'lucide-react'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { markGraduationRevealShown } from '@/lib/firstPlanReveal'
 import { api } from '@/lib/api'
+import { toast } from '@/components/ui/toast'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,6 +71,7 @@ export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const dismissRef = useRef<HTMLButtonElement>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const handleDismiss = useCallback(() => {
     markGraduationRevealShown()
@@ -98,14 +100,29 @@ export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
     return () => document.removeEventListener('keydown', handleKey)
   }, [handleDismiss])
 
-  function handleDownloadCertificate() {
-    // Opens the PDF in a new tab; the browser offers Save/Download natively.
-    // We construct the authenticated URL via the same base URL the Axios
-    // instance uses so the Bearer token interceptor fires on the fetch call
-    // if needed — but since this is a direct anchor navigation, we set the
-    // URL directly. The backend endpoint is public to authenticated sessions.
-    const baseUrl = api.defaults.baseURL ?? ''
-    window.open(`${baseUrl}/api/users/me/graduation-certificate.pdf`, '_blank', 'noreferrer')
+  async function handleDownloadCertificate() {
+    if (isDownloading) return
+    setIsDownloading(true)
+    try {
+      // Use the Axios instance so the Bearer-token interceptor fires.
+      // window.open would bypass the interceptor and return a 401.
+      const res = await api.get('/api/users/me/graduation-certificate.pdf', {
+        responseType: 'blob',
+      })
+      const blob = new Blob([res.data as BlobPart], { type: 'application/pdf' })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = 'kalmio-tanusitvany.pdf'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   return (
@@ -201,6 +218,8 @@ export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
             <button
               ref={dismissRef}
               type="button"
+              disabled={isDownloading}
+              aria-busy={isDownloading}
               onClick={handleDownloadCertificate}
               className="
                 w-full flex items-center justify-center gap-2
@@ -209,11 +228,14 @@ export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
                 hover:bg-[#3e6133]
                 focus-visible:outline-none focus-visible:ring-2
                 focus-visible:ring-[#4F7942] focus-visible:ring-offset-2
+                disabled:opacity-60 disabled:cursor-not-allowed
                 transition-colors
               "
             >
               <Download className="h-4 w-4" aria-hidden="true" />
-              {t('onboarding.graduation.downloadCertificate')}
+              {isDownloading
+                ? t('onboarding.graduation.downloadingCertificate')
+                : t('onboarding.graduation.downloadCertificate')}
             </button>
 
             {/* Secondary: View grove — KALMIO-144 */}

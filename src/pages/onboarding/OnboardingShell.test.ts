@@ -43,7 +43,9 @@ function makeLocalStorageStub(): Storage {
   } as Storage
 }
 
-const TOTAL_STEPS = 10
+// KALMIO-285: updated from 10 → 5 to match the current 5-step shell
+// (KALMIO-241 collapsed the data-collection steps into the minimal flow).
+const TOTAL_STEPS = 5
 const TEST_USER_ID = 'user-shell-xyz'
 
 // ---------------------------------------------------------------------------

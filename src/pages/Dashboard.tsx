@@ -6,10 +6,19 @@ import { Header } from '@/components/layout/Header'
 import { CalendarStrip } from '@/components/dashboard/CalendarStrip'
 import { DailyTimeline } from '@/components/dashboard/DailyTimeline'
 import { WeeklySummaryModule } from '@/components/dashboard/WeeklySummaryModule'
+import { ActivationCard } from '@/components/dashboard/ActivationCard'
+import { ReplanDiffCard } from '@/components/dashboard/ReplanDiffCard'
+import { TodaysMealsModule } from '@/components/dashboard/TodaysMealsModule'
+import { TodaysPrepModule } from '@/components/dashboard/TodaysPrepModule'
+import { TomorrowPrepModule } from '@/components/dashboard/TomorrowPrepModule'
+import { PlanGlanceModule } from '@/components/dashboard/PlanGlanceModule'
+import { MacrosModule } from '@/components/dashboard/MacrosModule'
+import { PointsModule } from '@/components/dashboard/PointsModule'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { MoistureHistoryStrip } from '@/components/diofa/MoistureHistoryStrip'
 import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
+import { dashboardService } from '@/services/dashboard'
 import { usersService } from '@/services/users'
 import { momentumService } from '@/services/momentum'
 import { usePointsToast } from '@/hooks/usePointsToast'
@@ -100,6 +109,7 @@ export function Dashboard() {
   const today = new Date().toISOString().split('T')[0]
   const [selectedDate, setSelectedDate] = useState<string>(today)
   const [selectedDayData, setSelectedDayData] = useState<CalendarDayDto | undefined>()
+  const [replanDismissed, setReplanDismissed] = useState(false)
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
   usePointsToast()
@@ -112,6 +122,16 @@ export function Dashboard() {
     queryKey: ['plan', 'active'],
     queryFn: planService.getActive,
     staleTime: 60_000,
+  })
+
+  const hasActivePlan = activePlan != null
+
+  // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
+  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+    queryKey: ['dashboard', today],
+    queryFn: () => dashboardService.get(today),
+    staleTime: 30_000,
+    enabled: hasActivePlan,
   })
 
   // Today's meals from the materialized planned_meal table (meal-planning-v2).
@@ -152,30 +172,131 @@ export function Dashboard() {
   const todayBand = moistureHistory?.[moistureHistory.length - 1]?.band
   const diofaMoisture: DiofaMoisture = todayBand ? toWidgetMoisture(todayBand) : 'OK'
 
+  // Derive dashboard data for active-plan modules.
+  const todaysMeals = dashboardData?.todaysMeals ?? []
+  const offPlanMeals = dashboardData?.offPlanMeals ?? []
+  const todaysPrepTasks = dashboardData?.todaysPrepTasks ?? []
+  const tomorrowsPrepTasks = dashboardData?.tomorrowsPrepTasks ?? []
+  const planGlance = dashboardData?.planGlance ?? null
+
+  // ReplanDiffCard: shown when the backend flags a pending diff and user hasn't dismissed.
+  const hasReplanDiff = dashboardData?.activeFlags?.hasReplanDiff ?? false
+  const showReplanDiff = hasActivePlan && hasReplanDiff && !replanDismissed
+
   return (
     <div className="flex flex-col">
       <Header title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
+
       {/* Body data hint — collapsible, shown when body data is entirely missing */}
       {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
+
+      {/* ── Empty-plan state (PRD §4.1) ───────────────────────────────────── */}
+      {!hasActivePlan && (
+        <div className="px-4 pt-4 pb-2">
+          <ActivationCard />
+        </div>
+      )}
+
+      {/* CalendarStrip — always shown; drives date selection for DailyTimeline */}
       <CalendarStrip
         selectedDate={selectedDate}
         onSelectDate={setSelectedDate}
         onDayData={setSelectedDayData}
       />
-      <DailyTimeline
-        date={selectedDate}
-        hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
-        activePlanId={activePlan?.id ?? null}
-        plannedMeals={selectedDate === today ? todayPlannedMeals : undefined}
-      />
-      <section aria-label={t('diofa.sectionLabel')} className="px-4 pb-4 space-y-3">
-        <TeachOnReturnHint bucket={engagementGapBucket} />
-        <DiofaWidget stage={diofaStage} moisture={diofaMoisture} />
-        <MoistureHistoryStrip />
-      </section>
-      <div className="px-4 pb-6">
-        <WeeklySummaryModule />
-      </div>
+
+      {hasActivePlan ? (
+        /* ── Active-plan dashboard composition (PRD §4.4) ─────────────────── */
+        <div className="flex flex-col gap-3 px-4 pt-3 pb-6">
+
+          {/* 1. Replan diff — conditional, above the timeline (PRD §4.5) */}
+          {showReplanDiff && activePlan && (
+            <ReplanDiffCard
+              planId={activePlan.id}
+              onAccept={() => setReplanDismissed(true)}
+              onDecline={() => setReplanDismissed(true)}
+            />
+          )}
+
+          {/* 2. Today's meals */}
+          <TodaysMealsModule
+            meals={todaysMeals}
+            offPlanMeals={offPlanMeals}
+            activePlan={activePlan}
+            isLoading={dashboardLoading}
+          />
+
+          {/* 3. Today's prep tasks */}
+          <TodaysPrepModule
+            tasks={todaysPrepTasks}
+            dashboardDate={today}
+          />
+
+          {/* 4. Tomorrow's prep tasks */}
+          <TomorrowPrepModule tasks={tomorrowsPrepTasks} />
+
+          {/* 5. Plan glance */}
+          <PlanGlanceModule glance={planGlance} />
+
+          {/* 6. Macros + Points — side-by-side on ≥768px, stacked on mobile */}
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <MacrosModule date={selectedDate} />
+            <PointsModule />
+          </div>
+
+          {/* 7. Weekly summary */}
+          <WeeklySummaryModule />
+
+          {/* 8. DailyTimeline — secondary detail view for non-today date selection */}
+          {selectedDate !== today && (
+            <DailyTimeline
+              date={selectedDate}
+              hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
+              activePlanId={activePlan?.id ?? null}
+              plannedMeals={undefined}
+            />
+          )}
+
+          {/* 9. Diófa — demoted to bottom of page, framed as status section */}
+          <section aria-label={t('diofa.statusSection')}>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+              {t('diofa.statusSection')}
+            </p>
+            <div className="space-y-2">
+              <TeachOnReturnHint bucket={engagementGapBucket} />
+              <DiofaWidget stage={diofaStage} moisture={diofaMoisture} />
+              <MoistureHistoryStrip />
+            </div>
+          </section>
+        </div>
+      ) : (
+        /* ── No active plan — show DailyTimeline as secondary + Diófa ──────── */
+        <div className="flex flex-col gap-3 px-4 pt-3 pb-6">
+          <DailyTimeline
+            date={selectedDate}
+            hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
+            activePlanId={null}
+            plannedMeals={selectedDate === today ? todayPlannedMeals : undefined}
+          />
+
+          {/* Macros still useful even without a plan */}
+          <MacrosModule date={selectedDate} />
+
+          {/* Weekly summary */}
+          <WeeklySummaryModule />
+
+          {/* Diófa — demoted section */}
+          <section aria-label={t('diofa.statusSection')}>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+              {t('diofa.statusSection')}
+            </p>
+            <div className="space-y-2">
+              <TeachOnReturnHint bucket={engagementGapBucket} />
+              <DiofaWidget stage={diofaStage} moisture={diofaMoisture} />
+              <MoistureHistoryStrip />
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   )
 }
