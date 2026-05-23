@@ -83,7 +83,7 @@
       "submitting": "Logging…",
       "deleteConfirm": "Delete this entry?",
       "deleteError": "Failed to delete the entry.",
-      "submitError": "Failed to log the meal. Please try again.",
+      "submitError": "Failed to log the meal.",
       "mealTypes": {
         "BREAKFAST": "Breakfast",
         "LUNCH": "Lunch",
@@ -189,7 +189,7 @@
         "cameraUnavailable": "I can't reach the camera. Try a different device, or upload a photo instead.",
         "micPermission": "The microphone needs your permission. Grant it in the browser and try again.",
         "micUnavailable": "I can't reach the microphone. Try a different device.",
-        "generic": "Something went wrong. Try again."
+        "generic": "Couldn't process that just now. Try again in a moment."
       }
     },
     "macros": {
@@ -299,7 +299,7 @@
       "weightRecipeRepeat": "Recipe variety",
       "weightDisabled": "Set a value above to enable",
       "generate": "Generate Plan",
-      "solving": "Solving…",
+      "solving": "Building your plan…",
       "solverNote": "Checking what you have and putting it together — one moment.",
       "queuePending": "Queued, position {{position}}",
       "queueRunning": "Composing your plan…",
@@ -943,7 +943,7 @@
       "cameraUnavailable": "Camera not available on this device.",
       "aiUnavailable": "AI import is temporarily unavailable. Try again later.",
       "parseFailed": "Couldn't parse the recipe. Check the pasted text.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Couldn't complete that just now. Try again in a moment."
     }
   },
   "myContent": {
@@ -1012,7 +1012,7 @@
       },
       "myth3": {
         "problem": "I don't have time to plan",
-        "solution": "Our engine assembles your entire week in seconds."
+        "solution": "Kalmio assembles your entire week in seconds."
       }
     },
     "fomo": {
@@ -1022,11 +1022,11 @@
       "title": "Three steps, done",
       "step1": {
         "title": "Set your goal",
-        "desc": "Calories, protein, budget — you decide, the solver optimises."
+        "desc": "Calories, protein, budget — you decide, Kalmio optimises."
       },
       "step2": {
         "title": "Set your constraints",
-        "desc": "Weekly budget, max prep time, preferences — the solver handles all of it."
+        "desc": "Weekly budget, max prep time, preferences — Kalmio handles all of it."
       },
       "step3": {
         "title": "Cook and enjoy",
@@ -1095,7 +1095,7 @@
     "send": "Submit",
     "sending": "Submitting…",
     "sent": "Feedback submitted.",
-    "error": "Something went wrong. Please try again.",
+    "error": "Couldn't send that just now.",
     "statusUpdated": "Status updated.",
     "empty": "No feedback yet.",
     "submitFirst": "Submit your first report",
@@ -1252,7 +1252,7 @@
       "subtitle": "All your meal-plan templates in one place.",
       "newPlan": "New plan",
       "empty": "No plans yet.",
-      "retry": "Try again",
+      "retry": "Retry",
       "defaultBadge": "Default",
       "filter": {
         "label": "Filter",
@@ -1566,7 +1566,7 @@
     },
     "generate": "Generate plan",
     "generating": "One moment — putting your week together.",
-    "error": "Something went wrong. Please try again.",
+    "error": "Couldn't generate the plan just now.",
     "advancedToggle": "Advanced settings",
     "advancedToggleOpen": "Hide advanced settings",
     "household": "Who is this plan for?",
@@ -1642,7 +1642,7 @@
     "loading": "One moment — checking your fridge.",
     "summary": "{{kept}} kept · {{discarded}} discarded",
     "alreadyCompleted": "This session is already closed.",
-    "error": "Something went wrong. Please try again.",
+    "error": "Couldn't load the fridge just now.",
     "expiresIn": "in {{days}} days",
     "expiresToday": "expires today",
     "expiredDaysAgo": "{{days}} days ago"
@@ -2231,8 +2231,8 @@
     }
   },
   "schedules": {
-    "pageTitle": "Schedules",
-    "pageSubtitle": "Recurring placement of plans onto the calendar",
+    "pageTitle": "My Rhythm",
+    "pageSubtitle": "Recurring plans on the calendar",
     "newScheduleCta": "New schedule",
     "noSchedules": "No schedules yet.",
     "noSchedulesHint": "Pick a plan and assign it to a start date.",

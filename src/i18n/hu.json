@@ -83,7 +83,7 @@
       "submitting": "Rögzítés…",
       "deleteConfirm": "Törlöd ezt a bejegyzést?",
       "deleteError": "Nem sikerült törölni a bejegyzést.",
-      "submitError": "Nem sikerült rögzíteni az étkezést. Próbáld újra.",
+      "submitError": "Nem sikerült rögzíteni az étkezést.",
       "mealTypes": {
         "BREAKFAST": "Reggeli",
         "LUNCH": "Ebéd",
@@ -189,7 +189,7 @@
         "cameraUnavailable": "Nem érem el a kamerát. Próbáld másik eszközről, vagy tölts fel egy fotót.",
         "micPermission": "A mikrofon használatához engedély kell. Add meg a böngészőben, és próbáld újra.",
         "micUnavailable": "Nem érem el a mikrofont. Próbáld másik eszközről.",
-        "generic": "Valami félrement. Próbáld meg újra."
+        "generic": "Most nem sikerült feldolgozni. Próbáld egy pillanat múlva."
       }
     },
     "macros": {
@@ -299,7 +299,7 @@
       "weightRecipeRepeat": "Receptváltozatosság",
       "weightDisabled": "Adj meg értéket fent az engedélyezéshez",
       "generate": "Terv generálása",
-      "solving": "Megoldás folyamatban…",
+      "solving": "Összerakom a tervet…",
       "solverNote": "Megnézem, mi van a hűtődben, és összerakom — egy pillanat.",
       "queuePending": "Sorban, {{position}}. helyen",
       "queueRunning": "Most állítom össze az étrendedet…",
@@ -943,7 +943,7 @@
       "cameraUnavailable": "A kamera nem elérhető ezen az eszközön.",
       "aiUnavailable": "Az AI-import jelenleg nem elérhető. Próbáld meg később.",
       "parseFailed": "Nem sikerült feldolgozni a receptet. Ellenőrizd a beillesztett szöveget.",
-      "generic": "Valami hiba történt. Próbáld meg újra."
+      "generic": "Most nem sikerült. Próbáld egy pillanat múlva."
     }
   },
   "myContent": {
@@ -1012,7 +1012,7 @@
       },
       "myth3": {
         "problem": "Nincs időm megtervezni",
-        "solution": "A megoldómotor másodpercek alatt összeállítja az egész hetedet."
+        "solution": "Kalmio másodpercek alatt összeállítja az egész hetedet."
       }
     },
     "fomo": {
@@ -1022,11 +1022,11 @@
       "title": "Három lépés, és kész",
       "step1": {
         "title": "Add meg a célod",
-        "desc": "Kalória, fehérje, büdzsé – te döntesz, a rendszer optimalizál."
+        "desc": "Kalória, fehérje, büdzsé – te döntesz, Kalmio optimalizál."
       },
       "step2": {
         "title": "Állítsd be a kereted",
-        "desc": "Heti keret, max előkészítési idő, ízlések – mindent figyelembe vesz a rendszer."
+        "desc": "Heti keret, max előkészítési idő, ízlések – Kalmio mindent figyelembe vesz."
       },
       "step3": {
         "title": "Főzz és élvezd",
@@ -1145,7 +1145,7 @@
     "send": "Küldés",
     "sending": "Küldés…",
     "sent": "Visszajelzés elküldve.",
-    "error": "Hiba történt. Próbáld újra.",
+    "error": "Most nem sikerült elküldeni.",
     "statusUpdated": "Státusz frissítve.",
     "empty": "Még nincs visszajelzés.",
     "submitFirst": "Küldd el az első jelzésedet",
@@ -1252,7 +1252,7 @@
       "subtitle": "Minden étrend-sablonod egy helyen.",
       "newPlan": "Új terv",
       "empty": "Még nincs terv.",
-      "retry": "Újrapróbálás",
+      "retry": "Újra",
       "defaultBadge": "Alapértelmezett",
       "filter": {
         "label": "Szűrő",
@@ -1566,7 +1566,7 @@
     },
     "generate": "Terv generálása",
     "generating": "Egy pillanat — összerakom a heteded.",
-    "error": "Hiba történt. Próbáld újra.",
+    "error": "Most nem sikerült generálni a tervet.",
     "advancedToggle": "Speciális beállítások",
     "advancedToggleOpen": "Speciális beállítások elrejtése",
     "household": "Kikre tervezzük?",
@@ -1642,7 +1642,7 @@
     "loading": "Egy pillanat — megnézem, mi van a hűtőben.",
     "summary": "{{kept}} megtartva · {{discarded}} eldobva",
     "alreadyCompleted": "Ez a munkamenet már le van zárva.",
-    "error": "Hiba történt. Próbáld újra.",
+    "error": "Most nem sikerült betölteni a hűtőt.",
     "expiresIn": "{{days}} nap múlva jár le",
     "expiresToday": "ma jár le",
     "expiredDaysAgo": "{{days}} napja lejárt"
@@ -2231,8 +2231,8 @@
     }
   },
   "schedules": {
-    "pageTitle": "Ütemezések",
-    "pageSubtitle": "Tervek ismétlődő elhelyezése a naptárban",
+    "pageTitle": "Ritmusom",
+    "pageSubtitle": "Visszatérő tervek a naptárban",
     "newScheduleCta": "Új ütemezés",
     "noSchedules": "Még nincs ütemezés.",
     "noSchedulesHint": "Válassz egy tervet, és rendeld hozzá egy kezdő dátumhoz.",
