@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { BiologicalSex, ActivityLevel, DietaryConstraints, Goal, HealthFeedbackItem, TargetSetResponse, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
+import type { BiologicalSex, ActivityLevel, DietaryConstraints, Goal, HealthFeedbackItem, TargetSetResponse, TdeeResponse, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
 
 export interface UserMealPreferences {
   days?: number
@@ -141,6 +141,14 @@ export const usersService = {
    */
   getTargets: (): Promise<TargetSetResponse | null> =>
     api.get<TargetSetResponse>('/api/users/me/targets').then(r =>
+      r.status === 204 || !r.data ? null : r.data
+    ),
+  /**
+   * GET /api/users/me/tdee — goal-independent TDEE from body data alone.
+   * Returns null (204) when body data is incomplete.
+   */
+  getTdee: (): Promise<TdeeResponse | null> =>
+    api.get<TdeeResponse>('/api/users/me/tdee').then(r =>
       r.status === 204 || !r.data ? null : r.data
     ),
   /**

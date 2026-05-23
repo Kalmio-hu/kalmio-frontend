@@ -156,6 +156,13 @@ export function Profile() {
     staleTime: 30_000,
   })
 
+  // TDEE is goal-independent — surfaced in the body-data card as soon as body data is complete.
+  const { data: tdee, isLoading: tdeeLoading } = useQuery({
+    queryKey: [...USERS_ME_QUERY_KEY, 'tdee'],
+    queryFn: usersService.getTdee,
+    staleTime: 30_000,
+  })
+
   const { data: feedbackItems = [] } = useQuery({
     queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'],
     queryFn: usersService.getGoalFeedback,
@@ -264,6 +271,7 @@ export function Profile() {
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       // Re-fetch targets as body data changed
       await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'tdee'] })
       await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'] })
       toast({ title: t('profile.bodyData.saveSuccess'), variant: 'success' })
     } catch {
@@ -284,6 +292,7 @@ export function Profile() {
       setBiologicalSex('')
       setActivityLevel('')
       await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'targets'] })
+      await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'tdee'] })
       await qc.invalidateQueries({ queryKey: [...USERS_ME_QUERY_KEY, 'goal-feedback'] })
       toast({ title: t('profile.bodyData.clearSuccess'), variant: 'success' })
     } catch {
@@ -609,16 +618,16 @@ export function Profile() {
               </select>
             </div>
 
-            {/* TDEE read-only display */}
+            {/* TDEE read-only display — goal-independent, shows as soon as body data is complete */}
             <div className="rounded-lg bg-[#F9F7F2] border border-[#e5e4e7] px-3.5 py-3">
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
                 {t('profile.bodyData.tdee')}
               </p>
-              {targetsLoading ? (
+              {tdeeLoading ? (
                 <Spinner className="h-4 w-4 text-gray-400" />
-              ) : targets != null ? (
+              ) : tdee != null ? (
                 <p className="text-lg font-semibold text-[#1A1A1A]">
-                  {targets.tdeeKcal.toLocaleString()} {t('profile.targets.unit_kcal')}
+                  {tdee.tdeeKcal.toLocaleString()} {t('profile.targets.unit_kcal')}
                 </p>
               ) : (
                 <p className="text-sm text-gray-400">{t('profile.bodyData.tdeeIncomplete')}</p>

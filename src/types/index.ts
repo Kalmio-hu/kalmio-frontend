@@ -22,13 +22,18 @@ export interface HealthFeedbackItem {
   params: Record<string, unknown>
 }
 
-/** Response shape from GET /api/users/me/targets. 204 = null (body data incomplete). */
+/** Response shape from GET /api/users/me/targets. 204 = null (body data incomplete or no goal set). */
 export interface TargetSetResponse {
   tdeeKcal: number
   targetKcal: number
   proteinG: number
   carbsG: number
   fatG: number
+}
+
+/** Response shape from GET /api/users/me/tdee. 204 = null (body data incomplete). Goal-independent. */
+export interface TdeeResponse {
+  tdeeKcal: number
 }
 
 export type IngredientCategory = 'PROTEIN' | 'CARB' | 'FAT' | 'VEGGIE' | 'SPICE'
