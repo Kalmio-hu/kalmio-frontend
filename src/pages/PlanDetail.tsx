@@ -455,6 +455,9 @@ export function PlanDetail() {
       ),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      // KALMIO-271: invalidate prep slots so the prep lane reflects the new
+      // recipe's batchability immediately, without waiting for stale-time expiry.
+      qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       setPaletteReplace(null)
     },
     onError: () => {
