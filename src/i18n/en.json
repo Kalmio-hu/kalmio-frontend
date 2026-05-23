@@ -2077,7 +2077,7 @@
       "permissionPendingLabel": "Awaiting approval",
       "pendingTitle": "An access request needs your decision",
       "pendingHint": "A family member is asking to plan on your behalf. It's your call to grant or deny.",
-      "pendingItem": "A planner ({{requesterId}}) is requesting access to your profile.",
+      "pendingItem": "{{requesterName}} is requesting access to your profile.",
       "grantCta": "Grant",
       "grantAriaLabel": "Grant access",
       "denyCta": "Deny",

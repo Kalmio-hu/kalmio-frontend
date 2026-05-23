@@ -2077,7 +2077,7 @@
       "permissionPendingLabel": "Jóváhagyásra vár",
       "pendingTitle": "Hozzáférési kérés vár rád",
       "pendingHint": "Egy családtag azt kéri, hogy a te nevedben tervezhessen. Te döntesz: megadod vagy elutasítod.",
-      "pendingItem": "Egy tervező ({{requesterId}}) hozzáférést kér a profilodhoz.",
+      "pendingItem": "{{requesterName}} hozzáférést kér a profilodhoz.",
       "grantCta": "Megadom",
       "grantAriaLabel": "Hozzáférés megadása",
       "denyCta": "Elutasítom",

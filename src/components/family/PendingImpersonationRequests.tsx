@@ -70,7 +70,7 @@ export function PendingImpersonationRequests() {
             >
               <span className="text-sm text-[#1A1A1A] flex-1 min-w-0 truncate">
                 {t('family.impersonation.pendingItem', {
-                  requesterId: req.requesterId.slice(0, 8),
+                  requesterName: req.requesterName ?? req.requesterId.slice(0, 8),
                 })}
               </span>
               <Button
