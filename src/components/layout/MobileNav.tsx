@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Vault,
   ClipboardList,
-  SlidersHorizontal,
   CalendarClock,
   CalendarDays,
   NotebookPen,
@@ -32,10 +31,8 @@ import { usersService } from '@/services/users'
 // Overflow routes — for checking active state of the "Több" trigger
 const OVERFLOW_ROUTES = [
   '/app/settings',
-  '/app/shopping-list',
   '/app/retail-products',
   '/app/family',
-  '/app/preferences',
   '/app/plans',
   '/app/schedules',
   '/app/calendar',
@@ -176,17 +173,6 @@ export function MobileNav() {
             >
               <CalendarDays className="h-5 w-5 shrink-0" />
               {t('nav.calendar')}
-            </NavLink>
-
-            {/* Beállításaim */}
-            <NavLink
-              to="/app/preferences"
-              role="menuitem"
-              onClick={() => setOverflowOpen(false)}
-              className={({ isActive }) => overflowItemClass(isActive)}
-            >
-              <SlidersHorizontal className="h-5 w-5 shrink-0" />
-              {t('nav.preferences')}
             </NavLink>
 
             {/* Beállítások */}
