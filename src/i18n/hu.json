@@ -846,6 +846,12 @@
     "exit": "Kilépés"
   },
   "admin": {
+    "stats": {
+      "totalRealUsers": "Valódi felhasználók",
+      "foundingMembers": "Founding Member",
+      "totalFridgeItems": "Hűtő tételek",
+      "stageDistribution": "Diófa megoszlás"
+    },
     "users": {
       "title": "Felhasználók kezelése",
       "subtitle_one": "{{count}} regisztrált felhasználó",

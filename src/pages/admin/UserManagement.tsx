@@ -17,6 +17,12 @@ export function UserManagement() {
   const navigate = useNavigate()
   const currentUserId = useAuthStore((s) => s.user?.id)
 
+  const { data: stats } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: adminService.getStats,
+    staleTime: 60_000,
+  })
+
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users'],
     queryFn: adminService.listUsers,
@@ -49,6 +55,42 @@ export function UserManagement() {
         title={t('admin.users.title')}
         subtitle={t('admin.users.subtitle', { count: users.length })}
       />
+
+      {/* DB-side health snapshot (KALMIO-281 / GET /api/admin/stats) */}
+      {stats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <Card>
+            <CardContent className="py-3 text-center">
+              <p className="text-2xl font-bold text-[#1A1A1A]">{stats.totalRealUsers}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('admin.stats.totalRealUsers')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-3 text-center">
+              <p className="text-2xl font-bold text-[#4f7942]">{stats.foundingMembers}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('admin.stats.foundingMembers')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-3 text-center">
+              <p className="text-2xl font-bold text-[#1A1A1A]">{stats.totalFridgeItems}</p>
+              <p className="text-xs text-gray-500 mt-0.5">{t('admin.stats.totalFridgeItems')}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-3 text-center">
+              <div className="flex flex-wrap justify-center gap-1">
+                {Object.entries(stats.stageDistribution).map(([stage, count]) => (
+                  <span key={stage} className="text-xs bg-gray-100 rounded px-1.5 py-0.5">
+                    {stage}: {count}
+                  </span>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">{t('admin.stats.stageDistribution')}</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>

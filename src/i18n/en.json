@@ -846,6 +846,12 @@
     "exit": "Exit"
   },
   "admin": {
+    "stats": {
+      "totalRealUsers": "Real users",
+      "foundingMembers": "Founding Members",
+      "totalFridgeItems": "Fridge items",
+      "stageDistribution": "Diófa stages"
+    },
     "users": {
       "title": "User Management",
       "subtitle_one": "{{count}} registered user",

@@ -14,6 +14,15 @@ export interface ImpersonateResponse {
   email: string
 }
 
+/** Response from GET /api/admin/stats — DB-side health snapshot for the founders dashboard. */
+export interface AdminStatsResponse {
+  totalRealUsers: number
+  foundingMembers: number
+  totalFridgeItems: number
+  /** Map of Diófa stage name to user count; missing key means zero. */
+  stageDistribution: Record<string, number>
+}
+
 export const adminService = {
   listUsers: () => api.get<AdminUser[]>('/api/admin/users').then(r => r.data),
   updateRole: (userId: string, role: 'USER' | 'ADMIN') =>
@@ -22,4 +31,6 @@ export const adminService = {
     api.patch<AdminUser>(`/api/admin/users/${userId}/premium-enabled`, { enabled }).then(r => r.data),
   impersonate: (userId: string) =>
     api.post<ImpersonateResponse>(`/api/admin/impersonate/${userId}`).then(r => r.data),
+  /** GET /api/admin/stats — DB-row-count metrics not available in PostHog event stream. */
+  getStats: () => api.get<AdminStatsResponse>('/api/admin/stats').then(r => r.data),
 }
