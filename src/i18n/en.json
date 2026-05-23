@@ -1690,6 +1690,7 @@
   },
   "diofa": {
     "sectionLabel": "Diófa",
+    "statusSection": "Walnut tree status",
     "ariaLabel": "Walnut tree — {{stage}} stage, soil: {{moisture}}",
     "stages": {
       "MAG": "Seed",
@@ -1902,6 +1903,7 @@
       "body": "You have earned a real one — in Hungary. Your tree will be planted in the Kalmio grove.",
       "treeCaption": "Termőfa — the walnut tree bears fruit.",
       "downloadCertificate": "Download certificate",
+      "downloadingCertificate": "Downloading…",
       "viewGrove": "View my grove",
       "viewGroveAriaLabel": "View grove map",
       "dismiss": "Close"
@@ -2358,5 +2360,14 @@
       "DINNER": "Dinner",
       "SNACK": "Snack"
     }
+  },
+  "oauthConsent": {
+    "invalidRequest": "Invalid authorization request.",
+    "authFailed": "Authorization failed. Please restart the process from Claude Desktop.",
+    "title": "Connect Claude Desktop",
+    "description": "Claude Desktop is requesting access to your Kalmio account. It will be able to read your meal plan and fridge, and generate new plans on your behalf.",
+    "signedInAs": "Signed in as",
+    "authorize": "Authorize",
+    "cancel": "Cancel"
   }
 }

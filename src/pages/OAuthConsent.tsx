@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Loader2, ShieldCheck, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 
 export function OAuthConsent() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const sessionToken = searchParams.get('session')
@@ -25,7 +27,7 @@ export function OAuthConsent() {
   if (!sessionToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
-        <p className="text-sm text-gray-500">Invalid authorization request.</p>
+        <p className="text-sm text-gray-500">{t('oauthConsent.invalidRequest')}</p>
       </div>
     )
   }
@@ -39,7 +41,7 @@ export function OAuthConsent() {
       })
       window.location.href = data.redirectUrl
     } catch {
-      setError('Authorization failed. Please try again or restart from Claude Desktop.')
+      setError(t('oauthConsent.authFailed'))
       setLoading(false)
     }
   }
@@ -64,15 +66,14 @@ export function OAuthConsent() {
           <div className="w-14 h-14 rounded-2xl bg-energy-orange/10 flex items-center justify-center">
             <ShieldCheck size={28} className="text-energy-orange" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-900">Connect Claude Desktop</h1>
+          <h1 className="text-xl font-semibold text-gray-900">{t('oauthConsent.title')}</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
-            Claude Desktop is requesting access to your Kalmio account. It will be able to read
-            your meal plan, fridge, and generate new plans on your behalf.
+            {t('oauthConsent.description')}
           </p>
         </div>
 
         <div className="bg-gray-50 rounded-xl px-4 py-3 text-sm text-gray-600">
-          Signed in as <span className="font-medium text-gray-900">{session.user?.email}</span>
+          {t('oauthConsent.signedInAs')} <span className="font-medium text-gray-900">{session.user?.email}</span>
         </div>
 
         {error && (
@@ -86,7 +87,7 @@ export function OAuthConsent() {
             className="w-full"
           >
             {loading ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
-            Authorize
+            {t('oauthConsent.authorize')}
           </Button>
           <Button
             variant="ghost"
@@ -95,7 +96,7 @@ export function OAuthConsent() {
             className="w-full text-gray-500"
           >
             <X size={14} className="mr-1" />
-            Cancel
+            {t('oauthConsent.cancel')}
           </Button>
         </div>
       </div>

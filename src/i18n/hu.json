@@ -1690,6 +1690,7 @@
   },
   "diofa": {
     "sectionLabel": "Diófa",
+    "statusSection": "Diófa állapota",
     "ariaLabel": "Diófa — {{stage}} stádium, talaj: {{moisture}}",
     "stages": {
       "MAG": "Mag",
@@ -1902,6 +1903,7 @@
       "body": "Kiérdemeltél egy igazit is — Magyarországon. A Kalmio-ligetbe kerül a te fád.",
       "treeCaption": "Termőfa — a diófa gyümölcsöt érlel.",
       "downloadCertificate": "Oklevél letöltése",
+      "downloadingCertificate": "Letöltés…",
       "viewGrove": "A ligetem megtekintése",
       "viewGroveAriaLabel": "Liget térkép megtekintése",
       "dismiss": "Bezárás"
@@ -2358,5 +2360,14 @@
       "DINNER": "Vacsora",
       "SNACK": "Snack"
     }
+  },
+  "oauthConsent": {
+    "invalidRequest": "Érvénytelen hitelesítési kérés.",
+    "authFailed": "A hitelesítés nem sikerült. Indítsd újra a folyamatot Claude Desktop alkalmazásból.",
+    "title": "Claude Desktop csatlakoztatása",
+    "description": "A Claude Desktop hozzáférést kér a Kalmio-fiókodhoz. Olvashatja az étrendtervedet és a hűtőtartalmadat, illetve új terveket készíthet a nevedben.",
+    "signedInAs": "Bejelentkezve:",
+    "authorize": "Engedélyezés",
+    "cancel": "Mégse"
   }
 }
