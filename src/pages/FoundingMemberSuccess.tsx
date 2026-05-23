@@ -21,7 +21,7 @@ import { useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
 
 const POLL_INTERVAL_MS = 2_000
@@ -41,7 +41,7 @@ function FoundingMemberSuccessInner() {
   }, [])
 
   const me = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     refetchInterval: (query) => {
       // Stop polling as soon as the flag flips, or when the timeout elapses.
@@ -57,7 +57,7 @@ function FoundingMemberSuccessInner() {
   function handleManualRefresh() {
     setIsPolling(true)
     setTimeout(() => setIsPolling(false), POLL_TIMEOUT_MS)
-    queryClient.invalidateQueries({ queryKey: ['users', 'me'] })
+    queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
   }
 
   return (

@@ -54,6 +54,7 @@ import { MemberView } from '@/pages/MemberView'
 import { ShoppingCart } from '@/pages/ShoppingCart'
 import { CookMode } from '@/pages/CookMode'
 import { Calendar } from '@/pages/Calendar'
+import { RecipeDetail } from '@/pages/RecipeDetail'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
 // Vite's dead-code elimination ensures they are absent from production chunks.
@@ -174,6 +175,9 @@ export default function App() {
                 <Route path="/app/recipes/:id/cook" element={<CookMode />} />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<Dashboard />} />
+                  {/* Recipe detail page — must appear before the list route so
+                      React Router resolves /app/recipes/:id correctly. */}
+                  <Route path="recipes/:id" element={<RecipeDetail />} />
                   <Route path="recipes" element={<Recipes />} />
                   <Route path="ingredients" element={<Ingredients />} />
                   <Route path="shopping-list" element={<ShoppingList />} />

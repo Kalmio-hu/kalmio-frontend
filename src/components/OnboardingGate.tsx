@@ -40,7 +40,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { readOnboardingDone } from '@/hooks/useOnboardingProgress'
 
 export function OnboardingGate() {
@@ -48,7 +48,7 @@ export function OnboardingGate() {
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
   const { data: user, isLoading } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
     enabled: !!userId,

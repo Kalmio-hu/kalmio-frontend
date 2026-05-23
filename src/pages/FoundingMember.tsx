@@ -22,7 +22,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { foundingMemberService } from '@/services/foundingMember'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
 
 // The success page URL must be absolute so Barion can redirect to it.
@@ -37,7 +37,7 @@ function FoundingMemberInner() {
 
   // Fetch the current user to detect already-purchased state.
   const me = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
   })

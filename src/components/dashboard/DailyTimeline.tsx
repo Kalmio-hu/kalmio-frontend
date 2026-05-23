@@ -24,7 +24,6 @@ import { prepTasksService } from '@/services/prepTasks'
 import { offPlanMealsService } from '@/services/offPlanMeals'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
-import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
 import type { DashboardDto, MaterializedPlannedMeal, Recipe, TimePreferencesDto } from '@/types'
 import { useEffect } from 'react'
@@ -731,7 +730,6 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const [showAiOffPlanModal, setShowAiOffPlanModal] = useState(false)
   const [openRationaleCardId, setOpenRationaleCardId] = useState<string | null>(null)
   const [openMenuCardId, setOpenMenuCardId] = useState<string | null>(null)
-  const [detailCard, setDetailCard] = useState<TimelineCardData | null>(null)
   const [swapCard, setSwapCard] = useState<TimelineCardData | null>(null)
   const dragBaseMinutesRef = useRef<number>(0)
   const outerRef = useRef<HTMLDivElement>(null)
@@ -1138,7 +1136,11 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                   menuOpen={openMenuCardId === cardData.id}
                   mutating={cardMutating}
                   isPremium={isPremium}
-                  onViewRecipe={() => setDetailCard(cardData)}
+                  onViewRecipe={() => {
+                    if (cardData.recipeId) {
+                      navigate(`/app/recipes/${cardData.recipeId}?from=timeline`)
+                    }
+                  }}
                   onToggleRationale={() =>
                     setOpenRationaleCardId(prev => (prev === cardData.id ? null : cardData.id))
                   }
@@ -1192,17 +1194,6 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         onOpenChange={setShowAiOffPlanModal}
         date={date}
       />
-
-      {/* Recipe detail — used by both meal and prep cards to "watch the recipe". */}
-      {detailCard?.recipeId && (
-        <RecipeDetailDialog
-          open
-          onOpenChange={open => !open && setDetailCard(null)}
-          recipeId={detailCard.recipeId}
-          displayName={detailCard.recipeName}
-          macros={detailCard.macros ?? null}
-        />
-      )}
 
       {/* Recipe swap picker — meal cards only. */}
       {swapCard?.recipeId && (

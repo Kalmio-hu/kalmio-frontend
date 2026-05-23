@@ -16,7 +16,7 @@ import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { formatCurrency } from '@/lib/utils'
 import { capture, buildCohortProperties } from '@/lib/analytics'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import type { ShoppingListItem, IngredientCategory } from '@/types'
 
 const CATEGORY_COLOR: Record<IngredientCategory, 'green' | 'orange' | 'gray' | 'black'> = {
@@ -42,7 +42,7 @@ export function ShoppingList() {
 
   // ── User profile — needed for cohort analytics properties ─────────────────
   const { data: userProfile } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 300_000,
   })

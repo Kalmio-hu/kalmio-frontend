@@ -19,7 +19,7 @@ import { MoistureHistoryStrip } from '@/components/diofa/MoistureHistoryStrip'
 import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { dashboardService } from '@/services/dashboard'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { momentumService } from '@/services/momentum'
 import { usePointsToast } from '@/hooks/usePointsToast'
 import type { CalendarDayDto, MoistureBand } from '@/types'
@@ -153,7 +153,7 @@ export function Dashboard() {
   // Fetch user to check body-data completeness for the hint card (KALMIO-241).
   // Reuses the ['users', 'me'] key — no extra network request if already warm.
   const { data: user } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
     enabled: !!userId,

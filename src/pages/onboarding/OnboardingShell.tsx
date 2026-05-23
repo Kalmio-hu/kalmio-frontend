@@ -42,7 +42,7 @@ import { PlantingScene, type PlantingStep } from '@/components/onboarding/Planti
 import { MiniTutorialPlanner } from '@/components/onboarding/MiniTutorialPlanner'
 import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
 import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import {
   readOnboardingStep,
   writeOnboardingStep,
@@ -138,7 +138,7 @@ export function OnboardingShell() {
 
   // Prefetch user data so we can check body-data completeness on final step.
   const { data: user } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
     enabled: !!userId,

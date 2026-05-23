@@ -473,6 +473,11 @@
       "errorTooLarge": "A fájl túl nagy. Maximum 5 MB megengedett."
     }
   },
+  "recipeDetail": {
+    "backToRecipes": "Receptek",
+    "backToTimeline": "Vissza az ütemtervhez",
+    "untitled": "Névtelen recept"
+  },
   "ingredients": {
     "title": "Hozzávalók",
     "subtitle_one": "{{count}} hozzávaló a katalógusban",

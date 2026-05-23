@@ -21,11 +21,11 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 
 export function useIsUserPremium(): boolean {
   const { data } = useQuery({
-    queryKey: ['users', 'me'],
+    queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
     retry: 1,

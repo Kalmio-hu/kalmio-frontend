@@ -473,6 +473,11 @@
       "errorTooLarge": "File is too large. Maximum 5 MB allowed."
     }
   },
+  "recipeDetail": {
+    "backToRecipes": "Recipes",
+    "backToTimeline": "Back to timeline",
+    "untitled": "Untitled recipe"
+  },
   "ingredients": {
     "title": "Ingredients",
     "subtitle_one": "{{count}} ingredient in catalog",
