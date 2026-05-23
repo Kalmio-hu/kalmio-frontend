@@ -18,6 +18,15 @@ export const offPlanMealsService = {
     api.delete(`/api/dashboard/off-plan-meals/${id}`).then(() => undefined),
 
   /**
+   * Sets or clears (with null) the timeline scheduled time for an off-plan meal.
+   * Time is HH:mm; null restores the createdAt-derived slot.
+   */
+  patchScheduledTime: (id: string, scheduledTime: string | null): Promise<void> =>
+    api
+      .patch(`/api/dashboard/off-plan-meals/${id}/scheduled-time`, { scheduledTime })
+      .then(() => undefined),
+
+  /**
    * Premium: parse a free-text meal description via gpt-4o-mini and persist it.
    * 402 = not premium, 429 = rate-limited (10/min).
    */

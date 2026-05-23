@@ -25,7 +25,7 @@ import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
-import type { DashboardDto, MaterializedPlannedMeal, OffPlanMealCard, Recipe, TimePreferencesDto } from '@/types'
+import type { DashboardDto, MaterializedPlannedMeal, Recipe, TimePreferencesDto } from '@/types'
 import { useEffect } from 'react'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -91,6 +91,7 @@ const NODE_STYLES: Record<string, NodeStyle> = {
   prep:            { ring: 'ring-teal-400',   bg: 'bg-teal-50',   icon: '🥘' },
   shopping:        { ring: 'ring-blue-400',   bg: 'bg-blue-50',   icon: '🛒' },
   grooming:        { ring: 'ring-purple-400', bg: 'bg-purple-50', icon: '🧊' },
+  offplan:         { ring: 'ring-gray-200',   bg: 'bg-gray-50',   icon: '+' },
 }
 
 function nodeStyle(type: string): NodeStyle {
@@ -112,8 +113,29 @@ interface TimelineCardData {
   window?: string
   mealId?: string
   prepTaskId?: string
+  /** Set on off-plan (manually logged) meals; identifies the row to delete. */
+  offPlanMealId?: string
   recipeId?: string
   macros?: { kcal: number; protein: number; fat: number; carbs: number } | null
+}
+
+// ── time-from-log helper ──────────────────────────────────────────────────
+// Returns the minute on the timeline at which an off-plan meal should appear:
+//   - the clock-time when the user pressed log, in their local timezone, when
+//     it falls between wake and sleep;
+//   - just after wake when logged before wake;
+//   - just before sleep when logged after sleep.
+// Falls back to noon-clamped-to-window when createdAt is missing or unparseable,
+// so the card never renders with NaN:NaN.
+function offPlanTimelineMinutes(createdAt: string | null | undefined, wakeMinutes: number, sleepMinutes: number): number {
+  const fallback = clamp(12 * 60, wakeMinutes + 1, sleepMinutes - 1)
+  if (!createdAt) return fallback
+  const d = new Date(createdAt)
+  const loggedMinutes = d.getHours() * 60 + d.getMinutes()
+  if (!Number.isFinite(loggedMinutes)) return fallback
+  if (loggedMinutes < wakeMinutes) return Math.min(wakeMinutes + 1, sleepMinutes - 1)
+  if (loggedMinutes >= sleepMinutes) return Math.max(sleepMinutes - 1, wakeMinutes + 1)
+  return loggedMinutes
 }
 
 // ── SleepBanner ───────────────────────────────────────────────────────────
@@ -399,6 +421,125 @@ function DraggableSpineDot({ id, time, label, type, showLineAbove, showLineBelow
   )
 }
 
+// ── OffPlanRow ────────────────────────────────────────────────────────────
+// Renders a manually logged meal on the timeline. Draggable: the new time is
+// PATCHed to /api/dashboard/off-plan-meals/{id}/scheduled-time. When the user
+// has never moved the card, the slot is inferred from createdAt and clamped
+// to the wake/sleep window.
+
+interface OffPlanRowProps {
+  card: TimelineCardData
+  isFirst: boolean
+  isLast: boolean
+  deleting: boolean
+  liveDragMinutes: number | null
+  onDelete: () => void
+}
+
+function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete }: OffPlanRowProps) {
+  const { t } = useTranslation()
+  const [confirming, setConfirming] = useState(false)
+  const ns = nodeStyle('offplan')
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: card.id })
+
+  const displayTime = isDragging && liveDragMinutes !== null
+    ? minutesToHm(liveDragMinutes)
+    : minutesToHm(card.startMinutes)
+
+  return (
+    <div data-card-id={card.id} className="flex items-start gap-0">
+      <div className={[
+        'w-12 shrink-0 pt-2 text-right pr-2.5 text-[10px] select-none tabular-nums',
+        isDragging ? 'font-bold text-[#F28C28]' : 'font-medium text-gray-400',
+      ].join(' ')}>
+        {displayTime}
+      </div>
+
+      <div className="relative flex flex-col items-center w-7 shrink-0">
+        {!isFirst && <div style={{ width: 1, flex: 1, minHeight: 8, background: '#e5e7eb', alignSelf: 'center' }} />}
+        <div
+          {...listeners}
+          aria-label={t('common.moveLabel')}
+          className={[
+            'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center text-sm shrink-0 cursor-grab active:cursor-grabbing touch-none',
+            ns.ring, ns.bg,
+          ].join(' ')}
+        >
+          {ns.icon}
+        </div>
+        {!isLast && <div style={{ width: 1, flex: 1, minHeight: 8, background: '#e5e7eb', alignSelf: 'center' }} />}
+      </div>
+
+      <div ref={setNodeRef} {...attributes} className="flex-1 pl-2.5 pt-0.5 pb-0.5 min-w-0">
+        {isDragging ? (
+          <div className="h-10 rounded-xl border-2 border-dashed border-[#F28C28]/30 bg-orange-50/30" />
+        ) : (
+          <div className="rounded-xl bg-white border border-gray-100/80 shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium shrink-0">
+                  {t('dashboard.meals.offPlanBadge')}
+                </span>
+              </div>
+              {card.subtitle && (
+                <p className="text-[11px] text-gray-400 mt-0.5 leading-tight truncate">{card.subtitle}</p>
+              )}
+            </div>
+
+            {confirming ? (
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => { onDelete(); setConfirming(false) }}
+                  disabled={deleting}
+                  aria-label={t('common.delete')}
+                  className="text-[11px] px-2 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                >
+                  {t('common.delete')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  aria-label={t('common.cancel')}
+                  className="text-[11px] px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
+                >
+                  {t('common.cancel')}
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(true)}
+                  aria-label={t('dashboard.offPlanMeal.deleteConfirm')}
+                  className="text-gray-300 hover:text-red-400 shrink-0 rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
+                    <path d="M5.5 1a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3ZM2 3.5A.5.5 0 0 1 2.5 3h9a.5.5 0 0 1 0 1H11v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4H2.5A.5.5 0 0 1 2 3.5ZM4 4v7h6V4H4Z"/>
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  {...listeners}
+                  aria-label={t('common.moveLabel')}
+                  className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing touch-none shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] rounded p-0.5 ml-0.5"
+                >
+                  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden>
+                    <circle cx="3" cy="2.5" r="1.3" /><circle cx="7" cy="2.5" r="1.3" />
+                    <circle cx="3" cy="7"    r="1.3" /><circle cx="7" cy="7"    r="1.3" />
+                    <circle cx="3" cy="11.5" r="1.3" /><circle cx="7" cy="11.5" r="1.3" />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 // ── SpacerRow ─────────────────────────────────────────────────────────────
 
 function SpacerRow({ minutes }: { minutes: number }) {
@@ -445,92 +586,19 @@ function DragFeedbackPill({ label, todayOnlyLabel, defaultLabel, onTodayOnly, on
   )
 }
 
-// ── OffPlanMealsSection ───────────────────────────────────────────────────
+// ── OffPlanLogButtons ─────────────────────────────────────────────────────
+// Action row at the foot of the timeline. The actual logged meals render on
+// the timeline itself via OffPlanRow.
 
-interface OffPlanMealsSectionProps {
-  offPlanMeals: OffPlanMealCard[]
+interface OffPlanLogButtonsProps {
   onLog: () => void
   onLogAi: () => void
-  onDelete: (id: string) => void
-  deletingId?: string
 }
 
-function OffPlanMealsSection({ offPlanMeals, onLog, onLogAi, onDelete, deletingId }: OffPlanMealsSectionProps) {
+function OffPlanLogButtons({ onLog, onLogAi }: OffPlanLogButtonsProps) {
   const { t } = useTranslation()
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
-
   return (
     <div className="mx-3 mt-3 mb-2">
-      {/* Existing off-plan meal cards */}
-      {offPlanMeals.length > 0 && (
-        <div className="flex flex-col gap-1.5 mb-2">
-          {offPlanMeals.map(meal => (
-            <div
-              key={meal.id}
-              className="rounded-xl bg-white border border-gray-100/80 shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-2"
-            >
-              {/* Type dot */}
-              <div className="w-7 h-7 rounded-full ring-1 ring-gray-200 bg-gray-50 flex items-center justify-center text-sm shrink-0 select-none">
-                +
-              </div>
-
-              {/* Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">
-                    {meal.displayName}
-                  </p>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium shrink-0">
-                    {t('dashboard.meals.offPlanBadge')}
-                  </span>
-                </div>
-                {meal.macros && (
-                  <p className="text-[11px] text-gray-400 mt-0.5 leading-tight">
-                    {meal.macros.kcal} kcal
-                    {meal.macros.protein > 0 && ` · ${meal.macros.protein}g ${t('dashboard.macros.protein')}`}
-                  </p>
-                )}
-              </div>
-
-              {/* Delete */}
-              {confirmDeleteId === meal.id ? (
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => { onDelete(meal.id); setConfirmDeleteId(null) }}
-                    disabled={deletingId === meal.id}
-                    aria-label={t('common.delete')}
-                    className="text-[11px] px-2 py-1 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-                  >
-                    {t('common.delete')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDeleteId(null)}
-                    aria-label={t('common.cancel')}
-                    className="text-[11px] px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
-                  >
-                    {t('common.cancel')}
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmDeleteId(meal.id)}
-                  aria-label={t('dashboard.offPlanMeal.deleteConfirm')}
-                  className="text-gray-300 hover:text-red-400 shrink-0 rounded p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] transition-colors"
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
-                    <path d="M5.5 1a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3ZM2 3.5A.5.5 0 0 1 2.5 3h9a.5.5 0 0 1 0 1H11v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4H2.5A.5.5 0 0 1 2 3.5ZM4 4v7h6V4H4Z"/>
-  </svg>
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Log buttons — manual + AI */}
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
@@ -661,6 +729,12 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
   })
 
+  const patchOffPlanTime = useMutation({
+    mutationFn: ({ id, time }: { id: string; time: string | null }) =>
+      offPlanMealsService.patchScheduledTime(id, time),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
+  })
+
   // ── build card list ──────────────────────────────────────────────────────
 
   const lang = (i18n.language?.startsWith('hu') ? 'hu' : 'en') as 'hu' | 'en'
@@ -668,6 +742,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const cards: TimelineCardData[] = useMemo(() => {
     const legacyMeals = dashboard?.todaysMeals ?? []
     const prepTasks = dashboard?.todaysPrepTasks ?? []
+    const offPlanMeals = dashboard?.offPlanMeals ?? []
     const result: TimelineCardData[] = []
 
     // When materialized planned_meal rows are available (meal-planning-v2), use
@@ -722,6 +797,35 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       })
     })
 
+    offPlanMeals.forEach(meal => {
+      const subtitleParts: string[] = []
+      if (meal.macros) {
+        subtitleParts.push(`${meal.macros.kcal} kcal`)
+        if (meal.macros.protein > 0) {
+          subtitleParts.push(`${meal.macros.protein}g ${t('dashboard.macros.protein')}`)
+        }
+      }
+      // Order of precedence for the slot:
+      //   1. local override from an in-flight drag
+      //   2. persisted scheduledTime from the server
+      //   3. createdAt-derived clock time (clamped to wake/sleep)
+      const overrideTime = cardTimeOverrides[`offplan-${meal.id}`]
+      const startMinutes = overrideTime
+        ? hmToMinutes(overrideTime)
+        : meal.scheduledTime
+          ? hmToMinutes(meal.scheduledTime)
+          : offPlanTimelineMinutes(meal.createdAt, wakeMinutes, sleepMinutes)
+      result.push({
+        id: `offplan-${meal.id}`,
+        type: 'offplan',
+        label: meal.displayName,
+        subtitle: subtitleParts.join(' · ') || undefined,
+        startMinutes,
+        offPlanMealId: meal.id,
+        macros: meal.macros,
+      })
+    })
+
     if (hasShoppingDay) {
       result.push({
         id: 'shopping',
@@ -732,7 +836,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
 
     return result
-  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang])
+  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes])
 
   // ── dnd handlers ─────────────────────────────────────────────────────────
 
@@ -823,6 +927,11 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       return
     }
 
+    if (card.type === 'offplan') {
+      if (card.offPlanMealId) patchOffPlanTime.mutate({ id: card.offPlanMealId, time: newTime })
+      return
+    }
+
     if (card.mealId && activePlanId)
       patchMealTime.mutate({ planId: activePlanId, mealId: card.mealId, time: newTime })
 
@@ -834,7 +943,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       mealId: card.mealId,
       label: newTime,
     })
-  }, [cards, liveDragMinutes, activePlanId, patchTimePref, patchMealTime, patchPrepTime])
+  }, [cards, liveDragMinutes, activePlanId, patchTimePref, patchMealTime, patchPrepTime, patchOffPlanTime])
 
   const handleTodayOnly = useCallback(() => {
     setPendingFeedback(null)
@@ -950,6 +1059,25 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
               }
 
               const cardData = row.card
+
+              if (cardData.type === 'offplan' && cardData.offPlanMealId) {
+                const opId = cardData.offPlanMealId
+                const isDeleting =
+                  deleteOffPlanMeal.isPending &&
+                  (deleteOffPlanMeal.variables as string | undefined) === opId
+                return (
+                  <OffPlanRow
+                    key={cardData.id}
+                    card={cardData}
+                    isFirst={isFirst}
+                    isLast={isLast}
+                    deleting={isDeleting}
+                    liveDragMinutes={liveDragId === cardData.id ? liveDragMinutes : null}
+                    onDelete={() => deleteOffPlanMeal.mutate(opId)}
+                  />
+                )
+              }
+
               const cardMutating =
                 updateMeal.isPending &&
                 (updateMeal.variables as { mealId?: string } | undefined)?.mealId === cardData.mealId
@@ -997,13 +1125,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
           </p>
         )}
 
-        {/* ── Off-plan meals section ──────────────────────────────────── */}
-        <OffPlanMealsSection
-          offPlanMeals={dashboard?.offPlanMeals ?? []}
+        {/* ── Log buttons — manual + AI. Logged meals render on the timeline above. ─ */}
+        <OffPlanLogButtons
           onLog={() => setShowOffPlanModal(true)}
           onLogAi={() => setShowAiOffPlanModal(true)}
-          onDelete={(id) => deleteOffPlanMeal.mutate(id)}
-          deletingId={deleteOffPlanMeal.isPending ? (deleteOffPlanMeal.variables as string | undefined) : undefined}
         />
       </div>
 
