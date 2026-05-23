@@ -50,6 +50,7 @@ function mapAskError(err: unknown): ErrorKey {
 }
 
 interface Exchange {
+  id: string
   question: string
   answer: string | null
   error: ErrorKey | null
@@ -142,30 +143,27 @@ export function CookMode() {
   }, [steps.length])
 
   const askMutation = useMutation({
-    mutationFn: async (q: string) => {
-      const prev = exchanges
-        .map(e => e.question)
-        .slice(-CONTEXT_WINDOW)
+    mutationFn: async ({ q, prev }: { id: string; q: string; prev: string[] }) => {
       return cookModeService.ask(recipeId!, {
         question: q,
         previousQuestions: prev.length > 0 ? prev : undefined,
         currentStepIndex: stepIdx,
       })
     },
-    onSuccess: (res, q) => {
+    onSuccess: (res, { id }) => {
       setExchanges(xs =>
         xs.map(e =>
-          e.question === q && e.pending
+          e.id === id
             ? { ...e, pending: false, answer: res.answer }
             : e,
         ),
       )
     },
-    onError: (err, q) => {
+    onError: (err, { id }) => {
       const key = mapAskError(err)
       setExchanges(xs =>
         xs.map(e =>
-          e.question === q && e.pending
+          e.id === id
             ? { ...e, pending: false, error: key }
             : e,
         ),
@@ -176,14 +174,19 @@ export function CookMode() {
   const handleSubmit = useCallback(() => {
     const trimmed = question.trim()
     if (!trimmed || trimmed.length > 500) return
-    if (askMutation.isPending) return
+    const id = crypto.randomUUID()
+    // Build previousQuestions from current exchanges BEFORE appending the new one,
+    // so the backend does not receive the current question as its own context.
+    const prev = exchanges
+      .map(e => e.question)
+      .slice(-CONTEXT_WINDOW)
     setExchanges(xs => [
       ...xs,
-      { question: trimmed, answer: null, error: null, pending: true },
+      { id, question: trimmed, answer: null, error: null, pending: true },
     ])
     setQuestion('')
-    askMutation.mutate(trimmed)
-  }, [question, askMutation])
+    askMutation.mutate({ id, q: trimmed, prev })
+  }, [question, exchanges, askMutation])
 
   // ── Early states ────────────────────────────────────────────────────────
 

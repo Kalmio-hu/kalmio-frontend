@@ -73,7 +73,7 @@ export function UserManagement() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        disabled={roleMutation.isPending}
+                        disabled={roleMutation.isPending && roleMutation.variables?.id === user.id}
                         onClick={() =>
                           roleMutation.mutate({
                             id: user.id,
@@ -90,7 +90,7 @@ export function UserManagement() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        disabled={premiumMutation.isPending}
+                        disabled={premiumMutation.isPending && premiumMutation.variables?.id === user.id}
                         onClick={() =>
                           premiumMutation.mutate({
                             id: user.id,
@@ -106,7 +106,7 @@ export function UserManagement() {
                       <Button
                         variant="secondary"
                         size="sm"
-                        disabled={impersonateMutation.isPending}
+                        disabled={impersonateMutation.isPending && impersonateMutation.variables === user.id}
                         onClick={() => impersonateMutation.mutate(user.id)}
                       >
                         <UserCheck className="h-3.5 w-3.5" /> {t('admin.users.impersonate')}
