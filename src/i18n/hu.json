@@ -1839,6 +1839,16 @@
         "sub": "A Termőfa-szinthez jár két hét — kártya és meglepetés nélkül.",
         "cta": "Prémium funkciók megtekintése"
       }
+    },
+    "aiOffPlanLocked": {
+      "buttonLabel": "AI-val rögzítek",
+      "ariaLabel": "AI-naplózás — Alapító Tag funkció",
+      "badge": "Prémium"
+    },
+    "rationaleLocked": {
+      "ariaLabel": "Miért ezt? — Alapító Tag funkció",
+      "teaser": "Részletes indoklás Alapító Tag előfizetőknek.",
+      "cta": "Alapító tagság"
     }
   },
   "onboarding": {

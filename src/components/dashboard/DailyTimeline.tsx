@@ -2,7 +2,8 @@ import { useState, useCallback, useRef, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Sparkles, RefreshCw, MoreHorizontal } from 'lucide-react'
+import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal } from 'lucide-react'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import {
   DndContext,
   DragOverlay,
@@ -180,6 +181,8 @@ interface DraggableRowProps {
   liveDragMinutes: number | null  // non-null only for the card being dragged
   rationaleOpen: boolean
   menuOpen: boolean
+  /** When false the rationale sparkle renders as a locked affordance. */
+  isPremium: boolean
   onViewRecipe: () => void
   onToggleRationale: () => void
   onOpenSwap: () => void
@@ -196,6 +199,7 @@ function DraggableRow({
   liveDragMinutes,
   rationaleOpen,
   menuOpen,
+  isPremium,
   onViewRecipe,
   onToggleRationale,
   onOpenSwap,
@@ -264,19 +268,35 @@ function DraggableRow({
               {/* Action icons */}
               <div className="flex items-center gap-0 shrink-0 text-gray-400">
                 {isMeal && card.recipeId && (
-                  <button
-                    type="button"
-                    onClick={onToggleRationale}
-                    aria-label={t('plan.rationale.toggle')}
-                    aria-expanded={rationaleOpen}
-                    className={`p-1.5 rounded-md transition-colors ${
-                      rationaleOpen
-                        ? 'text-[#F28C28] bg-[#FFF3E5]'
-                        : 'hover:text-[#F28C28] hover:bg-gray-200/60'
-                    }`}
-                  >
-                    <Sparkles className="h-3.5 w-3.5" />
-                  </button>
+                  isPremium ? (
+                    <button
+                      type="button"
+                      onClick={onToggleRationale}
+                      aria-label={t('plan.rationale.toggle')}
+                      aria-expanded={rationaleOpen}
+                      className={`p-1.5 rounded-md transition-colors ${
+                        rationaleOpen
+                          ? 'text-[#F28C28] bg-[#FFF3E5]'
+                          : 'hover:text-[#F28C28] hover:bg-gray-200/60'
+                      }`}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/app/founding-member')}
+                      aria-label={t('premium.rationaleLocked.ariaLabel')}
+                      title={t('premium.rationaleLocked.teaser')}
+                      className="relative p-1.5 rounded-md text-gray-300 hover:text-gray-400 hover:bg-gray-200/60 transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      <Lock
+                        className="absolute bottom-0.5 right-0.5 h-2 w-2 text-gray-400"
+                        aria-hidden
+                      />
+                    </button>
+                  )
                 )}
 
                 {isPrep && card.recipeId && (
@@ -593,10 +613,24 @@ function DragFeedbackPill({ label, todayOnlyLabel, defaultLabel, onTodayOnly, on
 interface OffPlanLogButtonsProps {
   onLog: () => void
   onLogAi: () => void
+  /** When false the AI log button renders as a locked affordance. */
+  isPremium: boolean
 }
 
-function OffPlanLogButtons({ onLog, onLogAi }: OffPlanLogButtonsProps) {
+function OffPlanLogButtons({ onLog, onLogAi, isPremium }: OffPlanLogButtonsProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+
+  const aiIcon = (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+      <path d="M5 3v4"/>
+      <path d="M19 17v4"/>
+      <path d="M3 5h4"/>
+      <path d="M17 19h4"/>
+    </svg>
+  )
+
   return (
     <div className="mx-3 mt-3 mb-2">
       <div className="grid grid-cols-2 gap-2">
@@ -607,20 +641,31 @@ function OffPlanLogButtons({ onLog, onLogAi }: OffPlanLogButtonsProps) {
         >
           {t('dashboard.offPlanMeal.logButton')}
         </button>
-        <button
-          type="button"
-          onClick={onLogAi}
-          className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#F28C28]/40 bg-[#F28C28]/5 py-2.5 text-[13px] font-medium text-[#F28C28] hover:border-[#F28C28] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
-            <path d="M5 3v4"/>
-            <path d="M19 17v4"/>
-            <path d="M3 5h4"/>
-            <path d="M17 19h4"/>
-          </svg>
-          {t('dashboard.meals.addOffPlanAi')}
-        </button>
+
+        {isPremium ? (
+          <button
+            type="button"
+            onClick={onLogAi}
+            className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#F28C28]/40 bg-[#F28C28]/5 py-2.5 text-[13px] font-medium text-[#F28C28] hover:border-[#F28C28] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
+          >
+            {aiIcon}
+            {t('premium.aiOffPlanLocked.buttonLabel')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate('/app/founding-member')}
+            aria-label={t('premium.aiOffPlanLocked.ariaLabel')}
+            className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-200 bg-gray-50 py-2.5 text-[13px] font-medium text-gray-400 hover:border-gray-300 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
+          >
+            {aiIcon}
+            {t('premium.aiOffPlanLocked.buttonLabel')}
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-gray-200 px-1.5 py-0.5 text-[10px] font-semibold text-gray-500 leading-none">
+              <Lock className="h-2.5 w-2.5" aria-hidden />
+              {t('premium.aiOffPlanLocked.badge')}
+            </span>
+          </button>
+        )}
       </div>
     </div>
   )
@@ -656,6 +701,7 @@ interface PendingFeedback {
 export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals }: DailyTimelineProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
+  const isPremium = useIsUserPremium()
 
   const { data: dashboard } = useQuery<DashboardDto>({
     queryKey: ['dashboard', date],
@@ -1091,6 +1137,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                   rationaleOpen={openRationaleCardId === cardData.id}
                   menuOpen={openMenuCardId === cardData.id}
                   mutating={cardMutating}
+                  isPremium={isPremium}
                   onViewRecipe={() => setDetailCard(cardData)}
                   onToggleRationale={() =>
                     setOpenRationaleCardId(prev => (prev === cardData.id ? null : cardData.id))
@@ -1129,6 +1176,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         <OffPlanLogButtons
           onLog={() => setShowOffPlanModal(true)}
           onLogAi={() => setShowAiOffPlanModal(true)}
+          isPremium={isPremium}
         />
       </div>
 

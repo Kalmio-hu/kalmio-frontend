@@ -1839,6 +1839,16 @@
         "sub": "Reaching Termőfa earns two weeks — no card, no surprises.",
         "cta": "View premium features"
       }
+    },
+    "aiOffPlanLocked": {
+      "buttonLabel": "Log with AI",
+      "ariaLabel": "AI meal logging — Founding Member feature",
+      "badge": "Premium"
+    },
+    "rationaleLocked": {
+      "ariaLabel": "Why this? — Founding Member feature",
+      "teaser": "Detailed reasoning for Founding Members.",
+      "cta": "Founding membership"
     }
   },
   "onboarding": {
