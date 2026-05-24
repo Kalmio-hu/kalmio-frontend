@@ -2603,7 +2603,7 @@
     "permission": {
       "ariaLabel": "Notification permission request",
       "title": "Prep reminders",
-      "body": "We'll remind you 5 min before prep — and never spam.",
+      "body": "I'll let you know 5 minutes before it's time to prep.",
       "allow": "Allow",
       "dismiss": "Not now"
     },
