@@ -553,6 +553,7 @@ function DraggableRow({
                 preps={embeddedPreps}
                 listRef={embeddedPrepListRef}
                 onDetach={onDetachEmbeddedPrep}
+                mealName={card.label}
               />
             )}
 
@@ -782,9 +783,11 @@ interface EmbeddedPrepListProps {
   listRef?: React.RefObject<HTMLUListElement | null>
   /** Called with the prepTaskId when the user activates the keyboard Detach button. KALMIO-328. */
   onDetach?: (prepTaskId: string) => void
+  /** Meal label for aria-label interpolation on the detach button. KALMIO-328. */
+  mealName?: string
 }
 
-function EmbeddedPrepList({ preps, listRef, onDetach }: EmbeddedPrepListProps) {
+function EmbeddedPrepList({ preps, listRef, onDetach, mealName }: EmbeddedPrepListProps) {
   const { t } = useTranslation()
   return (
     <ul ref={listRef} className="mt-1.5 flex flex-col gap-1" aria-label={t('dashboard.prep.embedded.listLabel')}>
@@ -811,7 +814,7 @@ function EmbeddedPrepList({ preps, listRef, onDetach }: EmbeddedPrepListProps) {
             <button
               type="button"
               onClick={() => onDetach(prep.id!)}
-              aria-label={t('dashboard.prep.drag.detachAriaLabel')}
+              aria-label={t('dashboard.prep.drag.detachAriaLabel', { mealName: mealName ?? '' })}
               title={t('dashboard.prep.drag.moveToTimeline')}
               className="opacity-0 focus-visible:opacity-100 shrink-0 p-0.5 rounded text-teal-400 hover:text-teal-700 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400"
             >

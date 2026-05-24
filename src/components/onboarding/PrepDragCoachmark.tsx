@@ -14,7 +14,7 @@
  * Tone: competent, calm, no exclamation marks. KALMIO-ADR-007.
  */
 
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
@@ -63,24 +63,6 @@ export function PrepDragCoachmark({ visible }: PrepDragCoachmarkProps) {
       queryClient.setQueryData(USERS_ME_QUERY_KEY, updatedUser)
     },
   })
-
-  // Inject keyframe animation via a <style> tag if not already present.
-  useEffect(() => {
-    if (document.getElementById('coachmark-keyframes')) return
-    const style = document.createElement('style')
-    style.id = 'coachmark-keyframes'
-    style.textContent = `
-      @keyframes coachmark-bounce {
-        0%, 100% { transform: translateY(0); }
-        50%       { transform: translateY(6px); }
-      }
-      @keyframes coachmark-fade-in {
-        from { opacity: 0; transform: translateY(-6px); }
-        to   { opacity: 1; transform: translateY(0); }
-      }
-    `
-    document.head.appendChild(style)
-  }, [])
 
   if (!visible) return null
 

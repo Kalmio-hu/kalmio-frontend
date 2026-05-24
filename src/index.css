@@ -217,6 +217,25 @@ h1, h2, h3 {
   text-underline-offset: 2px;
 }
 
+/* ─── Coachmark animations (KALMIO-326) ─────────────────────────────────────
+ *
+ * Keyframes used by PrepDragCoachmark. Declared here (not via imperative JS)
+ * so they survive React tree re-mounts and are available as soon as the
+ * stylesheet is parsed.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+  @keyframes coachmark-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(6px); }
+  }
+
+  @keyframes coachmark-fade-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
 /* ─── DiofaWidget animations (KALMIO-134) ────────────────────────────────────
  *
  * Three animation layers:

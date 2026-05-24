@@ -9,8 +9,9 @@
  * interaction lightweight. Closes on Escape or outside click.
  *
  * A11y:
- *  - role="listbox" + role="option" so screen readers announce it as a selection list.
- *  - First option receives focus on open.
+ *  - role="menu" + role="menuitem" on <button> elements (ARIA allows interactive
+ *    children in a menu; role="listbox" + role="option" on <button> is invalid).
+ *  - First menuitem receives focus on open.
  *  - Escape closes without selection.
  */
 
@@ -33,11 +34,11 @@ interface AttachMealPickerProps {
 export function AttachMealPicker({ options, onSelect, onClose }: AttachMealPickerProps) {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
-  const firstOptionRef = useRef<HTMLButtonElement>(null)
+  const firstMenuItemRef = useRef<HTMLButtonElement>(null)
 
-  // Focus first option on mount.
+  // Focus first menuitem on mount.
   useEffect(() => {
-    firstOptionRef.current?.focus()
+    firstMenuItemRef.current?.focus()
   }, [])
 
   // Close on outside click.
@@ -66,7 +67,7 @@ export function AttachMealPicker({ options, onSelect, onClose }: AttachMealPicke
   return (
     <div
       ref={containerRef}
-      role="listbox"
+      role="menu"
       aria-label={t('dashboard.prep.attach.pickerTitle')}
       className="absolute z-30 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-md py-1 min-w-[180px] max-w-[240px]"
     >
@@ -94,10 +95,9 @@ export function AttachMealPicker({ options, onSelect, onClose }: AttachMealPicke
         options.map((opt, i) => (
           <button
             key={opt.mealId}
-            ref={i === 0 ? firstOptionRef : undefined}
+            ref={i === 0 ? firstMenuItemRef : undefined}
             type="button"
-            role="option"
-            aria-selected={false}
+            role="menuitem"
             onClick={() => { onSelect(opt.mealId) }}
             className="w-full text-left px-3 py-2 text-[13px] text-gray-800 hover:bg-teal-50 hover:text-teal-800 transition-colors focus-visible:outline-none focus-visible:bg-teal-50 focus-visible:text-teal-800"
           >

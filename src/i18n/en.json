@@ -240,6 +240,26 @@
       "leftover": {
         "badge": "leftover",
         "tapAriaLabel": "Go to source meal: {{source}}"
+      },
+      "drag": {
+        "detachAriaLabel": "Detach prep slot from {{mealName}}",
+        "attachAriaLabel": "Attach to meal",
+        "overflowAriaLabel": "Prep slot embedding options",
+        "moveToTimeline": "Move to timeline",
+        "attachToMeal": "Attach to meal",
+        "rejectionAnim": "This prep slot belongs to a different meal",
+        "embedSuccess": "Prep slot embedded in meal",
+        "detachSuccess": "Prep slot moved to timeline"
+      },
+      "attach": {
+        "pickerTitle": "Choose a meal",
+        "noOptions": "No available meals"
+      }
+    },
+    "coachmark": {
+      "prepDrag": {
+        "body": "Drag prep slots into a meal card — or drag them out to the timeline.",
+        "dismiss": "Got it"
       }
     },
     "planGlance": {
@@ -1625,26 +1645,6 @@
         "body": "{{dayGap}} days longer than this recipe keeps in the fridge ({{fridgeWindow}} days). Add a prep slot to keep it fresh.",
         "cta": "Add prep",
         "splitSuccess": "New prep slot added"
-      },
-      "drag": {
-        "detachAriaLabel": "Detach from meal",
-        "attachAriaLabel": "Attach to meal",
-        "overflowAriaLabel": "Prep slot embedding options",
-        "moveToTimeline": "Move to timeline",
-        "attachToMeal": "Attach to meal",
-        "rejectionAnim": "This prep slot belongs to a different meal",
-        "embedSuccess": "Prep slot embedded in meal",
-        "detachSuccess": "Prep slot moved to timeline"
-      },
-      "attach": {
-        "pickerTitle": "Choose a meal",
-        "noOptions": "No available meals"
-      }
-    },
-    "coachmark": {
-      "prepDrag": {
-        "body": "Drag prep slots into a meal card — or drag them out to the timeline.",
-        "dismiss": "Got it"
       }
     },
     "member": {
