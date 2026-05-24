@@ -127,6 +127,12 @@
         "save": "Mentés",
         "saving": "Mentés…",
         "saved": "Mentve."
+      },
+      "autoTick": {
+        "presumedEaten": "Feltételezem, hogy megetted — visszavonáshoz koppints",
+        "undo": "Vissza: tervezett",
+        "markSkipped": "Kihagytam",
+        "markReplaced": "Mást ettem helyette"
       }
     },
     "aiOffPlan": {
@@ -1203,6 +1209,10 @@
     "title": "A hűtőm",
     "reviewShoppingBanner": "Most adtuk hozzá a vásárlásodat. Nézd át a mennyiségeket és a szavatosságot — a sorra koppintva tudod szerkeszteni.",
     "startGrooming": "Hűtőellenőrzés",
+    "checkButton": {
+      "label": "Hűtőellenőrzés",
+      "ariaLabel": "Hűtőellenőrzés indítása"
+    },
     "subtitle_one": "{{count}} tétel",
     "subtitle_other": "{{count}} tétel",
     "subtitle": "{{count}} tétel",
@@ -1328,7 +1338,12 @@
       "successOnce": "Terv elindítva.",
       "successRecurring": "Ismétlődő terv elindítva.",
       "error": "Most nem sikerült elindítani. Próbáld újra.",
-      "dayLabel": "{{day}}. nap"
+      "dayLabel": "{{day}}. nap",
+      "grooming": {
+        "prompt": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
+        "yes": "Igen, 30 mp",
+        "skip": "Kihagyom"
+      }
     },
     "mealTypes": {
       "BREAKFAST": "Reggeli",

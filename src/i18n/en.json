@@ -127,6 +127,12 @@
         "save": "Save",
         "saving": "Saving…",
         "saved": "Saved."
+      },
+      "autoTick": {
+        "presumedEaten": "Assumed eaten — tap to undo",
+        "undo": "Mark as planned",
+        "markSkipped": "Skipped this",
+        "markReplaced": "Ate something else"
       }
     },
     "aiOffPlan": {
@@ -1203,6 +1209,10 @@
     "title": "My Fridge",
     "reviewShoppingBanner": "Your shopping is now in the fridge. Review quantities and expiry — tap any row to edit.",
     "startGrooming": "Review pantry",
+    "checkButton": {
+      "label": "Fridge check",
+      "ariaLabel": "Start a fridge check"
+    },
     "subtitle_one": "{{count}} item",
     "subtitle_other": "{{count}} items",
     "subtitle": "{{count}} items",
@@ -1328,7 +1338,12 @@
       "successOnce": "Plan started.",
       "successRecurring": "Recurring plan started.",
       "error": "Could not start the plan. Please try again.",
-      "dayLabel": "Day {{day}}"
+      "dayLabel": "Day {{day}}",
+      "grooming": {
+        "prompt": "Quick fridge check? {{count}} item expires this week.",
+        "yes": "Yes, 30 sec",
+        "skip": "Skip"
+      }
     },
     "mealTypes": {
       "BREAKFAST": "Breakfast",
@@ -1548,7 +1563,7 @@
       "templateDrift": {
         "banner": "Template changed since this run — re-run to apply changes",
         "reRunCta": "Re-run",
-        "reRunning": "Starting…",
+        "reRunning": "Re-running…",
         "reRunSuccess": "Schedule restarted from the updated template.",
         "reRunError": "Could not re-run right now. Please try again."
       }

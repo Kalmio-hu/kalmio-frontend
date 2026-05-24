@@ -21,6 +21,26 @@ const CATEGORY_COLOR: Record<IngredientCategory, 'green' | 'orange' | 'gray' | '
   PROTEIN: 'orange', CARB: 'black', FAT: 'gray', VEGGIE: 'green', SPICE: 'gray',
 }
 
+/**
+ * Client-side mirror of ExpiryCalculator.shelfLifeDays() (KALMIO-322).
+ * Keep in sync with the backend enum. If the user submits without an expiry date the
+ * backend applies the same default — this is purely for a better UI suggestion.
+ */
+const CATEGORY_SHELF_LIFE_DAYS: Record<IngredientCategory, number> = {
+  VEGGIE: 5,
+  PROTEIN: 3,
+  CARB: 14,
+  FAT: 365,
+  SPICE: 180,
+}
+
+function computeDefaultExpiryDate(category: IngredientCategory): string {
+  const days = CATEGORY_SHELF_LIFE_DAYS[category] ?? 14
+  const d = new Date()
+  d.setDate(d.getDate() + days)
+  return d.toISOString().split('T')[0]
+}
+
 const UNITS: Unit[] = ['G', 'ML', 'PIECE']
 
 type ExpiryStatus = 'fresh' | 'useSoon' | 'expired'
@@ -75,6 +95,7 @@ export function Fridge() {
   const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<Unit>('G')
   const [expiryDate, setExpiryDate] = useState('')
+  const [expiryAutoFilled, setExpiryAutoFilled] = useState(false)
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
 
   const { data: items = [], isLoading } = useQuery({
@@ -92,6 +113,7 @@ export function Fridge() {
       setAmount('')
       setUnit('G')
       setExpiryDate('')
+      setExpiryAutoFilled(false)
     },
   })
 
@@ -125,6 +147,10 @@ export function Fridge() {
   function handleIngredientSelect(ing: Ingredient) {
     setSelectedIngredient(ing)
     setUnit(ing.gramsPerPiece ? 'PIECE' : 'G')
+    // Auto-fill expiry date from category default (KALMIO-322). The user can tap to change.
+    const suggestion = computeDefaultExpiryDate(ing.category)
+    setExpiryDate(suggestion)
+    setExpiryAutoFilled(true)
     setIngredientDialogOpen(false)
     setAddDialogOpen(true)
   }
@@ -148,9 +174,13 @@ export function Fridge() {
         subtitle={t('fridge.subtitle', { count: items.length })}
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => navigate('/app/grooming')}>
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/app/grooming')}
+              aria-label={t('fridge.checkButton.ariaLabel')}
+            >
               <ClipboardCheck className="h-4 w-4 mr-1.5" />
-              {t('fridge.startGrooming')}
+              {t('fridge.checkButton.label')}
             </Button>
             <Button onClick={() => setIngredientDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
@@ -241,7 +271,7 @@ export function Fridge() {
         excludeIds={items.map(i => i.ingredientId)}
       />
 
-      <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+      <Dialog open={addDialogOpen} onOpenChange={open => { setAddDialogOpen(open); if (!open) { setExpiryAutoFilled(false) } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{t('fridge.addDialog.title')}</DialogTitle>
@@ -280,7 +310,7 @@ export function Fridge() {
                 </div>
               </div>
 
-              {/* Expiry date field */}
+              {/* Expiry date field — auto-filled from category default (KALMIO-322) */}
               <div>
                 <Label htmlFor="fridge-expiry-date">{t('fridge.expiry.dateLabel')}</Label>
                 <Input
@@ -288,14 +318,21 @@ export function Fridge() {
                   type="date"
                   min={todayIso}
                   value={expiryDate}
-                  onChange={e => setExpiryDate(e.target.value)}
+                  onChange={e => {
+                    setExpiryDate(e.target.value)
+                    setExpiryAutoFilled(false)
+                  }}
                   className="mt-1"
                 />
-                <p className="text-xs text-gray-400 mt-1">{t('fridge.expiry.defaultHint')}</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {expiryAutoFilled
+                    ? t('fridge.add.expirySuggested')
+                    : t('fridge.add.expiryHint')}
+                </p>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="secondary" onClick={() => setAddDialogOpen(false)}>
+                <Button variant="secondary" onClick={() => { setAddDialogOpen(false); setExpiryAutoFilled(false) }}>
                   {t('common.cancel')}
                 </Button>
                 <Button
