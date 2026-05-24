@@ -903,7 +903,7 @@
       "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
       "noPreference": "Nincs preferencia",
       "preferLocallySourced": "Inkább helyi alapanyag",
-      "preferLocallySourcedHint": "A tervező előnyben részesíti a magyarországi forrásból származó alapanyagokat tartalmazó recepteket."
+      "preferLocallySourcedHint": "Ha bekapcsolod, a terv elsősorban magyarországi alapanyagokra épülő recepteket javasol."
     },
     "notifications": {
       "title": "Értesítések",

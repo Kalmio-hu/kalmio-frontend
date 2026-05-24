@@ -903,7 +903,7 @@
       "preferredPrepDayOfWeekHint": "The planner will land batches on this day whenever the recipe's hold window allows.",
       "noPreference": "No preference",
       "preferLocallySourced": "Prefer local ingredients",
-      "preferLocallySourcedHint": "The planner will favour recipes built around ingredients sourced from Hungarian producers."
+      "preferLocallySourcedHint": "When on, the planner will favour recipes built on Hungarian-sourced ingredients."
     },
     "notifications": {
       "title": "Notifications",
