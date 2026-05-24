@@ -1373,7 +1373,7 @@ export function Profile() {
                   placeholder={t('common.optional')}
                   className="w-28"
                 />
-                <span className="text-sm text-gray-500">g / nap</span>
+                <span className="text-sm text-gray-500">{t('profile.mealPrefs.proteinUnit')}</span>
               </div>
             </div>
 

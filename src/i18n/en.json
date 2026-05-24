@@ -746,6 +746,7 @@
       "meals": "Meals",
       "mealCalories": "Calorie distribution",
       "proteinTarget": "Protein target",
+      "proteinUnit": "g / day",
       "save": "Save"
     }
   },
