@@ -48,6 +48,14 @@ export const prepTasksService = {
     api.patch(`/api/prep-tasks/${taskId}/scheduled-time`, { scheduledTime }).then(() => undefined),
 
   /**
+   * GET /api/prep-tasks?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+   * Returns all prep tasks for the authenticated user within the given date range (inclusive).
+   * Used by the notification permission prompt to check for upcoming prep slots (KALMIO-315).
+   */
+  listInRange: (startDate: string, endDate: string): Promise<PrepTaskDto[]> =>
+    api.get<PrepTaskDto[]>('/api/prep-tasks', { params: { startDate, endDate } }).then(r => r.data),
+
+  /**
    * POST /api/prep-tasks/{id}/split — split a batched prep task into two
    * when the gap to a served meal exceeds the recipe's fridge hold window.
    * Returns the resulting tasks (KALMIO-268 / Prep-H).

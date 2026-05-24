@@ -49,4 +49,13 @@ export const notificationService = {
    */
   registerSubscription: (req: { endpoint: string; p256dh: string; auth: string }): Promise<void> =>
     api.post('/api/push/subscribe', req).then(() => undefined),
+
+  /**
+   * POST /api/notifications/permission-outcome
+   * Records the browser notification permission outcome for product analytics via the
+   * standard EventPublisher path (KALMIO-315). Do not call posthog.capture directly —
+   * this routes through the backend EventPublisher → PostHogEventForwarder pipeline.
+   */
+  recordPermissionOutcome: (outcome: 'GRANTED' | 'DENIED' | 'DISMISSED'): Promise<void> =>
+    api.post('/api/notifications/permission-outcome', { outcome }).then(() => undefined),
 }

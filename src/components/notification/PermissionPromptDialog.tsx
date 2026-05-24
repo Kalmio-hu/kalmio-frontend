@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bell, BellOff } from 'lucide-react'
+import * as Dialog from '@radix-ui/react-dialog'
 import { Button } from '@/components/ui/button'
-import { capture } from '@/lib/analytics'
+import { notificationService } from '@/services/notificationService'
 
 /**
  * localStorage key that stores whether the user has already been asked.
@@ -52,11 +53,17 @@ interface Props {
  * in localStorage. The user can re-enable in Settings via the browser
  * notification settings (we cannot re-trigger the browser prompt after denial).
  *
+ * Analytics outcome is recorded via the backend EventPublisher path
+ * (POST /api/notifications/permission-outcome), never via direct posthog.capture.
+ *
  * Voice: competent, warm, no exclamation marks.
+ *
+ * Accessibility: uses Radix UI Dialog for automatic focus management,
+ * Escape-key handling, and correct aria-modal semantics (WCAG 2.1 AA).
  */
 export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props) {
   const { t } = useTranslation()
-  const [visible, setVisible] = useState(false)
+  const [open, setOpen] = useState(false)
   const [requesting, setRequesting] = useState(false)
 
   useEffect(() => {
@@ -66,11 +73,9 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
     if (hasBeenAsked(userId)) return
 
     // Show on next tick to avoid rendering during the hydration cycle.
-    const timer = setTimeout(() => setVisible(true), 300)
+    const timer = setTimeout(() => setOpen(true), 300)
     return () => clearTimeout(timer)
   }, [shouldOffer, userId])
-
-  if (!visible) return null
 
   async function handleAllow() {
     setRequesting(true)
@@ -80,7 +85,10 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
       const permission = await Notification.requestPermission()
 
       if (permission === 'granted') {
-        capture('notification_permission_granted', { source: 'PERMISSION_PROMPT' })
+        // Route through EventPublisher — never call posthog.capture directly.
+        notificationService.recordPermissionOutcome('GRANTED').catch((err) => {
+          console.warn('[notification] failed to record GRANTED outcome:', err)
+        })
 
         // Register service worker push subscription if available.
         if ('serviceWorker' in navigator && 'PushManager' in window) {
@@ -100,71 +108,89 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
           }
         }
       } else if (permission === 'denied') {
-        capture('notification_permission_denied', { source: 'PERMISSION_PROMPT' })
+        notificationService.recordPermissionOutcome('DENIED').catch((err) => {
+          console.warn('[notification] failed to record DENIED outcome:', err)
+        })
       } else {
         // 'default' — user closed the browser dialog without deciding.
-        capture('notification_permission_dismissed', { source: 'PERMISSION_PROMPT' })
+        notificationService.recordPermissionOutcome('DISMISSED').catch((err) => {
+          console.warn('[notification] failed to record DISMISSED outcome:', err)
+        })
       }
     } finally {
       setRequesting(false)
-      setVisible(false)
+      setOpen(false)
     }
   }
 
   function handleDismiss() {
     markAsked(userId)
-    capture('notification_permission_dismissed', { source: 'PERMISSION_PROMPT' })
-    setVisible(false)
+    notificationService.recordPermissionOutcome('DISMISSED').catch((err) => {
+      console.warn('[notification] failed to record DISMISSED outcome:', err)
+    })
+    setOpen(false)
   }
 
   return (
-    <div
-      role="dialog"
-      aria-modal="false"
-      aria-label={t('notifications.permission.ariaLabel')}
-      className="mx-4 mt-3 rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm"
-    >
-      <div className="flex items-start gap-3">
-        {/* Status icon — functional, not decorative */}
-        <span
-          aria-hidden="true"
-          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F28C28]/10 text-[#F28C28]"
+    <Dialog.Root open={open} onOpenChange={(next) => { if (!next) handleDismiss() }}>
+      <Dialog.Portal>
+        {/* Transparent overlay — the card renders inline inside the page flow, not
+            centred. We place it at the top of the viewport via position:fixed so it
+            does not shift the layout while still being inside a proper Dialog for
+            focus management and ARIA correctness. */}
+        <Dialog.Overlay className="fixed inset-0 z-40" />
+        <Dialog.Content
+          aria-describedby={undefined}
+          className="fixed left-0 right-0 top-0 z-50 mx-4 mt-3 rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm focus:outline-none"
         >
-          <Bell size={16} />
-        </span>
+          <Dialog.Title className="sr-only">
+            {t('notifications.permission.ariaLabel')}
+          </Dialog.Title>
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
-            {t('notifications.permission.title')}
-          </p>
-          <p className="mt-0.5 text-xs text-[#6B6460] leading-relaxed">
-            {t('notifications.permission.body')}
-          </p>
+          <div className="flex items-start gap-3">
+            {/* Status icon — functional, not decorative */}
+            <span
+              aria-hidden="true"
+              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#F28C28]/10 text-[#F28C28]"
+            >
+              <Bell size={16} />
+            </span>
 
-          <div className="mt-3 flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              disabled={requesting}
-              onClick={handleAllow}
-              className="bg-midnight-black hover:bg-midnight-black/90 text-white rounded-xl text-xs px-4"
-            >
-              {t('notifications.permission.allow')}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled={requesting}
-              onClick={handleDismiss}
-              className="text-[#6B6460] hover:text-[#1A1A1A] rounded-xl text-xs px-3 gap-1"
-            >
-              <BellOff size={13} aria-hidden="true" />
-              {t('notifications.permission.dismiss')}
-            </Button>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">
+                {t('notifications.permission.title')}
+              </p>
+              <p className="mt-0.5 text-xs text-[#6B6460] leading-relaxed">
+                {t('notifications.permission.body')}
+              </p>
+
+              <div className="mt-3 flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={requesting}
+                  onClick={handleAllow}
+                  className="bg-midnight-black hover:bg-midnight-black/90 text-white rounded-xl text-xs px-4"
+                >
+                  {t('notifications.permission.allow')}
+                </Button>
+                <Dialog.Close asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={requesting}
+                    className="text-[#6B6460] hover:text-[#1A1A1A] rounded-xl text-xs px-3 gap-1"
+                  >
+                    <BellOff size={13} aria-hidden="true" />
+                    {t('notifications.permission.dismiss')}
+                  </Button>
+                </Dialog.Close>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

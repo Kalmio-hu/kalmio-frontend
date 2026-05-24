@@ -21,6 +21,7 @@ import { CalendarView } from '@/components/dashboard/CalendarView'
 import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { dashboardService } from '@/services/dashboard'
+import { prepTasksService } from '@/services/prepTasks'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { momentumService } from '@/services/momentum'
 import { usePointsToast } from '@/hooks/usePointsToast'
@@ -29,7 +30,7 @@ import type { DiofaStage, DiofaMoisture } from '@/components/diofa/DiofaWidget'
 import { TeachOnReturnHint } from '@/components/dashboard/TeachOnReturnHint'
 import { useEngagementGap } from '@/hooks/useEngagementGap'
 import { useAuthStore } from '@/store/auth'
-import { todayIsoLocal } from '@/lib/utils'
+import { todayIsoLocal, addDaysIsoLocal } from '@/lib/utils'
 import { PermissionPromptDialog } from '@/components/notification/PermissionPromptDialog'
 import { notificationService } from '@/services/notificationService'
 
@@ -225,6 +226,19 @@ export function Dashboard() {
   const todayBand = moistureHistory?.[moistureHistory.length - 1]?.band
   const diofaMoisture: DiofaMoisture = todayBand ? toWidgetMoisture(todayBand) : 'OK'
 
+  // KALMIO-315: 7-day prep task window for the notification permission prompt.
+  // Checks whether the user has any upcoming prep slots in the next 7 days so the
+  // prompt is shown at the right moment (AC: "active plan with prep slots in the next
+  // 7 days"). Enabled only when there is an active plan and a userId is known.
+  const sevenDayEnd = addDaysIsoLocal(new Date(), 6) // today + 6 = 7 days inclusive
+  const { data: upcomingPrepTasks } = useQuery({
+    queryKey: ['prep-tasks', 'range', today, sevenDayEnd],
+    queryFn: () => prepTasksService.listInRange(today, sevenDayEnd),
+    staleTime: 60_000,
+    enabled: hasActivePlan && !!userId,
+  })
+  const hasUpcomingPrepSlots = (upcomingPrepTasks?.length ?? 0) > 0
+
   // Derive dashboard data for active-plan modules.
   const todaysMeals = dashboardData?.todaysMeals ?? []
   const offPlanMeals = dashboardData?.offPlanMeals ?? []
@@ -255,15 +269,11 @@ export function Dashboard() {
           {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
 
           {/* KALMIO-315: Notification permission prompt — shown only once when user
-              has an active plan with upcoming prep tasks. */}
+              has an active plan with at least one prep slot in the next 7 days. */}
           {userId && (
             <PermissionPromptDialog
               userId={userId}
-              shouldOffer={
-                hasActivePlan &&
-                ((todaysPrepTasks?.length ?? 0) > 0 ||
-                  (tomorrowsPrepTasks?.length ?? 0) > 0)
-              }
+              shouldOffer={hasActivePlan && hasUpcomingPrepSlots}
               onGranted={async (sub) => {
                 try {
                   const raw = sub.toJSON()
