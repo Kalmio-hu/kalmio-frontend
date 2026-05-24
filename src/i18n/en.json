@@ -231,7 +231,7 @@
         "duration": "~{{count}} min"
       },
       "chip": {
-        "ariaLabel": "Prep required: ~{{count}} min",
+        "ariaLabel": "Prep required: approx. {{count}} min",
         "doneAriaLabel": "All prep complete"
       },
       "portion": {

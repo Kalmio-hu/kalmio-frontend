@@ -231,7 +231,7 @@
         "duration": "~{{count}} perc"
       },
       "chip": {
-        "ariaLabel": "Előkészítés szükséges: ~{{count}} perc",
+        "ariaLabel": "Előkészítés szükséges: kb. {{count}} perc",
         "doneAriaLabel": "Minden előkészítés kész"
       },
       "portion": {
