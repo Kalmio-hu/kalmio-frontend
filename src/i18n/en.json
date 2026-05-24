@@ -2065,6 +2065,24 @@
         "cta": "Let's start",
         "chatToggle": "I would rather talk it through"
       },
+      "narrative": {
+        "1": {
+          "lead": "A good habit is not a goal. It is a planted seed.",
+          "body": "You are planting a walnut tree. It grows slowly because it is meant to grow slowly. Fragile at first — each day is a small watering. After a few months it puts down deep roots, and from there it forgives almost everything. Let's begin."
+        },
+        "2": {
+          "lead": "Before we plant, we get to know the soil.",
+          "body": "A few numbers about you — height, weight, how much you move on a normal day. That is enough for me to suggest a sensible calorie and protein target. We fine-tune the rest as we go."
+        },
+        "3": {
+          "lead": "The seed is in the ground. Three small motions keep it alive.",
+          "body": "Weekly planning, a fridge review before shopping, replanning when life intervenes. I'll show you all three now, so nothing surprises you. These are your small waterings."
+        },
+        "4": {
+          "lead": "The first water.",
+          "body": "The ground is heavy at the start because it doesn't know you yet. One moment — I'm assembling your week from what you've told me so far. After this, the rest is yours."
+        }
+      },
       "next": "Next",
       "finish": "Show me my week",
       "planGeneratingBody": "One moment — putting your week together from what we have so far.",

@@ -2065,6 +2065,24 @@
         "cta": "Kezdjük",
         "chatToggle": "Inkább beszéljük meg"
       },
+      "narrative": {
+        "1": {
+          "lead": "A jó szokás nem cél, hanem elültetett mag.",
+          "body": "Diófát ültetsz. Lassan nő, mert érdemes lassan nőnie. Eleinte törékeny — minden napod egy kis öntözés. Pár hónap alatt mély gyökeret ereszt, és onnan már sokkal megbocsátóbb. Kezdjük."
+        },
+        "2": {
+          "lead": "Mielőtt elültetnénk, megismerjük a földet.",
+          "body": "Pár szám rólad — testmagasság, súly, mennyit mozogsz egy átlagos napon. Ennyi kell, hogy értelmes kalória- és fehérjecélt javasoljak. A többit menet közben finomítjuk."
+        },
+        "3": {
+          "lead": "A mag a földben van. Innen három mozdulat tartja életben.",
+          "body": "Heti tervezés, hűtőátnézés a vásárlás előtt, újratervezés, ha közbeszól az élet. Megmutatom mindhármat, hogy ne legyen meglepetés. Ezek a kis öntözések."
+        },
+        "4": {
+          "lead": "Az első víz.",
+          "body": "A föld eleinte nehéz, mert még nem ismer. Egy pillanat — összerakom a hetedet aszerint, amit eddig megosztottál. Aztán már csak a tieden múlik."
+        }
+      },
       "next": "Tovább",
       "finish": "Megnézem a hetemet",
       "planGeneratingBody": "Egy pillanat — összerakom a heted az eddig megadott adatok alapján.",
