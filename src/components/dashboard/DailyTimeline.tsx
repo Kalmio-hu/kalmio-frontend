@@ -527,6 +527,18 @@ function DraggableRow({
           <div className="h-10 rounded-xl border-2 border-dashed border-[#F28C28]/30 bg-orange-50/30" />
         ) : (
           <>
+            {/* Embedded prep slots — rendered ABOVE the meal card because prep happens
+                chronologically before the meal. Sits visually attached on top. */}
+            {embeddedPreps && embeddedPreps.length > 0 && (
+              <div className="mb-1">
+                <EmbeddedPrepList
+                  preps={embeddedPreps}
+                  listRef={embeddedPrepListRef}
+                  onDetach={onDetachEmbeddedPrep}
+                  mealName={card.label}
+                />
+              </div>
+            )}
             <div className={[
               'rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none',
               cardSurface,
@@ -702,16 +714,6 @@ function DraggableRow({
               <LeftoverBadge
                 sourceLabel={leftoverSourceLabel}
                 onTapSource={onScrollToSource}
-              />
-            )}
-
-            {/* Embedded prep slots — tasks that must run immediately before this meal. */}
-            {embeddedPreps && embeddedPreps.length > 0 && (
-              <EmbeddedPrepList
-                preps={embeddedPreps}
-                listRef={embeddedPrepListRef}
-                onDetach={onDetachEmbeddedPrep}
-                mealName={card.label}
               />
             )}
 
@@ -959,22 +961,22 @@ function EmbeddedPrepList({ preps, listRef, onDetach, mealName }: EmbeddedPrepLi
             aria-hidden
           />
           <span className="text-[11px] font-medium text-teal-800 leading-tight truncate flex-1">
-            {prep.recipeName}
+            {t('timeline.prepLabel', { recipe: prep.recipeName })}
           </span>
           {prep.durationMin != null && (
             <span className="text-[10px] text-teal-500 tabular-nums shrink-0">
               {t('dashboard.prep.embedded.duration', { count: prep.durationMin })}
             </span>
           )}
-          {/* Keyboard-accessible detach button (KALMIO-328).
-              Visible on focus-visible; hidden otherwise to stay compact. */}
+          {/* Detach affordance (KALMIO-328) — always visible so users can
+              undo an embed; gets a bit louder on hover/focus. */}
           {onDetach && prep.id && (
             <button
               type="button"
               onClick={() => onDetach(prep.id!)}
               aria-label={t('dashboard.prep.drag.detachAriaLabel', { mealName: mealName ?? '' })}
               title={t('dashboard.prep.drag.moveToTimeline')}
-              className="opacity-0 focus-visible:opacity-100 shrink-0 p-0.5 rounded text-teal-400 hover:text-teal-700 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400"
+              className="opacity-60 hover:opacity-100 focus-visible:opacity-100 shrink-0 p-0.5 rounded text-teal-500 hover:text-teal-700 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400"
             >
               <MoveRight className="h-3 w-3" aria-hidden />
             </button>
