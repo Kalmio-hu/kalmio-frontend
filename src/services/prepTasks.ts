@@ -73,6 +73,14 @@ export const prepTasksService = {
     api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/execute-immediately-before`, { value }).then(r => r.data),
 
   /**
+   * PATCH /api/prep-tasks/{id}/status — toggle a prep task between PENDING and DONE.
+   * On DONE: fires fridge depletion server-side.
+   * On PENDING: restores fridge items from the depletion ledger (KALMIO-311).
+   */
+  updateStatus: (taskId: string, status: 'DONE' | 'PENDING' | 'SKIPPED'): Promise<PrepTaskDto> =>
+    api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/status`, { status }).then(r => r.data),
+
+  /**
    * Convert a PrepTaskDto to the PrepTaskCard shape used by the dashboard
    * TodaysPrepModule — lets the PrepLane reuse the same display helpers.
    */

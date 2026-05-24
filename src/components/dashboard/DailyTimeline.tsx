@@ -35,7 +35,8 @@ import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimeP
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
-import { PrepGooDragContext } from './PrepGooDragContext'
+import { PrepGooDragContext, usePrepGoo } from './PrepGooDragContext'
+import { AttachMealPicker } from './AttachMealPicker'
 import type { MealPickerOption } from './AttachMealPicker'
 import { PrepDragCoachmark, usePrepDragCoachmarkVisible } from '@/components/onboarding/PrepDragCoachmark'
 
@@ -122,10 +123,18 @@ interface TimelineCardData {
   window?: string
   mealId?: string
   prepTaskId?: string
+  /** Current server-side status of the prep task — "PENDING" | "DONE" | "SKIPPED". KALMIO-311. */
+  prepStatus?: string
   /** Set on off-plan (manually logged) meals; identifies the row to delete. */
   offPlanMealId?: string
   recipeId?: string
   macros?: { kcal: number; protein: number; fat: number; carbs: number } | null
+  /**
+   * For standalone prep cards: the planned meal IDs this prep task feeds.
+   * Populated from PrepTaskCard.feedsPlannedMealIds. Used to build the
+   * AttachMealPicker option list. KALMIO-335.
+   */
+  feedsPlannedMealIds?: string[]
 }
 
 // ── time-from-log helper ──────────────────────────────────────────────────
@@ -240,6 +249,15 @@ interface DraggableRowProps {
    * (prepTaskId, mealId) → patch executeImmediatelyBefore = true. KALMIO-328.
    */
   onAttachPrepToMeal?: (prepTaskId: string, mealId: string) => void
+  /**
+   * Current status of the prep task ("PENDING" | "DONE"). Used by the prep-ball
+   * tick handler to show DONE/PENDING state. KALMIO-311.
+   */
+  prepStatus?: string
+  /** Short-tap on the prep-ball spine dot — toggles DONE / PENDING. KALMIO-311. */
+  onPrepTickToggle?: () => void
+  /** Long-press (600 ms) on the prep-ball — opens the step-by-step modal. KALMIO-311. */
+  onPrepLongPress?: () => void
 }
 
 function DraggableRow({
@@ -265,6 +283,11 @@ function DraggableRow({
   leftoverSourceLabel,
   onScrollToSource,
   onDetachEmbeddedPrep,
+  attachMealOptions,
+  onAttachPrepToMeal,
+  prepStatus,
+  onPrepTickToggle,
+  onPrepLongPress,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -272,6 +295,17 @@ function DraggableRow({
   const ns = nodeStyle(card.type)
   const isPrep = card.type === 'prep'
   const isMeal = !!card.mealId
+
+  // KALMIO-335: local open state for the AttachMealPicker popover on standalone prep balls.
+  const [attachPickerOpen, setAttachPickerOpen] = useState(false)
+
+  // KALMIO-336: consume goo drag state to apply rejection cue on invalid drop targets.
+  const { state: prepGooState } = usePrepGoo()
+  const isRejectionTarget =
+    isMeal &&
+    card.mealId != null &&
+    prepGooState.isOverInvalidTarget &&
+    prepGooState.invalidTargetMealId === card.mealId
 
   // Material-style "pickup" cue during the 250ms long-press hold (KALMIO-327).
   // @dnd-kit's isDragging only flips AFTER the sensor fires; isPressing covers
@@ -328,6 +362,58 @@ function DraggableRow({
     ? minutesToHm(liveDragMinutes)
     : minutesToHm(card.startMinutes)
 
+  // Derived: whether the prep ball is in DONE state. KALMIO-311.
+  const isPrepDone = isPrep && prepStatus === 'DONE'
+
+  // Long-press detection for the prep-ball tick circle. KALMIO-311.
+  // Short-tap (< 600 ms) → toggle DONE/PENDING.
+  // Long-press (≥ 600 ms) → open step-by-step modal.
+  const prepTickPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const prepTickDidLongPress = useRef(false)
+
+  const handlePrepTickPointerDown = useCallback((e: React.PointerEvent) => {
+    // Forward to dnd-kit so the drag sensor still works.
+    listeners?.onPointerDown?.(e)
+    prepTickDidLongPress.current = false
+    prepTickPressTimer.current = setTimeout(() => {
+      prepTickDidLongPress.current = true
+      onPrepLongPress?.()
+    }, 600)
+    setIsPressing(true)
+  }, [listeners, onPrepLongPress])
+
+  const handlePrepTickPointerUp = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerUp?.(e)
+    if (prepTickPressTimer.current !== null) {
+      clearTimeout(prepTickPressTimer.current)
+      prepTickPressTimer.current = null
+    }
+    setIsPressing(false)
+  }, [listeners])
+
+  const handlePrepTickPointerCancel = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerCancel?.(e)
+    if (prepTickPressTimer.current !== null) {
+      clearTimeout(prepTickPressTimer.current)
+      prepTickPressTimer.current = null
+    }
+    setIsPressing(false)
+  }, [listeners])
+
+  const handlePrepTickPointerLeave = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerLeave?.(e)
+    if (prepTickPressTimer.current !== null) {
+      clearTimeout(prepTickPressTimer.current)
+      prepTickPressTimer.current = null
+    }
+    setIsPressing(false)
+  }, [listeners])
+
+  const handlePrepTickClick = useCallback(() => {
+    if (prepTickDidLongPress.current) return
+    onPrepTickToggle?.()
+  }, [onPrepTickToggle])
+
   // Long-press detection for the auto-tick button — triggers the secondary menu.
   const autoTickPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const autoTickDidLongPress = useRef(false)
@@ -381,6 +467,33 @@ function DraggableRow({
           >
             <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
           </button>
+        ) : isPrep ? (
+          // Prep-ball tick circle. KALMIO-311.
+          // Short-tap: toggle DONE / PENDING.
+          // Long-press (600 ms): open step-by-step modal.
+          // Drag still works: pointer events are forwarded to dnd-kit listeners.
+          <button
+            type="button"
+            onPointerDown={handlePrepTickPointerDown}
+            onPointerUp={handlePrepTickPointerUp}
+            onPointerCancel={handlePrepTickPointerCancel}
+            onPointerLeave={handlePrepTickPointerLeave}
+            onClick={handlePrepTickClick}
+            aria-label={isPrepDone ? t('dashboard.prep.tick.undoAriaLabel') : t('dashboard.prep.tick.doneAriaLabel')}
+            aria-pressed={isPrepDone}
+            className={[
+              'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center shrink-0 touch-none transition-all focus-visible:outline-none focus-visible:ring-2',
+              isPrepDone
+                ? 'ring-emerald-400 bg-emerald-50 focus-visible:ring-emerald-500'
+                : [ns.ring, ns.bg, 'cursor-grab active:cursor-grabbing'].join(' '),
+              isPressing && !isDragging ? 'scale-[1.04] shadow-md' : '',
+            ].filter(Boolean).join(' ')}
+          >
+            {isPrepDone
+              ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+              : <span className="text-sm" aria-hidden>{ns.icon}</span>
+            }
+          </button>
         ) : (
           <div
             {...listeners}
@@ -418,7 +531,9 @@ function DraggableRow({
               'rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none',
               cardSurface,
               // Highlight the card when a prep is dragged over it (KALMIO-325).
-              isOver && isMeal ? 'ring-2 ring-teal-400 ring-offset-1' : '',
+              isOver && isMeal && !isRejectionTarget ? 'ring-2 ring-teal-400 ring-offset-1' : '',
+              // KALMIO-336: red rejection cue when a wrong-meal prep is dragged over this card.
+              isRejectionTarget ? 'ring-2 ring-red-300 ring-offset-1 bg-red-50 [animation:prep-rejection-shake_0.35s_ease-in-out]' : '',
             ].filter(Boolean).join(' ')}>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
@@ -479,6 +594,35 @@ function DraggableRow({
                   >
                     <Eye className="h-3.5 w-3.5" />
                   </button>
+                )}
+
+                {/* KALMIO-335: Attach-to-meal button for standalone prep balls.
+                    Rendered when feedsPlannedMealIds is non-empty; opens AttachMealPicker. */}
+                {isPrep && (attachMealOptions?.length ?? 0) > 0 && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setAttachPickerOpen(v => !v)}
+                      aria-label={t('dashboard.prep.drag.attachAriaLabel')}
+                      aria-expanded={attachPickerOpen}
+                      title={t('dashboard.prep.drag.attachToMeal')}
+                      className="p-1.5 rounded-md text-teal-500 hover:text-teal-700 hover:bg-teal-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-400"
+                    >
+                      <MoveRight className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                    {attachPickerOpen && attachMealOptions && (
+                      <AttachMealPicker
+                        options={attachMealOptions}
+                        onSelect={(mealId) => {
+                          if (card.prepTaskId && onAttachPrepToMeal) {
+                            onAttachPrepToMeal(card.prepTaskId, mealId)
+                          }
+                          setAttachPickerOpen(false)
+                        }}
+                        onClose={() => setAttachPickerOpen(false)}
+                      />
+                    )}
+                  </div>
                 )}
 
                 {isMeal && (
@@ -1080,6 +1224,14 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
   })
 
+  // KALMIO-311: toggle prep task status PENDING ↔ DONE.
+  // The server handles fridge depletion (on DONE) and fridge restore (on PENDING).
+  const updatePrepStatus = useMutation({
+    mutationFn: ({ taskId, status }: { taskId: string; status: 'DONE' | 'PENDING' }) =>
+      prepTasksService.updateStatus(taskId, status),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
+  })
+
   // Embed / detach a prep task (KALMIO-325 + KALMIO-328).
   const patchEmbedPrep = useMutation({
     mutationFn: ({ taskId, value }: { taskId: string; value: boolean }) =>
@@ -1167,6 +1319,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         window: task.window,
         prepTaskId: task.id,
         recipeId: task.recipeId,
+        prepStatus: task.status,
+        // KALMIO-335: carry feedsPlannedMealIds so the Attach button can build
+        // its picker options list from the valid meal IDs for this prep task.
+        feedsPlannedMealIds: task.feedsPlannedMealIds ?? [],
       })
     })
 
@@ -1252,6 +1408,30 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
     return map
   }, [dashboard])
+
+  // ── prepFeedsMap (KALMIO-335 + KALMIO-336) ──────────────────────────────────
+  // Maps prepTaskId → array of valid plannedMealIds for goo-drag validation and
+  // AttachMealPicker option building.
+
+  const prepFeedsMap = useMemo((): Record<string, string[]> => {
+    const prepTasks = dashboard?.todaysPrepTasks ?? []
+    const map: Record<string, string[]> = {}
+    for (const task of prepTasks) {
+      if (task.id) map[task.id] = task.feedsPlannedMealIds ?? []
+    }
+    return map
+  }, [dashboard])
+
+  // ── meal label map — used to build AttachMealPicker option labels ─────────
+  // Maps mealId → human-readable label for the picker. We use the card label
+  // (which already contains the recipe name) from the sorted card list.
+  const mealLabelById = useMemo((): Record<string, string> => {
+    const labels: Record<string, string> = {}
+    for (const card of cards) {
+      if (card.mealId) labels[card.mealId] = card.label
+    }
+    return labels
+  }, [cards])
 
   // ── coachmark visibility (KALMIO-326) ────────────────────────────────────
   const hasEmbeddedPrep = Object.keys(embeddedPrepsByMealId).length > 0
@@ -1483,6 +1663,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     <PrepGooDragContext
       onEmbedPrepTask={handleEmbedPrepTask}
       onDetachPrepTask={handleDetachPrepTask}
+      prepFeedsMap={prepFeedsMap}
     >
     <DndContext
       sensors={sensors}
@@ -1648,6 +1829,31 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                     }
                   }}
                   onDetachEmbeddedPrep={handleDetachPrepTask}
+                  attachMealOptions={
+                    // KALMIO-335: build picker options from feedsPlannedMealIds.
+                    // Only relevant for standalone prep cards; meal cards will have an
+                    // empty feedsPlannedMealIds so this will produce an empty array.
+                    (cardData.feedsPlannedMealIds ?? [])
+                      .map(mealId => ({
+                        mealId,
+                        label: mealLabelById[mealId] ?? mealId,
+                      }))
+                  }
+                  onAttachPrepToMeal={(prepTaskId, mealId) => {
+                    patchEmbedPrep.mutate({ taskId: prepTaskId, value: true })
+                    void mealId // mealId used for UI context by the picker; PATCH only needs taskId
+                  }}
+                  prepStatus={cardData.prepStatus}
+                  onPrepTickToggle={() => {
+                    if (!cardData.prepTaskId) return
+                    const nextStatus = cardData.prepStatus === 'DONE' ? 'PENDING' : 'DONE'
+                    updatePrepStatus.mutate({ taskId: cardData.prepTaskId, status: nextStatus })
+                  }}
+                  onPrepLongPress={() => {
+                    if (cardData.recipeId) {
+                      navigate(`/app/recipes/${cardData.recipeId}/cook`)
+                    }
+                  }}
                 />
               )
             })

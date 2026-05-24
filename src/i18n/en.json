@@ -254,6 +254,10 @@
       "attach": {
         "pickerTitle": "Choose a meal",
         "noOptions": "No available meals"
+      },
+      "tick": {
+        "doneAriaLabel": "Mark as done",
+        "undoAriaLabel": "Undo — mark as pending"
       }
     },
     "coachmark": {

@@ -254,6 +254,10 @@
       "attach": {
         "pickerTitle": "Válassz étkezést",
         "noOptions": "Nincs elérhető étkezés"
+      },
+      "tick": {
+        "doneAriaLabel": "Megjelölés készként",
+        "undoAriaLabel": "Visszavonás — megjelölés függőbenként"
       }
     },
     "coachmark": {
