@@ -1364,10 +1364,10 @@
         "skip": "Kihagyom"
       },
       "cartPrompt": {
-        "heading": "Hozzáadjuk a bevásárlólistádhoz?",
-        "addAuto": "Automatikus hozzáadás",
+        "heading": "Hozzáadom, amire szükséged van?",
+        "addAuto": "Igen, add hozzá",
         "adding": "Hozzáadás…",
-        "adjustManually": "Kézi módosítás",
+        "adjustManually": "Magam módosítom",
         "dismiss": "Most nem",
         "receiptStub": "Beolvasás nyugtáról — hamarosan",
         "added_one": "{{count}} termék hozzáadva.",

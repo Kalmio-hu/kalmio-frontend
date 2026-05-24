@@ -1364,10 +1364,10 @@
         "skip": "Skip"
       },
       "cartPrompt": {
-        "heading": "Add what you need to your cart?",
-        "addAuto": "Add automatically",
+        "heading": "Shall I add what you need?",
+        "addAuto": "Yes, add it",
         "adding": "Adding…",
-        "adjustManually": "Adjust manually",
+        "adjustManually": "I'll adjust it myself",
         "dismiss": "Not now",
         "receiptStub": "Add from receipt — coming soon",
         "added_one": "{{count}} item added.",
