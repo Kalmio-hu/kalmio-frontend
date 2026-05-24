@@ -91,9 +91,11 @@ export function PlanSidePanel({ plan, recipesById }: PlanSidePanelProps) {
               {t('plan.detail.sidePanel.costMissing', { count: uncostedCells })}
             </p>
           )}
-          <p className="text-[11px] text-[#6b7280] mt-2">
-            {t('plan.detail.sidePanel.costHint', { cells: costedCells })}
-          </p>
+          {costedCells > 0 && (
+            <p className="text-[11px] text-[#6b7280] mt-2">
+              {t('plan.detail.sidePanel.costHint', { count: costedCells })}
+            </p>
+          )}
         </div>
       </section>
 
