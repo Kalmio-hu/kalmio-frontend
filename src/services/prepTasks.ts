@@ -64,6 +64,15 @@ export const prepTasksService = {
     api.post<PrepTaskDto[]>(`/api/prep-tasks/${taskId}/split`).then(r => r.data),
 
   /**
+   * PATCH /api/prep-tasks/{id}/execute-immediately-before — toggle embed/detach.
+   * true  → embedded inside the meal card (executeImmediatelyBefore = true).
+   * false → standalone timeline ball.
+   * Used by goo drag (KALMIO-325) and keyboard a11y buttons (KALMIO-328).
+   */
+  patchExecuteImmediatelyBefore: (taskId: string, value: boolean): Promise<PrepTaskDto> =>
+    api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/execute-immediately-before`, { value }).then(r => r.data),
+
+  /**
    * Convert a PrepTaskDto to the PrepTaskCard shape used by the dashboard
    * TodaysPrepModule — lets the PrepLane reuse the same display helpers.
    */

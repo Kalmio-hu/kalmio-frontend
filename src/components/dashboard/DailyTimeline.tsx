@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils, Check } from 'lucide-react'
+import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils, Check, MoveRight } from 'lucide-react'
 import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { EmbeddedPrepChip } from './EmbeddedPrepChip'
 import { LeftoverBadge } from './LeftoverBadge'
@@ -14,6 +14,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
   type DragStartEvent,
   type DragEndEvent,
   type DragMoveEvent,
@@ -22,7 +23,7 @@ import {
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useDraggable } from '@dnd-kit/core'
 import { dashboardService } from '@/services/dashboard'
-import { usersService } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { planService } from '@/services/plans'
 import { prepTasksService } from '@/services/prepTasks'
 import { offPlanMealsService } from '@/services/offPlanMeals'
@@ -34,6 +35,9 @@ import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimeP
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
+import { PrepGooDragContext } from './PrepGooDragContext'
+import type { MealPickerOption } from './AttachMealPicker'
+import { PrepDragCoachmark, usePrepDragCoachmarkVisible } from '@/components/onboarding/PrepDragCoachmark'
 
 // ── time helpers ──────────────────────────────────────────────────────────
 
@@ -221,6 +225,21 @@ interface DraggableRowProps {
   leftoverSourceLabel?: string
   /** Scrolls the timeline to the batch source meal card. KALMIO-321. */
   onScrollToSource?: () => void
+  /**
+   * Called when user activates the keyboard Detach button for an embedded prep.
+   * prepTaskId is the task to detach. KALMIO-328.
+   */
+  onDetachEmbeddedPrep?: (prepTaskId: string) => void
+  /**
+   * Valid meals this meal's embedded preps can attach to — used by the
+   * keyboard Attach button's picker. KALMIO-328.
+   */
+  attachMealOptions?: MealPickerOption[]
+  /**
+   * Called when user selects a target meal from the AttachMealPicker.
+   * (prepTaskId, mealId) → patch executeImmediatelyBefore = true. KALMIO-328.
+   */
+  onAttachPrepToMeal?: (prepTaskId: string, mealId: string) => void
 }
 
 function DraggableRow({
@@ -245,6 +264,7 @@ function DraggableRow({
   portionBreakdown,
   leftoverSourceLabel,
   onScrollToSource,
+  onDetachEmbeddedPrep,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -252,6 +272,12 @@ function DraggableRow({
   const ns = nodeStyle(card.type)
   const isPrep = card.type === 'prep'
   const isMeal = !!card.mealId
+
+  // Drop zone for embedded prep drag-and-drop (KALMIO-325). Only meal cards
+  // act as drop targets. The PrepGooDragContext (nested DndContext) handles
+  // these — the outer DndContext ignores 'meal-drop:' prefixed IDs.
+  const dropId = isMeal && card.mealId ? `meal-drop:${card.mealId}` : `noop-${card.id}`
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: dropId })
   // Prep cards get a slightly tinted background to distinguish them from meals.
   const cardSurface = isPrep
     ? 'bg-[#F2F7F5] border-teal-100'
@@ -348,13 +374,23 @@ function DraggableRow({
       </div>
 
       {/* Card — setNodeRef HERE so DragOverlay aligns to card, not row */}
-      <div ref={setNodeRef} {...attributes} className="flex-1 pl-2.5 pt-0.5 pb-0.5 min-w-0">
+      {/* setDropRef makes this card a drop target for PrepGooDragContext (KALMIO-325) */}
+      <div
+        ref={(el) => { setNodeRef(el); setDropRef(el) }}
+        {...attributes}
+        className="flex-1 pl-2.5 pt-0.5 pb-0.5 min-w-0"
+      >
         {isDragging ? (
           // Ghost placeholder: dashed outline, same height as real card
           <div className="h-10 rounded-xl border-2 border-dashed border-[#F28C28]/30 bg-orange-50/30" />
         ) : (
           <>
-            <div className={`rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none ${cardSurface}`}>
+            <div className={[
+              'rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none',
+              cardSurface,
+              // Highlight the card when a prep is dragged over it (KALMIO-325).
+              isOver && isMeal ? 'ring-2 ring-teal-400 ring-offset-1' : '',
+            ].filter(Boolean).join(' ')}>
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
                 {card.subtitle && (
@@ -498,7 +534,11 @@ function DraggableRow({
 
             {/* Embedded prep slots — tasks that must run immediately before this meal. */}
             {embeddedPreps && embeddedPreps.length > 0 && (
-              <EmbeddedPrepList preps={embeddedPreps} listRef={embeddedPrepListRef} />
+              <EmbeddedPrepList
+                preps={embeddedPreps}
+                listRef={embeddedPrepListRef}
+                onDetach={onDetachEmbeddedPrep}
+              />
             )}
 
             {/* Auto-tick undo strip — shown when the slot time has passed. KALMIO-310. */}
@@ -720,8 +760,16 @@ function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete
 // ── EmbeddedPrepList ──────────────────────────────────────────────────────
 // Renders inside a meal card body to show the "execute immediately before"
 // prep slots in compact form: knife icon + title + duration. KALMIO-317.
+// Added detach button (KALMIO-328).
 
-function EmbeddedPrepList({ preps, listRef }: { preps: PrepTaskCard[]; listRef?: React.RefObject<HTMLUListElement | null> }) {
+interface EmbeddedPrepListProps {
+  preps: PrepTaskCard[]
+  listRef?: React.RefObject<HTMLUListElement | null>
+  /** Called with the prepTaskId when the user activates the keyboard Detach button. KALMIO-328. */
+  onDetach?: (prepTaskId: string) => void
+}
+
+function EmbeddedPrepList({ preps, listRef, onDetach }: EmbeddedPrepListProps) {
   const { t } = useTranslation()
   return (
     <ul ref={listRef} className="mt-1.5 flex flex-col gap-1" aria-label={t('dashboard.prep.embedded.listLabel')}>
@@ -741,6 +789,19 @@ function EmbeddedPrepList({ preps, listRef }: { preps: PrepTaskCard[]; listRef?:
             <span className="text-[10px] text-teal-500 tabular-nums shrink-0">
               {t('dashboard.prep.embedded.duration', { count: prep.durationMin })}
             </span>
+          )}
+          {/* Keyboard-accessible detach button (KALMIO-328).
+              Visible on focus-visible; hidden otherwise to stay compact. */}
+          {onDetach && prep.id && (
+            <button
+              type="button"
+              onClick={() => onDetach(prep.id!)}
+              aria-label={t('dashboard.prep.drag.detachAriaLabel')}
+              title={t('dashboard.prep.drag.moveToTimeline')}
+              className="opacity-0 focus-visible:opacity-100 shrink-0 p-0.5 rounded text-teal-400 hover:text-teal-700 transition-opacity focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-teal-400"
+            >
+              <MoveRight className="h-3 w-3" aria-hidden />
+            </button>
           )}
         </li>
       ))}
@@ -987,6 +1048,30 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
   })
 
+  // Embed / detach a prep task (KALMIO-325 + KALMIO-328).
+  const patchEmbedPrep = useMutation({
+    mutationFn: ({ taskId, value }: { taskId: string; value: boolean }) =>
+      prepTasksService.patchExecuteImmediatelyBefore(taskId, value),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
+  })
+
+  const handleEmbedPrepTask = useCallback((prepTaskId: string) => {
+    patchEmbedPrep.mutate({ taskId: prepTaskId, value: true })
+  }, [patchEmbedPrep])
+
+  const handleDetachPrepTask = useCallback((prepTaskId: string) => {
+    patchEmbedPrep.mutate({ taskId: prepTaskId, value: false })
+  }, [patchEmbedPrep])
+
+  // Coachmarks — read from the me query cache (already populated by other callers). KALMIO-326.
+  const { data: me } = useQuery({
+    queryKey: USERS_ME_QUERY_KEY,
+    queryFn: usersService.getMe,
+    staleTime: 300_000,
+  })
+
+  const coachmarksSeen = me?.coachmarksSeen ?? []
+
   // ── build card list ──────────────────────────────────────────────────────
 
   const lang = (i18n.language?.startsWith('hu') ? 'hu' : 'en') as 'hu' | 'en'
@@ -1135,6 +1220,16 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
     return map
   }, [dashboard])
+
+  // ── coachmark visibility (KALMIO-326) ────────────────────────────────────
+  const hasEmbeddedPrep = Object.keys(embeddedPrepsByMealId).length > 0
+  const hasStandalonePrep = (dashboard?.todaysPrepTasks ?? []).some(t => !t.executeImmediatelyBefore)
+  const showPrepDragCoachmark = usePrepDragCoachmarkVisible(
+    coachmarksSeen,
+    hasEmbeddedPrep,
+    hasStandalonePrep,
+    false, // DailyTimeline is always the daily view, never the calendar view
+  )
 
   // ── batch prep: first-consumption and dependent meal maps ─────────────────
   // KALMIO-321.
@@ -1353,6 +1448,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const overlayTime = liveDragMinutes !== null ? minutesToHm(liveDragMinutes) : ''
 
   return (
+    <PrepGooDragContext
+      onEmbedPrepTask={handleEmbedPrepTask}
+      onDetachPrepTask={handleDetachPrepTask}
+    >
     <DndContext
       sensors={sensors}
       modifiers={[restrictToVerticalAxis]}
@@ -1360,6 +1459,13 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}
     >
+      {/* Coachmark: shown once when embedded AND standalone preps coexist. KALMIO-326. */}
+      {showPrepDragCoachmark && (
+        <div className="px-3 pb-2">
+          <PrepDragCoachmark visible={showPrepDragCoachmark} />
+        </div>
+      )}
+
       <div ref={outerRef} className="flex flex-col py-1 pb-6">
         <SleepBanner from="00:00" to={wakeTime} />
 
@@ -1509,6 +1615,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                       updateMeal.mutate({ planId: activePlanId, mealId: cardData.mealId, req: { status: 'SKIPPED' } })
                     }
                   }}
+                  onDetachEmbeddedPrep={handleDetachPrepTask}
                 />
               )
             })
@@ -1589,5 +1696,6 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         })() : null}
       </DragOverlay>
     </DndContext>
+    </PrepGooDragContext>
   )
 }

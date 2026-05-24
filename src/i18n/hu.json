@@ -1625,6 +1625,26 @@
         "body": "{{dayGap}} nappal több, mint amennyit a hűtőben eltart ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést a frissesség megtartásához.",
         "cta": "Új előkészítés",
         "splitSuccess": "Új előkészítés hozzáadva"
+      },
+      "drag": {
+        "detachAriaLabel": "Leválasztás az étkezésről",
+        "attachAriaLabel": "Csatolás étkezéshez",
+        "overflowAriaLabel": "Előkészítés beágyazási lehetőségek",
+        "moveToTimeline": "Áthelyezés az idővonalra",
+        "attachToMeal": "Csatolás étkezéshez",
+        "rejectionAnim": "Ez az előkészítés másik étkezéshez tartozik",
+        "embedSuccess": "Előkészítés beágyazva az étkezésbe",
+        "detachSuccess": "Előkészítés leválasztva az idővonalra"
+      },
+      "attach": {
+        "pickerTitle": "Válassz étkezést",
+        "noOptions": "Nincs elérhető étkezés"
+      }
+    },
+    "coachmark": {
+      "prepDrag": {
+        "body": "Húzd be az előkészítési slotot az étkezésbe — vagy húzd ki az idővonalra.",
+        "dismiss": "Értem"
       }
     },
     "member": {

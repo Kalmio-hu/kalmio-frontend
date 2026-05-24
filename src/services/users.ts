@@ -64,6 +64,12 @@ export interface UserSettings {
   goal: Goal | null
   /** Optional override for the goal's default %BW/week rate. Null = use built-in default. */
   goalTargetPct: number | null
+  /**
+   * Identifiers of coachmarks the user has already dismissed.
+   * Server-persisted so the max-once guarantee survives sign-out / device switch.
+   * KALMIO-326.
+   */
+  coachmarksSeen: string[]
 }
 
 export interface BodyDataRequest {
@@ -165,4 +171,13 @@ export const usersService = {
    */
   updateGoal: (req: UpdateGoalRequest): Promise<UserSettings> =>
     api.patch<UserSettings>('/api/users/me/body-data', req).then(r => r.data),
+
+  /**
+   * POST /api/users/me/coachmarks/{name} — record that the user has dismissed a named
+   * coachmark. Idempotent: calling it twice returns the same result.
+   * Returns the updated UserSettings including the new coachmarksSeen list.
+   * KALMIO-326.
+   */
+  markCoachmarkSeen: (name: string): Promise<UserSettings> =>
+    api.post<UserSettings>(`/api/users/me/coachmarks/${encodeURIComponent(name)}`).then(r => r.data),
 }
