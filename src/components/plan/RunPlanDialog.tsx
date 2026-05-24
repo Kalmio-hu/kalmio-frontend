@@ -226,11 +226,6 @@ export function RunPlanDialog({
   }
 
   function cartWindowEnd(result: RunPlanResponse): string | null {
-    if (result.onceMode) {
-      const d = new Date(result.schedule.startDate)
-      d.setDate(d.getDate() + plan.lengthDays - 1)
-      return d.toISOString().slice(0, 10)
-    }
     return result.schedule.endDate
   }
 
@@ -245,128 +240,132 @@ export function RunPlanDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {showGroomingPrompt && (
-            <div
-              role="status"
-              className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex flex-col gap-3"
-            >
-              <p className="text-sm text-amber-900 font-medium">
-                {t('plan.run.grooming.prompt', { count: expiringCount })}
-              </p>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleGroomingYes} className="flex-1">
-                  {t('plan.run.grooming.yes')}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setGroomingDismissed(true)}
-                  className="flex-1 text-amber-700 hover:bg-amber-100"
+          {!cartPromptResult && (
+            <>
+              {showGroomingPrompt && (
+                <div
+                  role="status"
+                  className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex flex-col gap-3"
                 >
-                  {t('plan.run.grooming.skip')}
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="run-start-date"
-              className="text-sm font-medium text-[#374151]"
-            >
-              {t('plan.run.startDateLabel')}
-            </label>
-            <input
-              id="run-start-date"
-              type="date"
-              value={startDate}
-              min={todayIso()}
-              onChange={e => setStartDate(e.target.value)}
-              className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowMoreOptions(v => !v)}
-            className="text-sm text-[#4f46e5] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
-          >
-            {showMoreOptions ? t('plan.run.fewerOptions') : t('plan.run.moreOptions')}
-          </button>
-
-          {showMoreOptions && (
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="run-start-day"
-                className="text-sm font-medium text-[#374151]"
-              >
-                {t('plan.run.startDayIndexLabel')}
-              </label>
-              <select
-                id="run-start-day"
-                value={startDayIndex}
-                onChange={e => setStartDayIndex(Number(e.target.value))}
-                className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
-              >
-                {dayOptions.map(d => (
-                  <option key={d} value={d}>
-                    {t('plan.run.dayLabel', { day: d })}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={() => setShowRecurring(v => !v)}
-            className="text-sm text-[#6b7280] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
-          >
-            {t('plan.run.recurringToggle')}
-          </button>
-
-          {showRecurring && (
-            <div className="flex flex-col gap-3 rounded-lg bg-[#f9fafb] border border-[#e5e7eb] p-3">
-              <p className="text-sm font-semibold text-[#374151]">
-                {t('plan.run.recurringPanelTitle')}
-              </p>
+                  <p className="text-sm text-amber-900 font-medium">
+                    {t('plan.run.grooming.prompt', { count: expiringCount })}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleGroomingYes} className="flex-1">
+                      {t('plan.run.grooming.yes')}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setGroomingDismissed(true)}
+                      className="flex-1 text-amber-700 hover:bg-amber-100"
+                    >
+                      {t('plan.run.grooming.skip')}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col gap-1">
                 <label
-                  htmlFor="run-cadence"
+                  htmlFor="run-start-date"
                   className="text-sm font-medium text-[#374151]"
                 >
-                  {t('plan.run.cadenceLabel')}
+                  {t('plan.run.startDateLabel')}
                 </label>
                 <input
-                  id="run-cadence"
-                  type="number"
-                  min={1}
-                  max={365}
-                  value={cadenceDays}
-                  onChange={e => setCadenceDays(Number(e.target.value))}
-                  className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="run-end-date"
-                  className="text-sm font-medium text-[#374151]"
-                >
-                  {t('plan.run.endDateLabel')}
-                </label>
-                <input
-                  id="run-end-date"
+                  id="run-start-date"
                   type="date"
-                  value={endDate}
-                  min={startDate}
-                  placeholder={t('plan.run.endDatePlaceholder')}
-                  onChange={e => setEndDate(e.target.value)}
+                  value={startDate}
+                  min={todayIso()}
+                  onChange={e => setStartDate(e.target.value)}
                   className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
                 />
               </div>
-            </div>
+
+              <button
+                type="button"
+                onClick={() => setShowMoreOptions(v => !v)}
+                className="text-sm text-[#4f46e5] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+              >
+                {showMoreOptions ? t('plan.run.fewerOptions') : t('plan.run.moreOptions')}
+              </button>
+
+              {showMoreOptions && (
+                <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="run-start-day"
+                    className="text-sm font-medium text-[#374151]"
+                  >
+                    {t('plan.run.startDayIndexLabel')}
+                  </label>
+                  <select
+                    id="run-start-day"
+                    value={startDayIndex}
+                    onChange={e => setStartDayIndex(Number(e.target.value))}
+                    className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                  >
+                    {dayOptions.map(d => (
+                      <option key={d} value={d}>
+                        {t('plan.run.dayLabel', { day: d })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowRecurring(v => !v)}
+                className="text-sm text-[#6b7280] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+              >
+                {t('plan.run.recurringToggle')}
+              </button>
+
+              {showRecurring && (
+                <div className="flex flex-col gap-3 rounded-lg bg-[#f9fafb] border border-[#e5e7eb] p-3">
+                  <p className="text-sm font-semibold text-[#374151]">
+                    {t('plan.run.recurringPanelTitle')}
+                  </p>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="run-cadence"
+                      className="text-sm font-medium text-[#374151]"
+                    >
+                      {t('plan.run.cadenceLabel')}
+                    </label>
+                    <input
+                      id="run-cadence"
+                      type="number"
+                      min={1}
+                      max={365}
+                      value={cadenceDays}
+                      onChange={e => setCadenceDays(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="run-end-date"
+                      className="text-sm font-medium text-[#374151]"
+                    >
+                      {t('plan.run.endDateLabel')}
+                    </label>
+                    <input
+                      id="run-end-date"
+                      type="date"
+                      value={endDate}
+                      min={startDate}
+                      placeholder={t('plan.run.endDatePlaceholder')}
+                      onChange={e => setEndDate(e.target.value)}
+                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                    />
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {!cartPromptResult && (
