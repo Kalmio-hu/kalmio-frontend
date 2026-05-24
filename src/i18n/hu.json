@@ -221,7 +221,7 @@
         "FREEZE_BATCH": "Előre elkészített adag fagyasztással"
       },
       "embedded": {
-        "listLabel": "Azonnal elvégzendő előkészítések",
+        "listLabel": "Tálalás előtt",
         "duration": "~{{count}} perc"
       }
     },
@@ -1222,6 +1222,10 @@
       "unit": "Egység",
       "add": "Hozzáadás",
       "adding": "Hozzáadás…"
+    },
+    "add": {
+      "expiryHint": "Ha nem adod meg, a rendszer a kategória alapján számolja.",
+      "expirySuggested": "Kategória alapú javaslat — módosíthatod."
     },
     "expiry": {
       "fresh": "Friss",

@@ -221,7 +221,7 @@
         "FREEZE_BATCH": "Batch prep with freezing"
       },
       "embedded": {
-        "listLabel": "Prep to do immediately before eating",
+        "listLabel": "Before serving",
         "duration": "~{{count}} min"
       }
     },
@@ -1222,6 +1222,10 @@
       "unit": "Unit",
       "add": "Add",
       "adding": "Adding…"
+    },
+    "add": {
+      "expiryHint": "If left blank, the system estimates from category.",
+      "expirySuggested": "Suggested based on category — tap to change."
     },
     "expiry": {
       "fresh": "Fresh",
