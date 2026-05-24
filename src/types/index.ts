@@ -1320,6 +1320,37 @@ export interface UpdateScheduleRequest {
   endDate?: string | null
 }
 
+// ── Run Plan (KALMIO-307 / KALMIO-320) ───────────────────────────────────
+
+/**
+ * Request body for POST /api/plans/{id}/run.
+ * Creates a Schedule and immediately materialises the plan.
+ */
+export interface RunPlanBody {
+  /** ISO date "YYYY-MM-DD". */
+  startDate: string
+  /**
+   * 1-based day of the plan template to start from (default = 1).
+   * Once-mode: literal — only days startDayIndex..lengthDays are scheduled.
+   * Recurring-mode: rotated — schedule start shifts so day startDayIndex lands on startDate.
+   */
+  startDayIndex?: number | null
+  /** null = one-off single cycle; provided = recurring. */
+  recurrence?: {
+    /** Total rotation period in days; null → backend derives from plan length. */
+    cadenceDays?: number | null
+    /** ISO date "YYYY-MM-DD"; null = open-ended. */
+    endDate?: string | null
+  } | null
+}
+
+/** Response from POST /api/plans/{id}/run. */
+export interface RunPlanResponse {
+  schedule: Schedule
+  rowsWritten: number
+  onceMode: boolean
+}
+
 // ── Materialized Planned Meals (C15 / KALMIO-237) ────────────────────────
 
 /**

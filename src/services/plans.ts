@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal } from '@/types'
+import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse } from '@/types'
 
 // ── Template Meal upsert body ──────────────────────────────────────────────
 
@@ -130,6 +130,18 @@ export const planTemplateService = {
    */
   clearAllTemplateMeals: (planId: string): Promise<void> =>
     api.delete(`/api/plans/${planId}/template-meals`).then(() => undefined),
+
+  /**
+   * POST /api/plans/{id}/run — one-click "Run this plan".
+   *
+   * Creates a Schedule and immediately materialises the plan onto the calendar.
+   * When body.recurrence is null the schedule runs once (literal days startDayIndex..lengthDays).
+   * When body.recurrence is provided the schedule repeats; startDayIndex is rotated.
+   *
+   * (KALMIO-307 / KALMIO-320)
+   */
+  runPlan: (planId: string, body: RunPlanBody): Promise<RunPlanResponse> =>
+    api.post<RunPlanResponse>(`/api/plans/${planId}/run`, body).then(r => r.data),
 
   /**
    * POST /api/plans/{id}/template-meals/swap — atomically swap the
