@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -721,10 +721,10 @@ function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete
 // Renders inside a meal card body to show the "execute immediately before"
 // prep slots in compact form: knife icon + title + duration. KALMIO-317.
 
-function EmbeddedPrepList({ preps }: { preps: PrepTaskCard[] }) {
+function EmbeddedPrepList({ preps, listRef }: { preps: PrepTaskCard[]; listRef?: React.RefObject<HTMLUListElement | null> }) {
   const { t } = useTranslation()
   return (
-    <ul className="mt-1.5 flex flex-col gap-1" aria-label={t('dashboard.prep.embedded.listLabel')}>
+    <ul ref={listRef} className="mt-1.5 flex flex-col gap-1" aria-label={t('dashboard.prep.embedded.listLabel')}>
       {preps.map((prep, i) => (
         <li
           key={prep.id ?? `embedded-prep-${i}`}
@@ -1136,6 +1136,61 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     return map
   }, [dashboard])
 
+  // ── batch prep: first-consumption and dependent meal maps ─────────────────
+  // KALMIO-321.
+  //
+  // For each batch prep (feedsPlannedMealIds.length > 1), the first meal in the
+  // feeds list is the "first-consumption" meal (shows portion breakdown).
+  // All other meals in the list are "dependent" meals (show leftover badge).
+  //
+  // portionBreakdownByMealId: mealId → PortionBreakdownData (first meal only)
+  // leftoverSourceMealIdByMealId: mealId → source mealId (dependent meals only)
+  // mealDayLabels: mealId → short label used in the portion breakdown text.
+
+  const mealDayLabels = useMemo((): Record<string, string> => {
+    // Build a map from mealId → short day+slot label.
+    // For today's meals we use the meal type label; cross-day meals would need
+    // enrichment from the plan endpoint. This is a best-effort display.
+    const labels: Record<string, string> = {}
+    const meals = (plannedMeals && plannedMeals.length > 0) ? plannedMeals : []
+    const legacy = dashboard?.todaysMeals ?? []
+
+    meals.forEach(pm => {
+      if (pm.id) labels[pm.id] = pm.mealType ?? pm.id
+    })
+    legacy.forEach(m => {
+      if (m.mealId) labels[m.mealId] = m.mealType ?? m.mealId
+    })
+    return labels
+  }, [plannedMeals, dashboard])
+
+  const { portionBreakdownByMealId, leftoverSourceMealIdByMealId } = useMemo(() => {
+    const breakdown: Record<string, PortionBreakdownData> = {}
+    const leftoverSource: Record<string, string> = {}
+
+    const prepTasks = dashboard?.todaysPrepTasks ?? []
+    for (const task of prepTasks) {
+      if (!isBatchPrep(task)) continue
+      const feeds = task.feedsPlannedMealIds ?? []
+      if (feeds.length < 2) continue
+      const firstMealId = feeds[0]!
+      // Portion breakdown on the first meal
+      const data = getPortionBreakdownData(task, firstMealId, mealDayLabels)
+      if (data && !breakdown[firstMealId]) {
+        breakdown[firstMealId] = data
+      }
+      // Leftover source on the remaining meals
+      for (let i = 1; i < feeds.length; i++) {
+        const depMealId = feeds[i]!
+        if (!leftoverSource[depMealId]) {
+          leftoverSource[depMealId] = firstMealId
+        }
+      }
+    }
+
+    return { portionBreakdownByMealId: breakdown, leftoverSourceMealIdByMealId: leftoverSource }
+  }, [dashboard, mealDayLabels])
+
   // ── dnd handlers ─────────────────────────────────────────────────────────
 
   const restrictToTimeline = useCallback<Modifier>(({ transform, draggingNodeRect }) => {
@@ -1383,6 +1438,27 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                 ? (embeddedPrepsByMealId[cardData.mealId] ?? [])
                 : []
               const cardIsAutoTicked = autoTickedIds.has(cardData.id)
+
+              // KALMIO-321: batch prep portion breakdown + leftover badge.
+              const portionBreakdown = cardData.mealId
+                ? (portionBreakdownByMealId[cardData.mealId] ?? null)
+                : null
+              const leftoverSourceMealId = cardData.mealId
+                ? (leftoverSourceMealIdByMealId[cardData.mealId] ?? null)
+                : null
+              const leftoverSourceLabel = leftoverSourceMealId
+                ? (mealDayLabels[leftoverSourceMealId] ?? undefined)
+                : undefined
+              // Scroll to the source meal card using the data-card-id attribute
+              // already present on each DraggableRow root div. KALMIO-321.
+              const handleScrollToSource = leftoverSourceMealId
+                ? () => {
+                    const sourceCardId = `meal-${leftoverSourceMealId}`
+                    const el = innerRef.current?.querySelector(`[data-card-id="${sourceCardId}"]`)
+                    el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+                  }
+                : undefined
+
               return (
                 <DraggableRow
                   key={cardData.id}
@@ -1396,6 +1472,9 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                   isPremium={isPremium}
                   embeddedPreps={embeddedPreps.length > 0 ? embeddedPreps : undefined}
                   isAutoTicked={cardIsAutoTicked}
+                  portionBreakdown={portionBreakdown}
+                  leftoverSourceLabel={leftoverSourceLabel}
+                  onScrollToSource={handleScrollToSource}
                   onAutoTickUndo={() => {
                     setSessionUnticked(prev => {
                       const next = new Set(prev)

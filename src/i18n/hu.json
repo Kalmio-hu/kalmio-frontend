@@ -872,6 +872,13 @@
       "preferredPrepDayOfWeek": "Preferált előkészítési nap",
       "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
       "noPreference": "Nincs preferencia"
+    },
+    "notifications": {
+      "title": "Értesítések",
+      "active": "Az értesítések be vannak kapcsolva.",
+      "quietTodayActive": "Ma csend — az előkészítési értesítések szünetelnek.",
+      "resume": "Értesítések visszakapcsolása",
+      "hint": "Az értesítési beállítások a böngészőben is módosíthatók."
     }
   },
   "impersonation": {
@@ -1351,7 +1358,8 @@
       "error": "Most nem sikerült elindítani. Próbáld újra.",
       "dayLabel": "{{day}}. nap",
       "grooming": {
-        "prompt": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
+        "prompt_one": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
+        "prompt_other": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
         "yes": "Igen, 30 mp",
         "skip": "Kihagyom"
       },
@@ -2588,15 +2596,6 @@
       "label": "Ma csend",
       "success": "Ma nem zavarunk",
       "error": "Nem sikerült beállítani"
-    }
-  },
-  "settings": {
-    "notifications": {
-      "title": "Értesítések",
-      "active": "Az értesítések be vannak kapcsolva.",
-      "quietTodayActive": "Ma csend — az előkészítési értesítések szünetelnek.",
-      "resume": "Értesítések visszakapcsolása",
-      "hint": "Az értesítési beállítások a böngészőben is módosíthatók."
     }
   }
 }

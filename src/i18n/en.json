@@ -872,6 +872,13 @@
       "preferredPrepDayOfWeek": "Preferred prep day",
       "preferredPrepDayOfWeekHint": "The planner will land batches on this day whenever the recipe's hold window allows.",
       "noPreference": "No preference"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "active": "Prep notifications are on.",
+      "quietTodayActive": "Quiet today — prep notifications are paused.",
+      "resume": "Resume notifications",
+      "hint": "You can also manage notification permissions in your browser settings."
     }
   },
   "impersonation": {
@@ -1351,7 +1358,8 @@
       "error": "Could not start the plan. Please try again.",
       "dayLabel": "Day {{day}}",
       "grooming": {
-        "prompt": "Quick fridge check? {{count}} item expires this week.",
+        "prompt_one": "Quick fridge check? {{count}} item expires this week.",
+        "prompt_other": "Quick fridge check? {{count}} items expire this week.",
         "yes": "Yes, 30 sec",
         "skip": "Skip"
       },
@@ -2588,15 +2596,6 @@
       "label": "Quiet today",
       "success": "No more reminders today",
       "error": "Could not set quiet mode"
-    }
-  },
-  "settings": {
-    "notifications": {
-      "title": "Notifications",
-      "active": "Prep notifications are on.",
-      "quietTodayActive": "Quiet today — prep notifications are paused.",
-      "resume": "Resume notifications",
-      "hint": "You can also manage notification permissions in your browser settings."
     }
   }
 }
