@@ -1404,3 +1404,40 @@ export interface MaterializedPlannedMeal {
 export interface UpdateMaterializedPlannedMealStatusRequest {
   status: MaterializedPlannedMealStatus
 }
+
+// ── Receipt OCR smart-matching (KALMIO-329) ───────────────────────────────
+
+export type ReceiptMatchSource = 'CART_MATCH' | 'CATALOG_MATCH' | 'UNMATCHED'
+
+/**
+ * A single OCR-extracted receipt line with smart-match results.
+ * Returned as part of ReceiptScanResponse.
+ */
+export interface ReceiptMatchLine {
+  rawText: string
+  /** Null when matchSource is UNMATCHED and the user has not resolved it. */
+  ingredientId: string | null
+  ingredientName: string
+  quantity: number
+  unit: 'G' | 'ML' | 'PIECE'
+  confidence: number
+  matchSource: ReceiptMatchSource
+  autoConfirmed: boolean
+  category: string | null
+  defaultExpiry: string | null  // ISO date "YYYY-MM-DD"
+}
+
+/** Response from POST /api/shopping-cart/{cartId}/receipt/scan */
+export interface ReceiptScanResponse {
+  retailer: string
+  cartId: string
+  lines: ReceiptMatchLine[]
+  matchedCount: number
+  unmatchedCount: number
+}
+
+/** Request body for POST /api/shopping-cart/{cartId}/receipt/confirm */
+export interface CartReceiptConfirmRequest {
+  retailer: string | null
+  lines: ReceiptMatchLine[]
+}

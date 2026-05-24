@@ -52,6 +52,7 @@ import { ConversationalOnboarding } from '@/pages/onboarding/ConversationalOnboa
 import { OnboardingGate } from '@/components/OnboardingGate'
 import { MemberView } from '@/pages/MemberView'
 import { ShoppingCart } from '@/pages/ShoppingCart'
+import ReceiptScanPage from '@/pages/ReceiptScanPage'
 import { CookMode } from '@/pages/CookMode'
 import { RecipeDetail } from '@/pages/RecipeDetail'
 
@@ -192,6 +193,7 @@ export default function App() {
                   <Route path="founding-member/success" element={<FoundingMemberSuccess />} />
                   <Route path="family" element={<Family />} />
                   <Route path="cart" element={<ShoppingCart />} />
+                  <Route path="cart/:cartId/receipt" element={<ReceiptScanPage />} />
                   <Route path="members/:memberId" element={<MemberView />} />
                   <Route path="plans" element={<Plans />} />
                   <Route path="plans/new" element={<PlanCreate />} />

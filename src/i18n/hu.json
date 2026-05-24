@@ -1394,6 +1394,7 @@
         "adjustManually": "Magam módosítom",
         "dismiss": "Most nem",
         "receiptStub": "Beolvasás nyugtáról — hamarosan",
+        "addFromReceipt": "Feltöltöm a blokkról",
         "added_one": "{{count}} termék hozzáadva.",
         "added_other": "{{count}} termék hozzáadva.",
         "addError": "Most nem sikerült hozzáadni. Próbáld a Bolt oldalon.",
@@ -2370,6 +2371,33 @@
       "message_one": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
       "message_other": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
       "reviewLink": "Hűtő megtekintése"
+    }
+  },
+  "shopping": {
+    "receipt": {
+      "title": "Blokk beolvasása",
+      "pickArea": "Válassz képet vagy készíts fotót",
+      "pickInstruction": "Koppints ide a blokk feltöltéséhez",
+      "pickHint": "JPEG, PNG — max. 10 MB",
+      "scanning": "Feldolgozás folyamatban…",
+      "fileTooLarge": "A kép mérete ne haladja meg a 10 MB-ot.",
+      "premiumRequired": "Ez a funkció Kalmio Prémium előfizetést igényel.",
+      "rateLimited": "Túl sok kérés — próbáld újra egy perc múlva.",
+      "ocrUnavailable": "A blokk-feldolgozás jelenleg nem elérhető.",
+      "scanError": "Nem sikerült feldolgozni a blokkot. Próbálj élesebb képet feltölteni.",
+      "confirmTitle": "Ellenőrizd a találatokat",
+      "confirmSubtitle": "{{retailer}} — {{matched}}/{{total}} sor illeszkedett",
+      "unmatched": "nincs egyezés",
+      "badgeCart": "kosárban",
+      "badgeCatalog": "katalógus",
+      "badgeUnmatched": "ismeretlen",
+      "confirmButton_one": "{{count}} tétel hozzáadása a hűtőhöz",
+      "confirmButton_other": "{{count}} tétel hozzáadása a hűtőhöz",
+      "saving": "Mentés…",
+      "confirmError": "Nem sikerült menteni. Próbáld újra.",
+      "doneTitle_one": "{{count}} tétel a hűtőben",
+      "doneTitle_other": "{{count}} tétel a hűtőben",
+      "doneSubtitle": "A lejárati idők a kategória alapján kerültek beállításra."
     }
   },
   "schedules": {

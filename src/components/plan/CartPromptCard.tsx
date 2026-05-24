@@ -1,15 +1,13 @@
 /**
- * CartPromptCard — KALMIO-319
+ * CartPromptCard — KALMIO-319 / KALMIO-329
  *
  * Non-blocking inline card shown after plan generation completes.
  * Offers three actions:
  *   1. Add automatically — calls POST /api/shopping-cart/generate for the
  *      plan's window, shows an item-count confirmation.
  *   2. Adjust manually — navigates to /app/cart so the user edits before saving.
- *   3. Dismiss — no cart created.
- *
- * Receipt stub: disabled button labelled "Add from receipt — coming soon"
- * (KALMIO-303, Wave 3).
+ *   3. Add from receipt — generates a cart then navigates to /app/cart/:cartId/receipt
+ *      (KALMIO-329, replaces the Wave 3 stub from KALMIO-303).
  */
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -29,7 +27,7 @@ interface CartPromptCardProps {
   onDone: () => void
 }
 
-type PromptPhase = 'idle' | 'added'
+type PromptPhase = 'idle' | 'added' | 'generatingForReceipt'
 
 export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCardProps) {
   const { t } = useTranslation()
@@ -67,6 +65,21 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
 
   function handleDone() {
     onDone()
+  }
+
+  function handleReceiptClick() {
+    // Generate a cart first (same as "Add automatically") then redirect to receipt scan.
+    setPhase('generatingForReceipt')
+    addMutation.mutate(undefined, {
+      onSuccess: data => {
+        onDone()
+        navigate(`/app/cart/${data.cartId}/receipt`)
+      },
+      onError: () => {
+        toast({ title: t('plan.run.cartPrompt.addError'), variant: 'destructive' })
+        setPhase('idle')
+      },
+    })
   }
 
   // ── Confirmation phase ──────────────────────────────────────────────────────
@@ -136,15 +149,22 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
           {t('plan.run.cartPrompt.adjustManually')}
         </Button>
 
-        {/* Receipt OCR stub — Wave 3 / KALMIO-303 */}
+        {/* Receipt OCR — KALMIO-329 */}
         <Button
           size="sm"
           variant="ghost"
-          disabled
-          className="w-full text-[#9ca3af] cursor-not-allowed"
-          aria-disabled="true"
+          onClick={handleReceiptClick}
+          disabled={addMutation.isPending || phase === 'generatingForReceipt'}
+          className="w-full text-[#4f46e5] hover:bg-[#ede9fe]"
         >
-          {t('plan.run.cartPrompt.receiptStub')}
+          {phase === 'generatingForReceipt'
+            ? (
+              <span className="flex items-center justify-center gap-2">
+                <Spinner className="w-4 h-4" />
+                {t('plan.run.cartPrompt.adding')}
+              </span>
+            )
+            : t('plan.run.cartPrompt.addFromReceipt')}
         </Button>
       </div>
 
