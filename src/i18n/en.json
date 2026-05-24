@@ -2369,8 +2369,6 @@
     }
   },
   "schedules": {
-    "pageTitle": "My Rhythm",
-    "pageSubtitle": "Recurring plans on the calendar",
     "newScheduleCta": "New schedule",
     "noSchedules": "No schedules yet.",
     "noSchedulesHint": "Pick a plan and assign it to a start date.",

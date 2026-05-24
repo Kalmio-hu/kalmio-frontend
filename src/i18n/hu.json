@@ -2369,8 +2369,6 @@
     }
   },
   "schedules": {
-    "pageTitle": "Ritmusom",
-    "pageSubtitle": "Visszatérő tervek a naptárban",
     "newScheduleCta": "Új ütemezés",
     "noSchedules": "Még nincs ütemezés.",
     "noSchedulesHint": "Válassz egy tervet, és rendeld hozzá egy kezdő dátumhoz.",
