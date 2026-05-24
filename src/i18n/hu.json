@@ -551,6 +551,13 @@
     }
   },
   "retail": {
+    "providers": {
+      "title": "Bolti forgalmazók",
+      "subtitle_one": "{{count}} forgalmazó",
+      "subtitle_other": "{{count}} forgalmazó",
+      "empty": "Még nincs bejegyzett forgalmazó.",
+      "inactive": "Inaktív"
+    },
     "title": "Kiskereskedelmi termékek",
     "subtitle_one": "{{count}} termék",
     "subtitle_other": "{{count}} termék",

@@ -15,6 +15,7 @@ import { ShoppingList } from '@/pages/ShoppingList'
 import { Fridge } from '@/pages/Fridge'
 import { Grooming } from '@/pages/Grooming'
 import { RetailProducts } from '@/pages/RetailProducts'
+import { RetailProviders } from '@/pages/RetailProviders'
 import { Settings } from '@/pages/Settings'
 import { Profile } from '@/pages/Profile'
 import { Preferences } from '@/pages/Preferences'
@@ -214,9 +215,7 @@ export default function App() {
                     <Route path="admin/content-review" element={<ContentReview />} />
                     {/* Retail routes moved under admin (KALMIO-305) */}
                     <Route path="admin/retail/products" element={<RetailProducts />} />
-                    {/* RetailProviders page: reuses RetailProducts temporarily — providers
-                        are listed within that page. A dedicated page can be extracted later. */}
-                    <Route path="admin/retail/providers" element={<RetailProducts />} />
+                    <Route path="admin/retail/providers" element={<RetailProviders />} />
                   </Route>
                 </Route>
               </Route>

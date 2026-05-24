@@ -551,6 +551,13 @@
     }
   },
   "retail": {
+    "providers": {
+      "title": "Retail Providers",
+      "subtitle_one": "{{count}} provider",
+      "subtitle_other": "{{count}} providers",
+      "empty": "No providers registered yet.",
+      "inactive": "Inactive"
+    },
     "title": "Retail Products",
     "subtitle_one": "{{count}} product",
     "subtitle_other": "{{count}} products",
