@@ -1588,6 +1588,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       let isOverValid = false
       let isOverInvalid = false
       let invalidMealId: string | null = null
+      let targetRect: { left: number; top: number; width: number; height: number } | null = null
       if (overId?.startsWith('meal-drop:')) {
         const hoverMealId = overId.slice('meal-drop:'.length)
         const validMealIds = prepFeedsMap[card.prepTaskId] ?? []
@@ -1597,10 +1598,17 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
           isOverInvalid = true
           invalidMealId = hoverMealId
         }
+        // Use the droppable's current rect so the goo target anchor sits on
+        // top of the meal card the cursor is hovering. Falls back to the
+        // initial rect if the live one isn't measured yet.
+        const r = event.over?.rect ?? null
+        if (r) {
+          targetRect = { left: r.left, top: r.top, width: r.width, height: r.height }
+        }
       }
 
       if (pointer) {
-        gooApiRef.current?.updatePrepDrag(pointer, { isOverValid, isOverInvalid, invalidMealId })
+        gooApiRef.current?.updatePrepDrag(pointer, { isOverValid, isOverInvalid, invalidMealId, targetRect })
       }
     }
   }, [cards, wakeMinutes, sleepMinutes, prepFeedsMap])

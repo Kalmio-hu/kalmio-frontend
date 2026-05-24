@@ -75,6 +75,12 @@ export interface PrepGooState {
    * KALMIO-336.
    */
   invalidTargetMealId: string | null
+  /**
+   * Rect of the meal-drop droppable the cursor is currently over (any meal,
+   * valid or invalid). Used to render the "target anchor" goo blob so the
+   * fluid visually fuses source → cursor → target when close enough.
+   */
+  targetRect: { left: number; top: number; width: number; height: number } | null
 }
 
 interface PrepGooContextValue {
@@ -87,7 +93,13 @@ interface PrepGooContextValue {
   /** Update pointer + drop-target state during a prep drag. */
   updatePrepDrag: (
     pointer: { x: number; y: number },
-    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+    overState: {
+      isOverValid: boolean
+      isOverInvalid: boolean
+      invalidMealId: string | null
+      /** Rect of the meal-drop the cursor is over (any meal). Optional. */
+      targetRect?: { left: number; top: number; width: number; height: number } | null
+    },
   ) => void
   /** Clear all drag state. Idempotent. */
   endPrepDrag: () => void
@@ -216,7 +228,12 @@ export interface PrepGooApi {
   ) => void
   updatePrepDrag: (
     pointer: { x: number; y: number },
-    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+    overState: {
+      isOverValid: boolean
+      isOverInvalid: boolean
+      invalidMealId: string | null
+      targetRect?: { left: number; top: number; width: number; height: number } | null
+    },
   ) => void
   endPrepDrag: () => void
 }
@@ -260,6 +277,7 @@ export function PrepGooDragContext({
     isOverValidTarget: false,
     isOverInvalidTarget: false,
     invalidTargetMealId: null,
+    targetRect: null,
   })
 
   // Imperative state setters driven from the parent DndContext's drag
@@ -278,13 +296,19 @@ export function PrepGooDragContext({
       isOverValidTarget: false,
       isOverInvalidTarget: false,
       invalidTargetMealId: null,
+      targetRect: null,
     })
     triggerHaptic()
   }, [])
 
   const updatePrepDrag = useCallback((
     pointer: { x: number; y: number },
-    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+    overState: {
+      isOverValid: boolean
+      isOverInvalid: boolean
+      invalidMealId: string | null
+      targetRect?: { left: number; top: number; width: number; height: number } | null
+    },
   ) => {
     setState(s => ({
       ...s,
@@ -292,6 +316,7 @@ export function PrepGooDragContext({
       isOverValidTarget: overState.isOverValid,
       isOverInvalidTarget: overState.isOverInvalid,
       invalidTargetMealId: overState.invalidMealId,
+      targetRect: overState.targetRect ?? null,
     }))
   }, [])
 
@@ -303,6 +328,7 @@ export function PrepGooDragContext({
       isOverValidTarget: false,
       isOverInvalidTarget: false,
       invalidTargetMealId: null,
+      targetRect: null,
     })
   }, [])
 
@@ -327,6 +353,12 @@ export function PrepGooDragContext({
   React.useEffect(() => {
     if (!apiRef) return
     apiRef.current = { beginPrepDrag, updatePrepDrag, endPrepDrag }
+    // Dev-only smoke-test surface: lets us call window.__kalmioPrepGoo.beginPrepDrag(...)
+    // from the DevTools console to verify the overlay renders without driving
+    // an actual drag through @dnd-kit. Stripped in production builds.
+    if (import.meta.env.DEV) {
+      ;(window as unknown as { __kalmioPrepGoo?: PrepGooApi }).__kalmioPrepGoo = apiRef.current
+    }
     return () => { apiRef.current = null }
   }, [apiRef, beginPrepDrag, updatePrepDrag, endPrepDrag])
 
@@ -348,6 +380,7 @@ export function PrepGooDragContext({
         <GooStretch
           home={state.homeRect}
           pointer={state.dragPointer}
+          target={state.targetRect}
           valid={state.isOverValidTarget}
           invalid={state.isOverInvalidTarget}
         />,
@@ -362,43 +395,55 @@ export function PrepGooDragContext({
 interface GooStretchProps {
   home: { left: number; top: number; width: number; height: number }
   pointer: { x: number; y: number }
+  target: { left: number; top: number; width: number; height: number } | null
   valid: boolean
   invalid: boolean
 }
 
 /**
- * Three blobs under the #goo filter:
- *   - source anchor at the dragged item's home rect
- *   - tether at the midpoint, scaling down with distance (the "neck")
- *   - cursor blob at the pointer
+ * Goo overlay — fluid blobs fused by the SVG #goo filter (see GooFilterDefs).
  *
- * The goo filter merges them into a single shape when close. Once the cursor
- * pulls past ~1.5× STICK_RING_RADIUS the tether fades and the cursor blob
- * separates — the visual "snap." Colour reflects validity:
- *   - teal (default / free)
- *   - purple-ish (snapping to a valid meal)
- *   - red (over an invalid meal — wrong feeds set)
+ *   - home anchor:    bulge at the dragged row's original position
+ *   - tether blob:    1-2 intermediate blobs that bridge home → pointer; ALWAYS
+ *                     rendered (no distance cutoff) so the user sees a continuous
+ *                     fluid from start to cursor even at long drag distances
+ *   - cursor blob:    follows the pointer
+ *   - target anchor:  when the cursor is over a meal-drop droppable, an extra
+ *                     blob inflates at that meal's rect. The filter then fuses
+ *                     source + tether + cursor + target into ONE shape — the
+ *                     "merged" state the founder asked for
+ *
+ * Colour reflects validity: teal (free), purple (snapping into valid meal),
+ * red (over invalid meal — wrong feeds set, KALMIO-336 rejection).
  */
-function GooStretch({ home, pointer, valid, invalid }: GooStretchProps) {
+function GooStretch({ home, pointer, target, valid, invalid }: GooStretchProps) {
   const homeCx = home.left + home.width / 2
   const homeCy = home.top + home.height / 2
   const dist = Math.hypot(pointer.x - homeCx, pointer.y - homeCy)
-  const stretch = Math.min(dist / STICK_RING_RADIUS_PX, 1.6)
-  const tethered = dist < STICK_RING_RADIUS_PX * 1.5
 
-  // Colour reflects the drop validity. Teal is the resting/free state.
-  // Purple-ish is the demo's "snapping" colour (a29bfe) — communicates pull-in.
-  // Red is the rejection cue for an invalid drop (wrong meal).
+  // Colour reflects the drop validity.
   const color = invalid ? '#fca5a5' : valid ? '#a29bfe' : '#14b8a6'
 
-  // Tether is anchored at the midpoint between home and pointer.
-  const tx = (homeCx + pointer.x) / 2
-  const ty = (homeCy + pointer.y) / 2
+  // Source anchor — capped pill at home; reads as the row "bulging out".
+  const anchorW = Math.min(home.width, 160)
+  const anchorH = Math.min(home.height, 48)
 
-  // Source anchor sized roughly to the home rect — looks like the row "bulges"
-  // out toward the cursor. Capped so very tall rows don't dominate.
-  const anchorW = Math.min(home.width, 140)
-  const anchorH = Math.min(home.height, 44)
+  // Tether bridge: render N intermediate blobs along the line from home to
+  // cursor so the goo filter has overlapping shapes to fuse all the way down
+  // the path. With one intermediate blob and ~135px goo-merge radius the
+  // fluid breaks past short distances; chaining several blobs keeps the
+  // fluid continuous no matter how far the user pulls.
+  const bridgeBlobs = Math.max(2, Math.ceil(dist / 70))
+  const bridgeRadius = 28
+  const bridges: Array<{ x: number; y: number; r: number }> = []
+  for (let i = 1; i <= bridgeBlobs; i++) {
+    const t = i / (bridgeBlobs + 1)
+    bridges.push({
+      x: homeCx + (pointer.x - homeCx) * t,
+      y: homeCy + (pointer.y - homeCy) * t,
+      r: bridgeRadius,
+    })
+  }
 
   return (
     <div
@@ -407,7 +452,7 @@ function GooStretch({ home, pointer, valid, invalid }: GooStretchProps) {
       aria-hidden
     >
       <div className="absolute inset-0" style={{ filter: 'url(#goo)' }}>
-        {/* Source anchor — bulge at the home position. */}
+        {/* Source anchor — bulge at home. */}
         <div
           className="absolute rounded-3xl"
           style={{
@@ -420,18 +465,34 @@ function GooStretch({ home, pointer, valid, invalid }: GooStretchProps) {
             transition: 'background 0.2s',
           }}
         />
-        {/* Tether blob — between home and cursor, scaling down with distance. */}
-        {tethered && (
+        {/* Tether bridge — multiple blobs along home → cursor so the goo
+            filter keeps them fused at any distance. */}
+        {bridges.map((b, i) => (
           <div
+            key={i}
             className="absolute rounded-full"
             style={{
-              left: tx - 26,
-              top: ty - 26,
-              width: 52,
-              height: 52,
+              left: b.x - b.r,
+              top: b.y - b.r,
+              width: b.r * 2,
+              height: b.r * 2,
               background: color,
-              opacity: Math.max(1 - stretch * 0.8, 0),
-              transform: `scale(${Math.max(1 - stretch * 0.45, 0.25)})`,
+              transition: 'background 0.2s',
+            }}
+          />
+        ))}
+        {/* Target anchor — only when the cursor is over a meal-drop. The goo
+            fuses cursor + target into one shape, communicating the "snap". */}
+        {target && (valid || invalid) && (
+          <div
+            className="absolute rounded-3xl"
+            style={{
+              left: target.left + 4,
+              top: target.top + 4,
+              width: Math.max(target.width - 8, 0),
+              height: Math.max(target.height - 8, 0),
+              background: color,
+              opacity: 0.7,
               transition: 'background 0.2s',
             }}
           />
@@ -440,10 +501,10 @@ function GooStretch({ home, pointer, valid, invalid }: GooStretchProps) {
         <div
           className="absolute rounded-full"
           style={{
-            left: pointer.x - 24,
-            top: pointer.y - 24,
-            width: 48,
-            height: 48,
+            left: pointer.x - 28,
+            top: pointer.y - 28,
+            width: 56,
+            height: 56,
             background: color,
             boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
             transition: 'background 0.2s',
