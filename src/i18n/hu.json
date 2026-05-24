@@ -859,11 +859,11 @@
   },
   "admin": {
     "popup": {
-      "triggerAria": "Adminisztrátori menü",
+      "triggerAria": "Admin menü",
       "label": "Admin",
       "users": "Felhasználók",
       "ipVault": "IP Trezor",
-      "contentReview": "Tartalom jóváhagyás",
+      "contentReview": "Tartalomjóváhagyás",
       "retailProducts": "Bolti termékek",
       "retailProviders": "Bolti forgalmazók"
     },
