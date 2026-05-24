@@ -17,7 +17,13 @@ import { useState, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, MoreHorizontal, Check } from 'lucide-react'
+import { ChevronLeft, MoreHorizontal, Check, Plus, Pause, Play, Square, Pencil, Zap } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
+import type { Schedule, ScheduleStatus } from '@/types'
 import { Header } from '@/components/layout/Header'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
@@ -43,6 +49,7 @@ import {
   type DragOverEvent,
 } from '@dnd-kit/core'
 import { PlanMacroSummary } from '@/components/plan/PlanMacroSummary'
+import { TemplateDriftBanner } from '@/components/plan/TemplateDriftBanner'
 import { aggregateTargets, dailyTotals, weeklyAverage, targetsFromLive, targetsForMember, preferredSlotsByMember } from '@/lib/planMacros'
 import { RecipePalette } from '@/components/plan/RecipePalette'
 import { TrashDropZone, TRASH_DROP_ID } from '@/components/plan/TrashDropZone'
@@ -54,6 +61,7 @@ import { recipesService } from '@/services/recipes'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { familyService } from '@/services/family'
 import { templatePrepSlotsService } from '@/services/templatePrepSlots'
+import { schedulesService } from '@/services/schedules'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
@@ -61,6 +69,10 @@ import { toast } from '@/components/ui/toast'
 import type { MealType, TemplateMeal } from '@/types'
 
 const MAX_HEADER_CHIPS = 4
+
+// ── Tab type ─────────────────────────────────────────────────────────────
+
+type PlanDetailTab = 'template' | 'runs'
 
 // ── Active cell state ────────────────────────────────────────────────────
 
@@ -84,6 +96,7 @@ export function PlanDetail() {
   const lang = (i18n.resolvedLanguage === 'hu' ? 'hu' : 'en') as 'hu' | 'en'
 
   // ── Local UI state ───────────────────────────────────────────────────────
+  const [activeTab, setActiveTab] = useState<PlanDetailTab>('template')
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
@@ -159,6 +172,19 @@ export function PlanDetail() {
     enabled: !!id && !!plan,
     staleTime: 30_000,
   })
+
+  // Schedules that include this plan — drives the Runs tab (KALMIO-306) and the
+  // TemplateDriftBanner (KALMIO-323). Always fetched so the banner appears on template tab too.
+  const { data: allSchedules = [] } = useQuery({
+    queryKey: ['schedules'],
+    queryFn: schedulesService.list,
+    staleTime: 30_000,
+    enabled: !!id && !!plan,
+  })
+  // Filter to schedules that reference this plan template.
+  const planSchedules = allSchedules.filter(s => id && s.planIds.includes(id))
+  // First ACTIVE schedule for this plan — used by TemplateDriftBanner (KALMIO-323).
+  const activeSchedule = planSchedules.find(s => s.status === 'ACTIVE') ?? null
 
   // Prep-hold violations for this template — fetched from the Prep-H endpoint
   // (KALMIO-265). Used to render PrepHoldViolationBanner above offending cells.
@@ -826,6 +852,57 @@ export function PlanDetail() {
         </div>
       </div>
 
+      {/* Template drift banner — shown when an active schedule's snapshot is stale (KALMIO-323) */}
+      {activeSchedule && id && (
+        <TemplateDriftBanner planId={id} scheduleId={activeSchedule.id} />
+      )}
+
+      {/* Tab bar — Template | Futtatások (KALMIO-306) */}
+      <div
+        role="tablist"
+        aria-label={plan.name}
+        className="flex gap-1 mb-6 border-b border-[#e5e7eb]"
+      >
+        {(['template', 'runs'] as PlanDetailTab[]).map(tab => (
+          <button
+            key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
+            aria-controls={`tabpanel-${tab}`}
+            id={`tab-${tab}`}
+            type="button"
+            onClick={() => setActiveTab(tab)}
+            className={`
+              px-4 py-2 -mb-px text-sm font-medium border-b-2 transition-colors
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+              ${activeTab === tab
+                ? 'border-[#4f46e5] text-[#4f46e5]'
+                : 'border-transparent text-[#6b7280] hover:text-[#1A1A1A] hover:border-[#d1d5db]'}
+            `}
+          >
+            {tab === 'template'
+              ? t('plan.detail.tabs.template')
+              : t('plan.detail.tabs.runs.label')}
+          </button>
+        ))}
+      </div>
+
+      {/* Runs tab panel (KALMIO-306) */}
+      {activeTab === 'runs' && (
+        <div
+          role="tabpanel"
+          id="tabpanel-runs"
+          aria-labelledby="tab-runs"
+          className="pb-10"
+        >
+          <PlanRunsTab planId={id!} schedules={planSchedules} />
+        </div>
+      )}
+
+      {/* Template tab panel */}
+      {activeTab === 'template' && (
+        <div role="tabpanel" id="tabpanel-template" aria-labelledby="tab-template">
+
       {/* Macro summary + per-day rollup vs targets */}
       {(() => {
         const daily = dailyTotals(plan, recipesById)
@@ -1216,7 +1293,289 @@ export function PlanDetail() {
           </div>
         </DialogContent>
       </Dialog>
+        </div>
+      )}
     </div>
+  )
+}
+
+// ── Plan Runs tab ─────────────────────────────────────────────────────────
+//
+// Shows schedules that reference this plan template. Reuses the schedule card
+// from the Schedules page — rendered inline, filtered to this plan's ID.
+// KALMIO-306
+
+function statusBadgeVariant(status: ScheduleStatus): 'green' | 'amber' | 'gray' {
+  if (status === 'ACTIVE') return 'green'
+  if (status === 'PAUSED') return 'amber'
+  return 'gray'
+}
+
+function cadenceLabel(cadenceDays: number, t: ReturnType<typeof useTranslation>['t']): string {
+  if (cadenceDays === 7) return t('schedules.cadence.weekly')
+  if (cadenceDays === 14) return t('schedules.cadence.biweekly')
+  return t('schedules.cadence.custom', { count: cadenceDays })
+}
+
+interface PlanRunsTabProps {
+  planId: string
+  schedules: Schedule[]
+}
+
+function PlanRunsTab({ planId, schedules }: PlanRunsTabProps) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm text-[#6b7280]">
+          {schedules.length === 0
+            ? t('plan.detail.tabs.runs.noRuns')
+            : null}
+        </p>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => navigate(`/app/schedules/new?planId=${planId}`)}
+          className="flex items-center gap-1.5"
+        >
+          <Plus className="w-4 h-4" aria-hidden />
+          {t('plan.detail.tabs.runs.newRunCta')}
+        </Button>
+      </div>
+
+      {schedules.length > 0 && (
+        <div className="flex flex-col gap-3">
+          {schedules.map(s => (
+            <RunCard key={s.id} schedule={s} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RunCard({ schedule }: { schedule: Schedule }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+  const [materializeOpen, setMaterializeOpen] = useState(false)
+  const [endConfirmOpen, setEndConfirmOpen] = useState(false)
+
+  const { mutate: doPause, isPending: isPausing } = useMutation({
+    mutationFn: () => schedulesService.pause(schedule.id),
+    onSuccess: () => {
+      toast({ title: t('schedules.actions.pauseSuccess') })
+      void qc.invalidateQueries({ queryKey: ['schedules'] })
+    },
+    onError: () => toast({ title: t('schedules.actions.actionError'), variant: 'destructive' }),
+  })
+
+  const { mutate: doResume, isPending: isResuming } = useMutation({
+    mutationFn: () => schedulesService.resume(schedule.id),
+    onSuccess: () => {
+      toast({ title: t('schedules.actions.resumeSuccess') })
+      void qc.invalidateQueries({ queryKey: ['schedules'] })
+    },
+    onError: () => toast({ title: t('schedules.actions.actionError'), variant: 'destructive' }),
+  })
+
+  const { mutate: doEnd, isPending: isEnding } = useMutation({
+    mutationFn: () => schedulesService.delete(schedule.id),
+    onSuccess: () => {
+      toast({ title: t('schedules.actions.endSuccess') })
+      void qc.invalidateQueries({ queryKey: ['schedules'] })
+    },
+    onError: () => toast({ title: t('schedules.actions.actionError'), variant: 'destructive' }),
+  })
+
+  const isActive = schedule.status === 'ACTIVE'
+  const isPaused = schedule.status === 'PAUSED'
+  const isEnded = schedule.status === 'ENDED'
+  const isBusy = isPausing || isResuming || isEnding
+
+  return (
+    <>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-semibold text-[#1A1A1A] truncate leading-tight">{schedule.name}</p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              {cadenceLabel(schedule.cadenceDays, t)} &middot;{' '}
+              {t('schedules.card.plans_other', { count: schedule.planIds.length })}
+            </p>
+          </div>
+          <Badge variant={statusBadgeVariant(schedule.status)}>
+            {t(`schedules.status.${schedule.status}`)}
+          </Badge>
+        </div>
+
+        <div className="text-xs text-gray-500 space-y-0.5">
+          <p>
+            {t('schedules.wizard.startDate')}:{' '}
+            <span className="text-[#1A1A1A] font-medium">{schedule.startDate}</span>
+            {schedule.endDate ? (
+              <> &ndash; <span className="text-[#1A1A1A] font-medium">{schedule.endDate}</span></>
+            ) : null}
+          </p>
+          <p>
+            {schedule.lastMaterializedDate
+              ? t('schedules.card.lastMaterialized', { date: schedule.lastMaterializedDate })
+              : t('schedules.card.neverMaterialized')}
+          </p>
+        </div>
+
+        {!isEnded && (
+          <div className="flex flex-wrap gap-2 pt-1 border-t border-gray-50">
+            <button
+              onClick={() => navigate(`/app/schedules/${schedule.id}`)}
+              disabled={isBusy}
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors disabled:opacity-50"
+              type="button"
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden />
+              {t('schedules.actions.edit')}
+            </button>
+
+            {isActive && (
+              <button
+                onClick={() => doPause()}
+                disabled={isBusy}
+                className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors disabled:opacity-50"
+                type="button"
+              >
+                <Pause className="h-3.5 w-3.5" aria-hidden />
+                {isPausing ? '…' : t('schedules.actions.pause')}
+              </button>
+            )}
+
+            {isPaused && (
+              <button
+                onClick={() => doResume()}
+                disabled={isBusy}
+                className="flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-[#1A1A1A] transition-colors disabled:opacity-50"
+                type="button"
+              >
+                <Play className="h-3.5 w-3.5" aria-hidden />
+                {isResuming ? '…' : t('schedules.actions.resume')}
+              </button>
+            )}
+
+            <button
+              onClick={() => setMaterializeOpen(true)}
+              disabled={isBusy}
+              className="flex items-center gap-1.5 text-xs font-medium text-[#4f46e5] hover:text-[#3730a3] transition-colors disabled:opacity-50"
+              type="button"
+            >
+              <Zap className="h-3.5 w-3.5" aria-hidden />
+              {t('schedules.actions.materialize')}
+            </button>
+
+            <button
+              onClick={() => setEndConfirmOpen(true)}
+              disabled={isBusy}
+              className="flex items-center gap-1.5 text-xs font-medium text-red-600 hover:text-red-700 transition-colors disabled:opacity-50 ml-auto"
+              type="button"
+            >
+              <Square className="h-3.5 w-3.5" aria-hidden />
+              {isEnding ? '…' : t('schedules.actions.end')}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Materialize dialog */}
+      <RunMaterializeDialog
+        schedule={schedule}
+        open={materializeOpen}
+        onOpenChange={setMaterializeOpen}
+      />
+
+      <ConfirmDialog
+        open={endConfirmOpen}
+        onOpenChange={setEndConfirmOpen}
+        title={t('confirm.delete.schedule.title')}
+        description={t('confirm.delete.schedule.body')}
+        destructiveLabel={t('confirm.delete.schedule.confirm')}
+        cancelLabel={t('confirm.delete.schedule.cancel')}
+        onConfirm={() => doEnd()}
+        isPending={isEnding}
+      />
+    </>
+  )
+}
+
+function RunMaterializeDialog({
+  schedule,
+  open,
+  onOpenChange,
+}: {
+  schedule: Schedule
+  open: boolean
+  onOpenChange: (v: boolean) => void
+}) {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+
+  const defaultThrough = (() => {
+    const d = new Date()
+    d.setDate(d.getDate() + schedule.cadenceDays)
+    return dateToIsoLocal(d)
+  })()
+
+  const [throughDate, setThroughDate] = useState(defaultThrough)
+
+  const { mutate: doMaterialize, isPending } = useMutation({
+    mutationFn: () => schedulesService.materialize(schedule.id, throughDate),
+    onSuccess: () => {
+      toast({ title: t('schedules.actions.materializeSuccess') })
+      void qc.invalidateQueries({ queryKey: ['schedules'] })
+      void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      onOpenChange(false)
+    },
+    onError: () => {
+      toast({ title: t('schedules.actions.actionError'), variant: 'destructive' })
+    },
+  })
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{t('schedules.actions.materialize')}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="run-through-date">
+              {t('schedules.detail.materializeThroughLabel')}
+            </Label>
+            <Input
+              id="run-through-date"
+              type="date"
+              value={throughDate}
+              min={todayIsoLocal()}
+              onChange={e => setThroughDate(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)} type="button">
+              {t('common.cancel')}
+            </Button>
+            <Button
+              onClick={() => doMaterialize()}
+              disabled={isPending || !throughDate}
+              type="button"
+            >
+              {isPending
+                ? t('schedules.wizard.submitting')
+                : t('schedules.actions.materializeSubmit')}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
