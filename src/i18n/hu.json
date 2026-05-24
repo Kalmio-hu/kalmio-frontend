@@ -14,20 +14,24 @@
     "home": "Főoldal",
     "plans": "Tervek",
     "shop": "Bolt",
-    "retail": "Bolti termékek",
     "settings": "Beállítások",
-    "admin": "Admin",
-    "ipVault": "IP Trezor",
-    "contentReview": "Tartalom jóváhagyás",
     "feedback": "Visszajelzés",
     "more": "Több",
     "family": "Család",
     "preferences": "Beállításaim",
-    "schedules": "Ritmusom",
     "calendar": "Naptár",
     "grooming": "Hűtő ritmusa",
     "foundingMember": "Alapító tagság",
     "grove": "Erdő"
+  },
+  "admin": {
+    "popupTriggerAria": "Adminisztrátori menü",
+    "popupLabel": "Admin",
+    "users": "Felhasználók",
+    "ipVault": "IP Trezor",
+    "contentReview": "Tartalom jóváhagyás",
+    "retailProducts": "Bolti termékek",
+    "retailProviders": "Bolti forgalmazók"
   },
   "common": {
     "version": "",
@@ -67,6 +71,11 @@
   "dashboard": {
     "title": "Ma",
     "subtitle": "A mai napod egy pillantásra",
+    "view": {
+      "toggleLabel": "Nézet váltó",
+      "daily": "Napi",
+      "calendar": "Naptár"
+    },
     "offPlanMeal": {
       "logButton": "Saját étkezés rögzítése",
       "modalTitle": "Saját étkezés rögzítése",
@@ -1281,8 +1290,29 @@
           "copy": "Másolás",
           "schedule": "Ütemezés…",
           "archive": "Archiválás"
-        }
+        },
+        "runPlan": "Terv futtatása",
+        "fillWithPlanner": "Feltöltés tervezővel"
       }
+    },
+    "run": {
+      "dialogTitle": "Terv futtatása",
+      "startDateLabel": "Kezdő nap",
+      "startDayIndexLabel": "Kezdés a terv melyik napjától?",
+      "moreOptions": "Tovább beállítások",
+      "fewerOptions": "Kevesebb",
+      "recurringToggle": "Ismétlődő futtatás…",
+      "recurringPanelTitle": "Ismétlődési beállítások",
+      "cadenceLabel": "Ismétlési ciklus (nap)",
+      "endDateLabel": "Befejező nap (opcionális)",
+      "endDatePlaceholder": "Lejárat nélküli",
+      "runOnce": "Terv futtatása",
+      "runRecurring": "Ismétlődő futtatás",
+      "submitting": "Indítás…",
+      "successOnce": "Terv elindítva.",
+      "successRecurring": "Ismétlődő terv elindítva.",
+      "error": "Most nem sikerült elindítani. Próbáld újra.",
+      "dayLabel": "{{day}}. nap"
     },
     "mealTypes": {
       "BREAKFAST": "Reggeli",
@@ -1489,6 +1519,15 @@
         "noTarget": "Nincs cél megadva",
         "setTargetsCta": "Célok beállítása",
         "dayShort": "{{day}}. nap"
+      },
+      "tabs": {
+        "template": "Sablon",
+        "runs": {
+          "label": "Futtatások",
+          "noRuns": "Ehhez a tervhez még nincs futtatás.",
+          "newRun": "Ütemezés…",
+          "newRunCta": "Ütemezés indítása"
+        }
       }
     },
     "prep": {
@@ -2233,6 +2272,11 @@
       "days7": "Következő 7 nap",
       "days14": "Következő 14 nap",
       "days30": "Következő 30 nap"
+    },
+    "markShoppedToast": {
+      "message_one": "{{count}} hozzávaló kerül a hűtőbe — érintsd az ellenőrzéshez.",
+      "message_other": "{{count}} hozzávaló kerül a hűtőbe — érintsd az ellenőrzéshez.",
+      "reviewLink": "Hűtő megtekintése"
     }
   },
   "schedules": {

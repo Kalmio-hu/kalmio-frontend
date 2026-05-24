@@ -53,7 +53,6 @@ import { OnboardingGate } from '@/components/OnboardingGate'
 import { MemberView } from '@/pages/MemberView'
 import { ShoppingCart } from '@/pages/ShoppingCart'
 import { CookMode } from '@/pages/CookMode'
-import { Calendar } from '@/pages/Calendar'
 import { RecipeDetail } from '@/pages/RecipeDetail'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
@@ -183,7 +182,8 @@ export default function App() {
                   <Route path="shopping-list" element={<ShoppingList />} />
                   <Route path="fridge" element={<Fridge />} />
                   <Route path="grooming" element={<Grooming />} />
-                  <Route path="retail-products" element={<RetailProducts />} />
+                  {/* retail-products legacy path — redirect to admin route (KALMIO-305) */}
+                  <Route path="retail-products" element={<Navigate to="/app/admin/retail/products" replace />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="profile" element={<Profile />} />
                   <Route path="preferences" element={<Preferences />} />
@@ -196,10 +196,12 @@ export default function App() {
                   <Route path="plans" element={<Plans />} />
                   <Route path="plans/new" element={<PlanCreate />} />
                   <Route path="plans/:id" element={<PlanDetail />} />
-                  <Route path="schedules" element={<Schedules />} />
+                  {/* Schedules / Rhythm — redirected to Plans after KALMIO-306 nav consolidation.
+                      Backend entities are preserved; scheduling is now a tab on Plan detail. */}
+                  <Route path="schedules" element={<Navigate to="/app/plans" replace />} />
                   <Route path="schedules/new" element={<ScheduleNew />} />
                   <Route path="schedules/:id" element={<ScheduleDetail />} />
-                  <Route path="calendar" element={<Calendar />} />
+                  <Route path="calendar" element={<Navigate to="/app/dashboard?view=calendar" replace />} />
                   {import.meta.env.DEV && PlantingPreview && DiofaPreview && TasteSwipePreview && (
                     <>
                       <Route path="_preview/planting" element={<Suspense fallback={null}><PlantingPreview /></Suspense>} />
@@ -211,6 +213,11 @@ export default function App() {
                     <Route path="admin/users" element={<UserManagement />} />
                     <Route path="admin/ip-vault" element={<IpVault />} />
                     <Route path="admin/content-review" element={<ContentReview />} />
+                    {/* Retail routes moved under admin (KALMIO-305) */}
+                    <Route path="admin/retail/products" element={<RetailProducts />} />
+                    {/* RetailProviders page: reuses RetailProducts temporarily — providers
+                        are listed within that page. A dedicated page can be extracted later. */}
+                    <Route path="admin/retail/providers" element={<RetailProducts />} />
                   </Route>
                 </Route>
               </Route>

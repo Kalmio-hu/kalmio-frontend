@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Header } from '@/components/layout/Header'
@@ -16,6 +16,8 @@ import { MacrosModule } from '@/components/dashboard/MacrosModule'
 import { PointsModule } from '@/components/dashboard/PointsModule'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { MoistureHistoryStrip } from '@/components/diofa/MoistureHistoryStrip'
+import { DashboardViewToggle, type DashboardView } from '@/components/dashboard/DashboardViewToggle'
+import { CalendarView } from '@/components/dashboard/CalendarView'
 import { planService } from '@/services/plans'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { dashboardService } from '@/services/dashboard'
@@ -28,6 +30,32 @@ import { TeachOnReturnHint } from '@/components/dashboard/TeachOnReturnHint'
 import { useEngagementGap } from '@/hooks/useEngagementGap'
 import { useAuthStore } from '@/store/auth'
 import { todayIsoLocal } from '@/lib/utils'
+
+// ── View preference persistence ─────────────────────────────────────────────
+
+const VIEW_PREF_KEY = 'kalmio_dashboard_view'
+
+function readViewPref(urlView: string | null): DashboardView {
+  // URL param wins (e.g. redirect from /app/calendar)
+  if (urlView === 'calendar') return 'calendar'
+  if (urlView === 'daily') return 'daily'
+  // Then localStorage preference
+  try {
+    const stored = localStorage.getItem(VIEW_PREF_KEY)
+    if (stored === 'calendar' || stored === 'daily') return stored
+  } catch {
+    // localStorage unavailable — client-only preference, silently ignore.
+  }
+  return 'daily'
+}
+
+function writeViewPref(view: DashboardView) {
+  try {
+    localStorage.setItem(VIEW_PREF_KEY, view)
+  } catch {
+    // localStorage unavailable — silently ignore.
+  }
+}
 
 // Maps the 4-value MoistureBand from the backend to the 3-value DiofaMoisture used by the widget.
 function toWidgetMoisture(band: MoistureBand): DiofaMoisture {
@@ -113,6 +141,17 @@ export function Dashboard() {
   const [replanDismissed, setReplanDismissed] = useState(false)
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
+  // View toggle — reads from URL ?view= on first render, falls back to localStorage.
+  const [searchParams] = useSearchParams()
+  const [view, setViewState] = useState<DashboardView>(() =>
+    readViewPref(searchParams.get('view')),
+  )
+
+  function handleViewChange(next: DashboardView) {
+    setViewState(next)
+    writeViewPref(next)
+  }
+
   usePointsToast()
 
   // Computes the engagement gap bucket once on mount; also writes today's date
@@ -188,24 +227,35 @@ export function Dashboard() {
     <div className="flex flex-col">
       <Header title={t('dashboard.title')} subtitle={t('dashboard.subtitle')} />
 
-      {/* Body data hint — collapsible, shown when body data is entirely missing */}
-      {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
+      {/* View toggle — Daily | Calendar */}
+      <div className="px-4 pt-3 pb-1">
+        <DashboardViewToggle view={view} onChange={handleViewChange} />
+      </div>
 
-      {/* ── Empty-plan state (PRD §4.1) ───────────────────────────────────── */}
-      {!hasActivePlan && (
-        <div className="px-4 pt-4 pb-2">
-          <ActivationCard />
-        </div>
-      )}
+      {/* ── Calendar view ───────────────────────────────────────────────────── */}
+      {view === 'calendar' && <CalendarView />}
 
-      {/* CalendarStrip — always shown; drives date selection for DailyTimeline */}
-      <CalendarStrip
-        selectedDate={selectedDate}
-        onSelectDate={setSelectedDate}
-        onDayData={setSelectedDayData}
-      />
+      {/* ── Daily view ──────────────────────────────────────────────────────── */}
+      {view === 'daily' && (
+        <>
+          {/* Body data hint — collapsible, shown when body data is entirely missing */}
+          {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
 
-      {hasActivePlan ? (
+          {/* ── Empty-plan state (PRD §4.1) ─────────────────────────────────── */}
+          {!hasActivePlan && (
+            <div className="px-4 pt-4 pb-2">
+              <ActivationCard />
+            </div>
+          )}
+
+          {/* CalendarStrip — always shown; drives date selection for DailyTimeline */}
+          <CalendarStrip
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            onDayData={setSelectedDayData}
+          />
+
+          {hasActivePlan ? (
         /* ── Active-plan dashboard composition (PRD §4.4) ─────────────────── */
         <div className="flex flex-col gap-3 px-4 pt-3 pb-6">
 
@@ -297,6 +347,8 @@ export function Dashboard() {
             </div>
           </section>
         </div>
+      )}
+        </>
       )}
     </div>
   )

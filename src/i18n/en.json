@@ -14,20 +14,24 @@
     "home": "Home",
     "plans": "Plans",
     "shop": "Shop",
-    "retail": "Retail Products",
     "settings": "Settings",
-    "admin": "Admin",
-    "ipVault": "IP Vault",
-    "contentReview": "Content Review",
     "feedback": "Feedback",
     "more": "More",
     "family": "Family",
     "preferences": "My Preferences",
-    "schedules": "My Rhythm",
     "calendar": "Calendar",
     "grooming": "Fridge rhythm",
     "foundingMember": "Founding Member",
     "grove": "Grove"
+  },
+  "admin": {
+    "popupTriggerAria": "Admin menu",
+    "popupLabel": "Admin",
+    "users": "Users",
+    "ipVault": "IP Vault",
+    "contentReview": "Content Review",
+    "retailProducts": "Retail Products",
+    "retailProviders": "Retail Providers"
   },
   "common": {
     "version": "",
@@ -67,6 +71,11 @@
   "dashboard": {
     "title": "Today",
     "subtitle": "Your day at a glance",
+    "view": {
+      "toggleLabel": "View toggle",
+      "daily": "Daily",
+      "calendar": "Calendar"
+    },
     "offPlanMeal": {
       "logButton": "Log a meal",
       "modalTitle": "Log a meal",
@@ -1281,8 +1290,29 @@
           "copy": "Copy plan",
           "schedule": "Schedule…",
           "archive": "Archive"
-        }
+        },
+        "runPlan": "Run this plan",
+        "fillWithPlanner": "Fill with planner"
       }
+    },
+    "run": {
+      "dialogTitle": "Run this plan",
+      "startDateLabel": "Start date",
+      "startDayIndexLabel": "Start from which day of the plan?",
+      "moreOptions": "More options",
+      "fewerOptions": "Fewer options",
+      "recurringToggle": "Run recurring…",
+      "recurringPanelTitle": "Recurring settings",
+      "cadenceLabel": "Repeat cycle (days)",
+      "endDateLabel": "End date (optional)",
+      "endDatePlaceholder": "No expiry",
+      "runOnce": "Run this plan",
+      "runRecurring": "Run recurring",
+      "submitting": "Starting…",
+      "successOnce": "Plan started.",
+      "successRecurring": "Recurring plan started.",
+      "error": "Could not start the plan. Please try again.",
+      "dayLabel": "Day {{day}}"
     },
     "mealTypes": {
       "BREAKFAST": "Breakfast",
@@ -1489,6 +1519,15 @@
         "noTarget": "No target set",
         "setTargetsCta": "Set targets",
         "dayShort": "Day {{day}}"
+      },
+      "tabs": {
+        "template": "Template",
+        "runs": {
+          "label": "Runs",
+          "noRuns": "No runs for this plan yet.",
+          "newRun": "Schedule…",
+          "newRunCta": "Start a run"
+        }
       }
     },
     "prep": {
@@ -2233,6 +2272,11 @@
       "days7": "Next 7 days",
       "days14": "Next 14 days",
       "days30": "Next 30 days"
+    },
+    "markShoppedToast": {
+      "message_one": "{{count}} item added to your fridge — tap to review.",
+      "message_other": "{{count}} items added to your fridge — tap to review.",
+      "reviewLink": "Open fridge"
     }
   },
   "schedules": {
