@@ -901,7 +901,9 @@
       "prefersFreezingHint": "When on, repeated meals beyond fridge shelf life will be batched into one cook with some portions frozen.",
       "preferredPrepDayOfWeek": "Preferred prep day",
       "preferredPrepDayOfWeekHint": "The planner will land batches on this day whenever the recipe's hold window allows.",
-      "noPreference": "No preference"
+      "noPreference": "No preference",
+      "preferLocallySourced": "Prefer local ingredients",
+      "preferLocallySourcedHint": "The planner will favour recipes built around ingredients sourced from Hungarian producers."
     },
     "notifications": {
       "title": "Notifications",

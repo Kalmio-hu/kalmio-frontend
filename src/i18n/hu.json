@@ -901,7 +901,9 @@
       "prefersFreezingHint": "Ha engedélyezed, a hűtős eltarthatóságon túli ismétléseket egyetlen főzésbe fogjuk össze és néhány adagot fagyasztásra ajánlunk.",
       "preferredPrepDayOfWeek": "Preferált előkészítési nap",
       "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
-      "noPreference": "Nincs preferencia"
+      "noPreference": "Nincs preferencia",
+      "preferLocallySourced": "Inkább helyi alapanyag",
+      "preferLocallySourcedHint": "A tervező előnyben részesíti a magyarországi forrásból származó alapanyagokat tartalmazó recepteket."
     },
     "notifications": {
       "title": "Értesítések",

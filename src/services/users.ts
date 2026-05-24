@@ -70,6 +70,12 @@ export interface UserSettings {
    * KALMIO-326.
    */
   coachmarksSeen: string[]
+  /**
+   * When true, the meal-plan solver rewards recipes backed by locally sourced
+   * ingredients (Hungarian provenance). Default false.
+   * KALMIO-352.
+   */
+  preferLocallySourced: boolean
 }
 
 export interface BodyDataRequest {
@@ -95,6 +101,8 @@ export interface UpdateSettingsRequest {
   preferredPrepDayOfWeek?: number | null
   carbsTargetG?: number | null
   fatTargetG?: number | null
+  /** When true, the solver steers the plan toward locally sourced ingredients. KALMIO-352. */
+  preferLocallySourced?: boolean
 }
 
 export interface UpdateProfileRequest {

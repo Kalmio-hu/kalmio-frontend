@@ -547,6 +547,7 @@ export function Profile() {
   // ── Meals tab: Prep preferences ───────────────────────────────────────────
   const [prefersFreezing, setPrefersFreezing] = useState<boolean>(false)
   const [preferredPrepDayOfWeek, setPreferredPrepDayOfWeek] = useState<string>('')
+  const [preferLocallySourced, setPreferLocallySourced] = useState<boolean>(false)
   const [prepPrefSaving, setPrepPrefSaving] = useState(false)
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -554,6 +555,7 @@ export function Profile() {
     if (user) {
       setPrefersFreezing(user.prefersFreezing ?? false)
       setPreferredPrepDayOfWeek(user.preferredPrepDayOfWeek?.toString() ?? '')
+      setPreferLocallySourced(user.preferLocallySourced ?? false)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
@@ -567,6 +569,7 @@ export function Profile() {
         preferredPrepDayOfWeek: preferredPrepDayOfWeek
           ? parseInt(preferredPrepDayOfWeek, 10)
           : null,
+        preferLocallySourced,
       })
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
@@ -1401,6 +1404,17 @@ export function Profile() {
               {t('settings.prepPrefs.prefersFreezing')}
             </label>
             <p className="text-[10px] text-gray-400 -mt-2 ml-6">{t('settings.prepPrefs.prefersFreezingHint')}</p>
+
+            <label className="flex items-center gap-2 text-sm font-medium text-[#1A1A1A] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={preferLocallySourced}
+                onChange={e => setPreferLocallySourced(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 accent-[#4F7942]"
+              />
+              {t('settings.prepPrefs.preferLocallySourced')}
+            </label>
+            <p className="text-[10px] text-gray-400 -mt-2 ml-6">{t('settings.prepPrefs.preferLocallySourcedHint')}</p>
 
             <div>
               <Label htmlFor="prep-day">{t('settings.prepPrefs.preferredPrepDayOfWeek')}</Label>
