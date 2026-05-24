@@ -129,7 +129,7 @@
         "saved": "Saved."
       },
       "autoTick": {
-        "presumedEaten": "Treated as eaten — tap if not.",
+        "presumedEaten": "Marked as eaten — tap if not.",
         "undo": "Actually, I didn't eat this",
         "markSkipped": "Skipped this",
         "markReplaced": "Ate something else"
@@ -248,8 +248,8 @@
         "moveToTimeline": "Move to timeline",
         "attachToMeal": "Attach to meal",
         "rejectionAnim": "This prep slot belongs to a different meal",
-        "embedSuccess": "Prep slot embedded in meal",
-        "detachSuccess": "Prep slot moved to timeline"
+        "embedSuccess": "Prep assigned to meal.",
+        "detachSuccess": "Prep moved back to timeline."
       },
       "attach": {
         "pickerTitle": "Choose a meal",
@@ -258,7 +258,7 @@
     },
     "coachmark": {
       "prepDrag": {
-        "body": "Drag your prep tasks between meal cards and the timeline.",
+        "body": "Drag prep tasks between meal cards and the timeline.",
         "dismiss": "Got it"
       }
     },
@@ -895,7 +895,7 @@
     },
     "notifications": {
       "title": "Notifications",
-      "active": "Prep notifications are on.",
+      "active": "Prep notifications on.",
       "quietTodayActive": "Quiet today — prep notifications are paused.",
       "resume": "Resume notifications",
       "hint": "You can also manage notification permissions in your browser settings."
@@ -1378,14 +1378,14 @@
       "error": "Could not start the plan. Please try again.",
       "dayLabel": "Day {{day}}",
       "grooming": {
-        "prompt_one": "{{count}} item expires this week — check the fridge?",
-        "prompt_other": "{{count}} items expire this week — check the fridge?",
+        "prompt_one": "{{count}} item expires this week — take a look at the fridge?",
+        "prompt_other": "{{count}} items expire this week — take a look at the fridge?",
         "yes": "Let me check",
         "skip": "Skip"
       },
       "cartPrompt": {
-        "heading": "Shall I add what you need?",
-        "addAuto": "Yes, add it",
+        "heading": "Add these to your shopping list?",
+        "addAuto": "Yes, add them",
         "adding": "Adding…",
         "adjustManually": "I'll adjust it myself",
         "dismiss": "Not now",
@@ -2614,7 +2614,7 @@
     },
     "quiet": {
       "label": "Quiet today",
-      "success": "No more reminders today",
+      "success": "Quiet mode set for today.",
       "error": "Could not set quiet mode"
     }
   }

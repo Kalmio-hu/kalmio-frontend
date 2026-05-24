@@ -129,7 +129,7 @@
         "saved": "Mentve."
       },
       "autoTick": {
-        "presumedEaten": "Úgy vesszük, megetted — koppints, ha nem.",
+        "presumedEaten": "Megettnek számít — koppints, ha nem így volt.",
         "undo": "Mégsem ettem meg",
         "markSkipped": "Kihagytam",
         "markReplaced": "Mást ettem helyette"
@@ -248,8 +248,8 @@
         "moveToTimeline": "Áthelyezés az idővonalra",
         "attachToMeal": "Csatolás étkezéshez",
         "rejectionAnim": "Ez az előkészítés másik étkezéshez tartozik",
-        "embedSuccess": "Előkészítés beágyazva az étkezésbe",
-        "detachSuccess": "Előkészítés leválasztva az idővonalra"
+        "embedSuccess": "Előkészítés az étkezéshez rendelve.",
+        "detachSuccess": "Előkészítés visszakerült az idővonalra."
       },
       "attach": {
         "pickerTitle": "Válassz étkezést",
@@ -258,7 +258,7 @@
     },
     "coachmark": {
       "prepDrag": {
-        "body": "Az előkészítéseket húzással mozgathatod az étkezések és az idővonal között.",
+        "body": "Húzd az előkészítéseket az étkezések és az idővonal között.",
         "dismiss": "Értem"
       }
     },
@@ -895,7 +895,7 @@
     },
     "notifications": {
       "title": "Értesítések",
-      "active": "Az értesítések be vannak kapcsolva.",
+      "active": "Az értesítések bekapcsolva.",
       "quietTodayActive": "Ma csend — az előkészítési értesítések szünetelnek.",
       "resume": "Értesítések visszakapcsolása",
       "hint": "Az értesítési beállítások a böngészőben is módosíthatók."
@@ -1245,7 +1245,7 @@
   },
   "fridge": {
     "title": "A hűtőm",
-    "reviewShoppingBanner": "Most adtuk hozzá a vásárlásodat. Nézd át a mennyiségeket és a szavatosságot — a sorra koppintva tudod szerkeszteni.",
+    "reviewShoppingBanner": "A vásárlás bekerült a hűtőbe. Nézd át a mennyiségeket és a szavatosságot — egy sorra koppintva szerkesztheted.",
     "startGrooming": "Hűtőellenőrzés",
     "checkButton": {
       "label": "Hűtőellenőrzés",
@@ -1378,14 +1378,14 @@
       "error": "Most nem sikerült elindítani. Próbáld újra.",
       "dayLabel": "{{day}}. nap",
       "grooming": {
-        "prompt_one": "{{count}} tétel lejár ezen a héten — átfutod a hűtőt?",
-        "prompt_other": "{{count}} tétel lejár ezen a héten — átfutod a hűtőt?",
+        "prompt_one": "{{count}} tétel lejár a héten — átfutod a hűtőt?",
+        "prompt_other": "{{count}} tétel lejár a héten — átfutod a hűtőt?",
         "yes": "Megnézem",
         "skip": "Kihagyom"
       },
       "cartPrompt": {
-        "heading": "Hozzáadom, amire szükséged van?",
-        "addAuto": "Igen, add hozzá",
+        "heading": "Hozzárakom a bevásárlólistádhoz?",
+        "addAuto": "Igen, tedd hozzá",
         "adding": "Hozzáadás…",
         "adjustManually": "Magam módosítom",
         "dismiss": "Most nem",
@@ -2614,7 +2614,7 @@
     },
     "quiet": {
       "label": "Ma csend",
-      "success": "Ma nem zavarunk",
+      "success": "Csend a mai napra beállítva.",
       "error": "Nem sikerült beállítani a csendet"
     }
   }
