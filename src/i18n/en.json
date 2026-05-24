@@ -1358,9 +1358,9 @@
       "error": "Could not start the plan. Please try again.",
       "dayLabel": "Day {{day}}",
       "grooming": {
-        "prompt_one": "Quick fridge check? {{count}} item expires this week.",
-        "prompt_other": "Quick fridge check? {{count}} items expire this week.",
-        "yes": "Yes, 30 sec",
+        "prompt_one": "{{count}} item expires this week — check the fridge?",
+        "prompt_other": "{{count}} items expire this week — check the fridge?",
+        "yes": "Let me check",
         "skip": "Skip"
       },
       "cartPrompt": {

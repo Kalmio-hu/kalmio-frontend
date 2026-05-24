@@ -1358,9 +1358,9 @@
       "error": "Most nem sikerült elindítani. Próbáld újra.",
       "dayLabel": "{{day}}. nap",
       "grooming": {
-        "prompt_one": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
-        "prompt_other": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
-        "yes": "Igen, 30 mp",
+        "prompt_one": "{{count}} tétel lejár ezen a héten — átfutod a hűtőt?",
+        "prompt_other": "{{count}} tétel lejár ezen a héten — átfutod a hűtőt?",
+        "yes": "Megnézem",
         "skip": "Kihagyom"
       },
       "cartPrompt": {
