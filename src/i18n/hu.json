@@ -2602,20 +2602,20 @@
   "notifications": {
     "permission": {
       "ariaLabel": "Értesítési engedély kérés",
-      "title": "Emlékeztetők az előkészítéshez",
-      "body": "5 perccel az előkészítés előtt értesítünk — semmi más.",
+      "title": "Szólok főzés előtt",
+      "body": "5 perccel az előkészítés előtt szólok.",
       "allow": "Engedélyezem",
       "dismiss": "Most nem"
     },
     "snooze": {
-      "label": "Elhalaszt 1 órát",
+      "label": "Elhalasztás 1 órával",
       "success": "Értesítés 1 óra múlva",
       "error": "Nem sikerült elhalasztani"
     },
     "quiet": {
       "label": "Ma csend",
       "success": "Ma nem zavarunk",
-      "error": "Nem sikerült beállítani"
+      "error": "Nem sikerült beállítani a csendet"
     }
   }
 }
