@@ -1634,7 +1634,7 @@
       "name": {
         "placeholder": "Terv neve…",
         "aria": "Terv nevének szerkesztése",
-        "errorGeneric": "Nem sikerült menteni a nevet. Kérlek, próbáld újra.",
+        "errorGeneric": "Nem sikerült menteni a nevet. Próbáld újra.",
         "errorTooLong": "A terv neve legfeljebb 80 karakter lehet.",
         "errorBlank": "A terv neve nem lehet üres."
       },

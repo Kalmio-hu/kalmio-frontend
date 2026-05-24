@@ -1634,7 +1634,7 @@
       "name": {
         "placeholder": "Plan name…",
         "aria": "Edit plan name",
-        "errorGeneric": "Could not save the name. Please try again.",
+        "errorGeneric": "Could not save the name. Try again.",
         "errorTooLong": "Plan name must be 80 characters or fewer.",
         "errorBlank": "Plan name cannot be blank."
       },
