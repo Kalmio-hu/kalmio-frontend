@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Refrigerator, Plus, Trash2, Search, Archive, Calendar, ClipboardCheck } from 'lucide-react'
@@ -138,6 +138,8 @@ export function Fridge() {
     })
   }
 
+  const reviewMode = searchParams.get('review') === 'shopping'
+
   return (
     <div>
       <Header
@@ -156,6 +158,15 @@ export function Fridge() {
           </div>
         }
       />
+
+      {reviewMode && (
+        <div
+          role="status"
+          className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        >
+          {t('fridge.reviewShoppingBanner')}
+        </div>
+      )}
 
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />

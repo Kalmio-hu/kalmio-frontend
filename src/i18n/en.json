@@ -1190,6 +1190,7 @@
   },
   "fridge": {
     "title": "My Fridge",
+    "reviewShoppingBanner": "Your shopping just landed. Review quantities and expiry — tap any row to edit.",
     "startGrooming": "Review pantry",
     "subtitle_one": "{{count}} item",
     "subtitle_other": "{{count}} items",

@@ -31,7 +31,7 @@ export function MarkShoppedToast({ fridgeItemsAdded }: MarkShoppedToastProps) {
         </span>
       </div>
       <Link
-        to="/app/fridge"
+        to="/app/fridge?review=shopping"
         className="shrink-0 font-semibold underline underline-offset-2 hover:text-[#3d6132] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f7942] rounded"
       >
         {t('cart.markShoppedToast.reviewLink')}

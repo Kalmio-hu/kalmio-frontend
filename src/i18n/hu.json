@@ -1190,6 +1190,7 @@
   },
   "fridge": {
     "title": "A hűtőm",
+    "reviewShoppingBanner": "Most adtuk hozzá a vásárlásodat. Nézd át a mennyiségeket és a szavatosságot — a sorra koppintva tudod szerkeszteni.",
     "startGrooming": "Hűtőellenőrzés",
     "subtitle_one": "{{count}} tétel",
     "subtitle_other": "{{count}} tétel",
