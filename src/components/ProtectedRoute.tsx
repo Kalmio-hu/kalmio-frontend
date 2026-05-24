@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
+import { SnoozeActionHandler } from '@/components/notification/SnoozeActions'
 
 export function ProtectedRoute() {
   const { session, initialized } = useAuthStore()
@@ -17,5 +18,11 @@ export function ProtectedRoute() {
     return <Navigate to="/auth" replace />
   }
 
-  return <Outlet />
+  return (
+    <>
+      {/* KALMIO-316: relay service worker notification action messages to the API */}
+      <SnoozeActionHandler />
+      <Outlet />
+    </>
+  )
 }

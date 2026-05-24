@@ -2547,5 +2547,33 @@
         "cancel": "Cancel"
       }
     }
+  },
+  "notifications": {
+    "permission": {
+      "ariaLabel": "Notification permission request",
+      "title": "Prep reminders",
+      "body": "We'll remind you 5 min before prep — and never spam.",
+      "allow": "Allow",
+      "dismiss": "Not now"
+    },
+    "snooze": {
+      "label": "Snooze 1h",
+      "success": "Notification in 1 hour",
+      "error": "Could not snooze"
+    },
+    "quiet": {
+      "label": "Quiet today",
+      "success": "No more reminders today",
+      "error": "Could not set quiet mode"
+    }
+  },
+  "settings": {
+    "notifications": {
+      "title": "Notifications",
+      "active": "Prep notifications are on.",
+      "quietTodayActive": "Quiet today — prep notifications are paused.",
+      "resume": "Resume notifications",
+      "hint": "You can also manage notification permissions in your browser settings."
+    }
   }
 }

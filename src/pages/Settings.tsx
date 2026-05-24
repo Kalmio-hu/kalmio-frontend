@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
-import { Fingerprint, Trash2, LogOut, ChevronRight, Key, Copy, Check, Star } from 'lucide-react'
+import { Fingerprint, Trash2, LogOut, ChevronRight, Key, Copy, Check, Star, Bell, BellOff } from 'lucide-react'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { Link } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { toast } from '@/components/ui/toast'
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usersService, type UpdateSettingsRequest, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
+import { notificationService, NOTIFICATION_PREFS_QUERY_KEY } from '@/services/notificationService'
 import { DiofaNameField } from '@/components/settings/DiofaNameField'
 import { listPasskeys, registerPasskey, deletePasskey, type PasskeyInfo } from '@/services/passkey'
 import { apiKeysService, type ApiKey, type ApiKeyCreated } from '@/services/apiKeys'
@@ -204,6 +205,27 @@ export function Settings() {
       languagePreference: values.languagePreference || null,
     })
   }
+
+  // ── Notification preferences (KALMIO-316) ─────────────────────────────────
+  const { data: notifPrefs, isLoading: notifPrefsLoading } = useQuery({
+    queryKey: NOTIFICATION_PREFS_QUERY_KEY,
+    queryFn: notificationService.getPreferences,
+    staleTime: 30_000,
+    retry: false,
+  })
+
+  const resumeMutation = useMutation({
+    mutationFn: () => notificationService.resumeNotifications(),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: NOTIFICATION_PREFS_QUERY_KEY })
+    },
+    onError: () => {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
+  const todayIso = new Date().toISOString().slice(0, 10)
+  const isQuietToday = notifPrefs?.quietUntilDate === todayIso
 
   // ── Member since display ───────────────────────────────────────────────────
   const memberSince = settings?.createdAt
@@ -580,6 +602,55 @@ export function Settings() {
                 <DiofaNameField currentName={settings?.diofaName ?? null} />
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Card 5 — Notifications (KALMIO-316) */}
+      <div className="space-y-4 max-w-lg mt-6">
+        <Card>
+          <CardContent className="pt-5 space-y-4">
+            <div className="flex items-center gap-2">
+              <Bell size={15} className="text-gray-400 shrink-0" aria-hidden="true" />
+              <h2 className="font-semibold text-sm text-[#1A1A1A]">
+                {t('settings.notifications.title')}
+              </h2>
+            </div>
+
+            {notifPrefsLoading ? (
+              <div className="flex justify-center py-2"><Spinner /></div>
+            ) : isQuietToday ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 space-y-3">
+                <div className="flex items-center gap-2">
+                  <BellOff size={14} className="text-amber-600 shrink-0" aria-hidden="true" />
+                  <p className="text-sm text-amber-800">
+                    {t('settings.notifications.quietTodayActive')}
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={resumeMutation.isPending}
+                  onClick={() => resumeMutation.mutate()}
+                  className="text-amber-700 hover:text-amber-800 hover:bg-amber-100 text-xs w-full"
+                >
+                  {resumeMutation.isPending ? <Spinner /> : null}
+                  {t('settings.notifications.resume')}
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Bell size={14} className="text-[#34C759] shrink-0" aria-hidden="true" />
+                <p className="text-sm text-[#6B6460]">
+                  {t('settings.notifications.active')}
+                </p>
+              </div>
+            )}
+
+            <p className="text-xs text-gray-400">
+              {t('settings.notifications.hint')}
+            </p>
           </CardContent>
         </Card>
       </div>

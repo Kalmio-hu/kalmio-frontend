@@ -30,6 +30,8 @@ import { TeachOnReturnHint } from '@/components/dashboard/TeachOnReturnHint'
 import { useEngagementGap } from '@/hooks/useEngagementGap'
 import { useAuthStore } from '@/store/auth'
 import { todayIsoLocal } from '@/lib/utils'
+import { PermissionPromptDialog } from '@/components/notification/PermissionPromptDialog'
+import { notificationService } from '@/services/notificationService'
 
 // ── View preference persistence ─────────────────────────────────────────────
 
@@ -251,6 +253,31 @@ export function Dashboard() {
         <>
           {/* Body data hint — collapsible, shown when body data is entirely missing */}
           {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
+
+          {/* KALMIO-315: Notification permission prompt — shown only once when user
+              has an active plan with upcoming prep tasks. */}
+          {userId && (
+            <PermissionPromptDialog
+              userId={userId}
+              shouldOffer={
+                hasActivePlan &&
+                ((todaysPrepTasks?.length ?? 0) > 0 ||
+                  (tomorrowsPrepTasks?.length ?? 0) > 0)
+              }
+              onGranted={async (sub) => {
+                try {
+                  const raw = sub.toJSON()
+                  await notificationService.registerSubscription({
+                    endpoint: raw.endpoint ?? '',
+                    p256dh: (raw.keys as Record<string, string> | undefined)?.p256dh ?? '',
+                    auth: (raw.keys as Record<string, string> | undefined)?.auth ?? '',
+                  })
+                } catch (err) {
+                  console.warn('[Dashboard] push subscription registration failed:', err)
+                }
+              }}
+            />
+          )}
 
           {/* ── Empty-plan state (PRD §4.1) ─────────────────────────────────── */}
           {!hasActivePlan && (
