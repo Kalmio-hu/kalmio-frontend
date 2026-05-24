@@ -15,6 +15,7 @@ import {
   useSensor,
   useSensors,
   useDroppable,
+  pointerWithin,
   type DragStartEvent,
   type DragEndEvent,
   type DragMoveEvent,
@@ -35,7 +36,7 @@ import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimeP
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
-import { PrepGooDragContext, usePrepGoo } from './PrepGooDragContext'
+import { PrepGooDragContext, usePrepGoo, type PrepGooApi } from './PrepGooDragContext'
 import { AttachMealPicker } from './AttachMealPicker'
 import type { MealPickerOption } from './AttachMealPicker'
 import { PrepDragCoachmark, usePrepDragCoachmarkVisible } from '@/components/onboarding/PrepDragCoachmark'
@@ -1131,6 +1132,12 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const queryClient = useQueryClient()
   const isPremium = useIsUserPremium()
 
+  // Imperative handle into PrepGooDragContext. The goo overlay needs the
+  // source rect + cursor position + drop-target validity to render its
+  // stretch animation; we drive it from the timeline's drag handlers below,
+  // since prep rows are wired into THIS DndContext for reschedule.
+  const gooApiRef = useRef<PrepGooApi | null>(null)
+
   const { data: dashboard } = useQuery<DashboardDto>({
     queryKey: ['dashboard', date],
     queryFn: () => dashboardService.get(date),
@@ -1539,6 +1546,21 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       setLiveDragId(id)
       dragBaseMinutesRef.current = card.startMinutes
       setLiveDragMinutes(card.startMinutes)
+
+      // Prep cards ALSO drive the goo overlay. We capture the source rect
+      // from @dnd-kit's measurement so the goo "home" anchor sits on top of
+      // the row the user grabbed.
+      if (card.type === 'prep' && card.prepTaskId) {
+        const initial = event.active.rect.current.initial
+        if (initial) {
+          gooApiRef.current?.beginPrepDrag(card.prepTaskId, {
+            left: initial.left,
+            top: initial.top,
+            width: initial.width,
+            height: initial.height,
+          })
+        }
+      }
     }
   }, [cards, wakeMinutes, sleepMinutes])
 
@@ -1555,7 +1577,49 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       newMin = clamp(snapToGrid(base + delta * DRAG_MIN_PER_PX), wakeMinutes, sleepMinutes - 15)
     }
     setLiveDragMinutes(newMin)
-  }, [wakeMinutes, sleepMinutes])
+
+    // Drive the goo overlay for prep drags: cursor position + drop-target
+    // validity. The pointer is computed from the raw activator + delta so
+    // it reflects where the user's finger/mouse actually is, even though
+    // restrictToVerticalAxis pins the dragged element to its column.
+    const card = cards.find(c => c.id === id)
+    if (card?.type === 'prep' && card.prepTaskId) {
+      let pointer: { x: number; y: number } | null = null
+      if (event.activatorEvent instanceof PointerEvent) {
+        pointer = {
+          x: event.activatorEvent.clientX + event.delta.x,
+          y: event.activatorEvent.clientY + event.delta.y,
+        }
+      } else if (event.activatorEvent instanceof TouchEvent) {
+        const touch = event.activatorEvent.changedTouches[0]
+        if (touch) {
+          pointer = {
+            x: touch.clientX + event.delta.x,
+            y: touch.clientY + event.delta.y,
+          }
+        }
+      }
+
+      const overId = event.over ? String(event.over.id) : null
+      let isOverValid = false
+      let isOverInvalid = false
+      let invalidMealId: string | null = null
+      if (overId?.startsWith('meal-drop:')) {
+        const hoverMealId = overId.slice('meal-drop:'.length)
+        const validMealIds = prepFeedsMap[card.prepTaskId] ?? []
+        if (validMealIds.includes(hoverMealId)) {
+          isOverValid = true
+        } else {
+          isOverInvalid = true
+          invalidMealId = hoverMealId
+        }
+      }
+
+      if (pointer) {
+        gooApiRef.current?.updatePrepDrag(pointer, { isOverValid, isOverInvalid, invalidMealId })
+      }
+    }
+  }, [cards, wakeMinutes, sleepMinutes, prepFeedsMap])
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const id = String(event.active.id)
@@ -1579,7 +1643,33 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
 
     const card = cards.find(c => c.id === id)
-    if (!card) { setActiveCard(null); return }
+    if (!card) {
+      gooApiRef.current?.endPrepDrag()
+      setActiveCard(null)
+      return
+    }
+
+    // For prep cards, the drop target wins over the reschedule. If the user
+    // dropped on a meal-drop droppable AND it's a valid feeds-target, embed
+    // the prep instead of moving it in time. Otherwise the goo "snaps back"
+    // and we fall through to the standard reschedule path.
+    if (card.type === 'prep' && card.prepTaskId) {
+      const overId = event.over ? String(event.over.id) : null
+      gooApiRef.current?.endPrepDrag()
+      if (overId?.startsWith('meal-drop:')) {
+        const targetMealId = overId.slice('meal-drop:'.length)
+        const validMealIds = prepFeedsMap[card.prepTaskId] ?? []
+        if (validMealIds.includes(targetMealId)) {
+          handleEmbedPrepTask(card.prepTaskId)
+          setActiveCard(null)
+          return
+        }
+        // Invalid meal — silently bounce back (no reschedule, no embed).
+        setActiveCard(null)
+        return
+      }
+      // No meal-drop under cursor → behave like before and reschedule.
+    }
 
     setCardTimeOverrides(prev => ({ ...prev, [id]: newTime }))
     setActiveCard(null)
@@ -1605,7 +1695,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       mealId: card.mealId,
       label: newTime,
     })
-  }, [cards, liveDragMinutes, activePlanId, patchTimePref, patchMealTime, patchPrepTime, patchOffPlanTime])
+  }, [cards, liveDragMinutes, activePlanId, patchTimePref, patchMealTime, patchPrepTime, patchOffPlanTime, prepFeedsMap, handleEmbedPrepTask])
 
   const handleTodayOnly = useCallback(() => {
     setPendingFeedback(null)
@@ -1666,10 +1756,16 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       onEmbedPrepTask={handleEmbedPrepTask}
       onDetachPrepTask={handleDetachPrepTask}
       prepFeedsMap={prepFeedsMap}
+      apiRef={gooApiRef}
     >
     <DndContext
       sensors={sensors}
       modifiers={[restrictToVerticalAxis]}
+      // pointerWithin: pick the droppable under the actual cursor (not the
+      // dragged rect). Required so the goo-driven prep drag can detect a
+      // meal-drop target horizontally even though restrictToVerticalAxis
+      // pins the visible card to its column. KALMIO-325.
+      collisionDetection={pointerWithin}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}
       onDragEnd={handleDragEnd}

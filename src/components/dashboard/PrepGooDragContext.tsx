@@ -27,17 +27,7 @@
 
 import React, { createContext, useContext, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import {
-  DndContext,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  useDraggable,
-  type DragStartEvent,
-  type DragEndEvent,
-  type DragMoveEvent,
-} from '@dnd-kit/core'
+import { useDraggable } from '@dnd-kit/core'
 import { triggerHaptic } from '@/lib/haptics'
 
 // ── Constants ──────────────────────────────────────────────────────────────
@@ -89,6 +79,18 @@ export interface PrepGooState {
 
 interface PrepGooContextValue {
   state: PrepGooState
+  /** Begin a prep drag — captures home rect, sets the dragging prep task ID. */
+  beginPrepDrag: (
+    prepTaskId: string,
+    homeRect: { left: number; top: number; width: number; height: number },
+  ) => void
+  /** Update pointer + drop-target state during a prep drag. */
+  updatePrepDrag: (
+    pointer: { x: number; y: number },
+    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+  ) => void
+  /** Clear all drag state. Idempotent. */
+  endPrepDrag: () => void
   /** Call when the user activates the keyboard Detach button. */
   onPrepDetach: (prepTaskId: string) => void
   /** Call when the user activates the keyboard Attach button. */
@@ -202,6 +204,23 @@ export function GooFilterDefs() {
 
 // ── PrepGooDragContext ─────────────────────────────────────────────────────
 
+/**
+ * Imperative API exposed via `apiRef` — DailyTimeline's drag handlers call
+ * these from inside the (sole) timeline DndContext to drive the goo overlay
+ * without this component owning its own DndContext.
+ */
+export interface PrepGooApi {
+  beginPrepDrag: (
+    prepTaskId: string,
+    homeRect: { left: number; top: number; width: number; height: number },
+  ) => void
+  updatePrepDrag: (
+    pointer: { x: number; y: number },
+    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+  ) => void
+  endPrepDrag: () => void
+}
+
 interface PrepGooDragContextProps {
   children: React.ReactNode
   /**
@@ -220,6 +239,11 @@ interface PrepGooDragContextProps {
    * Used to validate drop targets during goo drag. KALMIO-336.
    */
   prepFeedsMap: Record<string, string[]>
+  /**
+   * Mutable ref the parent supplies; we populate `.current` with the imperative
+   * goo API so the parent's existing DndContext handlers can drive the overlay.
+   */
+  apiRef?: React.MutableRefObject<PrepGooApi | null>
 }
 
 export function PrepGooDragContext({
@@ -227,6 +251,7 @@ export function PrepGooDragContext({
   onEmbedPrepTask,
   onDetachPrepTask,
   prepFeedsMap,
+  apiRef,
 }: PrepGooDragContextProps) {
   const [state, setState] = useState<PrepGooState>({
     draggingPrepTaskId: null,
@@ -237,118 +262,49 @@ export function PrepGooDragContext({
     invalidTargetMealId: null,
   })
 
-  // Pointer sensor: immediate on mouse, distance=4 prevents accidental drags.
-  const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 4 },
-  })
-
-  // Touch sensor: 250ms long-press (KALMIO-327). toleranceDistance prevents
-  // the drag cancelling on the micro-movements that happen during a hold.
-  const touchSensor = useSensor(TouchSensor, {
-    activationConstraint: {
-      delay: PREP_TOUCH_DELAY_MS,
-      tolerance: PREP_TOUCH_TOLERANCE_PX,
-    },
-  })
-
-  const sensors = useSensors(pointerSensor, touchSensor)
-
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const id = String(event.active.id)
-    // Only handle IDs prefixed with 'prep-embed:' or 'prep-standalone:'
-    if (!id.startsWith('prep-embed:') && !id.startsWith('prep-standalone:')) return
-
-    const prepTaskId = id.split(':')[1] ?? id
-    // Snapshot the source rect for the goo "home" anchor. Falls back to null
-    // when @dnd-kit hasn't measured yet (rare, but keeps the type honest).
-    const initial = event.active.rect.current.initial
-    const homeRect = initial
-      ? { left: initial.left, top: initial.top, width: initial.width, height: initial.height }
-      : null
-    setState(s => ({ ...s, draggingPrepTaskId: prepTaskId, homeRect }))
-    triggerHaptic()
-  }, [])
-
-  const handleDragMove = useCallback((event: DragMoveEvent) => {
-    const id = String(event.active.id)
-    if (!id.startsWith('prep-embed:') && !id.startsWith('prep-standalone:')) return
-
-    // Track pointer position for the goo blob overlay.
-    const coords = event.activatorEvent instanceof PointerEvent || event.activatorEvent instanceof TouchEvent
-      ? (() => {
-          if (event.activatorEvent instanceof PointerEvent) {
-            return { x: event.activatorEvent.clientX + event.delta.x, y: event.activatorEvent.clientY + event.delta.y }
-          }
-          const touch = (event.activatorEvent as TouchEvent).changedTouches[0]
-          return touch
-            ? { x: touch.clientX + event.delta.x, y: touch.clientY + event.delta.y }
-            : null
-        })()
-      : null
-
-    // KALMIO-336: detect if hovering over an invalid drop target (wrong meal).
-    const prepTaskId = id.split(':')[1] ?? id
-    const validMealIds = prepFeedsMap[prepTaskId] ?? []
-    const overId = event.over ? String(event.over.id) : null
-
-    let isOverValid = false
-    let isOverInvalid = false
-    let invalidMealId: string | null = null
-
-    if (overId && overId.startsWith('meal-drop:')) {
-      const hoverMealId = overId.slice('meal-drop:'.length)
-      if (validMealIds.includes(hoverMealId)) {
-        isOverValid = true
-      } else {
-        isOverInvalid = true
-        invalidMealId = hoverMealId
-      }
-    }
-
-    setState(s => ({
-      ...s,
-      dragPointer: coords,
-      isOverValidTarget: isOverValid,
-      isOverInvalidTarget: isOverInvalid,
-      invalidTargetMealId: invalidMealId,
-    }))
-  }, [prepFeedsMap])
-
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const id = String(event.active.id)
-    if (!id.startsWith('prep-embed:') && !id.startsWith('prep-standalone:')) {
-      return
-    }
-
-    const prepTaskId = id.split(':')[1] ?? id
-    const overId = event.over ? String(event.over.id) : null
-
-    if (overId && overId.startsWith('meal-drop:')) {
-      // KALMIO-336: validate that the target meal is in this prep's feeds set.
-      const validMealIds = prepFeedsMap[prepTaskId] ?? []
-      const targetMealId = overId.slice('meal-drop:'.length)
-      if (validMealIds.includes(targetMealId)) {
-        // Valid drop — embed the prep into the meal.
-        onEmbedPrepTask(prepTaskId)
-      } else {
-        // Invalid drop — bounce back to standalone (no PATCH for wrong meal).
-        // The red rejection animation was shown during drag-over; now clear it.
-        onDetachPrepTask(prepTaskId)
-      }
-    } else {
-      // Released outside any meal ring — make standalone.
-      onDetachPrepTask(prepTaskId)
-    }
-
+  // Imperative state setters driven from the parent DndContext's drag
+  // handlers in DailyTimeline — this context owns the GOO VISUAL ONLY,
+  // not the DnD itself. The reason: prep rows are wired into the
+  // timeline's DndContext (for reschedule); we route prep-flavoured
+  // drags into the goo overlay from inside that single context.
+  const beginPrepDrag = useCallback((
+    prepTaskId: string,
+    homeRect: { left: number; top: number; width: number; height: number },
+  ) => {
     setState({
-      draggingPrepTaskId: null,
+      draggingPrepTaskId: prepTaskId,
+      homeRect,
       dragPointer: null,
-      homeRect: null,
       isOverValidTarget: false,
       isOverInvalidTarget: false,
       invalidTargetMealId: null,
     })
-  }, [onEmbedPrepTask, onDetachPrepTask, prepFeedsMap])
+    triggerHaptic()
+  }, [])
+
+  const updatePrepDrag = useCallback((
+    pointer: { x: number; y: number },
+    overState: { isOverValid: boolean; isOverInvalid: boolean; invalidMealId: string | null },
+  ) => {
+    setState(s => ({
+      ...s,
+      dragPointer: pointer,
+      isOverValidTarget: overState.isOverValid,
+      isOverInvalidTarget: overState.isOverInvalid,
+      invalidTargetMealId: overState.invalidMealId,
+    }))
+  }, [])
+
+  const endPrepDrag = useCallback(() => {
+    setState({
+      draggingPrepTaskId: null,
+      homeRect: null,
+      dragPointer: null,
+      isOverValidTarget: false,
+      isOverInvalidTarget: false,
+      invalidTargetMealId: null,
+    })
+  }, [])
 
   // A11y keyboard callbacks — bypasses drag entirely. KALMIO-328.
   const handlePrepDetach = useCallback((prepTaskId: string) => {
@@ -359,17 +315,32 @@ export function PrepGooDragContext({
     onEmbedPrepTask(prepTaskId)
   }, [onEmbedPrepTask])
 
+  // prepFeedsMap is consumed by DailyTimeline's drag handlers (which call
+  // updatePrepDrag with the resolved valid/invalid state) — reference here
+  // is just to avoid the unused-prop warning while keeping the public API
+  // stable for callers that still pass it.
+  void prepFeedsMap
+
+  // Expose the imperative API to the parent via the supplied ref. Updated on
+  // every render so the latest callback identities are visible — they're all
+  // useCallback'd so the identity is stable unless deps change.
+  React.useEffect(() => {
+    if (!apiRef) return
+    apiRef.current = { beginPrepDrag, updatePrepDrag, endPrepDrag }
+    return () => { apiRef.current = null }
+  }, [apiRef, beginPrepDrag, updatePrepDrag, endPrepDrag])
+
   return (
-    <PrepGooContext.Provider value={{ state, onPrepDetach: handlePrepDetach, onPrepAttach: handlePrepAttach }}>
+    <PrepGooContext.Provider value={{
+      state,
+      beginPrepDrag,
+      updatePrepDrag,
+      endPrepDrag,
+      onPrepDetach: handlePrepDetach,
+      onPrepAttach: handlePrepAttach,
+    }}>
       <GooFilterDefs />
-      <DndContext
-        sensors={sensors}
-        onDragStart={handleDragStart}
-        onDragMove={handleDragMove}
-        onDragEnd={handleDragEnd}
-      >
-        {children}
-      </DndContext>
+      {children}
       {/* Goo stretch — source anchor + tether + cursor blob, rendered in a
           fixed-position portal so the SVG goo filter can merge all three
           blobs into one shape with a visible neck that snaps. */}
