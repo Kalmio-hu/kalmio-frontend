@@ -65,10 +65,34 @@ self.addEventListener('notificationclick', (event: NotificationEvent) => {
   )
 })
 
-// ── Push event (future) ───────────────────────────────────────────────────────
-// Push payloads are handled here when the backend sends a Web Push message.
-// Currently notifications are fired from in-page JS (NotificationScheduler).
-// This stub is in place so the handler can be wired without a new deploy.
-self.addEventListener('push', () => {
-  // Reserved for server-sent push notifications — not yet in use.
+// ── Push event ────────────────────────────────────────────────────────────────
+// Receives server-sent Web Push messages from WebPushTransport.
+// Payload JSON shape: { title, body, url, slotId }
+// The notificationclick handler above reads event.notification.data.slotId
+// and event.action to dispatch 'snooze' / 'quiet-today' back to the page.
+self.addEventListener('push', (event: PushEvent) => {
+  if (!event.data) return
+
+  let payload: { title?: string; body?: string; url?: string; slotId?: string } = {}
+  try {
+    payload = event.data.json() as typeof payload
+  } catch {
+    // Malformed payload — show a generic fallback notification.
+  }
+
+  const title = payload.title ?? 'Kalmio'
+  const body  = payload.body  ?? ''
+
+  // `actions` is defined in the Push API spec but missing from some TS webworker lib typings.
+  // The cast to `NotificationOptions` broadens the type to accept the extra field at runtime.
+  const options = {
+    body,
+    data: { slotId: payload.slotId, url: payload.url },
+    actions: [
+      { action: 'snooze',      title: 'Snooze 1h'    },
+      { action: 'quiet-today', title: 'Quiet today'   },
+    ],
+  } as NotificationOptions
+
+  event.waitUntil(self.registration.showNotification(title, options))
 })
