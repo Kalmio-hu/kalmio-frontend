@@ -13,7 +13,7 @@
  * - useMutation → planTemplateService.upsertTemplateMeal (invalidates above query)
  * - useMutation → planTemplateService.copy / archive / refreshSnapshot
  */
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,6 @@ import { Label } from '@/components/ui/label'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { todayIsoLocal, dateToIsoLocal } from '@/lib/utils'
 import type { Schedule, ScheduleStatus } from '@/types'
-import { Header } from '@/components/layout/Header'
 import { Spinner } from '@/components/ui/spinner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -102,6 +101,11 @@ export function PlanDetail() {
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
   const [fillConfirmOpen, setFillConfirmOpen] = useState(false)
   const [clearAllConfirmOpen, setClearAllConfirmOpen] = useState(false)
+  // KALMIO-354 — inline name editing state
+  const [nameEditing, setNameEditing] = useState(false)
+  const [nameValue, setNameValue] = useState('')
+  const [nameError, setNameError] = useState<string | null>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null)
   // Pending palette-drop onto a filled slot — drives the replace-confirm dialog.
   const [paletteReplace, setPaletteReplace] = useState<
     { recipeId: string; target: TemplateMeal; targetRecipeName: string; sourceRecipeName: string } | null
@@ -616,6 +620,39 @@ export function PlanDetail() {
     },
   })
 
+  // KALMIO-354 — rename mutation with optimistic cache update
+  const updateNameMutation = useMutation({
+    mutationFn: (name: string) => planTemplateService.updatePlanName(id!, name),
+    onMutate: async (name: string) => {
+      // Cancel outgoing refetches so they don't overwrite optimistic update
+      await qc.cancelQueries({ queryKey: ['plan-template', id] })
+      const previous = qc.getQueryData<typeof plan>(['plan-template', id])
+      // Optimistically update the cache
+      qc.setQueryData(['plan-template', id], (old: typeof plan) =>
+        old ? { ...old, name } : old
+      )
+      return { previous }
+    },
+    onSuccess: (updated) => {
+      // Settle with the server-confirmed value (may be trimmed)
+      qc.setQueryData(['plan-template', id], (old: typeof plan) =>
+        old ? { ...old, name: updated.name } : old
+      )
+      setNameEditing(false)
+      setNameError(null)
+    },
+    onError: (err: unknown, _name, ctx) => {
+      // Roll back optimistic update
+      if (ctx?.previous !== undefined) {
+        qc.setQueryData(['plan-template', id], ctx.previous)
+      }
+      // Surface a helpful error message
+      const axiosErr = err as { response?: { data?: { message?: string } } }
+      const msg = axiosErr?.response?.data?.message ?? t('plan.detail.name.errorGeneric')
+      setNameError(msg)
+    },
+  })
+
   // Bulk clear: wipe every template_meal row on this plan.
   const clearAllMutation = useMutation({
     mutationFn: () => planTemplateService.clearAllTemplateMeals(id!),
@@ -663,6 +700,52 @@ export function PlanDetail() {
     clearMutation.mutate(activeCell.existing.id)
   }
 
+  // KALMIO-354 — focus the input when entering edit mode
+  useEffect(() => {
+    if (nameEditing && nameInputRef.current) {
+      nameInputRef.current.focus()
+      nameInputRef.current.select()
+    }
+  }, [nameEditing])
+
+  function handleNameEditStart() {
+    if (!plan || plan.status === 'ARCHIVED') return
+    setNameValue(plan.name)
+    setNameError(null)
+    setNameEditing(true)
+  }
+
+  function handleNameCommit() {
+    const trimmed = nameValue.trim()
+    if (!trimmed) {
+      // Empty — revert silently
+      setNameEditing(false)
+      setNameError(null)
+      return
+    }
+    if (trimmed === plan?.name) {
+      // Unchanged — revert silently
+      setNameEditing(false)
+      setNameError(null)
+      return
+    }
+    if (trimmed.length > 80) {
+      setNameError(t('plan.detail.name.errorTooLong'))
+      return
+    }
+    updateNameMutation.mutate(trimmed)
+  }
+
+  function handleNameKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleNameCommit()
+    } else if (e.key === 'Escape') {
+      setNameEditing(false)
+      setNameError(null)
+    }
+  }
+
   // ── Loading / error states ───────────────────────────────────────────────
 
   if (isLoading) {
@@ -708,95 +791,172 @@ export function PlanDetail() {
     ARCHIVED: 'bg-[#fef9c3] text-[#854d0e]',
   }
 
+  // KALMIO-355 — derived flags for fill CTA and draft banner
+  const isDraft = plan.status === 'DRAFT'
+  const allDaysEmpty = plan.templateMeals.length === 0
+  const isArchived = plan.status === 'ARCHIVED'
+  // The fill CTA label changes based on draft state
+  const fillCtaLabel = isDraft
+    ? t('plan.detail.fillCta.fill')
+    : t('plan.detail.fillCta.refill')
+  const fillCtaTooltip = isDraft ? undefined : t('plan.detail.fillCta.refillTooltip')
+
   return (
     <div className="max-w-6xl mx-auto px-4 pb-10">
-      {/* Page header */}
-      <Header
-        title={plan.name}
-        actions={
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => navigate('/app/plans')}
-              className="text-sm text-[#6b7280] hover:text-[#1A1A1A] flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
-              aria-label={t('common.back')}
-            >
-              <ChevronLeft className="w-4 h-4" aria-hidden />
-              {t('common.back')}
-            </button>
-
-            {/* "..." action menu */}
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(o => !o)}
-                aria-label={t('plan.detail.actions.menuAria')}
-                aria-expanded={menuOpen}
-                className="p-2 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] hover:text-[#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
-              >
-                <MoreHorizontal className="w-4 h-4" aria-hidden />
-              </button>
-
-              {menuOpen && (
-                <>
-                  {/* Dismiss overlay */}
-                  <div
-                    className="fixed inset-0 z-10"
-                    aria-hidden
-                    onClick={() => setMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 mt-1 z-20 w-48 rounded-[12px] border border-[#e5e7eb] bg-white shadow-lg py-1 focus:outline-none">
-                    <MenuButton
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setFillConfirmOpen(true)
-                      }}
-                    >
-                      {t('plan.detail.actions.fill')}
-                    </MenuButton>
-                    <MenuButton
-                      onClick={() => {
-                        setMenuOpen(false)
-                        copyMutation.mutate()
-                      }}
-                      disabled={copyMutation.isPending}
-                    >
-                      {t('plan.detail.actions.copy')}
-                    </MenuButton>
-                    <MenuButton
-                      onClick={() => {
-                        setMenuOpen(false)
-                        snapshotMutation.mutate()
-                      }}
-                      disabled={snapshotMutation.isPending}
-                    >
-                      {t('plan.detail.actions.snapshotRefresh')}
-                    </MenuButton>
-                    <MenuButton
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setClearAllConfirmOpen(true)
-                      }}
-                      className="text-red-500"
-                    >
-                      {t('plan.detail.actions.clearAll')}
-                    </MenuButton>
-                    <MenuButton
-                      onClick={() => {
-                        setMenuOpen(false)
-                        setArchiveConfirmOpen(true)
-                      }}
-                      className="text-red-500"
-                    >
-                      {t('plan.detail.actions.archive')}
-                    </MenuButton>
-                  </div>
-                </>
+      {/* Page header — KALMIO-354 inline name + KALMIO-355 fill CTA */}
+      <div className="flex items-start justify-between mb-6 gap-3">
+        {/* KALMIO-354: click-to-edit plan name */}
+        <div className="flex-1 min-w-0">
+          {nameEditing ? (
+            <div>
+              <input
+                ref={nameInputRef}
+                type="text"
+                value={nameValue}
+                onChange={e => { setNameValue(e.target.value); setNameError(null) }}
+                onBlur={handleNameCommit}
+                onKeyDown={handleNameKeyDown}
+                maxLength={80}
+                aria-label={t('plan.detail.name.aria')}
+                placeholder={t('plan.detail.name.placeholder')}
+                disabled={updateNameMutation.isPending}
+                className="
+                  text-2xl font-headline font-bold text-[#1A1A1A]
+                  w-full border-0 border-b-2 border-[#4f46e5] bg-transparent
+                  focus:outline-none focus-visible:ring-0
+                  disabled:opacity-60
+                "
+              />
+              {nameError && (
+                <p className="text-xs text-red-600 mt-1" role="alert">{nameError}</p>
               )}
             </div>
+          ) : (
+            <div className="flex items-center gap-2 group">
+              <h1 className="text-2xl font-headline font-bold text-[#1A1A1A] truncate">
+                {plan.name}
+              </h1>
+              {!isArchived && (
+                <button
+                  type="button"
+                  onClick={handleNameEditStart}
+                  aria-label={t('plan.detail.name.aria')}
+                  className="
+                    shrink-0 p-1 rounded-md text-[#9ca3af]
+                    opacity-0 group-hover:opacity-100 focus-visible:opacity-100
+                    hover:text-[#4f46e5] hover:bg-[#ede9fe]
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                    transition-opacity
+                  "
+                >
+                  <Pencil className="w-4 h-4" aria-hidden />
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Actions: fill CTA + back + overflow */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* KALMIO-355: primary fill CTA */}
+          {!isArchived && (
+            <button
+              type="button"
+              onClick={() => setFillConfirmOpen(true)}
+              disabled={solveMutation.isPending}
+              title={fillCtaTooltip}
+              aria-label={fillCtaLabel}
+              className="
+                flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
+                bg-[#4f46e5] text-white text-sm font-medium
+                hover:bg-[#4338ca] active:bg-[#3730a3]
+                disabled:opacity-60 disabled:cursor-not-allowed
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-1
+                transition-colors
+              "
+            >
+              {solveMutation.isPending ? (
+                <Spinner className="h-3.5 w-3.5 text-white" />
+              ) : (
+                <Zap className="w-3.5 h-3.5" aria-hidden />
+              )}
+              {fillCtaLabel}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => navigate('/app/plans')}
+            className="text-sm text-[#6b7280] hover:text-[#1A1A1A] flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+            aria-label={t('common.back')}
+          >
+            <ChevronLeft className="w-4 h-4" aria-hidden />
+            {t('common.back')}
+          </button>
+
+          {/* "..." action menu — fill is no longer here (KALMIO-355) */}
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={() => setMenuOpen(o => !o)}
+              aria-label={t('plan.detail.actions.menuAria')}
+              aria-expanded={menuOpen}
+              className="p-2 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] hover:text-[#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+            >
+              <MoreHorizontal className="w-4 h-4" aria-hidden />
+            </button>
+
+            {menuOpen && (
+              <>
+                {/* Dismiss overlay */}
+                <div
+                  className="fixed inset-0 z-10"
+                  aria-hidden
+                  onClick={() => setMenuOpen(false)}
+                />
+                <div className="absolute right-0 mt-1 z-20 w-48 rounded-[12px] border border-[#e5e7eb] bg-white shadow-lg py-1 focus:outline-none">
+                  <MenuButton
+                    onClick={() => {
+                      setMenuOpen(false)
+                      copyMutation.mutate()
+                    }}
+                    disabled={copyMutation.isPending}
+                  >
+                    {t('plan.detail.actions.copy')}
+                  </MenuButton>
+                  <MenuButton
+                    onClick={() => {
+                      setMenuOpen(false)
+                      snapshotMutation.mutate()
+                    }}
+                    disabled={snapshotMutation.isPending}
+                  >
+                    {t('plan.detail.actions.snapshotRefresh')}
+                  </MenuButton>
+                  <MenuButton
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setClearAllConfirmOpen(true)
+                    }}
+                    className="text-red-500"
+                  >
+                    {t('plan.detail.actions.clearAll')}
+                  </MenuButton>
+                  <MenuButton
+                    onClick={() => {
+                      setMenuOpen(false)
+                      setArchiveConfirmOpen(true)
+                    }}
+                    className="text-red-500"
+                  >
+                    {t('plan.detail.actions.archive')}
+                  </MenuButton>
+                </div>
+              </>
+            )}
           </div>
-        }
-      />
+        </div>
+      </div>
 
       {/* Plan meta chips */}
       <div className="flex flex-wrap items-center gap-2 mb-5">
@@ -847,6 +1007,34 @@ export function PlanDetail() {
       {/* Template drift banner — shown when an active schedule's snapshot is stale (KALMIO-323) */}
       {activeSchedule && id && (
         <TemplateDriftBanner planId={id} scheduleId={activeSchedule.id} />
+      )}
+
+      {/* KALMIO-355: draft nudge banner — shown when plan is Draft and every day is empty */}
+      {isDraft && allDaysEmpty && (
+        <div
+          role="status"
+          className="
+            flex items-center justify-between gap-3 mb-4
+            px-4 py-3 rounded-[12px]
+            bg-[#f5f3ff] border border-[#ede9fe] text-[#4f46e5]
+          "
+        >
+          <p className="text-sm">
+            {t('plan.detail.draftBanner.text')}
+          </p>
+          <button
+            type="button"
+            onClick={() => setFillConfirmOpen(true)}
+            disabled={solveMutation.isPending}
+            className="
+              shrink-0 text-sm font-medium underline underline-offset-2
+              hover:text-[#3730a3] focus:outline-none focus-visible:ring-2
+              focus-visible:ring-[#4f46e5] disabled:opacity-60
+            "
+          >
+            {t('plan.detail.draftBanner.cta')}
+          </button>
+        </div>
       )}
 
       {/* Tab bar — Template | Futtatások (KALMIO-306) */}

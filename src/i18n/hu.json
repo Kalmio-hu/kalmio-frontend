@@ -1628,6 +1628,22 @@
         "reRunning": "Futtatás…",
         "reRunSuccess": "Az ütemezés újraindult a frissített sablonnal.",
         "reRunError": "Most nem sikerült újraindítani. Próbáld újra."
+      },
+      "name": {
+        "placeholder": "Terv neve…",
+        "aria": "Terv nevének szerkesztése",
+        "errorGeneric": "Nem sikerült menteni a nevet. Kérlek, próbáld újra.",
+        "errorTooLong": "A terv neve legfeljebb 80 karakter lehet.",
+        "errorBlank": "A terv neve nem lehet üres."
+      },
+      "fillCta": {
+        "fill": "Töltsd ki a tervezővel",
+        "refill": "Újratöltés",
+        "refillTooltip": "Felülírja a jelenlegi tervet"
+      },
+      "draftBanner": {
+        "text": "Üres a terved — töltsd ki a tervezővel.",
+        "cta": "Tervező indítása"
       }
     },
     "prep": {
@@ -2024,10 +2040,11 @@
       "planGeneratingBody": "Egy pillanat — összerakom a heted az eddig megadott adatok alapján.",
       "stepLabels": {
         "1": "Üdvözlés",
-        "2": "Így működik a tervező",
-        "3": "Étrend összerakása…",
-        "4": "Az első heted kész",
-        "5": "Csemete — az első cselekvés"
+        "2": "Kalóriacél",
+        "3": "Így működik a tervező",
+        "4": "Étrend összerakása…",
+        "5": "Az első heted kész",
+        "6": "Csemete — az első cselekvés"
       }
     },
     "planting": {
@@ -2133,6 +2150,14 @@
       "title": "Személyre szabott célok",
       "body": "A testsúlyod, testmagasságod és aktivitási szinted megadásával Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
       "cta": "Adatok megadása"
+    },
+    "tdeeStep": {
+      "title": "Személyre szabott kalóriacél",
+      "body": "A testadataid alapján kiszámoltam a napi energiaszükségleted (TDEE). Elfogadhatod javaslatként, vagy továbblépünk anélkül.",
+      "proteinUnit": "fehérje / nap",
+      "bodyDataMissing": "Testadatok megadásával személyre szabott javaslatot adok. Ez a lépés átugorható.",
+      "skip": "Meghagyom majd magamnak",
+      "accepted": "Kalóriacél beállítva."
     }
   },
   "family": {

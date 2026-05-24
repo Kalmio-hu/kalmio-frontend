@@ -153,4 +153,15 @@ export const planTemplateService = {
   swapTemplateMeals: (planId: string, firstId: string, secondId: string): Promise<void> =>
     api.post(`/api/plans/${planId}/template-meals/swap`, { firstId, secondId })
       .then(() => undefined),
+
+  /**
+   * PATCH /api/plans/{id} — update only the plan name.
+   *
+   * Validation is server-enforced: trimmed 1–80 chars. The service trims
+   * the value before persisting.
+   *
+   * (KALMIO-354)
+   */
+  updatePlanName: (planId: string, name: string): Promise<PlanTemplate> =>
+    api.patch<PlanTemplate>(`/api/plans/${planId}`, { name }).then(r => r.data),
 }

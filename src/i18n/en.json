@@ -1628,6 +1628,22 @@
         "reRunning": "Re-running…",
         "reRunSuccess": "Schedule restarted from the updated template.",
         "reRunError": "Could not re-run right now. Please try again."
+      },
+      "name": {
+        "placeholder": "Plan name…",
+        "aria": "Edit plan name",
+        "errorGeneric": "Could not save the name. Please try again.",
+        "errorTooLong": "Plan name must be 80 characters or fewer.",
+        "errorBlank": "Plan name cannot be blank."
+      },
+      "fillCta": {
+        "fill": "Fill with planner",
+        "refill": "Re-fill",
+        "refillTooltip": "Overwrites the current plan"
+      },
+      "draftBanner": {
+        "text": "Your plan is empty — fill it with the planner.",
+        "cta": "Start planner"
       }
     },
     "prep": {
@@ -2024,10 +2040,11 @@
       "planGeneratingBody": "One moment — putting your week together from what we have so far.",
       "stepLabels": {
         "1": "Welcome",
-        "2": "How the planner works",
-        "3": "Building your plan…",
-        "4": "Your first week is ready",
-        "5": "Csemete — your first action"
+        "2": "Calorie target",
+        "3": "How the planner works",
+        "4": "Building your plan…",
+        "5": "Your first week is ready",
+        "6": "Csemete — your first action"
       }
     },
     "planting": {
@@ -2133,6 +2150,14 @@
       "title": "Personalised targets",
       "body": "Add your weight, height and activity level and Kalmio will suggest a personalised calorie and protein target.",
       "cta": "Add body data"
+    },
+    "tdeeStep": {
+      "title": "Personalised calorie target",
+      "body": "Based on your body data, I have calculated your Total Daily Energy Expenditure (TDEE). You can accept the suggestion or continue without it.",
+      "proteinUnit": "protein / day",
+      "bodyDataMissing": "Add your body data and I can suggest a personalised target. You can skip this step.",
+      "skip": "I will set this later",
+      "accepted": "Calorie target set."
     }
   },
   "family": {
