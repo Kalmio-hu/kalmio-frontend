@@ -67,6 +67,7 @@ export function Fridge() {
 
   const todayIso = today.toISOString().split('T')[0]
 
+  const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
