@@ -276,11 +276,25 @@ function DraggableRow({
   // Material-style "pickup" cue during the 250ms long-press hold (KALMIO-327).
   // @dnd-kit's isDragging only flips AFTER the sensor fires; isPressing covers
   // the holding window via native pointer events on the drag handle itself.
+  // Forward dnd-kit's pointer handlers so PointerSensor is not clobbered by
+  // last-write-wins JSX spread order. KALMIO-327 reviewer fix.
   const [isPressing, setIsPressing] = useState(false)
-  const handleSpinePointerDown = useCallback(() => setIsPressing(true), [])
-  const handleSpinePointerUp = useCallback(() => setIsPressing(false), [])
-  const handleSpinePointerCancel = useCallback(() => setIsPressing(false), [])
-  const handleSpinePointerLeave = useCallback(() => setIsPressing(false), [])
+  const handleSpinePointerDown = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerDown?.(e)
+    setIsPressing(true)
+  }, [listeners])
+  const handleSpinePointerUp = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerUp?.(e)
+    setIsPressing(false)
+  }, [listeners])
+  const handleSpinePointerCancel = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerCancel?.(e)
+    setIsPressing(false)
+  }, [listeners])
+  const handleSpinePointerLeave = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerLeave?.(e)
+    setIsPressing(false)
+  }, [listeners])
 
   // Drop zone for embedded prep drag-and-drop (KALMIO-325). Only meal cards
   // act as drop targets. The PrepGooDragContext (nested DndContext) handles

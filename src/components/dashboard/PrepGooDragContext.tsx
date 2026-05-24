@@ -116,10 +116,26 @@ export function DraggablePrepBall({ id, children }: DraggablePrepBallProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id })
   const [isPressing, setIsPressing] = useState(false)
 
-  const handlePointerDown = useCallback(() => setIsPressing(true), [])
-  const handlePointerUp = useCallback(() => setIsPressing(false), [])
-  const handlePointerCancel = useCallback(() => setIsPressing(false), [])
-  const handlePointerLeave = useCallback(() => setIsPressing(false), [])
+  // Forward dnd-kit's pointer handlers so PointerSensor is not clobbered by
+  // last-write-wins JSX spread order. The sensor's onPointerDown must fire for
+  // mouse drag activation; our local handler only tracks isPressing state.
+  // KALMIO-327 reviewer fix.
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerDown?.(e)
+    setIsPressing(true)
+  }, [listeners])
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerUp?.(e)
+    setIsPressing(false)
+  }, [listeners])
+  const handlePointerCancel = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerCancel?.(e)
+    setIsPressing(false)
+  }, [listeners])
+  const handlePointerLeave = useCallback((e: React.PointerEvent) => {
+    listeners?.onPointerLeave?.(e)
+    setIsPressing(false)
+  }, [listeners])
 
   return (
     <div
