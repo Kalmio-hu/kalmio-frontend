@@ -14,7 +14,7 @@ export interface UpsertTemplateMealRequest {
 
 export const planService = {
   create: (req: CreatePlanRequest): Promise<Plan> =>
-    api.post<Plan>('/api/plans', req).then(r => r.data),
+    api.post<Plan>('/api/plans/calendar', req).then(r => r.data),
 
   getActive: (): Promise<Plan | null> =>
     api.get<Plan>('/api/plans/calendar/active').then(r => r.data).catch((err: { response?: { status?: number } }) => {
@@ -23,35 +23,35 @@ export const planService = {
     }),
 
   getById: (id: string): Promise<Plan> =>
-    api.get<Plan>(`/api/plans/${id}`).then(r => r.data),
+    api.get<Plan>(`/api/plans/calendar/${id}`).then(r => r.data),
 
   updateMeal: (planId: string, mealId: string, req: UpdatePlannedMealRequest): Promise<PlannedMeal> =>
-    api.patch<PlannedMeal>(`/api/plans/${planId}/meals/${mealId}`, req).then(r => r.data),
+    api.patch<PlannedMeal>(`/api/plans/calendar/${planId}/meals/${mealId}`, req).then(r => r.data),
 
   delete: (id: string): Promise<void> =>
-    api.delete(`/api/plans/${id}`).then(() => undefined),
+    api.delete(`/api/plans/calendar/${id}`).then(() => undefined),
 
   evaluateReplan: (planId: string, fromDate?: string): Promise<ReplanDiff | null> =>
     api.post<ReplanDiff>(
-      `/api/plans/${planId}/replan-evaluate`,
+      `/api/plans/calendar/${planId}/replan-evaluate`,
       null,
       { params: fromDate ? { fromDate } : {}, validateStatus: (s) => s === 200 || s === 204 }
     ).then(r => r.status === 204 ? null : r.data),
 
   getReplanDiff: (planId: string): Promise<ReplanDiff | null> =>
     api.get<ReplanDiff>(
-      `/api/plans/${planId}/replan-diff`,
+      `/api/plans/calendar/${planId}/replan-diff`,
       { validateStatus: (s) => s === 200 || s === 204 }
     ).then(r => r.status === 204 ? null : r.data),
 
   acceptReplan: (planId: string, diffId: string): Promise<Plan> =>
-    api.post<Plan>(`/api/plans/${planId}/replan-accept`, { diffId }).then(r => r.data),
+    api.post<Plan>(`/api/plans/calendar/${planId}/replan-accept`, { diffId }).then(r => r.data),
 
   getShoppingList: (planId: string): Promise<ShoppingList> =>
-    api.get<ShoppingList>(`/api/plans/${planId}/shopping-list`).then(r => r.data),
+    api.get<ShoppingList>(`/api/plans/calendar/${planId}/shopping-list`).then(r => r.data),
 
   patchMealScheduledTime: (planId: string, mealId: string, scheduledTime: string | null): Promise<void> =>
-    api.patch(`/api/plans/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }).then(() => undefined),
+    api.patch(`/api/plans/calendar/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }).then(() => undefined),
 }
 
 // ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────
