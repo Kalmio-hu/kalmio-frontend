@@ -258,7 +258,7 @@
     },
     "coachmark": {
       "prepDrag": {
-        "body": "Húzd be az előkészítési slotot az étkezésbe — vagy húzd ki az idővonalra.",
+        "body": "Az előkészítéseket húzással mozgathatod az étkezések és az idővonal között.",
         "dismiss": "Értem"
       }
     },

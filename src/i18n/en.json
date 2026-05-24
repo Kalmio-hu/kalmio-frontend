@@ -258,7 +258,7 @@
     },
     "coachmark": {
       "prepDrag": {
-        "body": "Drag prep slots into a meal card — or drag them out to the timeline.",
+        "body": "Drag your prep tasks between meal cards and the timeline.",
         "dismiss": "Got it"
       }
     },
