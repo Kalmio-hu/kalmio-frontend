@@ -5,15 +5,10 @@ import {
   ShoppingCart,
   Settings,
   ChefHat,
-  Store,
   MessageSquarePlus,
   MoreHorizontal,
   Globe,
   Users,
-  ShieldCheck,
-  Vault,
-  ClipboardList,
-  CalendarClock,
   CalendarDays,
   NotebookPen,
   Sprout,
@@ -27,14 +22,14 @@ import { useAuthStore } from '@/store/auth'
 import { FeedbackPanel } from '@/components/FeedbackPanel'
 import { feedbackService } from '@/services/feedback'
 import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
+import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
 
 // Overflow routes — for checking active state of the "Több" trigger
+// Schedules and retail removed after KALMIO-306/305 nav consolidation
 const OVERFLOW_ROUTES = [
   '/app/settings',
-  '/app/retail-products',
   '/app/family',
   '/app/plans',
-  '/app/schedules',
   '/app/calendar',
   '/app/grooming',
   '/app/founding-member',
@@ -153,17 +148,6 @@ export function MobileNav() {
               {t('nav.plans')}
             </NavLink>
 
-            {/* Ütemezések */}
-            <NavLink
-              to="/app/schedules"
-              role="menuitem"
-              onClick={() => setOverflowOpen(false)}
-              className={({ isActive }) => overflowItemClass(isActive)}
-            >
-              <CalendarClock className="h-5 w-5 shrink-0" />
-              {t('nav.schedules')}
-            </NavLink>
-
             {/* Naptár */}
             <NavLink
               to="/app/calendar"
@@ -228,49 +212,14 @@ export function MobileNav() {
               </NavLink>
             )}
 
-            {/* Retail Products — admin only */}
-            {isAdmin && (
-              <NavLink
-                to="/app/retail-products"
-                role="menuitem"
-                onClick={() => setOverflowOpen(false)}
-                className={({ isActive }) => overflowItemClass(isActive)}
-              >
-                <Store className="h-5 w-5 shrink-0" />
-                {t('nav.retail')}
-              </NavLink>
-            )}
-
+            {/* Admin — admin-only popup trigger (KALMIO-304) */}
             {isAdmin && (
               <>
                 <div className="my-1 border-t border-white/10" role="separator" />
-                <NavLink
-                  to="/app/admin/users"
-                  role="menuitem"
-                  onClick={() => setOverflowOpen(false)}
-                  className={({ isActive }) => overflowItemClass(isActive)}
-                >
-                  <ShieldCheck className="h-5 w-5 shrink-0" />
-                  {t('nav.admin')}
-                </NavLink>
-                <NavLink
-                  to="/app/admin/ip-vault"
-                  role="menuitem"
-                  onClick={() => setOverflowOpen(false)}
-                  className={({ isActive }) => overflowItemClass(isActive)}
-                >
-                  <Vault className="h-5 w-5 shrink-0" />
-                  {t('nav.ipVault')}
-                </NavLink>
-                <NavLink
-                  to="/app/admin/content-review"
-                  role="menuitem"
-                  onClick={() => setOverflowOpen(false)}
-                  className={({ isActive }) => overflowItemClass(isActive)}
-                >
-                  <ClipboardList className="h-5 w-5 shrink-0" />
-                  {t('nav.contentReview')}
-                </NavLink>
+                <AdminPopupMenu
+                  variant="overflow"
+                  onNavigate={() => setOverflowOpen(false)}
+                />
                 <div className="my-1 border-t border-white/10" role="separator" />
               </>
             )}

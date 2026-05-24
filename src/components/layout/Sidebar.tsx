@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, Store, LogOut, Settings, ShieldCheck, MessageSquarePlus, Vault, ChevronRight, Refrigerator, ClipboardList, Users, CalendarClock, CalendarDays, NotebookPen, Sprout, Star, Trees } from 'lucide-react'
+import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, LogOut, Settings, MessageSquarePlus, ChevronRight, Refrigerator, CalendarDays, NotebookPen, Sprout, Star, Trees, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -11,6 +11,7 @@ import { feedbackService } from '@/services/feedback'
 import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usePoints } from '@/hooks/usePoints'
+import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
 
 export function Sidebar() {
   const { t } = useTranslation()
@@ -48,6 +49,7 @@ export function Sidebar() {
         : 'text-white/70 hover:bg-white/10 hover:text-white'
     )
 
+  // Regular user nav — admin items removed; use AdminPopupMenu instead (KALMIO-304/305/306)
   const navItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.dashboard') },
     { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
@@ -57,7 +59,6 @@ export function Sidebar() {
     { to: '/app/grooming', icon: Sprout, label: t('nav.grooming') },
     { to: '/app/family', icon: Users, label: t('nav.family') },
     { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
-    { to: '/app/schedules', icon: CalendarClock, label: t('nav.schedules') },
     { to: '/app/calendar', icon: CalendarDays, label: t('nav.calendar') },
   ]
 
@@ -124,43 +125,6 @@ export function Sidebar() {
             {t('nav.grove')}
           </NavLink>
         )}
-
-        {/* Retail Products — admin only */}
-        {isAdmin && (
-          <NavLink
-            to="/app/retail-products"
-            className={({ isActive }) => navItemClass(isActive)}
-          >
-            <Store className="h-4 w-4 shrink-0" />
-            {t('nav.retail')}
-          </NavLink>
-        )}
-
-        {isAdmin && (
-          <>
-            <NavLink
-              to="/app/admin/users"
-              className={({ isActive }) => navItemClass(isActive)}
-            >
-              <ShieldCheck className="h-4 w-4 shrink-0" />
-              {t('nav.admin')}
-            </NavLink>
-            <NavLink
-              to="/app/admin/ip-vault"
-              className={({ isActive }) => navItemClass(isActive)}
-            >
-              <Vault className="h-4 w-4 shrink-0" />
-              {t('nav.ipVault')}
-            </NavLink>
-            <NavLink
-              to="/app/admin/content-review"
-              className={({ isActive }) => navItemClass(isActive)}
-            >
-              <ClipboardList className="h-4 w-4 shrink-0" />
-              {t('nav.contentReview')}
-            </NavLink>
-          </>
-        )}
       </nav>
 
       {/* Footer — Founding Member entry + utility controls */}
@@ -193,6 +157,8 @@ export function Sidebar() {
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {/* Admin popup — only visible to admins (KALMIO-304) */}
+            <AdminPopupMenu variant="sidebar" />
             <button
               onClick={() => setFeedbackOpen(true)}
               title={t('feedback.buttonTitle')}
