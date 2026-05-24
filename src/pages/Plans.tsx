@@ -8,6 +8,9 @@
  * Each card links to /app/plans/:id (PlanDetail — C13).
  * "Új terv" CTA leads to /app/plans/new (wizard — C12).
  *
+ * Updated for KALMIO-309: cards expose a primary "Run this plan" CTA that opens
+ * RunPlanDialog. Empty templates show "Fill with planner" instead.
+ *
  * Query: ['plan-templates'] → planTemplateService.list()
  * Mutations: copy → invalidate list, archive → invalidate list.
  */
@@ -20,10 +23,11 @@ import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { PlanTemplateCard } from '@/components/plan/PlanTemplateCard'
+import { RunPlanDialog } from '@/components/plan/RunPlanDialog'
 import { planTemplateService } from '@/services/plans'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
-import type { PlanTemplateStatus } from '@/types'
+import type { PlanTemplate, PlanTemplateStatus } from '@/types'
 
 type ListFilter = 'active' | 'draft' | 'archived' | 'all'
 
@@ -33,6 +37,7 @@ export function Plans() {
   const queryClient = useQueryClient()
 
   const [filter, setFilter] = useState<ListFilter>('all')
+  const [runPlanTarget, setRunPlanTarget] = useState<PlanTemplate | null>(null)
 
   // ── Server state ──────────────────────────────────────────────────────────
 
@@ -200,9 +205,20 @@ export function Plans() {
               isDefault={plan.isDefault}
               onCopy={id => copyMutation.mutate(id)}
               onArchive={id => archiveMutation.mutate(id)}
+              onRun={() => setRunPlanTarget(plan)}
             />
           ))}
         </div>
+      )}
+
+      {/* RunPlanDialog — opened from card primary CTA */}
+      {runPlanTarget != null && (
+        <RunPlanDialog
+          plan={runPlanTarget}
+          open={runPlanTarget != null}
+          onOpenChange={open => { if (!open) setRunPlanTarget(null) }}
+          onSuccess={() => setRunPlanTarget(null)}
+        />
       )}
     </div>
   )

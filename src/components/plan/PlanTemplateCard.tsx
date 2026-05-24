@@ -1,8 +1,9 @@
 /**
  * PlanTemplateCard — one row in the Plans list (C11 / KALMIO-233).
  *
- * Displays plan name, status badge, default-plan pin, length, meal slots,
- * member chips, last-modified timestamp, and a kebab action menu.
+ * Updated for KALMIO-309:
+ * - Primary CTA: "Run this plan" if plan has template meals; "Fill with planner" otherwise.
+ * - Secondary actions (Edit, Duplicate, Archive) move to the overflow (kebab) menu.
  *
  * Props:
  *  - plan: PlanTemplate from GET /api/plans
@@ -10,6 +11,7 @@
  *  - isDefault: marks the plan as the seeded "Sajátom" default (always first)
  *  - onCopy: fires POST /api/plans/{id}/copy
  *  - onArchive: fires DELETE /api/plans/{id}
+ *  - onRun: opens the RunPlanDialog for this plan
  */
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +19,7 @@ import { useNavigate } from 'react-router-dom'
 import { MoreVertical, Pin } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { MemberChip, OverflowChip } from './MemberChip'
 import { MEMBER_COLORS } from './memberColors'
 import type { PlanTemplate, PlanTemplateStatus } from '@/types'
@@ -29,6 +32,8 @@ interface PlanTemplateCardProps {
   isDefault?: boolean
   onCopy: (id: string) => void
   onArchive: (id: string) => void
+  /** Opens the RunPlanDialog for this plan. Called when the primary CTA is clicked. */
+  onRun?: () => void
 }
 
 function statusVariant(status: PlanTemplateStatus): 'green' | 'gray' | 'orange' {
@@ -43,6 +48,7 @@ export function PlanTemplateCard({
   isDefault = false,
   onCopy,
   onArchive,
+  onRun,
 }: PlanTemplateCardProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -89,12 +95,23 @@ export function PlanTemplateCard({
     navigate(`/app/plans/${plan.id}`)
   }
 
-  function handleMenuAction(action: 'open' | 'copy' | 'schedule' | 'archive') {
+  // Whether the plan has any template meals (filled)
+  const isFilled = plan.templateMeals.length > 0
+
+  function handleMenuAction(action: 'open' | 'copy' | 'archive') {
     setMenuOpen(false)
     if (action === 'open') navigate(`/app/plans/${plan.id}`)
     if (action === 'copy') onCopy(plan.id)
-    if (action === 'schedule') navigate(`/app/schedules/new?planId=${plan.id}`)
     if (action === 'archive') onArchive(plan.id)
+  }
+
+  function handlePrimaryClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (isFilled) {
+      onRun?.()
+    } else {
+      navigate(`/app/plans/${plan.id}`)
+    }
   }
 
   return (
@@ -134,7 +151,7 @@ export function PlanTemplateCard({
             </div>
           </div>
 
-          {/* Kebab menu */}
+          {/* Overflow (kebab) menu — secondary actions: Edit, Duplicate, Archive */}
           <div
             className="relative shrink-0"
             ref={menuRef}
@@ -158,7 +175,6 @@ export function PlanTemplateCard({
               >
                 <MenuButton label={t('plan.list.card.menu.open')} onClick={() => handleMenuAction('open')} />
                 <MenuButton label={t('plan.list.card.menu.copy')} onClick={() => handleMenuAction('copy')} />
-                <MenuButton label={t('plan.list.card.menu.schedule')} onClick={() => handleMenuAction('schedule')} />
                 {plan.status !== 'ARCHIVED' && (
                   <MenuButton
                     label={t('plan.list.card.menu.archive')}
@@ -204,6 +220,22 @@ export function PlanTemplateCard({
         <p className="text-xs text-[#9ca3af]">
           {t('plan.list.card.lastModified', { date: formatDate(plan.updatedAt) })}
         </p>
+
+        {/* Primary CTA — always visible, no hover required (KALMIO-309) */}
+        {plan.status !== 'ARCHIVED' && (
+          <div data-plan-menu>
+            <Button
+              size="sm"
+              onClick={handlePrimaryClick}
+              className="w-full"
+              variant={isFilled ? 'primary' : 'outline'}
+            >
+              {isFilled
+                ? t('plan.list.card.runPlan')
+                : t('plan.list.card.fillWithPlanner')}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
