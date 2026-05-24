@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, LogOut, Settings, MessageSquarePlus, ChevronRight, Refrigerator, CalendarDays, NotebookPen, Sprout, Star, Trees, Users } from 'lucide-react'
+import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, LogOut, Settings, MessageSquarePlus, ChevronRight, Refrigerator, NotebookPen, Star, Trees, Users } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -50,16 +50,15 @@ export function Sidebar() {
     )
 
   // Regular user nav — admin items removed; use AdminPopupMenu instead (KALMIO-304/305/306)
+  // Order per KALMIO-332: Dashboard, Plans, Shopping List, My Fridge, Recipes, Ingredients, Family
   const navItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.dashboard') },
-    { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
-    { to: '/app/ingredients', icon: Leaf, label: t('nav.ingredients') },
+    { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
     { to: '/app/shopping-list', icon: ShoppingCart, label: t('nav.shoppingList') },
     { to: '/app/fridge', icon: Refrigerator, label: t('nav.fridge') },
-    { to: '/app/grooming', icon: Sprout, label: t('nav.grooming') },
+    { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
+    { to: '/app/ingredients', icon: Leaf, label: t('nav.ingredients') },
     { to: '/app/family', icon: Users, label: t('nav.family') },
-    { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
-    { to: '/app/calendar', icon: CalendarDays, label: t('nav.calendar') },
   ]
 
   return (

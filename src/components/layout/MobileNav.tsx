@@ -9,9 +9,9 @@ import {
   MoreHorizontal,
   Globe,
   Users,
-  CalendarDays,
   NotebookPen,
-  Sprout,
+  Refrigerator,
+  Leaf,
   Star,
   Trees,
 } from 'lucide-react'
@@ -25,13 +25,13 @@ import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/servi
 import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
 
 // Overflow routes — for checking active state of the "Több" trigger
-// Schedules and retail removed after KALMIO-306/305 nav consolidation
+// Calendar + Grooming removed per KALMIO-332; fridge added (moves from primary to overflow)
 const OVERFLOW_ROUTES = [
-  '/app/settings',
+  '/app/fridge',
+  '/app/recipes',
+  '/app/ingredients',
   '/app/family',
-  '/app/plans',
-  '/app/calendar',
-  '/app/grooming',
+  '/app/settings',
   '/app/founding-member',
   '/app/grove',
   '/app/admin',
@@ -84,10 +84,10 @@ export function MobileNav() {
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [overflowOpen])
 
-  // Primary slots: Home, Recipes (promoted from overflow), Shop, + Több
+  // Primary slots per KALMIO-332: Dashboard, Plans, Shopping List
   const primaryItems = [
     { to: '/app', icon: LayoutDashboard, label: t('nav.home') },
-    { to: '/app/recipes', icon: ChefHat, label: t('nav.recipes') },
+    { to: '/app/plans', icon: NotebookPen, label: t('nav.plans') },
     { to: '/app/shopping-list', icon: ShoppingCart, label: t('nav.shop') },
   ]
 
@@ -126,48 +126,39 @@ export function MobileNav() {
           className="fixed bottom-16 right-0 left-0 z-50 md:hidden bg-[#1A1A1A] border-t border-white/10 shadow-lg"
         >
           <div className="flex flex-col py-1">
-            {/* Hűtő ritmusa */}
+            {/* KALMIO-332 overflow order: My Fridge, Recipes, Ingredients, Family */}
+
+            {/* Hűtőm */}
             <NavLink
-              to="/app/grooming"
+              to="/app/fridge"
               role="menuitem"
               onClick={() => setOverflowOpen(false)}
               className={({ isActive }) => overflowItemClass(isActive)}
             >
-              <Sprout className="h-5 w-5 shrink-0" />
-              {t('nav.grooming')}
+              <Refrigerator className="h-5 w-5 shrink-0" />
+              {t('nav.fridge')}
             </NavLink>
 
-            {/* Tervek */}
+            {/* Receptek */}
             <NavLink
-              to="/app/plans"
+              to="/app/recipes"
               role="menuitem"
               onClick={() => setOverflowOpen(false)}
               className={({ isActive }) => overflowItemClass(isActive)}
             >
-              <NotebookPen className="h-5 w-5 shrink-0" />
-              {t('nav.plans')}
+              <ChefHat className="h-5 w-5 shrink-0" />
+              {t('nav.recipes')}
             </NavLink>
 
-            {/* Naptár */}
+            {/* Hozzávalók */}
             <NavLink
-              to="/app/calendar"
+              to="/app/ingredients"
               role="menuitem"
               onClick={() => setOverflowOpen(false)}
               className={({ isActive }) => overflowItemClass(isActive)}
             >
-              <CalendarDays className="h-5 w-5 shrink-0" />
-              {t('nav.calendar')}
-            </NavLink>
-
-            {/* Beállítások */}
-            <NavLink
-              to="/app/settings"
-              role="menuitem"
-              onClick={() => setOverflowOpen(false)}
-              className={({ isActive }) => overflowItemClass(isActive)}
-            >
-              <Settings className="h-5 w-5 shrink-0" />
-              {t('nav.settings')}
+              <Leaf className="h-5 w-5 shrink-0" />
+              {t('nav.ingredients')}
             </NavLink>
 
             {/* Család */}
@@ -179,6 +170,17 @@ export function MobileNav() {
             >
               <Users className="h-5 w-5 shrink-0" />
               {t('nav.family')}
+            </NavLink>
+
+            {/* Beállítások */}
+            <NavLink
+              to="/app/settings"
+              role="menuitem"
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
+            >
+              <Settings className="h-5 w-5 shrink-0" />
+              {t('nav.settings')}
             </NavLink>
 
             {/* Grove — graduated users only */}
