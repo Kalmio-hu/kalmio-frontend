@@ -2293,8 +2293,8 @@
       "days30": "Következő 30 nap"
     },
     "markShoppedToast": {
-      "message_one": "{{count}} hozzávaló kerül a hűtőbe — érintsd az ellenőrzéshez.",
-      "message_other": "{{count}} hozzávaló kerül a hűtőbe — érintsd az ellenőrzéshez.",
+      "message_one": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
+      "message_other": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
       "reviewLink": "Hűtő megtekintése"
     }
   },
