@@ -43,4 +43,36 @@ export const schedulesService = {
    */
   materialize: (id: string, throughDate: string): Promise<void> =>
     api.post(`/api/schedules/${id}/materialize`, { throughDate }).then(() => undefined),
+
+  // ── Template drift detection + re-run (KALMIO-323) ────────────────────────
+
+  /**
+   * GET /api/schedules/{id}/template-drift
+   * Returns whether the plan template has changed since the schedule was created or
+   * last re-run (diverge model). Used to show the TemplateDriftBanner.
+   */
+  checkTemplateDrift: (id: string): Promise<TemplateDriftResponse> =>
+    api.get<TemplateDriftResponse>(`/api/schedules/${id}/template-drift`).then(r => r.data),
+
+  /**
+   * POST /api/schedules/{id}/re-run
+   * Atomically ends the current schedule and creates a fresh one from the now-current
+   * template. Implements the "Re-run" CTA on the TemplateDriftBanner.
+   */
+  reRun: (id: string): Promise<ReRunScheduleResponse> =>
+    api.post<ReRunScheduleResponse>(`/api/schedules/${id}/re-run`).then(r => r.data),
+}
+
+// ── Drift detection types (KALMIO-323) ────────────────────────────────────
+
+export interface TemplateDriftResponse {
+  scheduleId: string
+  drifted: boolean
+  currentSignature: string | null
+  snapshotSignature: string | null
+}
+
+export interface ReRunScheduleResponse {
+  endedScheduleId: string
+  newSchedule: import('@/types').Schedule
 }
