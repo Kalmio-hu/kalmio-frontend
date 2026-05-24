@@ -4,6 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils, Check } from 'lucide-react'
 import { useIsUserPremium } from '@/hooks/useIsUserPremium'
+import { EmbeddedPrepChip } from './EmbeddedPrepChip'
+import { LeftoverBadge } from './LeftoverBadge'
+import { sumEmbeddedPrepDuration, allEmbeddedPrepsDone, isBatchPrep, getPortionBreakdownData } from '@/lib/prep'
+import type { PortionBreakdownData } from '@/lib/prep'
 import {
   DndContext,
   DragOverlay,
@@ -23,6 +27,7 @@ import { planService } from '@/services/plans'
 import { prepTasksService } from '@/services/prepTasks'
 import { offPlanMealsService } from '@/services/offPlanMeals'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
+import { todayIsoLocal } from '@/lib/utils'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
 import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
@@ -204,6 +209,18 @@ interface DraggableRowProps {
   onAutoTickUndo?: () => void
   /** Called on second tap / long-press to open the SKIPPED / REPLACED menu. */
   onAutoTickMenu?: () => void
+  /**
+   * When set, renders a batch-prep portion breakdown line below the chip.
+   * Only on the first-consumption meal of a batch. KALMIO-321.
+   */
+  portionBreakdown?: PortionBreakdownData | null
+  /**
+   * When set, renders a "leftover from X" badge on this meal card.
+   * Only on the non-first-consumption meals of a batch. KALMIO-321.
+   */
+  leftoverSourceLabel?: string
+  /** Scrolls the timeline to the batch source meal card. KALMIO-321. */
+  onScrollToSource?: () => void
 }
 
 function DraggableRow({
@@ -225,6 +242,9 @@ function DraggableRow({
   isAutoTicked,
   onAutoTickUndo,
   onAutoTickMenu,
+  portionBreakdown,
+  leftoverSourceLabel,
+  onScrollToSource,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -236,6 +256,23 @@ function DraggableRow({
   const cardSurface = isPrep
     ? 'bg-[#F2F7F5] border-teal-100'
     : 'bg-white border-gray-100/80'
+
+  // Ref for the embedded prep list — chip tap scrolls it into view. KALMIO-318.
+  const embeddedPrepListRef = useRef<HTMLUListElement | null>(null)
+  const handleChipTap = useCallback(() => {
+    embeddedPrepListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [])
+
+  // Chip state derived from embedded preps. KALMIO-318.
+  const chipTotalMinutes = useMemo(
+    () => sumEmbeddedPrepDuration(embeddedPreps ?? []),
+    [embeddedPreps],
+  )
+  const chipAllDone = useMemo(
+    () => allEmbeddedPrepsDone(embeddedPreps ?? []),
+    [embeddedPreps],
+  )
+  const showChip = (embeddedPreps?.length ?? 0) > 0
 
   // While dragging: left label shows live snapped time in orange
   const displayTime = isDragging && liveDragMinutes !== null
@@ -324,6 +361,15 @@ function DraggableRow({
                   <p className="text-[11px] text-gray-400 mt-0.5 leading-tight truncate">{card.subtitle}</p>
                 )}
               </div>
+
+              {/* Prep chip — shown near top-right of meal card when ≥1 embedded prep. KALMIO-318. */}
+              {showChip && (
+                <EmbeddedPrepChip
+                  totalMinutes={chipTotalMinutes}
+                  allDone={chipAllDone}
+                  onTap={handleChipTap}
+                />
+              )}
 
               {/* Action icons */}
               <div className="flex items-center gap-0 shrink-0 text-gray-400">
@@ -431,9 +477,28 @@ function DraggableRow({
               </div>
             </div>
 
+            {/* Batch-prep portion breakdown — first-consumption meal only. KALMIO-321. */}
+            {portionBreakdown && (
+              <p className="mt-1 text-[11px] text-stone-500 leading-snug px-0.5">
+                {t('dashboard.prep.portion.breakdown', {
+                  total: portionBreakdown.total,
+                  laterCount: portionBreakdown.laterCount,
+                  laterLabels: portionBreakdown.laterLabels,
+                })}
+              </p>
+            )}
+
+            {/* Leftover badge — dependent meals that draw from a batch. KALMIO-321. */}
+            {leftoverSourceLabel && onScrollToSource && (
+              <LeftoverBadge
+                sourceLabel={leftoverSourceLabel}
+                onTapSource={onScrollToSource}
+              />
+            )}
+
             {/* Embedded prep slots — tasks that must run immediately before this meal. */}
             {embeddedPreps && embeddedPreps.length > 0 && (
-              <EmbeddedPrepList preps={embeddedPreps} />
+              <EmbeddedPrepList preps={embeddedPreps} listRef={embeddedPrepListRef} />
             )}
 
             {/* Auto-tick undo strip — shown when the slot time has passed. KALMIO-310. */}
@@ -1036,10 +1101,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   //   - the user has NOT explicitly un-ticked it this session
   //   - it is today's date (the DailyTimeline only ever renders one date)
   // We only auto-tick on today; past/future dates are left as-is.
-  const isToday = useMemo(() => {
-    const todayStr = new Date().toISOString().slice(0, 10)
-    return date === todayStr
-  }, [date])
+  // Use todayIsoLocal() so users east of UTC (e.g. HU = UTC+2) do not lose
+  // auto-tick in the evening: toISOString() is UTC and would return tomorrow's
+  // date after 22:00 local time. KALMIO-310 bounce fix.
+  const isToday = useMemo(() => date === todayIsoLocal(), [date])
 
   const autoTickedIds = useMemo((): Set<string> => {
     if (!isToday) return new Set()

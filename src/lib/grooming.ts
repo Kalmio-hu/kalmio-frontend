@@ -23,7 +23,11 @@ export function countExpiringThisWeek(items: FridgeItem[]): number {
 
   return items.filter(item => {
     if (!item.expiryDate) return false
-    const exp = new Date(item.expiryDate)
+    // Parse "YYYY-MM-DD" as a LOCAL calendar date.
+    // new Date("YYYY-MM-DD") is UTC midnight, which falls before local midnight
+    // in UTC+ timezones, causing day-boundary mismatches.  Replacing "-" with "/"
+    // makes the Date constructor treat the string as local time on all platforms.
+    const exp = new Date(item.expiryDate.replace(/-/g, '/'))
     // Include already-expired + expiring within the window
     return exp <= windowEnd
   }).length
