@@ -81,8 +81,10 @@ export function ReceiptMatchConfirm({
                   : 'border-[#e5e7eb] bg-[#f9fafb] opacity-50',
               ].join(' ')}
               onClick={() => toggleLine(idx)}
+              onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleLine(idx) } }}
               aria-checked={isIncluded}
               role="checkbox"
+              tabIndex={0}
             >
               {/* Checkbox */}
               <span
