@@ -1640,7 +1640,7 @@
       },
       "fillCta": {
         "fill": "Fill with planner",
-        "refill": "Re-fill",
+        "refill": "Refill",
         "refillTooltip": "Overwrites the current plan"
       },
       "draftBanner": {
