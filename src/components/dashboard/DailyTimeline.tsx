@@ -540,14 +540,17 @@ function DraggableRow({
                 />
               </div>
             )}
-            <div className={[
-              'rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none',
-              cardSurface,
-              // Highlight the card when a prep is dragged over it (KALMIO-325).
-              isOver && isMeal && !isRejectionTarget ? 'ring-2 ring-teal-400 ring-offset-1' : '',
-              // KALMIO-336: red rejection cue when a wrong-meal prep is dragged over this card.
-              isRejectionTarget ? 'ring-2 ring-red-300 ring-offset-1 bg-red-50 [animation:prep-rejection-shake_0.35s_ease-in-out]' : '',
-            ].filter(Boolean).join(' ')}>
+            <div
+              {...listeners}
+              className={[
+                'rounded-xl border shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none cursor-grab active:cursor-grabbing touch-none',
+                cardSurface,
+                // Highlight the card when a prep is dragged over it (KALMIO-325).
+                isOver && isMeal && !isRejectionTarget ? 'ring-2 ring-teal-400 ring-offset-1' : '',
+                // KALMIO-336: red rejection cue when a wrong-meal prep is dragged over this card.
+                isRejectionTarget ? 'ring-2 ring-red-300 ring-offset-1 bg-red-50 [animation:prep-rejection-shake_0.35s_ease-in-out]' : '',
+              ].filter(Boolean).join(' ')}
+            >
               <div className="flex-1 min-w-0">
                 <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
                 {card.subtitle && (
@@ -683,19 +686,9 @@ function DraggableRow({
                   </div>
                 )}
 
-                {/* Drag handle */}
-                <button
-                  type="button"
-                  {...listeners}
-                  aria-label={t('common.moveLabel')}
-                  className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing touch-none shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] rounded p-0.5 ml-0.5"
-                >
-                  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden>
-                    <circle cx="3" cy="2.5" r="1.3" /><circle cx="7" cy="2.5" r="1.3" />
-                    <circle cx="3" cy="7"    r="1.3" /><circle cx="7" cy="7"    r="1.3" />
-                    <circle cx="3" cy="11.5" r="1.3" /><circle cx="7" cy="11.5" r="1.3" />
-                  </svg>
-                </button>
+                {/* Drag handle removed — the entire card is now the drag affordance.
+                    Click on action buttons still works because @dnd-kit's
+                    activationConstraint distance=4 keeps short clicks click-only. */}
               </div>
             </div>
 
@@ -868,7 +861,10 @@ function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete
         {isDragging ? (
           <div className="h-10 rounded-xl border-2 border-dashed border-[#F28C28]/30 bg-orange-50/30" />
         ) : (
-          <div className="rounded-xl bg-white border border-gray-100/80 shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none">
+          <div
+            {...listeners}
+            className="rounded-xl bg-white border border-gray-100/80 shadow-[0_1px_4px_rgba(0,0,0,0.06)] px-3 py-2.5 flex items-center gap-1 select-none cursor-grab active:cursor-grabbing touch-none"
+          >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
                 <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
@@ -911,18 +907,6 @@ function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete
                 >
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden>
                     <path d="M5.5 1a.5.5 0 0 0 0 1h3a.5.5 0 0 0 0-1h-3ZM2 3.5A.5.5 0 0 1 2.5 3h9a.5.5 0 0 1 0 1H11v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4H2.5A.5.5 0 0 1 2 3.5ZM4 4v7h6V4H4Z"/>
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  {...listeners}
-                  aria-label={t('common.moveLabel')}
-                  className="text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing touch-none shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] rounded p-0.5 ml-0.5"
-                >
-                  <svg width="10" height="14" viewBox="0 0 10 14" fill="currentColor" aria-hidden>
-                    <circle cx="3" cy="2.5" r="1.3" /><circle cx="7" cy="2.5" r="1.3" />
-                    <circle cx="3" cy="7"    r="1.3" /><circle cx="7" cy="7"    r="1.3" />
-                    <circle cx="3" cy="11.5" r="1.3" /><circle cx="7" cy="11.5" r="1.3" />
                   </svg>
                 </button>
               </>
