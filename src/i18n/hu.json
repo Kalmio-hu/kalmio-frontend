@@ -640,6 +640,11 @@
   "profile": {
     "title": "Profil",
     "subtitle": "Személyes adataid",
+    "tabs": {
+      "profile": "Profil",
+      "diet": "Étrend",
+      "meals": "Étkezések"
+    },
     "editProfile": "Profil szerkesztése",
     "personalInfo": "Személyes adatok",
     "firstName": "Keresztnév",

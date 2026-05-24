@@ -640,6 +640,11 @@
   "profile": {
     "title": "Profile",
     "subtitle": "Your personal information",
+    "tabs": {
+      "profile": "Profile",
+      "diet": "Diet",
+      "meals": "Meals"
+    },
     "editProfile": "Edit your profile",
     "personalInfo": "Personal information",
     "firstName": "First name",

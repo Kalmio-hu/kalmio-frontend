@@ -18,7 +18,6 @@ import { RetailProducts } from '@/pages/RetailProducts'
 import { RetailProviders } from '@/pages/RetailProviders'
 import { Settings } from '@/pages/Settings'
 import { Profile } from '@/pages/Profile'
-import { Preferences } from '@/pages/Preferences'
 import { UserManagement } from '@/pages/admin/UserManagement'
 import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
@@ -187,7 +186,9 @@ export default function App() {
                   <Route path="retail-products" element={<Navigate to="/app/admin/retail/products" replace />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="profile" element={<Profile />} />
-                  <Route path="preferences" element={<Preferences />} />
+                  {/* Preferences page folded into Profile tabs (KALMIO).
+                      Legacy bookmarks land on the Diet tab. */}
+                  <Route path="preferences" element={<Navigate to="/app/profile?tab=diet" replace />} />
                   <Route path="grove" element={<Grove />} />
                   <Route path="founding-member" element={<FoundingMember />} />
                   <Route path="founding-member/success" element={<FoundingMemberSuccess />} />
