@@ -76,7 +76,7 @@ const schema = z.object({
   cookTimeMinutes: z.coerce.number().int().min(1),
   servings: z.coerce.number().int().min(1),
   steps: z.string(),
-  tags: z.array(z.enum(['QUICK', 'CHEAP', 'MEALPREP', 'HIGH_PROTEIN', 'BREAKFAST', 'MORNING_SNACK', 'LUNCH', 'AFTERNOON_SNACK', 'DINNER', 'SNACK'])),
+  tags: z.array(z.enum(['QUICK', 'CHEAP', 'MEALPREP', 'HIGH_PROTEIN', 'HEALTHY', 'VEGETARIAN', 'VEGAN', 'COMFORT', 'KID_FRIENDLY', 'BREAKFAST', 'MORNING_SNACK', 'LUNCH', 'AFTERNOON_SNACK', 'DINNER', 'SNACK'])),
   ingredients: z.array(z.object({
     ingredientId: z.string().min(1),
     ingredientName: z.string(),

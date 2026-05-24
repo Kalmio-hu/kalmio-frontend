@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse } from '@/types'
+import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse, RecipeFilter } from '@/types'
 
 // ── Template Meal upsert body ──────────────────────────────────────────────
 
@@ -164,4 +164,15 @@ export const planTemplateService = {
    */
   updatePlanName: (planId: string, name: string): Promise<PlanTemplate> =>
     api.patch<PlanTemplate>(`/api/plans/${planId}`, { name }).then(r => r.data),
+
+  /**
+   * PATCH /api/plans/{id} — update only the recipe filter.
+   *
+   * Persists the pre-solve candidate-recipe filter on the plan entity so the
+   * solver reads it on the next fill operation.
+   *
+   * (KALMIO-353)
+   */
+  patchRecipeFilter: (planId: string, recipeFilter: RecipeFilter | null): Promise<PlanTemplate> =>
+    api.patch<PlanTemplate>(`/api/plans/${planId}`, { recipeFilter }).then(r => r.data),
 }

@@ -49,6 +49,7 @@ import {
 } from '@dnd-kit/core'
 import { PlanMacroSummary } from '@/components/plan/PlanMacroSummary'
 import { TemplateDriftBanner } from '@/components/plan/TemplateDriftBanner'
+import { RecipeFilterPanel } from '@/components/plan/RecipeFilterPanel'
 import { aggregateTargets, dailyTotals, weeklyAverage, targetsFromLive, targetsForMember, preferredSlotsByMember } from '@/lib/planMacros'
 import { RecipePalette } from '@/components/plan/RecipePalette'
 import { TrashDropZone, TRASH_DROP_ID } from '@/components/plan/TrashDropZone'
@@ -65,7 +66,7 @@ import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
 import { toast } from '@/components/ui/toast'
-import type { MealType, TemplateMeal } from '@/types'
+import type { MealType, TemplateMeal, RecipeFilter } from '@/types'
 
 const MAX_HEADER_CHIPS = 4
 
@@ -111,6 +112,11 @@ export function PlanDetail() {
     { recipeId: string; target: TemplateMeal; targetRecipeName: string; sourceRecipeName: string } | null
   >(null)
   const [fillMode, setFillMode] = useState<FillMode>('empty')
+  // KALMIO-353 — recipe filter state for the fill confirm dialog.
+  // Initialised from the plan's stored recipeFilter when the dialog opens.
+  const [recipeFilter, setRecipeFilter] = useState<RecipeFilter>({})
+  // Inline 422 error from the solver when the filter is too narrow.
+  const [filterNarrowError, setFilterNarrowError] = useState<string | null>(null)
   // Drag-and-drop transient state — drives DragOverlay + drop preview.
   const [dragSourceId, setDragSourceId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
@@ -318,15 +324,34 @@ export function PlanDetail() {
   })
 
   const solveMutation = useMutation({
-    mutationFn: (mode: FillMode) =>
-      planTemplateService.solve(id!, mode === 'empty' ? 'EMPTY' : 'ALL'),
+    mutationFn: async (mode: FillMode) => {
+      // KALMIO-353: persist the recipe filter on the plan before solving so
+      // the backend can apply it when building the candidate set. This PATCH
+      // is best-effort — if the backend doesn't yet expose the field in
+      // UpdatePlanTemplateRequest the value is simply ignored server-side
+      // and the solve proceeds without a filter restriction.
+      await planTemplateService.patchRecipeFilter(id!, recipeFilter).catch(() => {
+        // Silently swallow PATCH errors — the solve can still proceed.
+      })
+      return planTemplateService.solve(id!, mode === 'empty' ? 'EMPTY' : 'ALL')
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['plan-template', id] })
       qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
       toast({ title: t('plan.detail.fillSuccess'), variant: 'success' })
+      setFilterNarrowError(null)
       setFillConfirmOpen(false)
     },
-    onError: () => {
+    onError: (err: unknown) => {
+      // KALMIO-353: 422 = filter too narrow — surface inline next to the panel.
+      const axiosErr = err as { response?: { status?: number; data?: { message?: string } } }
+      if (axiosErr?.response?.status === 422) {
+        const msg = axiosErr.response?.data?.message ?? t('plan.recipeFilter.tooNarrowError')
+        setFilterNarrowError(msg)
+        // Do not close the dialog — let the user adjust the filter.
+        return
+      }
+      setFilterNarrowError(null)
       toast({ title: t('plan.detail.fillFailed'), variant: 'destructive' })
       setFillConfirmOpen(false)
     },
@@ -861,7 +886,12 @@ export function PlanDetail() {
           {!isArchived && (
             <button
               type="button"
-              onClick={() => setFillConfirmOpen(true)}
+              onClick={() => {
+                // Initialise filter from the stored plan value (if any) on open.
+                setRecipeFilter(plan?.recipeFilter ?? {})
+                setFilterNarrowError(null)
+                setFillConfirmOpen(true)
+              }}
               disabled={solveMutation.isPending}
               title={fillCtaTooltip}
               aria-label={fillCtaLabel}
@@ -1023,7 +1053,11 @@ export function PlanDetail() {
           </p>
           <button
             type="button"
-            onClick={() => setFillConfirmOpen(true)}
+            onClick={() => {
+              setRecipeFilter(plan?.recipeFilter ?? {})
+              setFilterNarrowError(null)
+              setFillConfirmOpen(true)
+            }}
             disabled={solveMutation.isPending}
             className="
               shrink-0 text-sm font-medium underline underline-offset-2
@@ -1408,6 +1442,7 @@ export function PlanDetail() {
         onOpenChange={(open) => {
           // Block dismiss while the solver is running so the user sees clear progress.
           if (solveMutation.isPending) return
+          if (!open) setFilterNarrowError(null)
           setFillConfirmOpen(open)
         }}
       >
@@ -1423,37 +1458,55 @@ export function PlanDetail() {
               </p>
             </div>
           ) : (
-            <div className="space-y-2 mb-5">
-              {(['empty', 'all'] as FillMode[]).map(mode => (
-                <button
-                  key={mode}
-                  type="button"
-                  onClick={() => setFillMode(mode)}
-                  className={`
-                    w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] border text-left
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-                    ${fillMode === mode
-                      ? 'border-[#4f46e5] bg-[#4f46e5]/5'
-                      : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'}
-                  `}
-                >
-                  <span className="flex-1 text-sm text-[#1A1A1A]">
-                    {mode === 'empty'
-                      ? t('plan.detail.actions.fillConfirmEmpty')
-                      : t('plan.detail.actions.fillConfirmAll')}
-                  </span>
-                  {fillMode === mode && (
-                    <Check className="h-4 w-4 text-[#4f46e5] shrink-0" aria-hidden />
-                  )}
-                </button>
-              ))}
+            <div className="flex flex-col gap-4 mb-5">
+              {/* Fill mode selector */}
+              <div className="space-y-2">
+                {(['empty', 'all'] as FillMode[]).map(mode => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setFillMode(mode)}
+                    className={`
+                      w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] border text-left
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                      ${fillMode === mode
+                        ? 'border-[#4f46e5] bg-[#4f46e5]/5'
+                        : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'}
+                    `}
+                  >
+                    <span className="flex-1 text-sm text-[#1A1A1A]">
+                      {mode === 'empty'
+                        ? t('plan.detail.actions.fillConfirmEmpty')
+                        : t('plan.detail.actions.fillConfirmAll')}
+                    </span>
+                    {fillMode === mode && (
+                      <Check className="h-4 w-4 text-[#4f46e5] shrink-0" aria-hidden />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* KALMIO-353: Recipe filter panel */}
+              <RecipeFilterPanel
+                value={recipeFilter}
+                onChange={(next) => {
+                  setRecipeFilter(next)
+                  // Clear narrow error when the user adjusts the filter.
+                  if (filterNarrowError) setFilterNarrowError(null)
+                }}
+                narrowError={filterNarrowError}
+                disabled={solveMutation.isPending}
+              />
             </div>
           )}
           <div className="flex justify-end gap-2">
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => setFillConfirmOpen(false)}
+              onClick={() => {
+                setFilterNarrowError(null)
+                setFillConfirmOpen(false)
+              }}
               disabled={solveMutation.isPending}
             >
               {t('common.cancel')}

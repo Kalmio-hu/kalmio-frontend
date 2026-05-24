@@ -1678,6 +1678,34 @@
     },
     "member": {
       "allergenWarningAria": "Allergén figyelmeztetés"
+    },
+    "recipeFilter": {
+      "title": "Receptszűrők",
+      "activeIndicator": "Aktív",
+      "clearAll": "Szűrők törlése",
+      "tooNarrowError": "Szűréseid túl szigorúak — bővítsd a választást.",
+      "source": {
+        "label": "Forrás",
+        "ownOnly": "Saját receptjeim",
+        "ownOnlyHint": "Csak az általad hozzáadott recepteket veszi figyelembe."
+      },
+      "style": {
+        "label": "Stílus",
+        "tags": {
+          "QUICK": "Gyors",
+          "CHEAP": "Gazdaságos",
+          "MEALPREP": "Előkészíthető",
+          "HIGH_PROTEIN": "Magas fehérje",
+          "HEALTHY": "Egészséges",
+          "VEGETARIAN": "Vegetáriánus",
+          "VEGAN": "Vegán",
+          "COMFORT": "Kényelmi étel",
+          "KID_FRIENDLY": "Gyerekbarát"
+        }
+      },
+      "cuisine": {
+        "label": "Konyha"
+      }
     }
   },
   "approval": {

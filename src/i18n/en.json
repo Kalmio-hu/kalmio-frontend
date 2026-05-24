@@ -1678,6 +1678,34 @@
     },
     "member": {
       "allergenWarningAria": "Allergen warning"
+    },
+    "recipeFilter": {
+      "title": "Recipe filters",
+      "activeIndicator": "Active",
+      "clearAll": "Clear filters",
+      "tooNarrowError": "Your filters are too restrictive — broaden the selection.",
+      "source": {
+        "label": "Source",
+        "ownOnly": "My recipes only",
+        "ownOnlyHint": "Only recipes you added will be considered."
+      },
+      "style": {
+        "label": "Style",
+        "tags": {
+          "QUICK": "Quick",
+          "CHEAP": "Budget",
+          "MEALPREP": "Meal prep",
+          "HIGH_PROTEIN": "High protein",
+          "HEALTHY": "Healthy",
+          "VEGETARIAN": "Vegetarian",
+          "VEGAN": "Vegan",
+          "COMFORT": "Comfort food",
+          "KID_FRIENDLY": "Kid-friendly"
+        }
+      },
+      "cuisine": {
+        "label": "Cuisine"
+      }
     }
   },
   "approval": {

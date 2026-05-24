@@ -39,7 +39,24 @@ export interface TdeeResponse {
 export type IngredientCategory = 'PROTEIN' | 'CARB' | 'FAT' | 'VEGGIE' | 'SPICE'
 export type Unit = 'G' | 'ML' | 'PIECE'
 export type MealType = 'BREAKFAST' | 'MORNING_SNACK' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER' | 'SNACK'
-export type RecipeTag = 'QUICK' | 'CHEAP' | 'MEALPREP' | 'HIGH_PROTEIN' | 'BREAKFAST' | 'MORNING_SNACK' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER' | 'SNACK'
+export type RecipeTag = 'QUICK' | 'CHEAP' | 'MEALPREP' | 'HIGH_PROTEIN' | 'HEALTHY' | 'VEGETARIAN' | 'VEGAN' | 'COMFORT' | 'KID_FRIENDLY' | 'BREAKFAST' | 'MORNING_SNACK' | 'LUNCH' | 'AFTERNOON_SNACK' | 'DINNER' | 'SNACK'
+
+// ── Recipe Filter (KALMIO-353) ──────────────────────────────────────────────
+
+/**
+ * Pre-solve candidate-recipe filter.
+ *
+ * Dimensions are ANDed across rows; values within a row are ORed.
+ * An empty/null filter means all accessible recipes are candidates.
+ */
+export interface RecipeFilter {
+  /** When true, only recipes the current user created are included. */
+  ownOnly?: boolean
+  /** Recipe must carry at least one of these RecipeTag values. */
+  tags?: string[]
+  /** Recipe must carry at least one matching cultural tag value. */
+  culturalTags?: string[]
+}
 
 // ── Macros ────────────────────────────────────────────────────────────────
 
@@ -386,12 +403,16 @@ export interface Plan {
   shoppingCycleDays: number
   createdAt: string
   meals: PlannedMeal[]
+  /** Pre-solve candidate-recipe filter stored on this plan. Null = no filter. KALMIO-353. */
+  recipeFilter?: RecipeFilter | null
 }
 
 export interface CreatePlanRequest {
   startDate: string
   cycleDays: number
   constraints: GenerateMealPlanRequest
+  /** Optional pre-solve candidate-recipe filter (KALMIO-353). Null = all recipes. */
+  recipeFilter?: RecipeFilter | null
 }
 
 export interface UpdatePlannedMealRequest {
@@ -1202,6 +1223,8 @@ export interface PlanTemplate {
   createdAt: string   // ISO-8601
   updatedAt: string   // ISO-8601
   archivedAt: string | null   // ISO-8601
+  /** Pre-solve candidate-recipe filter. Null = no filter. KALMIO-353. */
+  recipeFilter?: RecipeFilter | null
 }
 
 /** Request body for POST /api/plans (create plan template). */
