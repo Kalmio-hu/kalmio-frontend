@@ -718,9 +718,8 @@ export function PlanDetail() {
   function handleNameCommit() {
     const trimmed = nameValue.trim()
     if (!trimmed) {
-      // Empty — revert silently
-      setNameEditing(false)
-      setNameError(null)
+      // Whitespace-only — show inline error instead of silently reverting
+      setNameError(t('plan.detail.name.errorBlank'))
       return
     }
     if (trimmed === plan?.name) {
