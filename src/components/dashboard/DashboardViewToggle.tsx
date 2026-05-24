@@ -25,7 +25,7 @@ export function DashboardViewToggle({ view, onChange }: DashboardViewToggleProps
 
   return (
     <div
-      role="group"
+      role="radiogroup"
       aria-label={t('dashboard.view.toggleLabel')}
       className="inline-flex rounded-lg border border-zinc-200 bg-zinc-100 p-0.5 dark:border-zinc-700 dark:bg-zinc-800"
     >
@@ -33,8 +33,8 @@ export function DashboardViewToggle({ view, onChange }: DashboardViewToggleProps
         <button
           key={v}
           type="button"
-          role="tab"
-          aria-selected={view === v}
+          role="radio"
+          aria-checked={view === v}
           onClick={() => onChange(v)}
           className={cn(
             'rounded-md px-4 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-1',

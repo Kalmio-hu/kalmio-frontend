@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Header } from '@/components/layout/Header'
@@ -142,10 +142,21 @@ export function Dashboard() {
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
   // View toggle — reads from URL ?view= on first render, falls back to localStorage.
+  // After consumption, strip ?view= from the URL so a later refresh respects the
+  // localStorage preference (the user's last toggle wins).
   const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [view, setViewState] = useState<DashboardView>(() =>
     readViewPref(searchParams.get('view')),
   )
+
+  useEffect(() => {
+    if (searchParams.get('view') != null) {
+      navigate('/app/dashboard', { replace: true })
+    }
+    // Only on mount; subsequent toggles update state and localStorage, not the URL.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleViewChange(next: DashboardView) {
     setViewState(next)
