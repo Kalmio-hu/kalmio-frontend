@@ -24,15 +24,6 @@
     "foundingMember": "Founding Member",
     "grove": "Grove"
   },
-  "admin": {
-    "popupTriggerAria": "Admin menu",
-    "popupLabel": "Admin",
-    "users": "Users",
-    "ipVault": "IP Vault",
-    "contentReview": "Content Review",
-    "retailProducts": "Retail Products",
-    "retailProviders": "Retail Providers"
-  },
   "common": {
     "version": "",
     "required": "Required",
@@ -860,6 +851,15 @@
     "exit": "Exit"
   },
   "admin": {
+    "popup": {
+      "triggerAria": "Admin menu",
+      "label": "Admin",
+      "users": "Users",
+      "ipVault": "IP Vault",
+      "contentReview": "Content Review",
+      "retailProducts": "Retail Products",
+      "retailProviders": "Retail Providers"
+    },
     "stats": {
       "totalRealUsers": "Real users",
       "foundingMembers": "Founding Members",

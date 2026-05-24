@@ -27,11 +27,11 @@ interface AdminPopupMenuProps {
 }
 
 const ADMIN_ITEMS = [
-  { to: '/app/admin/users', icon: Users, labelKey: 'admin.users' },
-  { to: '/app/admin/ip-vault', icon: Vault, labelKey: 'admin.ipVault' },
-  { to: '/app/admin/content-review', icon: ClipboardList, labelKey: 'admin.contentReview' },
-  { to: '/app/admin/retail/products', icon: Store, labelKey: 'admin.retailProducts' },
-  { to: '/app/admin/retail/providers', icon: Truck, labelKey: 'admin.retailProviders' },
+  { to: '/app/admin/users', icon: Users, labelKey: 'admin.popup.users' },
+  { to: '/app/admin/ip-vault', icon: Vault, labelKey: 'admin.popup.ipVault' },
+  { to: '/app/admin/content-review', icon: ClipboardList, labelKey: 'admin.popup.contentReview' },
+  { to: '/app/admin/retail/products', icon: Store, labelKey: 'admin.popup.retailProducts' },
+  { to: '/app/admin/retail/providers', icon: Truck, labelKey: 'admin.popup.retailProviders' },
 ] as const
 
 export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMenuProps) {
@@ -87,8 +87,8 @@ export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMe
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label={t('admin.popupTriggerAria')}
-        title={t('admin.popupLabel')}
+        aria-label={t('admin.popup.triggerAria')}
+        title={t('admin.popup.label')}
         className={cn(
           'flex items-center gap-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
           isSidebar
@@ -97,7 +97,7 @@ export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMe
         )}
       >
         <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
-        {!isSidebar && <span>{t('admin.popupLabel')}</span>}
+        {!isSidebar && <span>{t('admin.popup.label')}</span>}
       </button>
 
       {open && (
@@ -108,7 +108,7 @@ export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMe
           <div
             ref={menuRef}
             role="menu"
-            aria-label={t('admin.popupLabel')}
+            aria-label={t('admin.popup.label')}
             className={cn(
               'absolute z-50 min-w-[200px] rounded-[12px] border border-white/10 bg-[#111111] shadow-xl py-1',
               isSidebar

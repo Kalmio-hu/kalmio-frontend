@@ -24,15 +24,6 @@
     "foundingMember": "Alapító tagság",
     "grove": "Erdő"
   },
-  "admin": {
-    "popupTriggerAria": "Adminisztrátori menü",
-    "popupLabel": "Admin",
-    "users": "Felhasználók",
-    "ipVault": "IP Trezor",
-    "contentReview": "Tartalom jóváhagyás",
-    "retailProducts": "Bolti termékek",
-    "retailProviders": "Bolti forgalmazók"
-  },
   "common": {
     "version": "",
     "required": "Kötelező",
@@ -860,6 +851,15 @@
     "exit": "Kilépés"
   },
   "admin": {
+    "popup": {
+      "triggerAria": "Adminisztrátori menü",
+      "label": "Admin",
+      "users": "Felhasználók",
+      "ipVault": "IP Trezor",
+      "contentReview": "Tartalom jóváhagyás",
+      "retailProducts": "Bolti termékek",
+      "retailProviders": "Bolti forgalmazók"
+    },
     "stats": {
       "totalRealUsers": "Valódi felhasználók",
       "foundingMembers": "Founding Member",
