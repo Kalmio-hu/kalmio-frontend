@@ -235,11 +235,11 @@
         "doneAriaLabel": "Minden előkészítés kész"
       },
       "portion": {
-        "breakdown": "{{total}} adagot készít · 1 frissen most, {{laterCount}} ide: {{laterLabels}}"
+        "breakdown": "{{total}} adag · 1 friss most, {{laterCount}} a {{laterLabels}}"
       },
       "leftover": {
-        "badge": "maradvány",
-        "tapAriaLabel": "Ugrás a forrás étkezéshez: {{source}}"
+        "badge": "maradék",
+        "tapAriaLabel": "Ugrás ehhez: {{source}}"
       }
     },
     "planGlance": {
