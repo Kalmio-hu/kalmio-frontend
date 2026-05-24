@@ -34,7 +34,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/store/auth'
 import { OnboardingProgressBar } from '@/components/onboarding/OnboardingProgressBar'
 import { SkipConfirmModal } from '@/components/onboarding/SkipConfirmModal'
@@ -42,7 +42,9 @@ import { PlantingScene, type PlantingStep } from '@/components/onboarding/Planti
 import { MiniTutorialPlanner } from '@/components/onboarding/MiniTutorialPlanner'
 import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
 import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
+import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
+import { toast } from '@/components/ui/toast'
 import {
   readOnboardingStep,
   writeOnboardingStep,
@@ -54,19 +56,32 @@ import {
 // Constants
 // ---------------------------------------------------------------------------
 
-const TOTAL_STEPS = 5
+/**
+ * KALMIO-94: TDEE step added as step 2.
+ * The previous steps 2–5 are now steps 3–6.
+ *
+ * Step 1 — Welcome
+ * Step 2 — TDEE suggestion (new — reads suggestedKcalTarget from user settings)
+ * Step 3 — App orientation (MiniTutorialPlanner)
+ * Step 4 — Plan generation loading
+ * Step 5 — First plan reveal
+ * Step 6 — Csemete moment
+ */
+const TOTAL_STEPS = 6
 
 /**
  * Maps the 1-indexed shell step to the PlantingScene 0-indexed step.
  * Steps 2–6 from the old shell (data-collection) are collapsed into a
  * fast-forward to PlantingScene step 6 so the scene still tells its story.
+ * TDEE step (2) stays at planting step 0 (same as welcome — no scene change).
  */
 const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   1: 0,
-  2: 6,
-  3: 7,
-  4: 8,
-  5: 10,
+  2: 0,
+  3: 6,
+  4: 7,
+  5: 8,
+  6: 10,
 }
 
 // ---------------------------------------------------------------------------
@@ -81,7 +96,7 @@ function PlanGenerationStep() {
       data-testid="step-plan-generation"
     >
       <p className="text-base font-semibold text-[#1A1A1A]">
-        {t('onboarding.shell.stepLabels.3')}
+        {t('onboarding.shell.stepLabels.4')}
       </p>
       <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
         {t('onboarding.shell.planGeneratingBody')}
@@ -134,14 +149,31 @@ function WelcomeStep({ onNext }: WelcomeStepProps) {
 export function OnboardingShell() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const qc = useQueryClient()
   const userId = useAuthStore((s) => s.user?.id ?? '')
 
-  // Prefetch user data so we can check body-data completeness on final step.
+  // Prefetch user data so we can check body-data completeness on final step,
+  // and to read suggestedKcalTarget / suggestedProteinTarget for the TDEE step.
   const { data: user } = useQuery({
     queryKey: USERS_ME_QUERY_KEY,
     queryFn: usersService.getMe,
     staleTime: 30_000,
     enabled: !!userId,
+  })
+
+  // ── TDEE step: persist accepted suggestion to mealPlanPreferences ─────────
+  const tdeeMutation = useMutation({
+    mutationFn: (kcalTarget: number) =>
+      usersService.updateSettings({
+        mealPlanPreferences: {
+          ...user?.mealPlanPreferences,
+          kcalTarget,
+        },
+      }),
+    onSuccess: (updated) => {
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      toast({ title: t('onboarding.tdeeStep.accepted'), variant: 'success' })
+    },
   })
 
   // Resume: read persisted step at mount time.
@@ -229,9 +261,9 @@ export function OnboardingShell() {
       </header>
 
       {/* ---- Planting scene (drives visual continuity across all steps) ---- */}
-      {/* Hidden on steps 4–5 where FirstPlanReveal / CsemeteWelcomeMoment
+      {/* Hidden on steps 5–6 where FirstPlanReveal / CsemeteWelcomeMoment
           have their own full-bleed visuals. */}
-      {currentStep <= 3 && (
+      {currentStep <= 4 && (
         <div className="px-4 md:px-8 pt-4">
           <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
         </div>
@@ -239,18 +271,56 @@ export function OnboardingShell() {
 
       {/* ---- Step content area ---- */}
       <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full">
+        {/* Step 1: Welcome */}
         {currentStep === 1 && (
           <WelcomeStep onNext={goNext} />
         )}
 
+        {/* Step 2: TDEE suggestion — KALMIO-94 */}
         {currentStep === 2 && (
+          <div className="flex flex-col gap-4 py-6">
+            <div className="text-center px-2">
+              <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                {t('onboarding.tdeeStep.title')}
+              </h2>
+              <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                {t('onboarding.tdeeStep.body')}
+              </p>
+            </div>
+
+            <TdeeSuggestionBanner
+              suggestedKcal={user?.suggestedKcalTarget ?? null}
+              suggestedProtein={user?.suggestedProteinTarget ?? null}
+              accepting={tdeeMutation.isPending}
+              onAccept={({ kcalTarget }) => {
+                if (kcalTarget != null) {
+                  tdeeMutation.mutate(kcalTarget, { onSettled: () => goNext() })
+                } else {
+                  goNext()
+                }
+              }}
+              onSkip={goNext}
+            />
+
+            <button
+              type="button"
+              onClick={() => goToStep(1)}
+              className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+            >
+              {t('common.back')}
+            </button>
+          </div>
+        )}
+
+        {/* Step 3: App orientation (MiniTutorialPlanner) */}
+        {currentStep === 3 && (
           <>
             {/* MiniTutorialPlanner: onSkip advances to the next step */}
             <MiniTutorialPlanner onSkip={goNext} />
             <div className="mt-auto flex flex-col gap-3 pt-4">
               <button
                 type="button"
-                onClick={() => goToStep(1)}
+                onClick={() => goToStep(2)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -259,7 +329,8 @@ export function OnboardingShell() {
           </>
         )}
 
-        {currentStep === 3 && (
+        {/* Step 4: Plan generation loading */}
+        {currentStep === 4 && (
           <>
             <PlanGenerationStep />
             <div className="mt-auto flex flex-col gap-3 pt-4">
@@ -272,7 +343,7 @@ export function OnboardingShell() {
               </button>
               <button
                 type="button"
-                onClick={() => goToStep(2)}
+                onClick={() => goToStep(3)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -281,11 +352,13 @@ export function OnboardingShell() {
           </>
         )}
 
-        {currentStep === 4 && (
+        {/* Step 5: First plan reveal */}
+        {currentStep === 5 && (
           <FirstPlanReveal onDismiss={goNext} />
         )}
 
-        {currentStep === 5 && (
+        {/* Step 6: Csemete moment */}
+        {currentStep === 6 && (
           <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
       </main>
