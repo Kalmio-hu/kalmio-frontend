@@ -1,4 +1,5 @@
 import { api } from '@/lib/api'
+import { apiClient } from '@/lib/api-client'
 import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse, RecipeFilter } from '@/types'
 
 // ── Template Meal upsert body ──────────────────────────────────────────────
@@ -16,11 +17,16 @@ export const planService = {
   create: (req: CreatePlanRequest): Promise<Plan> =>
     api.post<Plan>('/api/plans/calendar', req).then(r => r.data),
 
-  getActive: (): Promise<Plan | null> =>
-    api.get<Plan>('/api/plans/calendar/active').then(r => r.data).catch((err: { response?: { status?: number } }) => {
-      if (err.response?.status === 404) return null
-      throw err
-    }),
+  // KALMIO-387: typed via openapi-fetch — URL is checked at compile time against
+  // the generated OpenAPI spec, so a backend route rename surfaces here as a TS
+  // error rather than a runtime 500. Other planService methods still use the
+  // raw axios client — migrate incrementally; see src/services/README.md.
+  getActive: async (): Promise<Plan | null> => {
+    const { data, response, error } = await apiClient.GET('/api/plans/calendar/active')
+    if (response.status === 404) return null
+    if (error) throw error
+    return data as unknown as Plan
+  },
 
   getById: (id: string): Promise<Plan> =>
     api.get<Plan>(`/api/plans/calendar/${id}`).then(r => r.data),
