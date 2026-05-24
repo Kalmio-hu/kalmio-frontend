@@ -17,7 +17,9 @@
  * (The asset set's intermediate "DRYING" band is intentionally unused
  * until the widget's moisture model expands to 4 bands.)
  *
- * Mobile-first target: 360×270 px (scales up on wider screens).
+ * Mobile-first target: 360×360 px square (scales up on wider screens).
+ * The asset set is 1:1; the widget container matches that aspect so the
+ * full painted frame (sky + tree + soil) shows without cropping.
  * WCAG 2.1 AA: the outer container is role="img" with a localized aria-label;
  * the underlying <img> is aria-hidden.
  * Moisture-band CSS animation classes (see styles/diofa.css):
@@ -108,7 +110,7 @@ export function DiofaWidget({ stage, moisture, className = '' }: DiofaWidgetProp
         moistureClass,
         className,
       ].join(' ')}
-      style={{ aspectRatio: '360 / 270' }}
+      style={{ aspectRatio: '1 / 1' }}
     >
       <img
         src={src}
