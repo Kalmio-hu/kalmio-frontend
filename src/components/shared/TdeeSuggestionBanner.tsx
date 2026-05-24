@@ -74,7 +74,7 @@ export function TdeeSuggestionBanner({
               >
                 {suggestedProtein}
               </span>
-              <span className="text-sm text-[#6B6460]">g {t('onboarding.tdeeStep.proteinUnit')}</span>
+              <span className="text-sm text-[#6B6460]">{t('onboarding.tdeeStep.proteinUnit')}</span>
             </li>
           )}
         </ul>

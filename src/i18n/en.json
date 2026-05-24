@@ -2156,7 +2156,7 @@
     "tdeeStep": {
       "title": "Personalised calorie target",
       "body": "Based on your body data, I have calculated your Total Daily Energy Expenditure (TDEE). You can accept the suggestion or continue without it.",
-      "proteinUnit": "protein / day",
+      "proteinUnit": "g protein / day",
       "bodyDataMissing": "Add your body data and I can suggest a personalised target. You can skip this step.",
       "skip": "I will set this later",
       "accepted": "Calorie target set."

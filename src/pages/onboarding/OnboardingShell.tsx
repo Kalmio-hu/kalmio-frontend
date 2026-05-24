@@ -293,6 +293,10 @@ export function OnboardingShell() {
               suggestedProtein={user?.suggestedProteinTarget ?? null}
               accepting={tdeeMutation.isPending}
               onAccept={({ kcalTarget }) => {
+                // proteinTarget from TdeeSuggestionValues is intentionally not
+                // persisted here. The AC for KALMIO-94 specifies kcalTarget only;
+                // protein is shown as an informational reference in the banner but
+                // is not written to mealPlanPreferences at this stage.
                 if (kcalTarget != null) {
                   tdeeMutation.mutate(kcalTarget, { onSettled: () => goNext() })
                 } else {
