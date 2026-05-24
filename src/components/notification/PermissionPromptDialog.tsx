@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Bell, BellOff } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
@@ -65,6 +65,12 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [requesting, setRequesting] = useState(false)
+  /**
+   * Set to true at the start of handleAllow / handleDeny so that the Radix
+   * onOpenChange(false) callback (fired when setOpen(false) closes the dialog
+   * programmatically) does not trigger a spurious second DISMISSED outcome.
+   */
+  const outcomeRecordedRef = useRef(false)
 
   useEffect(() => {
     if (!shouldOffer) return
@@ -78,6 +84,7 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
   }, [shouldOffer, userId])
 
   async function handleAllow() {
+    outcomeRecordedRef.current = true
     setRequesting(true)
     markAsked(userId)
 
@@ -124,6 +131,8 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
   }
 
   function handleDismiss() {
+    if (outcomeRecordedRef.current) return
+    outcomeRecordedRef.current = true
     markAsked(userId)
     notificationService.recordPermissionOutcome('DISMISSED').catch((err) => {
       console.warn('[notification] failed to record DISMISSED outcome:', err)
@@ -138,7 +147,7 @@ export function PermissionPromptDialog({ userId, shouldOffer, onGranted }: Props
             centred. We place it at the top of the viewport via position:fixed so it
             does not shift the layout while still being inside a proper Dialog for
             focus management and ARIA correctness. */}
-        <Dialog.Overlay className="fixed inset-0 z-40" />
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
         <Dialog.Content
           aria-describedby={undefined}
           className="fixed left-0 right-0 top-0 z-50 mx-4 mt-3 rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm focus:outline-none"
