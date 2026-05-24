@@ -73,6 +73,12 @@ export interface PrepGooState {
   isOverValidTarget: boolean
   /** Whether the dragged item is over an INVALID drop target (wrong meal). */
   isOverInvalidTarget: boolean
+  /**
+   * The meal ID of the drop target that is currently showing a rejection cue.
+   * Set during drag-over of an invalid target; cleared on drag end.
+   * KALMIO-336.
+   */
+  invalidTargetMealId: string | null
 }
 
 interface PrepGooContextValue {
@@ -203,18 +209,25 @@ interface PrepGooDragContextProps {
    * The parent patches executeImmediatelyBefore = false to make it standalone.
    */
   onDetachPrepTask: (prepTaskId: string) => void
+  /**
+   * Map from prepTaskId → array of valid plannedMealIds this prep can attach to.
+   * Used to validate drop targets during goo drag. KALMIO-336.
+   */
+  prepFeedsMap: Record<string, string[]>
 }
 
 export function PrepGooDragContext({
   children,
   onEmbedPrepTask,
   onDetachPrepTask,
+  prepFeedsMap,
 }: PrepGooDragContextProps) {
   const [state, setState] = useState<PrepGooState>({
     draggingPrepTaskId: null,
     dragPointer: null,
     isOverValidTarget: false,
     isOverInvalidTarget: false,
+    invalidTargetMealId: null,
   })
 
   // Pointer sensor: immediate on mouse, distance=4 prevents accidental drags.
@@ -260,8 +273,33 @@ export function PrepGooDragContext({
         })()
       : null
 
-    setState(s => ({ ...s, dragPointer: coords }))
-  }, [])
+    // KALMIO-336: detect if hovering over an invalid drop target (wrong meal).
+    const prepTaskId = id.split(':')[1] ?? id
+    const validMealIds = prepFeedsMap[prepTaskId] ?? []
+    const overId = event.over ? String(event.over.id) : null
+
+    let isOverValid = false
+    let isOverInvalid = false
+    let invalidMealId: string | null = null
+
+    if (overId && overId.startsWith('meal-drop:')) {
+      const hoverMealId = overId.slice('meal-drop:'.length)
+      if (validMealIds.includes(hoverMealId)) {
+        isOverValid = true
+      } else {
+        isOverInvalid = true
+        invalidMealId = hoverMealId
+      }
+    }
+
+    setState(s => ({
+      ...s,
+      dragPointer: coords,
+      isOverValidTarget: isOverValid,
+      isOverInvalidTarget: isOverInvalid,
+      invalidTargetMealId: invalidMealId,
+    }))
+  }, [prepFeedsMap])
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const id = String(event.active.id)
@@ -273,9 +311,19 @@ export function PrepGooDragContext({
     const overId = event.over ? String(event.over.id) : null
 
     if (overId && overId.startsWith('meal-drop:')) {
-      onEmbedPrepTask(prepTaskId)
+      // KALMIO-336: validate that the target meal is in this prep's feeds set.
+      const validMealIds = prepFeedsMap[prepTaskId] ?? []
+      const targetMealId = overId.slice('meal-drop:'.length)
+      if (validMealIds.includes(targetMealId)) {
+        // Valid drop — embed the prep into the meal.
+        onEmbedPrepTask(prepTaskId)
+      } else {
+        // Invalid drop — bounce back to standalone (no PATCH for wrong meal).
+        // The red rejection animation was shown during drag-over; now clear it.
+        onDetachPrepTask(prepTaskId)
+      }
     } else {
-      // Released outside any valid meal ring — make standalone.
+      // Released outside any meal ring — make standalone.
       onDetachPrepTask(prepTaskId)
     }
 
@@ -284,8 +332,9 @@ export function PrepGooDragContext({
       dragPointer: null,
       isOverValidTarget: false,
       isOverInvalidTarget: false,
+      invalidTargetMealId: null,
     })
-  }, [onEmbedPrepTask, onDetachPrepTask])
+  }, [onEmbedPrepTask, onDetachPrepTask, prepFeedsMap])
 
   // A11y keyboard callbacks — bypasses drag entirely. KALMIO-328.
   const handlePrepDetach = useCallback((prepTaskId: string) => {
