@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef, useMemo } from 'react'
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils } from 'lucide-react'
+import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils, Check } from 'lucide-react'
 import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import {
   DndContext,
@@ -26,7 +26,7 @@ import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
 import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
-import { useEffect } from 'react'
+import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
 
@@ -195,6 +195,15 @@ interface DraggableRowProps {
    * KALMIO-317.
    */
   embeddedPreps?: PrepTaskCard[]
+  /**
+   * When true the meal's slot time has passed and it is rendered as presumed-eaten
+   * (green tick). The server-side status remains PLANNED.  KALMIO-310.
+   */
+  isAutoTicked?: boolean
+  /** Called when the user taps the green tick to revert to PLANNED view. */
+  onAutoTickUndo?: () => void
+  /** Called on second tap / long-press to open the SKIPPED / REPLACED menu. */
+  onAutoTickMenu?: () => void
 }
 
 function DraggableRow({
@@ -213,6 +222,9 @@ function DraggableRow({
   onMarkSkipped,
   mutating,
   embeddedPreps,
+  isAutoTicked,
+  onAutoTickUndo,
+  onAutoTickMenu,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -230,6 +242,31 @@ function DraggableRow({
     ? minutesToHm(liveDragMinutes)
     : minutesToHm(card.startMinutes)
 
+  // Long-press detection for the auto-tick button — triggers the secondary menu.
+  const autoTickPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const autoTickDidLongPress = useRef(false)
+
+  const handleAutoTickPointerDown = useCallback(() => {
+    autoTickDidLongPress.current = false
+    autoTickPressTimer.current = setTimeout(() => {
+      autoTickDidLongPress.current = true
+      onAutoTickMenu?.()
+    }, 600)
+  }, [onAutoTickMenu])
+
+  const handleAutoTickPointerUp = useCallback(() => {
+    if (autoTickPressTimer.current !== null) {
+      clearTimeout(autoTickPressTimer.current)
+      autoTickPressTimer.current = null
+    }
+  }, [])
+
+  const handleAutoTickClick = useCallback(() => {
+    // Long-press already opened the menu — do not also untick
+    if (autoTickDidLongPress.current) return
+    onAutoTickUndo?.()
+  }, [onAutoTickUndo])
+
   return (
     <div data-card-id={card.id} className="flex items-start gap-0">
       {/* Time label */}
@@ -243,16 +280,33 @@ function DraggableRow({
       {/* Spine */}
       <div className="relative flex flex-col items-center w-7 shrink-0">
         {!isFirst && <div style={{ width: 1, flex: 1, minHeight: 8, background: '#e5e7eb', alignSelf: 'center' }} />}
-        <div
-          {...listeners}
-          aria-label={t('common.moveLabel')}
-          className={[
-            'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center text-sm shrink-0 cursor-grab active:cursor-grabbing touch-none',
-            ns.ring, ns.bg,
-          ].join(' ')}
-        >
-          {ns.icon}
-        </div>
+        {isAutoTicked && isMeal ? (
+          // Green tick button replaces the recipe-type emoji when auto-ticked.
+          // Tap = undo (revert to PLANNED view). Long-press = secondary menu.
+          <button
+            type="button"
+            onPointerDown={handleAutoTickPointerDown}
+            onPointerUp={handleAutoTickPointerUp}
+            onPointerLeave={handleAutoTickPointerUp}
+            onClick={handleAutoTickClick}
+            aria-label={t('dashboard.meals.autoTick.presumedEaten')}
+            aria-pressed={true}
+            className="relative z-10 w-7 h-7 rounded-full ring-1 ring-emerald-400 bg-emerald-50 flex items-center justify-center shrink-0 touch-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          >
+            <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+          </button>
+        ) : (
+          <div
+            {...listeners}
+            aria-label={t('common.moveLabel')}
+            className={[
+              'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center text-sm shrink-0 cursor-grab active:cursor-grabbing touch-none',
+              ns.ring, ns.bg,
+            ].join(' ')}
+          >
+            {ns.icon}
+          </div>
+        )}
         {!isLast && <div style={{ width: 1, flex: 1, minHeight: 8, background: '#e5e7eb', alignSelf: 'center' }} />}
       </div>
 
@@ -380,6 +434,33 @@ function DraggableRow({
             {/* Embedded prep slots — tasks that must run immediately before this meal. */}
             {embeddedPreps && embeddedPreps.length > 0 && (
               <EmbeddedPrepList preps={embeddedPreps} />
+            )}
+
+            {/* Auto-tick undo strip — shown when the slot time has passed. KALMIO-310. */}
+            {isAutoTicked && isMeal && (
+              <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={onAutoTickUndo}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                >
+                  {t('dashboard.meals.autoTick.undo')}
+                </button>
+                <button
+                  type="button"
+                  onClick={onMarkSkipped}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
+                >
+                  {t('dashboard.meals.autoTick.markSkipped')}
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpenSwap}
+                  className="text-[11px] px-2 py-0.5 rounded-full bg-gray-50 border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
+                >
+                  {t('dashboard.meals.autoTick.markReplaced')}
+                </button>
+              </div>
             )}
 
             {/* Inline rationale panel — only rendered for meals while open. */}
@@ -775,6 +856,24 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const [openRationaleCardId, setOpenRationaleCardId] = useState<string | null>(null)
   const [openMenuCardId, setOpenMenuCardId] = useState<string | null>(null)
   const [swapCard, setSwapCard] = useState<TimelineCardData | null>(null)
+
+  // ── auto-tick (KALMIO-310) ────────────────────────────────────────────────
+  // currentMinutes ticks every 60 s so isMealSlotPast re-evaluates automatically.
+  const [currentMinutes, setCurrentMinutes] = useState<number>(() => {
+    const d = new Date()
+    return d.getHours() * 60 + d.getMinutes()
+  })
+  useEffect(() => {
+    const id = setInterval(() => {
+      const d = new Date()
+      setCurrentMinutes(d.getHours() * 60 + d.getMinutes())
+    }, 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Set of card IDs the user explicitly un-ticked this session.
+  // Never auto-re-ticks within the same page load.
+  const [sessionUnticked, setSessionUnticked] = useState<Set<string>>(new Set())
   const dragBaseMinutesRef = useRef<number>(0)
   const outerRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
@@ -929,6 +1028,31 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
 
     return result
   }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes])
+
+  // ── auto-tick set (KALMIO-310) ────────────────────────────────────────────
+  // A meal is auto-ticked when:
+  //   - it is a real meal card (has mealId)
+  //   - its slot start + AUTO_TICK_OFFSET_MINUTES <= currentMinutes (wall clock)
+  //   - the user has NOT explicitly un-ticked it this session
+  //   - it is today's date (the DailyTimeline only ever renders one date)
+  // We only auto-tick on today; past/future dates are left as-is.
+  const isToday = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    return date === todayStr
+  }, [date])
+
+  const autoTickedIds = useMemo((): Set<string> => {
+    if (!isToday) return new Set()
+    const ids = new Set<string>()
+    for (const card of cards) {
+      if (!card.mealId) continue
+      if (sessionUnticked.has(card.id)) continue
+      if (isMealSlotPast(card.startMinutes, currentMinutes)) {
+        ids.add(card.id)
+      }
+    }
+    return ids
+  }, [cards, currentMinutes, sessionUnticked, isToday])
 
   // ── embedded prep map ─────────────────────────────────────────────────────
   // Maps each meal ID to the list of prep tasks that must run immediately before
@@ -1193,6 +1317,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
               const embeddedPreps = cardData.mealId
                 ? (embeddedPrepsByMealId[cardData.mealId] ?? [])
                 : []
+              const cardIsAutoTicked = autoTickedIds.has(cardData.id)
               return (
                 <DraggableRow
                   key={cardData.id}
@@ -1205,6 +1330,17 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                   mutating={cardMutating}
                   isPremium={isPremium}
                   embeddedPreps={embeddedPreps.length > 0 ? embeddedPreps : undefined}
+                  isAutoTicked={cardIsAutoTicked}
+                  onAutoTickUndo={() => {
+                    setSessionUnticked(prev => {
+                      const next = new Set(prev)
+                      next.add(cardData.id)
+                      return next
+                    })
+                  }}
+                  onAutoTickMenu={() => {
+                    setOpenMenuCardId(cardData.id)
+                  }}
                   onViewRecipe={() => {
                     if (cardData.recipeId) {
                       navigate(`/app/recipes/${cardData.recipeId}?from=timeline`)
