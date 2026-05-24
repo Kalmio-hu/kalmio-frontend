@@ -26,6 +26,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import {
   DndContext,
   PointerSensor,
@@ -36,7 +37,6 @@ import {
   type DragStartEvent,
   type DragEndEvent,
   type DragMoveEvent,
-  DragOverlay,
 } from '@dnd-kit/core'
 import { triggerHaptic } from '@/lib/haptics'
 
@@ -69,6 +69,12 @@ export interface PrepGooState {
   draggingPrepTaskId: string | null
   /** Current drag pointer position relative to viewport. */
   dragPointer: { x: number; y: number } | null
+  /**
+   * Source rectangle (viewport coords) of the dragged prep at drag-start.
+   * Used as the "home" anchor for the goo stretch — the neck stretches from
+   * here to the cursor. Captured from @dnd-kit's active.rect.current.initial.
+   */
+  homeRect: { left: number; top: number; width: number; height: number } | null
   /** Whether the dragged item is currently over a valid drop target. */
   isOverValidTarget: boolean
   /** Whether the dragged item is over an INVALID drop target (wrong meal). */
@@ -180,11 +186,11 @@ export function GooFilterDefs() {
     >
       <defs>
         <filter id="goo">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+          <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
           <feColorMatrix
             in="blur"
             mode="matrix"
-            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"
             result="goo"
           />
           <feComposite in="SourceGraphic" in2="goo" operator="atop" />
@@ -225,6 +231,7 @@ export function PrepGooDragContext({
   const [state, setState] = useState<PrepGooState>({
     draggingPrepTaskId: null,
     dragPointer: null,
+    homeRect: null,
     isOverValidTarget: false,
     isOverInvalidTarget: false,
     invalidTargetMealId: null,
@@ -252,7 +259,13 @@ export function PrepGooDragContext({
     if (!id.startsWith('prep-embed:') && !id.startsWith('prep-standalone:')) return
 
     const prepTaskId = id.split(':')[1] ?? id
-    setState(s => ({ ...s, draggingPrepTaskId: prepTaskId }))
+    // Snapshot the source rect for the goo "home" anchor. Falls back to null
+    // when @dnd-kit hasn't measured yet (rare, but keeps the type honest).
+    const initial = event.active.rect.current.initial
+    const homeRect = initial
+      ? { left: initial.left, top: initial.top, width: initial.width, height: initial.height }
+      : null
+    setState(s => ({ ...s, draggingPrepTaskId: prepTaskId, homeRect }))
     triggerHaptic()
   }, [])
 
@@ -330,6 +343,7 @@ export function PrepGooDragContext({
     setState({
       draggingPrepTaskId: null,
       dragPointer: null,
+      homeRect: null,
       isOverValidTarget: false,
       isOverInvalidTarget: false,
       invalidTargetMealId: null,
@@ -355,17 +369,116 @@ export function PrepGooDragContext({
         onDragEnd={handleDragEnd}
       >
         {children}
-        {/* DragOverlay renders the dragged chip at pointer position, above all content. */}
-        <DragOverlay dropAnimation={null}>
-          {state.draggingPrepTaskId ? (
-            <div
-              className="w-7 h-7 rounded-full bg-teal-500 shadow-lg opacity-90"
-              style={{ filter: 'url(#goo)' }}
-              aria-hidden
-            />
-          ) : null}
-        </DragOverlay>
       </DndContext>
+      {/* Goo stretch — source anchor + tether + cursor blob, rendered in a
+          fixed-position portal so the SVG goo filter can merge all three
+          blobs into one shape with a visible neck that snaps. */}
+      {state.draggingPrepTaskId && state.homeRect && state.dragPointer && createPortal(
+        <GooStretch
+          home={state.homeRect}
+          pointer={state.dragPointer}
+          valid={state.isOverValidTarget}
+          invalid={state.isOverInvalidTarget}
+        />,
+        document.body,
+      )}
     </PrepGooContext.Provider>
+  )
+}
+
+// ── GooStretch ─────────────────────────────────────────────────────────────
+
+interface GooStretchProps {
+  home: { left: number; top: number; width: number; height: number }
+  pointer: { x: number; y: number }
+  valid: boolean
+  invalid: boolean
+}
+
+/**
+ * Three blobs under the #goo filter:
+ *   - source anchor at the dragged item's home rect
+ *   - tether at the midpoint, scaling down with distance (the "neck")
+ *   - cursor blob at the pointer
+ *
+ * The goo filter merges them into a single shape when close. Once the cursor
+ * pulls past ~1.5× STICK_RING_RADIUS the tether fades and the cursor blob
+ * separates — the visual "snap." Colour reflects validity:
+ *   - teal (default / free)
+ *   - purple-ish (snapping to a valid meal)
+ *   - red (over an invalid meal — wrong feeds set)
+ */
+function GooStretch({ home, pointer, valid, invalid }: GooStretchProps) {
+  const homeCx = home.left + home.width / 2
+  const homeCy = home.top + home.height / 2
+  const dist = Math.hypot(pointer.x - homeCx, pointer.y - homeCy)
+  const stretch = Math.min(dist / STICK_RING_RADIUS_PX, 1.6)
+  const tethered = dist < STICK_RING_RADIUS_PX * 1.5
+
+  // Colour reflects the drop validity. Teal is the resting/free state.
+  // Purple-ish is the demo's "snapping" colour (a29bfe) — communicates pull-in.
+  // Red is the rejection cue for an invalid drop (wrong meal).
+  const color = invalid ? '#fca5a5' : valid ? '#a29bfe' : '#14b8a6'
+
+  // Tether is anchored at the midpoint between home and pointer.
+  const tx = (homeCx + pointer.x) / 2
+  const ty = (homeCy + pointer.y) / 2
+
+  // Source anchor sized roughly to the home rect — looks like the row "bulges"
+  // out toward the cursor. Capped so very tall rows don't dominate.
+  const anchorW = Math.min(home.width, 140)
+  const anchorH = Math.min(home.height, 44)
+
+  return (
+    <div
+      className="fixed inset-0 pointer-events-none"
+      style={{ zIndex: 60 }}
+      aria-hidden
+    >
+      <div className="absolute inset-0" style={{ filter: 'url(#goo)' }}>
+        {/* Source anchor — bulge at the home position. */}
+        <div
+          className="absolute rounded-3xl"
+          style={{
+            left: homeCx - anchorW / 2,
+            top: homeCy - anchorH / 2,
+            width: anchorW,
+            height: anchorH,
+            background: color,
+            opacity: 0.95,
+            transition: 'background 0.2s',
+          }}
+        />
+        {/* Tether blob — between home and cursor, scaling down with distance. */}
+        {tethered && (
+          <div
+            className="absolute rounded-full"
+            style={{
+              left: tx - 26,
+              top: ty - 26,
+              width: 52,
+              height: 52,
+              background: color,
+              opacity: Math.max(1 - stretch * 0.8, 0),
+              transform: `scale(${Math.max(1 - stretch * 0.45, 0.25)})`,
+              transition: 'background 0.2s',
+            }}
+          />
+        )}
+        {/* Cursor blob — follows the pointer. */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            left: pointer.x - 24,
+            top: pointer.y - 24,
+            width: 48,
+            height: 48,
+            background: color,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+            transition: 'background 0.2s',
+          }}
+        />
+      </div>
+    </div>
   )
 }
