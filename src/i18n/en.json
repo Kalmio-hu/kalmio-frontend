@@ -219,6 +219,10 @@
         "OVERNIGHT": "Overnight prep",
         "BATCH": "Batch prep",
         "FREEZE_BATCH": "Batch prep with freezing"
+      },
+      "embedded": {
+        "listLabel": "Prep to do immediately before eating",
+        "duration": "~{{count}} min"
       }
     },
     "planGlance": {

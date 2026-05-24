@@ -17,6 +17,12 @@ export interface PrepTaskDto {
   servingsToMake: number | null
   servingsToFreeze: number | null
   feedsPlannedMealIds: string[]
+  /**
+   * When true this task must be executed immediately before the associated meal
+   * (e.g. mash avocado, scramble eggs). It is rendered inside the meal card
+   * rather than as a standalone timeline item. KALMIO-317.
+   */
+  executeImmediatelyBefore: boolean
 }
 
 /** Request body for PATCH /api/prep-tasks/{id}/schedule */
@@ -67,5 +73,6 @@ export const prepTasksService = {
     servingsToMake: dto.servingsToMake,
     servingsToFreeze: dto.servingsToFreeze,
     feedsPlannedMealIds: dto.feedsPlannedMealIds,
+    executeImmediatelyBefore: dto.executeImmediatelyBefore,
   }),
 }

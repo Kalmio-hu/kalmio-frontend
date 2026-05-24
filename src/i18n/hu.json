@@ -219,6 +219,10 @@
         "OVERNIGHT": "Éjszakai előkészítés",
         "BATCH": "Előre elkészített adag",
         "FREEZE_BATCH": "Előre elkészített adag fagyasztással"
+      },
+      "embedded": {
+        "listLabel": "Azonnal elvégzendő előkészítések",
+        "duration": "~{{count}} perc"
       }
     },
     "planGlance": {

@@ -539,6 +539,12 @@ export interface PrepTaskCard {
   servingsToFreeze?: number | null
   /** Planned meal IDs this prep task feeds. */
   feedsPlannedMealIds?: string[]
+  /**
+   * When true this task must be executed immediately before the meal it feeds
+   * (e.g. fresh assembly, last-minute cook). Rendered inside the meal card;
+   * its timeline circle is hidden. KALMIO-317.
+   */
+  executeImmediatelyBefore?: boolean
 }
 
 export interface PlanGlanceDto {

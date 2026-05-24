@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal } from 'lucide-react'
+import { Eye, Lock, Sparkles, RefreshCw, MoreHorizontal, Utensils } from 'lucide-react'
 import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import {
   DndContext,
@@ -25,7 +25,7 @@ import { offPlanMealsService } from '@/services/offPlanMeals'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
-import type { DashboardDto, MaterializedPlannedMeal, Recipe, TimePreferencesDto } from '@/types'
+import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
 import { useEffect } from 'react'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -189,6 +189,12 @@ interface DraggableRowProps {
   onMarkEaten: () => void
   onMarkSkipped: () => void
   mutating?: boolean
+  /**
+   * Prep tasks that must execute immediately before this meal.
+   * Rendered inline inside the card body; their timeline circle is suppressed.
+   * KALMIO-317.
+   */
+  embeddedPreps?: PrepTaskCard[]
 }
 
 function DraggableRow({
@@ -206,6 +212,7 @@ function DraggableRow({
   onMarkEaten,
   onMarkSkipped,
   mutating,
+  embeddedPreps,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -369,6 +376,11 @@ function DraggableRow({
                 </button>
               </div>
             </div>
+
+            {/* Embedded prep slots — tasks that must run immediately before this meal. */}
+            {embeddedPreps && embeddedPreps.length > 0 && (
+              <EmbeddedPrepList preps={embeddedPreps} />
+            )}
 
             {/* Inline rationale panel — only rendered for meals while open. */}
             {isMeal && card.mealId && (
@@ -556,6 +568,37 @@ function OffPlanRow({ card, isFirst, isLast, deleting, liveDragMinutes, onDelete
         )}
       </div>
     </div>
+  )
+}
+
+// ── EmbeddedPrepList ──────────────────────────────────────────────────────
+// Renders inside a meal card body to show the "execute immediately before"
+// prep slots in compact form: knife icon + title + duration. KALMIO-317.
+
+function EmbeddedPrepList({ preps }: { preps: PrepTaskCard[] }) {
+  const { t } = useTranslation()
+  return (
+    <ul className="mt-1.5 flex flex-col gap-1" aria-label={t('dashboard.prep.embedded.listLabel')}>
+      {preps.map((prep, i) => (
+        <li
+          key={prep.id ?? `embedded-prep-${i}`}
+          className="flex items-center gap-1.5 rounded-lg bg-teal-50/70 border border-teal-100 px-2.5 py-1.5"
+        >
+          <Utensils
+            className="h-3 w-3 text-teal-500 shrink-0"
+            aria-hidden
+          />
+          <span className="text-[11px] font-medium text-teal-800 leading-tight truncate flex-1">
+            {prep.recipeName}
+          </span>
+          {prep.durationMin != null && (
+            <span className="text-[10px] text-teal-500 tabular-nums shrink-0">
+              {t('dashboard.prep.embedded.duration', { count: prep.durationMin })}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
   )
 }
 
@@ -826,6 +869,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     })
 
     prepTasks.forEach(task => {
+      // executeImmediatelyBefore tasks are embedded inside the meal card — skip
+      // them as standalone timeline items. KALMIO-317.
+      if (task.executeImmediatelyBefore) return
+
       const defaultTime = PREP_WINDOW_DEFAULTS[task.window] ?? '12:00'
       const scheduledTime = cardTimeOverrides[`prep-${task.id ?? task.recipeId}`] ?? task.scheduledTime ?? defaultTime
       const recipeName = getRecipeNameFromTranslations(task.recipeTranslations ?? null, task.recipeName, lang)
@@ -882,6 +929,23 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
 
     return result
   }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes])
+
+  // ── embedded prep map ─────────────────────────────────────────────────────
+  // Maps each meal ID to the list of prep tasks that must run immediately before
+  // it. These are rendered inside the meal card, not on the spine. KALMIO-317.
+
+  const embeddedPrepsByMealId = useMemo((): Record<string, PrepTaskCard[]> => {
+    const prepTasks = dashboard?.todaysPrepTasks ?? []
+    const map: Record<string, PrepTaskCard[]> = {}
+    for (const task of prepTasks) {
+      if (!task.executeImmediatelyBefore) continue
+      for (const mealId of task.feedsPlannedMealIds ?? []) {
+        if (!map[mealId]) map[mealId] = []
+        map[mealId]!.push(task)
+      }
+    }
+    return map
+  }, [dashboard])
 
   // ── dnd handlers ─────────────────────────────────────────────────────────
 
@@ -1126,6 +1190,9 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
               const cardMutating =
                 updateMeal.isPending &&
                 (updateMeal.variables as { mealId?: string } | undefined)?.mealId === cardData.mealId
+              const embeddedPreps = cardData.mealId
+                ? (embeddedPrepsByMealId[cardData.mealId] ?? [])
+                : []
               return (
                 <DraggableRow
                   key={cardData.id}
@@ -1137,6 +1204,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                   menuOpen={openMenuCardId === cardData.id}
                   mutating={cardMutating}
                   isPremium={isPremium}
+                  embeddedPreps={embeddedPreps.length > 0 ? embeddedPreps : undefined}
                   onViewRecipe={() => {
                     if (cardData.recipeId) {
                       navigate(`/app/recipes/${cardData.recipeId}?from=timeline`)
