@@ -85,6 +85,27 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
 }
 
 // ---------------------------------------------------------------------------
+// Narrative block — sits beside the PlantingScene in the left aside on
+// desktop. One short stanza per shell step (1–4) that mirrors what the
+// scene is showing at that moment in the planting metaphor.
+// ---------------------------------------------------------------------------
+
+function NarrativeBlock({ step }: { step: number }) {
+  const { t } = useTranslation()
+  if (step < 1 || step > 4) return null
+  return (
+    <div className="flex flex-col gap-4 text-center text-[#5C3D1E] max-w-md">
+      <p className="font-headline text-xl lg:text-2xl leading-snug font-semibold">
+        {t(`onboarding.shell.narrative.${step}.lead`)}
+      </p>
+      <p className="text-sm lg:text-base leading-relaxed text-[#5C3D1E]/80">
+        {t(`onboarding.shell.narrative.${step}.body`)}
+      </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Plan generation loading step (step 3)
 // ---------------------------------------------------------------------------
 
@@ -238,39 +259,54 @@ export function OnboardingShell() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#F9F7F2]"
+      className="min-h-screen flex flex-col md:flex-row bg-[#F9F7F2]"
       data-testid="onboarding-shell"
     >
-      {/* ---- Header row: progress bar + skip link ---- */}
-      <header className="flex items-center justify-between px-4 pt-4 md:px-8">
-        <div className="flex-1">
-          <OnboardingProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
-        </div>
-
-        {/* Skip link: visible from step 2 onward */}
-        {currentStep >= 2 && (
-          <button
-            type="button"
-            onClick={() => setSkipModalOpen(true)}
-            className="ml-4 shrink-0 text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
-            aria-label={t('onboarding.shell.skipAriaLabel')}
-          >
-            {t('onboarding.shell.skip')}
-          </button>
-        )}
-      </header>
-
-      {/* ---- Planting scene (drives visual continuity across all steps) ---- */}
+      {/* ---- Desktop-only illustration column (md+) ---- */}
       {/* Hidden on steps 5–6 where FirstPlanReveal / CsemeteWelcomeMoment
           have their own full-bleed visuals. */}
-      {currentStep <= 4 && (
-        <div className="px-4 md:px-8 pt-4">
-          <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
-        </div>
-      )}
+      <aside
+        className="hidden md:flex md:w-[45%] lg:w-[40%] md:flex-col md:items-center md:justify-center bg-[#F5EDD8] p-8 lg:p-12"
+        aria-hidden={currentStep > 4}
+      >
+        {currentStep <= 4 && (
+          <div className="flex flex-col items-center gap-10 w-full max-w-xl">
+            <NarrativeBlock step={currentStep} />
+            <PlantingScene step={plantingStep} className="w-full" />
+          </div>
+        )}
+      </aside>
 
-      {/* ---- Step content area ---- */}
-      <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full">
+      {/* ---- Content column ---- */}
+      <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
+        {/* ---- Header row: progress bar + skip link ---- */}
+        <header className="flex items-center justify-between px-4 pt-4 md:px-8 md:pt-6">
+          <div className="flex-1">
+            <OnboardingProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+          </div>
+
+          {/* Skip link: visible from step 2 onward */}
+          {currentStep >= 2 && (
+            <button
+              type="button"
+              onClick={() => setSkipModalOpen(true)}
+              className="ml-4 shrink-0 text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
+              aria-label={t('onboarding.shell.skipAriaLabel')}
+            >
+              {t('onboarding.shell.skip')}
+            </button>
+          )}
+        </header>
+
+        {/* ---- Mobile-only planting scene (hidden on md+) ---- */}
+        {currentStep <= 4 && (
+          <div className="md:hidden px-4 pt-4">
+            <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
+          </div>
+        )}
+
+        {/* ---- Step content area ---- */}
+        <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full md:justify-center">
         {/* Step 1: Welcome */}
         {currentStep === 1 && (
           <WelcomeStep onNext={goNext} />
@@ -321,7 +357,7 @@ export function OnboardingShell() {
           <>
             {/* MiniTutorialPlanner: onSkip advances to the next step */}
             <MiniTutorialPlanner onSkip={goNext} />
-            <div className="mt-auto flex flex-col gap-3 pt-4">
+            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
                 onClick={() => goToStep(2)}
@@ -337,7 +373,7 @@ export function OnboardingShell() {
         {currentStep === 4 && (
           <>
             <PlanGenerationStep />
-            <div className="mt-auto flex flex-col gap-3 pt-4">
+            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
                 onClick={goNext}
@@ -365,7 +401,8 @@ export function OnboardingShell() {
         {currentStep === 6 && (
           <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
-      </main>
+        </main>
+      </div>
 
       {/* ---- Skip confirmation modal ---- */}
       <SkipConfirmModal

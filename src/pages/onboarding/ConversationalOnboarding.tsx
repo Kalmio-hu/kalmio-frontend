@@ -437,54 +437,58 @@ export function ConversationalOnboarding() {
       data-testid="conversational-onboarding"
     >
       {/* ---- Header ---- */}
-      <header className="flex items-center justify-between px-4 pt-5 pb-3 border-b border-[#E8E4DC] bg-[#F9F7F2]">
-        <h1 className="text-base font-semibold text-[#1A1A1A]">
-          {t('onboarding.conversational.title')}
-        </h1>
-        <button
-          type="button"
-          onClick={() => navigate('/app/onboarding')}
-          className="text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
-        >
-          {t('onboarding.conversational.switchBack')}
-        </button>
+      <header className="border-b border-[#E8E4DC] bg-[#F9F7F2]">
+        <div className="flex items-center justify-between px-4 pt-5 pb-3 max-w-2xl mx-auto w-full">
+          <h1 className="text-base font-semibold text-[#1A1A1A]">
+            {t('onboarding.conversational.title')}
+          </h1>
+          <button
+            type="button"
+            onClick={() => navigate('/app/onboarding')}
+            className="text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
+          >
+            {t('onboarding.conversational.switchBack')}
+          </button>
+        </div>
       </header>
 
       {/* ---- Message list ---- */}
       <div
-        className="flex-1 overflow-y-auto px-4 pt-4"
+        className="flex-1 overflow-y-auto"
         aria-label={t('onboarding.conversational.title')}
         aria-live="polite"
       >
-        {messages.map((msg, i) => (
-          <Bubble key={i} role={msg.role} content={msg.content} />
-        ))}
+        <div className="max-w-2xl mx-auto px-4 pt-4 w-full">
+          {messages.map((msg, i) => (
+            <Bubble key={i} role={msg.role} content={msg.content} />
+          ))}
 
-        <TypingIndicator visible={turnMutation.isPending} />
+          <TypingIndicator visible={turnMutation.isPending} />
 
-        {/* Error inline message */}
-        {errorKey && (
-          <p className="text-sm text-red-600 text-center my-2">{t(errorKey)}</p>
-        )}
+          {/* Error inline message */}
+          {errorKey && (
+            <p className="text-sm text-red-600 text-center my-2">{t(errorKey)}</p>
+          )}
 
-        {/* Confirmation card — rendered below messages when ready */}
-        {ready && draft && (
-          <ConfirmCard
-            draft={draft}
-            onChange={setDraft}
-            onConfirm={handleConfirm}
-            confirming={finalizeMutation.isPending}
-          />
-        )}
+          {/* Confirmation card — rendered below messages when ready */}
+          {ready && draft && (
+            <ConfirmCard
+              draft={draft}
+              onChange={setDraft}
+              onConfirm={handleConfirm}
+              confirming={finalizeMutation.isPending}
+            />
+          )}
 
-        {/* Scroll anchor */}
-        <div ref={scrollRef} />
+          {/* Scroll anchor */}
+          <div ref={scrollRef} />
+        </div>
       </div>
 
       {/* ---- Input area (hidden when ready=true and waiting for confirmation) ---- */}
       {!ready && (
         <div className="px-4 pb-6 pt-2 border-t border-[#E8E4DC] bg-[#F9F7F2]">
-          <div className="flex gap-2 items-end max-w-lg mx-auto">
+          <div className="flex gap-2 items-end max-w-2xl mx-auto">
             <textarea
               ref={inputRef}
               rows={1}

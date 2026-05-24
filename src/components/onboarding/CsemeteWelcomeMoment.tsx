@@ -105,7 +105,7 @@ export function CsemeteWelcomeMoment({ onDismiss }: CsemeteWelcomeMomentProps) {
         {/* Panel */}
         <motion.div
           key="csemete-welcome-panel"
-          className="relative w-full max-w-sm bg-[#F5EDD8] rounded-2xl overflow-hidden shadow-2xl"
+          className="relative w-full max-w-sm md:max-w-2xl bg-[#F5EDD8] rounded-2xl overflow-hidden shadow-2xl md:flex"
           variants={panelVariants}
           initial="hidden"
           animate="visible"
@@ -129,7 +129,7 @@ export function CsemeteWelcomeMoment({ onDismiss }: CsemeteWelcomeMomentProps) {
           </button>
 
           {/* DiofaWidget — wakes up MAG → CSEMETE after panel settles */}
-          <div className="relative">
+          <div className="relative md:flex-1 md:flex md:items-center md:justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={sproutReady ? 'csemete' : 'mag'}
@@ -162,46 +162,49 @@ export function CsemeteWelcomeMoment({ onDismiss }: CsemeteWelcomeMomentProps) {
             </AnimatePresence>
           </div>
 
-          {/* Copy block */}
-          <div className="px-6 pt-4 pb-2 text-center space-y-3">
-            <h2 className="font-headline font-bold text-lg text-[#1A1A1A] leading-snug">
-              {t('onboarding.csemeteWelcome.title')}
-            </h2>
+          {/* Right column on md+: copy + CTA */}
+          <div className="md:flex-1 md:flex md:flex-col md:justify-center md:py-8 md:pr-8">
+            {/* Copy block */}
+            <div className="px-6 pt-4 pb-2 text-center space-y-3 md:pt-0 md:pb-0 md:px-2 md:text-left">
+              <h2 className="font-headline font-bold text-lg md:text-xl text-[#1A1A1A] leading-snug">
+                {t('onboarding.csemeteWelcome.title')}
+              </h2>
 
-            {/* Founder line — styled as a personal note */}
-            <blockquote
-              className="
-                text-sm text-[#3d2008]/80 leading-relaxed
-                border-l-2 border-[#4F7942]/40
-                pl-4 text-left
-                italic
-              "
-            >
-              {t('onboarding.csemeteWelcome.founderLine')}
-            </blockquote>
+              {/* Founder line — styled as a personal note */}
+              <blockquote
+                className="
+                  text-sm text-[#3d2008]/80 leading-relaxed
+                  border-l-2 border-[#4F7942]/40
+                  pl-4 text-left
+                  italic
+                "
+              >
+                {t('onboarding.csemeteWelcome.founderLine')}
+              </blockquote>
 
-            <p className="text-xs text-[#3d2008]/55 text-right pr-1">
-              — {t('onboarding.csemeteWelcome.founderName')}
-            </p>
-          </div>
+              <p className="text-xs text-[#3d2008]/55 text-right pr-1">
+                — {t('onboarding.csemeteWelcome.founderName')}
+              </p>
+            </div>
 
-          {/* CTA */}
-          <div className="px-6 pb-6 pt-3">
-            <button
-              ref={ctaRef}
-              type="button"
-              onClick={onDismiss}
-              className="
-                w-full rounded-xl bg-[#4F7942] text-white
-                px-6 py-3 text-sm font-semibold
-                hover:bg-[#3e6133]
-                focus-visible:outline-none focus-visible:ring-2
-                focus-visible:ring-[#4F7942] focus-visible:ring-offset-2
-                transition-colors
-              "
-            >
-              {t('onboarding.csemeteWelcome.cta')}
-            </button>
+            {/* CTA */}
+            <div className="px-6 pb-6 pt-3 md:px-2 md:pb-0 md:pt-5">
+              <button
+                ref={ctaRef}
+                type="button"
+                onClick={onDismiss}
+                className="
+                  w-full rounded-xl bg-[#4F7942] text-white
+                  px-6 py-3 text-sm font-semibold
+                  hover:bg-[#3e6133]
+                  focus-visible:outline-none focus-visible:ring-2
+                  focus-visible:ring-[#4F7942] focus-visible:ring-offset-2
+                  transition-colors
+                "
+              >
+                {t('onboarding.csemeteWelcome.cta')}
+              </button>
+            </div>
           </div>
         </motion.div>
       </motion.div>

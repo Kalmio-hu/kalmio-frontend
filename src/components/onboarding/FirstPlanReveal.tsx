@@ -109,20 +109,20 @@ export function FirstPlanReveal({ onDismiss }: FirstPlanRevealProps) {
         {/* Panel */}
         <motion.div
           key="first-plan-reveal-panel"
-          className="relative w-full max-w-sm bg-[#F5EDD8] rounded-2xl overflow-hidden shadow-2xl"
+          className="relative w-full max-w-sm md:max-w-2xl bg-[#F5EDD8] rounded-2xl overflow-hidden shadow-2xl md:flex"
           variants={panelVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
         >
           {/* Planting scene at step 10 — the sprout, hero of the reveal */}
-          <div className="px-4 pt-8 pb-0">
-            <PlantingScene step={10} className="max-w-[260px] mx-auto" />
+          <div className="px-4 pt-8 pb-0 md:flex-1 md:flex md:items-center md:justify-center md:px-6 md:py-8">
+            <PlantingScene step={10} className="max-w-[260px] mx-auto md:max-w-xs" />
           </div>
 
           {/* Copy block */}
-          <div className="px-6 pt-3 pb-6 text-center space-y-3">
-            <h2 className="font-headline font-bold text-lg text-[#1A1A1A] leading-snug">
+          <div className="px-6 pt-3 pb-6 text-center space-y-3 md:flex-1 md:text-left md:flex md:flex-col md:justify-center md:pt-8 md:pb-8 md:pr-8 md:pl-2">
+            <h2 className="font-headline font-bold text-lg md:text-xl text-[#1A1A1A] leading-snug">
               {t('onboarding.firstPlan.title')}
             </h2>
             <p className="text-sm text-[#3d2008]/80 leading-relaxed">
