@@ -224,7 +224,20 @@ export function Settings() {
     },
   })
 
-  const todayIso = new Date().toISOString().slice(0, 10)
+  // Use Europe/Budapest timezone so "today" matches what the backend considers the current
+  // calendar day. UTC .toISOString() can be off by a day in the 22:00–00:00 UTC window.
+  const todayIso = (() => {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Budapest',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(new Date())
+    const y = parts.find(p => p.type === 'year')!.value
+    const m = parts.find(p => p.type === 'month')!.value
+    const d = parts.find(p => p.type === 'day')!.value
+    return `${y}-${m}-${d}`
+  })()
   const isQuietToday = notifPrefs?.quietUntilDate === todayIso
 
   // ── Member since display ───────────────────────────────────────────────────

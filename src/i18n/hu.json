@@ -129,8 +129,8 @@
         "saved": "Mentve."
       },
       "autoTick": {
-        "presumedEaten": "Feltételezem, hogy megetted — visszavonáshoz koppints",
-        "undo": "Vissza: tervezett",
+        "presumedEaten": "Úgy vesszük, megetted — koppints, ha nem.",
+        "undo": "Mégsem ettem meg",
         "markSkipped": "Kihagytam",
         "markReplaced": "Mást ettem helyette"
       }

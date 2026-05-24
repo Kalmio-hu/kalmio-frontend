@@ -129,8 +129,8 @@
         "saved": "Saved."
       },
       "autoTick": {
-        "presumedEaten": "Assumed eaten — tap to undo",
-        "undo": "Mark as planned",
+        "presumedEaten": "Treated as eaten — tap if not.",
+        "undo": "Actually, I didn't eat this",
         "markSkipped": "Skipped this",
         "markReplaced": "Ate something else"
       }

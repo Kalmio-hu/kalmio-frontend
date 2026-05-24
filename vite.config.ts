@@ -39,22 +39,17 @@ export default defineConfig({
         purpose: 'maskable'
       }]
     },
-    workbox: {
+    // Switch to injectManifest so we can ship a custom service worker (src/sw.ts)
+    // that handles the notificationclick event and routes actions to open clients.
+    // KALMIO-316: without a custom SW there is no notificationclick handler.
+    strategies: 'injectManifest',
+    srcDir: 'src',
+    filename: 'sw.ts',
+    injectManifest: {
       globPatterns: ['**/*.{js,css,html,ico,svg,woff2}', 'assets/images/*.png'],
       // Main bundle is ~2.1 MB after the Wave 1-4 ticket sweep; raise the precache
       // ceiling so CI passes. Follow-up: KALMIO-XXX to code-split via dynamic import().
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-      navigateFallback: 'index.html',
-      runtimeCaching: [{
-        urlPattern: ({
-          url
-        }) => url.pathname.startsWith('/api/'),
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'kalmio-api',
-          networkTimeoutSeconds: 10
-        }
-      }]
     }
   })],
   resolve: {
