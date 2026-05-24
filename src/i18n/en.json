@@ -1528,6 +1528,13 @@
           "newRun": "Schedule…",
           "newRunCta": "Start a run"
         }
+      },
+      "templateDrift": {
+        "banner": "Template changed since this run — re-run to apply changes",
+        "reRunCta": "Re-run",
+        "reRunning": "Starting…",
+        "reRunSuccess": "Schedule restarted from the updated template.",
+        "reRunError": "Could not re-run right now. Please try again."
       }
     },
     "prep": {

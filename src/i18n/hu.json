@@ -1528,6 +1528,13 @@
           "newRun": "Ütemezés…",
           "newRunCta": "Ütemezés indítása"
         }
+      },
+      "templateDrift": {
+        "banner": "A sablon megváltozott a futtatás óta — futtasd újra a frissítésekért",
+        "reRunCta": "Újrafuttatás",
+        "reRunning": "Futtatás…",
+        "reRunSuccess": "Az ütemezés újraindult a frissített sablonnal.",
+        "reRunError": "Most nem sikerült újraindítani. Próbáld újra."
       }
     },
     "prep": {
