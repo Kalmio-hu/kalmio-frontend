@@ -2155,10 +2155,10 @@
     },
     "tdeeStep": {
       "title": "Személyre szabott kalóriacél",
-      "body": "A testadataid alapján kiszámoltam a napi energiaszükségleted (TDEE). Elfogadhatod javaslatként, vagy továbblépünk anélkül.",
+      "body": "A testadataid alapján kiszámoltam a napi energiaszükségleted (TDEE). Elfogadhatod javaslatként, vagy kihagyod ezt a lépést.",
       "proteinUnit": "g fehérje / nap",
-      "bodyDataMissing": "Testadatok megadásával személyre szabott javaslatot adok. Ez a lépés átugorható.",
-      "skip": "Meghagyom majd magamnak",
+      "bodyDataMissing": "Testadatok megadásával személyre szabott javaslatot adok. Ha most nem akarod, kihagyhatod.",
+      "skip": "Inkább kihagyom",
       "accepted": "Kalóriacél beállítva."
     }
   },
