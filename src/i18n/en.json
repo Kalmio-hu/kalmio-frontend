@@ -229,6 +229,17 @@
       "embedded": {
         "listLabel": "Before serving",
         "duration": "~{{count}} min"
+      },
+      "chip": {
+        "ariaLabel": "Prep required: ~{{count}} min",
+        "doneAriaLabel": "All prep complete"
+      },
+      "portion": {
+        "breakdown": "Makes {{total}} portions · 1 fresh now, {{laterCount}} for {{laterLabels}}"
+      },
+      "leftover": {
+        "badge": "leftover",
+        "tapAriaLabel": "Go to source meal: {{source}}"
       }
     },
     "planGlance": {
@@ -1234,7 +1245,7 @@
       "adding": "Adding…"
     },
     "add": {
-      "expiryHint": "If left blank, the system estimates from category.",
+      "expiryHint": "If left blank, we fill this in from the ingredient category.",
       "expirySuggested": "Suggested based on category — tap to change."
     },
     "expiry": {
@@ -1343,6 +1354,18 @@
         "prompt": "Quick fridge check? {{count}} item expires this week.",
         "yes": "Yes, 30 sec",
         "skip": "Skip"
+      },
+      "cartPrompt": {
+        "heading": "Add what you need to your cart?",
+        "addAuto": "Add automatically",
+        "adding": "Adding…",
+        "adjustManually": "Adjust manually",
+        "dismiss": "Not now",
+        "receiptStub": "Add from receipt — coming soon",
+        "added_one": "{{count}} item added.",
+        "added_other": "{{count}} items added.",
+        "addError": "Could not add items. Try from the Shopping page.",
+        "viewCart": "View my cart"
       }
     },
     "mealTypes": {

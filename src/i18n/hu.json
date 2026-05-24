@@ -229,6 +229,17 @@
       "embedded": {
         "listLabel": "Tálalás előtt",
         "duration": "~{{count}} perc"
+      },
+      "chip": {
+        "ariaLabel": "Előkészítés szükséges: ~{{count}} perc",
+        "doneAriaLabel": "Minden előkészítés kész"
+      },
+      "portion": {
+        "breakdown": "{{total}} adagot készít · 1 frissen most, {{laterCount}} ide: {{laterLabels}}"
+      },
+      "leftover": {
+        "badge": "maradvány",
+        "tapAriaLabel": "Ugrás a forrás étkezéshez: {{source}}"
       }
     },
     "planGlance": {
@@ -1234,7 +1245,7 @@
       "adding": "Hozzáadás…"
     },
     "add": {
-      "expiryHint": "Ha nem adod meg, a rendszer a kategória alapján számolja.",
+      "expiryHint": "Ha üresen hagyod, a kategóriája alapján töltjük ki.",
       "expirySuggested": "Kategória alapú javaslat — módosíthatod."
     },
     "expiry": {
@@ -1343,6 +1354,18 @@
         "prompt": "Gyors hűtőellenőrzés? {{count}} tétel lejár ezen a héten.",
         "yes": "Igen, 30 mp",
         "skip": "Kihagyom"
+      },
+      "cartPrompt": {
+        "heading": "Hozzáadjuk a bevásárlólistádhoz?",
+        "addAuto": "Automatikus hozzáadás",
+        "adding": "Hozzáadás…",
+        "adjustManually": "Kézi módosítás",
+        "dismiss": "Most nem",
+        "receiptStub": "Beolvasás nyugtáról — hamarosan",
+        "added_one": "{{count}} termék hozzáadva.",
+        "added_other": "{{count}} termék hozzáadva.",
+        "addError": "Most nem sikerült hozzáadni. Próbáld a Bolt oldalon.",
+        "viewCart": "Bevásárlólistám"
       }
     },
     "mealTypes": {
