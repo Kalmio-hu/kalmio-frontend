@@ -23,6 +23,7 @@ import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
 import { InvestorVault } from '@/pages/InvestorVault'
 import { Valuation } from '@/pages/Valuation'
+import { CaptainsBridge } from '@/pages/CaptainsBridge'
 import { BlogIndex } from '@/pages/BlogIndex'
 import { BlogPost } from '@/pages/BlogPost'
 import { Privacy } from '@/pages/Privacy'
@@ -226,6 +227,7 @@ export default function App() {
             <Route path="/oauth/consent" element={<OAuthConsent />} />
             <Route path="/vault" element={<InvestorVault />} />
             <Route path="/valuation" element={<Valuation />} />
+            <Route path="/timeline" element={<CaptainsBridge />} />
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<Navigate to="/" replace />} />

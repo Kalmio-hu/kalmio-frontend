@@ -5,13 +5,13 @@ import { Spinner } from '@/components/ui/spinner'
 import { InvestorNav } from '@/components/InvestorNav'
 import { ipVaultService } from '@/services/ipVault'
 
-export function Valuation() {
+export function CaptainsBridge() {
   const [params] = useSearchParams()
   const token = params.get('token') ?? ''
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['ip-vault-valuation', token],
-    queryFn: () => ipVaultService.fetchValuationHtml(token),
+    queryKey: ['ip-vault-timeline', token],
+    queryFn: () => ipVaultService.fetchTimelineHtml(token),
     enabled: !!token,
     retry: false,
     staleTime: Infinity,
@@ -48,21 +48,14 @@ export function Valuation() {
     )
   }
 
-  // The HTML is server-controlled (IpVaultService.getValuationHtml renders a
-  // classpath resource for investor-token holders). We render via iframe srcDoc
-  // rather than dangerouslySetInnerHTML because the valuation document relies on
-  // its own inline <script> (the render() call that populates every number) —
-  // scripts inserted via innerHTML do not execute, so an inline injection
-  // shows the markup but leaves all values blank.
-  //
-  // srcDoc inlines the HTML into the iframe instead of fetching it cross-origin,
-  // which sidesteps Spring Security's default X-Frame-Options: DENY entirely.
+  // srcDoc inlines the HTML so the iframe is same-origin (avoids X-Frame-Options
+  // friction) and the document's inline <script> can populate the dynamic numbers.
   return (
     <>
       <InvestorNav token={token} />
       <iframe
         srcDoc={data}
-        title="Kalmio Valuation"
+        title="Kalmio Captain's Bridge"
         className="fixed inset-0 w-full h-full border-0"
       />
     </>

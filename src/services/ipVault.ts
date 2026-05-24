@@ -66,4 +66,10 @@ export const ipVaultService = {
       responseType: 'text',
       transformResponse: (data) => data,
     }).then(r => r.data),
+  fetchTimelineHtml: (token: string) =>
+    api.get<string>('/api/ip-vault/public/timeline', {
+      params: { token },
+      responseType: 'text',
+      transformResponse: (data) => data,
+    }).then(r => r.data),
 }

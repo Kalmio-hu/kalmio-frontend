@@ -6,6 +6,7 @@ import { Shield, ChevronDown, ChevronUp, Calendar, Tag } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { InvestorNav } from '@/components/InvestorNav'
 import { ipVaultService } from '@/services/ipVault'
 import type { IpDocument } from '@/services/ipVault'
 
@@ -112,14 +113,17 @@ export function InvestorVault() {
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-3xl mx-auto px-6 py-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-black rounded-xl p-2">
-              <Shield className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="bg-black rounded-xl p-2">
+                <Shield className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-[#1A1A1A]">Kalmio IP Vault</h1>
+                <p className="text-sm text-gray-500">Confidential — for authorized investor review only</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-[#1A1A1A]">Kalmio IP Vault</h1>
-              <p className="text-sm text-gray-500">Confidential — for authorized investor review only</p>
-            </div>
+            <InvestorNav token={token} variant="inline" />
           </div>
         </div>
       </div>
