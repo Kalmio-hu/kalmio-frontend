@@ -1228,6 +1228,8 @@ export interface ShoppingCartResponse {
   windowStart: string   // ISO date "YYYY-MM-DD"
   windowEnd: string     // ISO date "YYYY-MM-DD"
   lineItems: CartLineItemResponse[]
+  /** Number of fridge items upserted by mark-shopped. Null on generate responses. KALMIO-312. */
+  fridgeItemsAdded?: number | null
 }
 
 export interface GenerateCartRequest {

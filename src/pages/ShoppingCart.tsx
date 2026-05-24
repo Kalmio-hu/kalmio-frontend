@@ -28,6 +28,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { shoppingCartService } from '@/services/shoppingCartService'
 import { useAuthStore } from '@/store/auth'
 import { todayIsoLocal, addDaysIsoLocal } from '@/lib/utils'
+import { MarkShoppedToast } from '@/components/shopping/MarkShoppedToast'
 import type { ShoppingCartResponse, CartLineItemResponse } from '@/types'
 
 const WINDOW_OPTIONS = [
@@ -68,6 +69,7 @@ export function ShoppingCart() {
 
   const [windowDays, setWindowDays] = useState(7)
   const [markedShopped, setMarkedShopped] = useState(false)
+  const [fridgeItemsAdded, setFridgeItemsAdded] = useState<number | null>(null)
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
 
   // ── Derive date window ────────────────────────────────────────────────────
@@ -94,6 +96,7 @@ export function ShoppingCart() {
   function handleWindowChange(days: number) {
     setWindowDays(days)
     setMarkedShopped(false)
+    setFridgeItemsAdded(null)
     // Load persisted check state for the new window immediately
     setChecked(readChecked(userId, days))
   }
@@ -130,7 +133,13 @@ export function ShoppingCart() {
       // Update the cached cart in place
       queryClient.setQueryData<ShoppingCartResponse>(['shopping-cart', windowDays], data)
       setMarkedShopped(true)
+      // Show toast with count from the backend (KALMIO-312)
+      if (data.fridgeItemsAdded != null) {
+        setFridgeItemsAdded(data.fridgeItemsAdded)
+      }
       queryClient.invalidateQueries({ queryKey: ['multiMemberPlan'] })
+      // Invalidate fridge cache so Fridge page reflects new items immediately
+      queryClient.invalidateQueries({ queryKey: ['fridge'] })
     },
   })
 
@@ -208,10 +217,7 @@ export function ShoppingCart() {
 
           {/* "Mark all shopped" CTA */}
           {markedShopped ? (
-            <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-sm text-[#4f7942]">
-              <CheckCircle className="h-4 w-4 shrink-0" />
-              {t('cart.markedShopped')}
-            </div>
+            <MarkShoppedToast fridgeItemsAdded={fridgeItemsAdded ?? 0} />
           ) : (
             <button
               type="button"
