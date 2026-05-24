@@ -16,9 +16,10 @@
  *   <MiniTutorialGrooming onSkip={handleSkip} />
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence, type Variants, type Easing } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { useTutorialPlayback } from './useTutorialPlayback'
+import { TutorialControls } from './TutorialControls'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -27,11 +28,10 @@ export interface MiniTutorialGroomingProps {
   className?: string
 }
 
-type FrameIndex = 0 | 1 | 2 | 3
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const FRAME_DURATION_MS = 2200
+const TOTAL_FRAMES = 4
+const FRAME_DURATION_MS = 4000
 
 // ─── Colours ─────────────────────────────────────────────────────────────────
 
@@ -78,27 +78,6 @@ const fadeSlideUp: Variants = {
 const tossOut: Variants = {
   visible: { opacity: 1, x: 0,  scale: 1 },
   exit:    { opacity: 0, x: 30, scale: 0.92, transition: { duration: 0.35, ease: 'easeIn' } },
-}
-
-// ─── Progress dots ────────────────────────────────────────────────────────────
-
-function ProgressDots({ total, current }: { total: number; current: number }) {
-  return (
-    <div className="flex gap-1.5 justify-center" aria-hidden="true">
-      {Array.from({ length: total }, (_, i) => (
-        <motion.span
-          key={i}
-          className="block rounded-full"
-          animate={{
-            width:      i === current ? 16 : 6,
-            background: i === current ? C.expired : '#D4C4A8',
-          }}
-          transition={{ duration: 0.25 }}
-          style={{ height: 6 }}
-        />
-      ))}
-    </div>
-  )
 }
 
 // ─── Fridge item row ──────────────────────────────────────────────────────────
@@ -215,24 +194,12 @@ function MiniPlanPreview() {
 
 export function MiniTutorialGrooming({ onSkip, className = '' }: MiniTutorialGroomingProps) {
   const { t } = useTranslation()
-  const [frame, setFrame] = useState<FrameIndex>(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const advance = useCallback(() => {
-    setFrame(prev => {
-      const next = (prev + 1) as FrameIndex
-      if (next > 3) {
-        onSkip()
-        return prev
-      }
-      return next
-    })
-  }, [onSkip])
-
-  useEffect(() => {
-    timerRef.current = setTimeout(advance, FRAME_DURATION_MS)
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [frame, advance])
+  const playback = useTutorialPlayback({
+    totalFrames: TOTAL_FRAMES,
+    frameDurationMs: FRAME_DURATION_MS,
+    onComplete: onSkip,
+  })
+  const { frame } = playback
 
   // Derive per-item decisions from current frame
   const decisions: Record<string, ItemDecision> = {
@@ -282,7 +249,7 @@ export function MiniTutorialGrooming({ onSkip, className = '' }: MiniTutorialGro
         </motion.p>
       </AnimatePresence>
 
-      <ProgressDots total={4} current={frame} />
+      <TutorialControls playback={playback} totalFrames={TOTAL_FRAMES} />
 
       {/* Caption */}
       <p className="text-center text-xs font-medium text-[#5C3D1E]/60 -mt-2">

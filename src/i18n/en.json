@@ -2072,6 +2072,14 @@
       "dismiss": "Close"
     },
     "miniTutorial": {
+      "controls": {
+        "backAria": "Previous frame",
+        "nextAria": "Next frame",
+        "finishAria": "Finish the tutorial",
+        "playAria": "Resume playback",
+        "pauseAria": "Pause the animation",
+        "jumpAria": "Jump to frame {{n}}"
+      },
       "planner": {
         "ariaLabel": "Weekly planner preview animation",
         "caption": "This is what your week looks like.",

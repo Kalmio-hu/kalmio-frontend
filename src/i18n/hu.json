@@ -2072,6 +2072,14 @@
       "dismiss": "Bezárás"
     },
     "miniTutorial": {
+      "controls": {
+        "backAria": "Előző képkocka",
+        "nextAria": "Következő képkocka",
+        "finishAria": "Bemutató befejezése",
+        "playAria": "Lejátszás folytatása",
+        "pauseAria": "Animáció szüneteltetése",
+        "jumpAria": "Ugrás a(z) {{n}}. képkockára"
+      },
       "planner": {
         "ariaLabel": "Heti tervező bemutató animáció",
         "caption": "Így néz ki egy heted.",

@@ -19,7 +19,8 @@
  *   <MiniTutorialReplanDiff onSkip={handleSkip} />
  */
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useTutorialPlayback } from './useTutorialPlayback'
+import { TutorialControls } from './TutorialControls'
 import { motion, AnimatePresence, type Variants, type Easing } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 
@@ -30,11 +31,10 @@ export interface MiniTutorialReplanDiffProps {
   className?: string
 }
 
-type FrameIndex = 0 | 1 | 2 | 3
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const FRAME_DURATION_MS = 2400
+const TOTAL_FRAMES = 4
+const FRAME_DURATION_MS = 4000
 
 // ─── Colours ─────────────────────────────────────────────────────────────────
 
@@ -81,27 +81,6 @@ const fadeSlideUp: Variants = {
   hidden:  { opacity: 0, y: 8 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: EASE_OUT } },
   exit:    { opacity: 0, transition: { duration: 0.2 } },
-}
-
-// ─── Progress dots ────────────────────────────────────────────────────────────
-
-function ProgressDots({ total, current }: { total: number; current: number }) {
-  return (
-    <div className="flex gap-1.5 justify-center" aria-hidden="true">
-      {Array.from({ length: total }, (_, i) => (
-        <motion.span
-          key={i}
-          className="block rounded-full"
-          animate={{
-            width:      i === current ? 16 : 6,
-            background: i === current ? C.highlight : '#D4C4A8',
-          }}
-          transition={{ duration: 0.25 }}
-          style={{ height: 6 }}
-        />
-      ))}
-    </div>
-  )
 }
 
 // ─── Meal card ────────────────────────────────────────────────────────────────
@@ -234,24 +213,12 @@ function DiffNarrative() {
 
 export function MiniTutorialReplanDiff({ onSkip, className = '' }: MiniTutorialReplanDiffProps) {
   const { t } = useTranslation()
-  const [frame, setFrame] = useState<FrameIndex>(0)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  const advance = useCallback(() => {
-    setFrame(prev => {
-      const next = (prev + 1) as FrameIndex
-      if (next > 3) {
-        onSkip()
-        return prev
-      }
-      return next
-    })
-  }, [onSkip])
-
-  useEffect(() => {
-    timerRef.current = setTimeout(advance, FRAME_DURATION_MS)
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [frame, advance])
+  const playback = useTutorialPlayback({
+    totalFrames: TOTAL_FRAMES,
+    frameDurationMs: FRAME_DURATION_MS,
+    onComplete: onSkip,
+  })
+  const { frame } = playback
 
   // Determine which meal list to show
   const meals = frame >= 2 ? RESHUFFLED_MEALS : ORIGINAL_MEALS
@@ -308,7 +275,7 @@ export function MiniTutorialReplanDiff({ onSkip, className = '' }: MiniTutorialR
         </motion.p>
       </AnimatePresence>
 
-      <ProgressDots total={4} current={frame} />
+      <TutorialControls playback={playback} totalFrames={TOTAL_FRAMES} />
 
       {/* Caption */}
       <p className="text-center text-xs font-medium text-[#5C3D1E]/60 -mt-2">
