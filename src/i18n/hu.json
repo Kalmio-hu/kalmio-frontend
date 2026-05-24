@@ -1683,11 +1683,11 @@
       "title": "Receptszűrők",
       "activeIndicator": "Aktív",
       "clearAll": "Szűrők törlése",
-      "tooNarrowError": "Szűréseid túl szigorúak — bővítsd a választást.",
+      "tooNarrowError": "Szűréseid túl szigorúak — bővítsd a választást",
       "source": {
         "label": "Forrás",
         "ownOnly": "Saját receptjeim",
-        "ownOnlyHint": "Csak az általad hozzáadott recepteket veszi figyelembe."
+        "ownOnlyHint": "Csak a saját receptjeid kerülnek a tervbe."
       },
       "style": {
         "label": "Stílus",
@@ -1695,7 +1695,7 @@
           "QUICK": "Gyors",
           "CHEAP": "Gazdaságos",
           "MEALPREP": "Előkészíthető",
-          "HIGH_PROTEIN": "Magas fehérje",
+          "HIGH_PROTEIN": "Fehérjedús",
           "HEALTHY": "Egészséges",
           "VEGETARIAN": "Vegetáriánus",
           "VEGAN": "Vegán",

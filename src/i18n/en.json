@@ -1683,11 +1683,11 @@
       "title": "Recipe filters",
       "activeIndicator": "Active",
       "clearAll": "Clear filters",
-      "tooNarrowError": "Your filters are too restrictive — broaden the selection.",
+      "tooNarrowError": "Your filters are too restrictive — broaden the selection",
       "source": {
         "label": "Source",
         "ownOnly": "My recipes only",
-        "ownOnlyHint": "Only recipes you added will be considered."
+        "ownOnlyHint": "Only your own recipes will go into the plan."
       },
       "style": {
         "label": "Style",
