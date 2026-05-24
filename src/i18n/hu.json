@@ -244,7 +244,7 @@
       "drag": {
         "detachAriaLabel": "Leválasztás az étkezésről: {{mealName}}",
         "attachAriaLabel": "Csatolás étkezéshez",
-        "overflowAriaLabel": "Előkészítés beágyazási lehetőségek",
+        "overflowAriaLabel": "Előkészítés-beágyazási lehetőségek",
         "moveToTimeline": "Áthelyezés az idővonalra",
         "attachToMeal": "Csatolás étkezéshez",
         "rejectionAnim": "Ez az előkészítés másik étkezéshez tartozik",
