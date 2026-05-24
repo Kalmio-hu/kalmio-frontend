@@ -17,7 +17,7 @@ export const planService = {
     api.post<Plan>('/api/plans', req).then(r => r.data),
 
   getActive: (): Promise<Plan | null> =>
-    api.get<Plan>('/api/plans/active').then(r => r.data).catch((err: { response?: { status?: number } }) => {
+    api.get<Plan>('/api/plans/calendar/active').then(r => r.data).catch((err: { response?: { status?: number } }) => {
       if (err.response?.status === 404) return null
       throw err
     }),
