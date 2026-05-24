@@ -32,6 +32,7 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  useDraggable,
   type DragStartEvent,
   type DragEndEvent,
   type DragMoveEvent,
@@ -88,6 +89,54 @@ export function usePrepGoo(): PrepGooContextValue {
   const ctx = useContext(PrepGooContext)
   if (!ctx) throw new Error('usePrepGoo must be used within PrepGooDragContext')
   return ctx
+}
+
+// ── DraggablePrepBall ──────────────────────────────────────────────────────
+//
+// Draggable wrapper for an individual prep task chip inside PrepGooDragContext.
+// Uses `useDraggable` wired to the nested DndContext (TouchSensor 250ms delay).
+//
+// The `isPressing` state covers the 250ms hold window where @dnd-kit's
+// `isDragging` is still false. Native pointer events toggle `isPressing`
+// so we can show a Material-style "pickup" cue (scale + shadow) immediately
+// when the finger lands, before the sensor fires. KALMIO-327.
+//
+// Usage:
+//   <DraggablePrepBall id={`prep-embed:${task.id}`}>
+//     {({ isPressing, isDragging }) => <MyChip lifted={isPressing} ... />}
+//   </DraggablePrepBall>
+
+interface DraggablePrepBallProps {
+  /** Drag ID — must start with 'prep-embed:' or 'prep-standalone:'. */
+  id: string
+  children: (bag: { isPressing: boolean; isDragging: boolean }) => React.ReactNode
+}
+
+export function DraggablePrepBall({ id, children }: DraggablePrepBallProps) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id })
+  const [isPressing, setIsPressing] = useState(false)
+
+  const handlePointerDown = useCallback(() => setIsPressing(true), [])
+  const handlePointerUp = useCallback(() => setIsPressing(false), [])
+  const handlePointerCancel = useCallback(() => setIsPressing(false), [])
+  const handlePointerLeave = useCallback(() => setIsPressing(false), [])
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerCancel}
+      onPointerLeave={handlePointerLeave}
+      // touch-none prevents the browser's scroll-capture during the hold window.
+      className="touch-none"
+      style={{ userSelect: 'none' }}
+    >
+      {children({ isPressing: isPressing && !isDragging, isDragging })}
+    </div>
+  )
 }
 
 // ── SVG Goo filter ─────────────────────────────────────────────────────────

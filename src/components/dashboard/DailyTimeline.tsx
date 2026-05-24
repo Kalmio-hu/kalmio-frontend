@@ -273,6 +273,15 @@ function DraggableRow({
   const isPrep = card.type === 'prep'
   const isMeal = !!card.mealId
 
+  // Material-style "pickup" cue during the 250ms long-press hold (KALMIO-327).
+  // @dnd-kit's isDragging only flips AFTER the sensor fires; isPressing covers
+  // the holding window via native pointer events on the drag handle itself.
+  const [isPressing, setIsPressing] = useState(false)
+  const handleSpinePointerDown = useCallback(() => setIsPressing(true), [])
+  const handleSpinePointerUp = useCallback(() => setIsPressing(false), [])
+  const handleSpinePointerCancel = useCallback(() => setIsPressing(false), [])
+  const handleSpinePointerLeave = useCallback(() => setIsPressing(false), [])
+
   // Drop zone for embedded prep drag-and-drop (KALMIO-325). Only meal cards
   // act as drop targets. The PrepGooDragContext (nested DndContext) handles
   // these — the outer DndContext ignores 'meal-drop:' prefixed IDs.
@@ -362,10 +371,16 @@ function DraggableRow({
           <div
             {...listeners}
             aria-label={t('common.moveLabel')}
+            onPointerDown={handleSpinePointerDown}
+            onPointerUp={handleSpinePointerUp}
+            onPointerCancel={handleSpinePointerCancel}
+            onPointerLeave={handleSpinePointerLeave}
             className={[
-              'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center text-sm shrink-0 cursor-grab active:cursor-grabbing touch-none',
+              'relative z-10 w-7 h-7 rounded-full ring-1 flex items-center justify-center text-sm shrink-0 cursor-grab active:cursor-grabbing touch-none transition-transform',
               ns.ring, ns.bg,
-            ].join(' ')}
+              // Material-style pickup cue: lifts slightly during the 250ms hold (KALMIO-327).
+              isPressing && !isDragging ? 'scale-[1.04] shadow-md' : '',
+            ].filter(Boolean).join(' ')}
           >
             {ns.icon}
           </div>
