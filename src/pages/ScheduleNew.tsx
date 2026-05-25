@@ -9,7 +9,7 @@
  *
  * On success → navigate to /app/schedules/{id}
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -87,7 +87,12 @@ export function ScheduleNew() {
   })
 
   // Step 2
+  // Default: nextMonday for users who already have a schedule (matches the
+  // master plan shopping-cadence rhythm). For the first-ever schedule, bump
+  // the default to today so a new user sees today's meals on the dashboard
+  // right after onboarding instead of an empty week.
   const [startDate, setStartDate] = useState(nextMonday)
+  const [startDateTouched, setStartDateTouched] = useState(false)
   const [endDate, setEndDate] = useState('')
   const [cadenceDays, setCadenceDays] = useState<number | null>(null)
   const [recurrenceMode, setRecurrenceMode] = useState<RecurrenceMode>('continuous')
@@ -102,6 +107,18 @@ export function ScheduleNew() {
     queryFn: planTemplateService.list,
     staleTime: 30_000,
   })
+
+  // KALMIO-397 — first-ever schedule defaults to today, not nextMonday.
+  const { data: existingSchedules = [], isSuccess: schedulesLoaded } = useQuery({
+    queryKey: ['schedules'],
+    queryFn: schedulesService.list,
+    staleTime: 30_000,
+  })
+  useEffect(() => {
+    if (schedulesLoaded && existingSchedules.length === 0 && !startDateTouched) {
+      setStartDate(todayIsoLocal())
+    }
+  }, [schedulesLoaded, existingSchedules.length, startDateTouched])
 
   // Auto-derive cadence from selected plans' lengthDays
   const derivedCadence = selectedPlanIds.reduce((sum, id) => {
@@ -382,7 +399,10 @@ export function ScheduleNew() {
               type="date"
               value={startDate}
               min={todayIsoLocal()}
-              onChange={e => setStartDate(e.target.value)}
+              onChange={e => {
+                setStartDate(e.target.value)
+                setStartDateTouched(true)
+              }}
               className="mt-1"
               required
             />
