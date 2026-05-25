@@ -4052,6 +4052,7 @@ export interface components {
             unit?: string;
             bought?: boolean;
             sourcePlanIds?: string[];
+            estimatedCost?: number;
         };
         ShoppingCartResponse: {
             /** Format: uuid */
@@ -4064,6 +4065,8 @@ export interface components {
             lineItems?: components["schemas"]["CartLineItemResponse"][];
             /** Format: int32 */
             fridgeItemsAdded?: number;
+            totalCost?: number;
+            currency?: string;
         };
         GenerateCartRequest: {
             /** Format: date */
