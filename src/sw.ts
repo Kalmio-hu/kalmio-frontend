@@ -1,22 +1,39 @@
 /// <reference lib="webworker" />
-// Custom Kalmio service worker (KALMIO-316, KALMIO-363, KALMIO-377).
+// Custom Kalmio service worker (KALMIO-316, KALMIO-363, KALMIO-377, KALMIO-413).
 // Loaded via VitePWA injectManifest strategy — Workbox injects the precache manifest at build time.
 // This file handles:
+//   - Shell precaching for offline (KALMIO-413) — HTML, JS, CSS, fonts, icons
 //   - Push-notification click actions (KALMIO-316)
 //   - Workbox runtime caching for GET /api/* with per-endpoint TTLs (KALMIO-363)
 //   - BackgroundSync queue for mutating requests to /api/* (KALMIO-377)
 
-import { registerRoute } from 'workbox-routing'
+import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching'
+import { registerRoute, NavigationRoute } from 'workbox-routing'
 import { StaleWhileRevalidate, NetworkFirst, NetworkOnly } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { BackgroundSyncPlugin, Queue } from 'workbox-background-sync'
 
 declare const self: ServiceWorkerGlobalScope
 
-// Satisfy the VitePWA injectManifest token replacement.
-// The build tool replaces this expression with the real precache manifest array.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-void (self as any).__WB_MANIFEST
+// ── Shell precache (KALMIO-413) ──────────────────────────────────────────────
+// The build tool replaces __WB_MANIFEST with the asset manifest array
+// (index.html, the built JS/CSS chunks, icons, fonts, etc.). Without this
+// call the SW touched the token but never registered the precache, so the
+// shell was not available offline and a cold reload while offline showed a
+// blank page even after the SW had activated.
+//
+// SPA navigation fallback: any in-app navigation (e.g. /app, /app/recipes/123)
+// while offline should serve the cached index.html. NavigationRoute pairs the
+// precached index.html with all navigation requests by default. The denylist
+// keeps explicit OS / debug paths off the SPA shell.
+precacheAndRoute(self.__WB_MANIFEST)
+
+const navigationHandler = createHandlerBoundToURL('/index.html')
+registerRoute(
+  new NavigationRoute(navigationHandler, {
+    denylist: [/^\/api\//, /^\/actuator\//, /^\/sw\.js$/, /^\/registerSW\.js$/, /^\/manifest\.webmanifest$/],
+  }),
+)
 
 // ── Activate immediately so notificationclick fires for the new SW right away ─
 self.addEventListener('install', () => {
