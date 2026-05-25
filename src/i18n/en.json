@@ -2129,12 +2129,13 @@
       "stepLabels": {
         "1": "Welcome",
         "2": "Your eating habits",
-        "3": "Calorie target",
-        "4": "Your taste",
-        "5": "How the planner works",
-        "6": "Building your plan…",
-        "7": "Your first week is ready",
-        "8": "Csemete — your first action"
+        "3": "Body data",
+        "4": "Calorie target",
+        "5": "Your taste",
+        "6": "How the planner works",
+        "7": "Building your plan…",
+        "8": "Your first week is ready",
+        "9": "Csemete — your first action"
       }
     },
     "preferencesStep": {
@@ -2281,6 +2282,15 @@
         "cta": "Add body data",
         "skip": "Skip for now"
       }
+    },
+    "bodyDataStep": {
+      "title": "A few numbers about you.",
+      "body": "I use these to calculate your daily energy needs and protein target. You can change them any time in your Profile.",
+      "tdeeHint": "Fill in every field and I'll show your estimated value right here.",
+      "cta": "Save and continue",
+      "saving": "Saving…",
+      "skip": "Skip for now",
+      "saveError": "Couldn't save your body data. Please try again."
     }
   },
   "family": {

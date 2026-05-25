@@ -2129,12 +2129,13 @@
       "stepLabels": {
         "1": "Üdvözlés",
         "2": "Az étkezési szokásaid",
-        "3": "Kalóriacél",
-        "4": "Az ízlésed",
-        "5": "Így működik a tervező",
-        "6": "Étrend összerakása…",
-        "7": "Az első heted kész",
-        "8": "Csemete — az első cselekvés"
+        "3": "Testadatok",
+        "4": "Kalóriacél",
+        "5": "Az ízlésed",
+        "6": "Így működik a tervező",
+        "7": "Étrend összerakása…",
+        "8": "Az első heted kész",
+        "9": "Csemete — az első cselekvés"
       }
     },
     "preferencesStep": {
@@ -2281,6 +2282,15 @@
         "cta": "Testadatok megadása",
         "skip": "Inkább kihagyom most"
       }
+    },
+    "bodyDataStep": {
+      "title": "Pár szám rólad.",
+      "body": "Ezekből számolom a napi energiaszükségleted és a fehérjecélod. Bármikor módosíthatod a Profilban.",
+      "tdeeHint": "Tölts ki minden mezőt, és itt rögtön megmutatom a becsült értéket.",
+      "cta": "Mentés és tovább",
+      "saving": "Mentés…",
+      "skip": "Most kihagyom",
+      "saveError": "Nem sikerült menteni a testadatokat. Próbáld újra."
     }
   },
   "family": {

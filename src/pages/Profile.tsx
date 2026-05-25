@@ -31,6 +31,7 @@ import type {
   MealType,
 } from '@/types'
 import { cn, formatLocalDate } from '@/lib/utils'
+import { computeTdeePreview } from '@/lib/tdee'
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -992,21 +993,36 @@ export function Profile() {
               </select>
             </div>
 
-            {/* TDEE read-only display — goal-independent, shows as soon as body data is complete */}
-            <div className="rounded-lg bg-[#F9F7F2] border border-[#e5e4e7] px-3.5 py-3">
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                {t('profile.bodyData.tdee')}
-              </p>
-              {tdeeLoading ? (
-                <Spinner className="h-4 w-4 text-gray-400" />
-              ) : tdee != null ? (
-                <p className="text-lg font-semibold text-[#1A1A1A]">
-                  {tdee.tdeeKcal.toLocaleString()} {t('profile.targets.unit_kcal')}
-                </p>
-              ) : (
-                <p className="text-sm text-gray-400">{t('profile.bodyData.tdeeIncomplete')}</p>
-              )}
-            </div>
+            {/* TDEE read-only display — goal-independent.
+                Live preview computed from the current form state so the value
+                updates as the user types; the saved server value is the source
+                of truth once persisted. */}
+            {(() => {
+              const previewTdee = computeTdeePreview({
+                weightKg: weightKg.trim() ? Number(weightKg) : null,
+                heightCm: heightCm.trim() ? Number(heightCm) : null,
+                ageYears: ageYears.trim() ? Number(ageYears) : null,
+                biologicalSex: biologicalSex || null,
+                activityLevel: activityLevel || null,
+              })
+              const displayTdee = previewTdee ?? tdee?.tdeeKcal ?? null
+              return (
+                <div className="rounded-lg bg-[#F9F7F2] border border-[#e5e4e7] px-3.5 py-3">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
+                    {t('profile.bodyData.tdee')}
+                  </p>
+                  {tdeeLoading && previewTdee == null ? (
+                    <Spinner className="h-4 w-4 text-gray-400" />
+                  ) : displayTdee != null ? (
+                    <p className="text-lg font-semibold text-[#1A1A1A]">
+                      {displayTdee.toLocaleString()} {t('profile.targets.unit_kcal')}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-gray-400">{t('profile.bodyData.tdeeIncomplete')}</p>
+                  )}
+                </div>
+              )
+            })()}
 
             <p className="text-[10px] text-gray-400 leading-relaxed">
               {t('profile.bodyData.privacy')}

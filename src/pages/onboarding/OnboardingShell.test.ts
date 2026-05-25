@@ -43,10 +43,9 @@ function makeLocalStorageStub(): Storage {
   } as Storage
 }
 
-// KALMIO-393: updated from 6 → 7 to match the current 7-step shell
-// (KALMIO-393 re-added the Preferences capture step as step 2; previous steps 2–6
-// are now steps 3–7).
-const TOTAL_STEPS = 7
+// Matches OnboardingShell.TOTAL_STEPS (currently 9 — see the step list in
+// OnboardingShell.tsx). When you add/remove a step, bump this in lockstep.
+const TOTAL_STEPS = 9
 const TEST_USER_ID = 'user-shell-xyz'
 
 // ---------------------------------------------------------------------------
@@ -126,12 +125,10 @@ describe('OnboardingShell — final-step completion calls writeOnboardingDone', 
     expect(readOnboardingDone(TEST_USER_ID)).toBe(false)
   })
 
-  // ── Regression guard: step 6 is NOT the final step in a 7-step shell ───────
-  // KALMIO-393: TOTAL_STEPS is now 7. Before this change it was 6, so goNext on
-  // step 6 would have prematurely completed onboarding. Assert it no longer does.
+  // ── Regression guard: the penultimate step must NOT complete onboarding ───
 
-  it('goNext on step 6 (penultimate step) does NOT set the done-flag', () => {
-    simulateGoNextOnFinalStep(TEST_USER_ID, 6)
+  it('goNext on the penultimate step does NOT set the done-flag', () => {
+    simulateGoNextOnFinalStep(TEST_USER_ID, TOTAL_STEPS - 1)
     expect(readOnboardingDone(TEST_USER_ID)).toBe(false)
   })
 

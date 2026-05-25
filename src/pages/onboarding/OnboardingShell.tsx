@@ -47,6 +47,7 @@ import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
 import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
 import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
 import { PreferencesStep, type PreferencesStepValues } from '@/components/onboarding/PreferencesStep'
+import { BodyDataStep, type BodyDataStepValues } from '@/components/onboarding/BodyDataStep'
 import { TasteSwipe } from '@/components/taste/TasteSwipe'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
@@ -63,39 +64,52 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * KALMIO-393: Preferences step re-added as step 2 (founder reversal).
- * KALMIO-94:  TDEE step is now step 3.
- * KALMIO-431: TasteSwipe step inserted at position 4 (founder request) —
- *             bumps tutorial → 5, plan-gen → 6, reveal → 7, csemete → 8.
- *
  * Step 1 — Welcome
  * Step 2 — Preferences (household, kcal, dietary, shopping, forbidden, budget)
- * Step 3 — TDEE suggestion (reads suggestedKcalTarget from user settings)
- * Step 4 — TasteSwipe (Tinder-style swipe over 20 ingredient/recipe cards)
- * Step 5 — App orientation (MiniTutorialPlanner)
- * Step 6 — Plan generation loading
- * Step 7 — First plan reveal
- * Step 8 — Csemete moment
+ * Step 3 — Body data (weight, height, age, biological sex, activity level) —
+ *          in-flow capture so TDEE has data to render and the user is never
+ *          bounced to /app/profile mid-tutorial.
+ * Step 4 — TDEE suggestion (reads suggestedKcalTarget from user settings)
+ * Step 5 — TasteSwipe (Tinder-style swipe over 20 ingredient/recipe cards)
+ * Step 6 — App orientation (MiniTutorialPlanner)
+ * Step 7 — Plan generation loading
+ * Step 8 — First plan reveal
+ * Step 9 — Csemete moment
  */
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 9
 
 /**
  * Maps the 1-indexed shell step to the PlantingScene 0-indexed step (0..10).
- * Step 2 (Preferences) advances to PlantingScene 2 — walnut in the hole.
- * Step 3 (TDEE) stays at 0 — no visual change, informational only.
- * Step 4 (TasteSwipe) sits between hole and cover — use PlantingScene 4
- *   (mound forming) so the visual moves while the user is engaged.
- * Step 5 (Orientation) fast-forwards to PlantingScene 6.
+ * The planting metaphor advances roughly one PlantingScene per shell step
+ * so each onboarding moment has a distinct visual.
  */
 const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   1: 0,
   2: 2,
-  3: 0,
+  3: 3,
   4: 4,
-  5: 6,
-  6: 7,
-  7: 8,
-  8: 10,
+  5: 5,
+  6: 6,
+  7: 7,
+  8: 8,
+  9: 10,
+}
+
+/**
+ * Narrative copy is keyed 1–6 in i18n. Step 4 (TDEE) reuses narrative 3
+ * because the body-data narrative ("we'll suggest a calorie target")
+ * naturally bridges the two screens.
+ */
+const SHELL_TO_NARRATIVE: Record<number, number | null> = {
+  1: 1,
+  2: 2,
+  3: 3,
+  4: 3,
+  5: 4,
+  6: 5,
+  7: 6,
+  8: null,
+  9: null,
 }
 
 // ---------------------------------------------------------------------------
@@ -106,15 +120,15 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
 
 function NarrativeBlock({ step }: { step: number }) {
   const { t } = useTranslation()
-  // Narrative blocks shown for steps 1–6 (before full-bleed reveal / csemete)
-  if (step < 1 || step > 6) return null
+  const narrativeKey = SHELL_TO_NARRATIVE[step]
+  if (narrativeKey == null) return null
   return (
     <div className="flex flex-col gap-4 text-center text-[#5C3D1E] max-w-md">
       <p className="font-headline text-xl lg:text-2xl leading-snug font-semibold">
-        {t(`onboarding.shell.narrative.${step}.lead`)}
+        {t(`onboarding.shell.narrative.${narrativeKey}.lead`)}
       </p>
       <p className="text-sm lg:text-base leading-relaxed text-[#5C3D1E]/80">
-        {t(`onboarding.shell.narrative.${step}.body`)}
+        {t(`onboarding.shell.narrative.${narrativeKey}.body`)}
       </p>
     </div>
   )
@@ -132,7 +146,7 @@ function PlanGenerationStep() {
       data-testid="step-plan-generation"
     >
       <p className="text-base font-semibold text-[#1A1A1A]">
-        {t('onboarding.shell.stepLabels.6')}
+        {t('onboarding.shell.stepLabels.7')}
       </p>
       <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
         {t('onboarding.shell.planGeneratingBody')}
@@ -296,6 +310,25 @@ export function OnboardingShell() {
     },
   })
 
+  // ── Body data step: PATCH body-data, then refresh user record so the next
+  // step's `suggestedKcalTarget` is available.
+  const bodyDataMutation = useMutation({
+    mutationFn: (values: BodyDataStepValues) =>
+      usersService.patchBodyData({
+        weightKg: values.weightKg,
+        heightCm: values.heightCm,
+        ageYears: values.ageYears,
+        biologicalSex: values.biologicalSex,
+        activityLevel: values.activityLevel,
+      }),
+    onSuccess: (updated) => {
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+    },
+    onError: () => {
+      toast({ title: t('onboarding.bodyDataStep.saveError'), variant: 'destructive' })
+    },
+  })
+
   // ── TDEE step: persist accepted suggestion to mealPlanPreferences ─────────
   const tdeeMutation = useMutation({
     mutationFn: (kcalTarget: number) =>
@@ -349,19 +382,15 @@ export function OnboardingShell() {
         writeOnboardingDone(userId)
         clearOnboardingStep(userId)
       }
-      // KALMIO-241: redirect to Profile (body-data section) when body data is
-      // incomplete; otherwise go straight to the dashboard.
-      const bodyDataIncomplete =
-        !!user && user.weightKg == null && user.heightCm == null
-      if (bodyDataIncomplete) {
-        navigate('/app/profile?section=body-data', { replace: true })
-      } else {
-        navigate('/app/dashboard', { replace: true })
-      }
+      // Body data is now captured in-flow at step 3 (with a skip path), so we
+      // always land the user on the dashboard. The old KALMIO-241 fallback
+      // bounced skippers to /app/profile, but that broke the "your week is
+      // ready" moment for users who legitimately chose not to share.
+      navigate('/app/dashboard', { replace: true })
       return
     }
     goToStep(currentStep + 1)
-  }, [currentStep, goToStep, navigate, userId, user])
+  }, [currentStep, goToStep, navigate, userId])
 
   const handleSkipConfirm = useCallback(() => {
     // Skip: mark done, clear persisted progress and go to dashboard.
@@ -381,13 +410,13 @@ export function OnboardingShell() {
       data-testid="onboarding-shell"
     >
       {/* ---- Desktop-only illustration column (md+) ---- */}
-      {/* Hidden on steps 6–7 where FirstPlanReveal / CsemeteWelcomeMoment
+      {/* Hidden on steps 8–9 where FirstPlanReveal / CsemeteWelcomeMoment
           have their own full-bleed visuals. */}
       <aside
         className="hidden md:flex md:w-[45%] lg:w-[40%] md:flex-col md:items-center md:justify-center bg-[#F5EDD8] p-8 lg:p-12"
-        aria-hidden={currentStep > 5}
+        aria-hidden={currentStep > 7}
       >
-        {currentStep <= 5 && (
+        {currentStep <= 7 && (
           <div className="flex flex-col items-center gap-10 w-full max-w-xl">
             <NarrativeBlock step={currentStep} />
             <PlantingScene step={plantingStep} className="w-full" />
@@ -417,7 +446,7 @@ export function OnboardingShell() {
         </header>
 
         {/* ---- Mobile-only planting scene (hidden on md+) ---- */}
-        {currentStep <= 5 && (
+        {currentStep <= 7 && (
           <div className="md:hidden px-4 pt-4">
             <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
           </div>
@@ -449,13 +478,31 @@ export function OnboardingShell() {
           />
         )}
 
-        {/* Step 3: TDEE suggestion — KALMIO-94 / KALMIO-403 */}
+        {/* Step 3: Body data — in-flow capture (replaces the old /app/profile escape hatch) */}
         {currentStep === 3 && (
+          <BodyDataStep
+            initialValues={{
+              weightKg: user?.weightKg ?? null,
+              heightCm: user?.heightCm ?? null,
+              ageYears: user?.ageYears ?? null,
+              biologicalSex: user?.biologicalSex ?? null,
+              activityLevel: user?.activityLevel ?? null,
+            }}
+            onAdvance={(values) => {
+              bodyDataMutation.mutate(values, { onSettled: () => goNext() })
+            }}
+            onSkip={goNext}
+            onBack={() => goToStep(2)}
+            isSubmitting={bodyDataMutation.isPending}
+          />
+        )}
+
+        {/* Step 4: TDEE suggestion — KALMIO-94 / KALMIO-403 */}
+        {currentStep === 4 && (
           <div className="flex flex-col gap-4 py-6">
             {user?.suggestedKcalTarget == null ? (
-              /* KALMIO-403: No body data yet — render a clear CTA instead of a
-                 blank/dead TDEE card.  The user can navigate to Profile to fill
-                 in their body data, then return here, or skip the step. */
+              /* Body data still missing (user skipped step 3). Send them back
+                 to step 3 rather than out of the tutorial. */
               <>
                 <div className="text-center px-2">
                   <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
@@ -467,12 +514,13 @@ export function OnboardingShell() {
                 </div>
 
                 <div className="rounded-2xl border border-[#E8E4DC] bg-white p-5 flex flex-col gap-4">
-                  <Link
-                    to="/app/profile?section=body-data"
+                  <button
+                    type="button"
+                    onClick={() => goToStep(3)}
                     className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#F28C28] px-6 text-base font-semibold text-white transition-colors hover:bg-[#d97a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
                   >
                     {t('onboarding.tdeeStep.noBodyData.cta')}
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     onClick={goNext}
@@ -516,7 +564,7 @@ export function OnboardingShell() {
 
             <button
               type="button"
-              onClick={() => goToStep(2)}
+              onClick={() => goToStep(3)}
               className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
             >
               {t('common.back')}
@@ -524,27 +572,10 @@ export function OnboardingShell() {
           </div>
         )}
 
-        {/* Step 4: TasteSwipe (KALMIO-431) — Tinder-style swipe over up to 20 cards */}
-        {currentStep === 4 && (
-          <>
-            <TasteSwipeStep onContinue={goNext} />
-            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
-              <button
-                type="button"
-                onClick={() => goToStep(3)}
-                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
-              >
-                {t('common.back')}
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 5: App orientation (MiniTutorialPlanner) */}
+        {/* Step 5: TasteSwipe (KALMIO-431) — Tinder-style swipe over up to 20 cards */}
         {currentStep === 5 && (
           <>
-            {/* MiniTutorialPlanner: onSkip advances to the next step */}
-            <MiniTutorialPlanner onSkip={goNext} />
+            <TasteSwipeStep onContinue={goNext} />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
@@ -557,8 +588,25 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 6: Plan generation loading */}
+        {/* Step 6: App orientation (MiniTutorialPlanner) */}
         {currentStep === 6 && (
+          <>
+            {/* MiniTutorialPlanner: onSkip advances to the next step */}
+            <MiniTutorialPlanner onSkip={goNext} />
+            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => goToStep(5)}
+                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+              >
+                {t('common.back')}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 7: Plan generation loading */}
+        {currentStep === 7 && (
           <>
             <PlanGenerationStep />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
@@ -571,7 +619,7 @@ export function OnboardingShell() {
               </button>
               <button
                 type="button"
-                onClick={() => goToStep(5)}
+                onClick={() => goToStep(6)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -580,13 +628,13 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 7: First plan reveal */}
-        {currentStep === 7 && (
+        {/* Step 8: First plan reveal */}
+        {currentStep === 8 && (
           <FirstPlanReveal onDismiss={goNext} />
         )}
 
-        {/* Step 8: Csemete moment */}
-        {currentStep === 8 && (
+        {/* Step 9: Csemete moment */}
+        {currentStep === 9 && (
           <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
         </main>
