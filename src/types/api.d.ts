@@ -9,6 +9,30 @@
  * the backend change. See KALMIO-387 for the rationale.
  */
 export interface paths {
+    "/api/users/me/shopping-category-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get shopping category order
+         * @description Returns the user's preferred ordering of the 15 shopping categories. Index 0 is displayed at the top of the shopping list. Falls back to the default enum order if the user has not customised it yet.
+         */
+        get: operations["getOrder"];
+        /**
+         * Update shopping category order
+         * @description Replaces the user's shopping category order. Must supply all 15 ShoppingCategory enum names exactly once. Valid names: PRODUCE, BAKERY, DAIRY, MEAT, FISH, DELI, FROZEN, PANTRY, CANNED, CONDIMENTS, BEVERAGES, SNACKS, HOUSEHOLD, PERSONAL_CARE, OTHER. Returns HTTP 400 when the list is not exactly 15 entries, contains unknown names, or contains duplicates.
+         */
+        put: operations["updateOrder"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users/me/settings": {
         parameters: {
             query?: never;
@@ -190,25 +214,6 @@ export interface paths {
         put: operations["updateRole"];
         post?: never;
         delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/ip-vault/documents/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get one IP document (admin) */
-        get: operations["getById"];
-        /** Update IP document — creates a new version (admin) */
-        put: operations["update_2"];
-        post?: never;
-        /** Delete IP document (admin) */
-        delete: operations["delete_2"];
         options?: never;
         head?: never;
         patch?: never;
@@ -851,6 +856,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/plans/{planId}/shopping-list/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an ad-hoc item to the shopping list */
+        post: operations["addAdHocItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/{planId}/shopping-list/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate (or replace) the persistent shopping list for a plan */
+        post: operations["generate_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plans/{planId}/conversational-edit": {
         parameters: {
             query?: never;
@@ -905,6 +944,26 @@ export interface paths {
          * @description Re-reads current member prefs into the plan's preferences_snapshot. This is the only way to update the snapshot after creation. Only the owner or family PLANNER may trigger a refresh.
          */
         post: operations["refreshSnapshot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/{id}/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Generate a 'Try another' plan variant
+         * @description Re-runs the Timefold solver with short-term recency decay over the last 4 solver runs of this plan and seeded jitter so each re-roll produces a meaningfully different result. Request body is optional — omit or send {} to auto-generate the seed. Supply 'seed' to reproduce a specific previously-generated variant. The response includes the run ID, seed, and the generated meal plan. Annotated with @IdempotencyKeyRequired so callers can use an Idempotency-Key header for safe replay.
+         */
+        post: operations["tryAnother"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1220,6 +1279,46 @@ export interface paths {
         put?: never;
         /** Finish discoverable-credential authentication — returns an access token */
         post: operations["authenticateDiscoverableFinish"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/conversational/turn": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Send a conversational turn (free for all users)
+         * @description Sends the full rolling message history to the AI and receives the next assistant turn plus the incrementally extracted preferences draft. Returns 409 if the user has already completed conversational onboarding.
+         */
+        post: operations["turn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/conversational/finalize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Finalize conversational onboarding (free for all users)
+         * @description Persists the confirmed preferences draft to UserMealPreferences + preferred shopping day. Marks the user's conversational onboarding as complete — subsequent calls to /turn or /finalize return 409.
+         */
+        post: operations["finalize"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1871,42 +1970,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/ip-vault/tokens": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List investor access tokens (admin) */
-        get: operations["listTokens"];
-        put?: never;
-        /** Issue a new investor access token (admin) */
-        post: operations["createToken"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/admin/ip-vault/documents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List all IP documents (admin) */
-        get: operations["listAll"];
-        put?: never;
-        /** Create IP document (admin) */
-        post: operations["create_7"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/admin/ingredients/{id}/reject": {
         parameters: {
             query?: never;
@@ -2041,6 +2104,40 @@ export interface paths {
         patch: operations["patchTemplatePrepSlot"];
         trace?: never;
     };
+    "/api/shopping-list-items/{id}/untick": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Untick a shopping list item (put back) */
+        patch: operations["untick"];
+        trace?: never;
+    };
+    "/api/shopping-list-items/{id}/tick": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Tick off a shopping list item (mark as picked up) */
+        patch: operations["tick"];
+        trace?: never;
+    };
     "/api/shopping-cart/items/{itemId}": {
         parameters: {
             query?: never;
@@ -2069,7 +2166,7 @@ export interface paths {
          * Get a single schedule
          * @description Returns a schedule by ID. Caller must be the owner or a family member.
          */
-        get: operations["getById_1"];
+        get: operations["getById"];
         put?: never;
         post?: never;
         /**
@@ -2083,7 +2180,7 @@ export interface paths {
          * Update schedule metadata
          * @description Patches name, planIds, cadenceDays, startDate, or endDate. Only non-null fields are applied.
          */
-        patch: operations["update_3"];
+        patch: operations["update_2"];
         trace?: never;
     };
     "/api/prep-tasks/{id}/status": {
@@ -2161,7 +2258,7 @@ export interface paths {
          * Get a single plan template
          * @description Returns a plan template with all embedded template_meal rows. Caller must be the owner, a family member, or listed in memberIds.
          */
-        get: operations["getById_2"];
+        get: operations["getById_1"];
         put?: never;
         post?: never;
         /**
@@ -2175,7 +2272,7 @@ export interface paths {
          * Update plan template metadata
          * @description Patches name, lengthDays, shoppingCadenceDays, mealSlotsCovered, or memberIds. Only non-null fields are applied. Does NOT refresh snapshot.
          */
-        patch: operations["update_4"];
+        patch: operations["update_3"];
         trace?: never;
     };
     "/api/plans/{id}/members": {
@@ -2294,7 +2391,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_3"];
+        delete: operations["delete_2"];
         options?: never;
         head?: never;
         patch: operations["patch"];
@@ -2385,23 +2482,6 @@ export interface paths {
          * @description Sets app_users.premium_enabled to the supplied value and fires a PREMIUM_TOGGLED domain event. Use this to grant or revoke friends-and-family premium access. Returns the updated admin user record including the new premiumEnabled value. KALMIO-179 — E11.0.
          */
         patch: operations["togglePremiumEnabled"];
-        trace?: never;
-    };
-    "/api/admin/ip-vault/documents/{id}/publish": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Toggle publish status of an IP document (admin) */
-        patch: operations["togglePublish"];
         trace?: never;
     };
     "/api/admin/feedback/{id}/status": {
@@ -2785,6 +2865,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/plans/{planId}/shopping-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the persistent shopping list for a plan (grouped by category) */
+        get: operations["getForPlan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plans/{planId}/recap": {
         parameters: {
             query?: never;
@@ -2899,10 +2996,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getById_3"];
+        get: operations["getById_2"];
         put?: never;
         post?: never;
-        delete: operations["delete_4"];
+        delete: operations["delete_3"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3054,91 +3151,6 @@ export interface paths {
             cookie?: never;
         };
         get: operations["daily"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ip-vault/public": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List published IP documents (investor token required) */
-        get: operations["listPublished"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ip-vault/public/{slug}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a published IP document by slug (investor token required) */
-        get: operations["getPublished"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ip-vault/public/verify": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Verify an investor access token */
-        get: operations["verifyToken"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ip-vault/public/valuation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the buy-out valuation document (investor token required) */
-        get: operations["getValuation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/ip-vault/public/timeline": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the captain's bridge / timeline document (investor token required) */
-        get: operations["getTimeline"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3385,23 +3397,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/ip-vault/documents/{id}/versions": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get version history for an IP document (admin) */
-        get: operations["getVersions"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/admin/ingredients/pending": {
         parameters: {
             query?: never;
@@ -3427,7 +3422,7 @@ export interface paths {
             cookie?: never;
         };
         /** List all feedback (admin) */
-        get: operations["listAll_1"];
+        get: operations["listAll"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3505,6 +3500,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shopping-list-items/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a shopping list item */
+        delete: operations["deleteItem"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/passkey/{id}": {
         parameters: {
             query?: never;
@@ -3516,7 +3528,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a registered passkey */
-        delete: operations["delete_5"];
+        delete: operations["delete_4"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3554,27 +3566,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/admin/ip-vault/tokens/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Revoke an investor access token (admin) */
-        delete: operations["revokeToken"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        UpdateShoppingCategoryOrderRequest: {
+            order: string[];
+        };
+        ShoppingCategoryOrderResponse: {
+            order?: string[];
+        };
         ConstraintWeightsDto: {
             /** Format: int32 */
             leftovers?: number;
@@ -3903,6 +3904,8 @@ export interface components {
             density?: number;
             gramsPerPiece?: number;
             pantryItem?: boolean;
+            /** @enum {string} */
+            shoppingCategory?: "PRODUCE" | "BAKERY" | "DAIRY" | "MEAT" | "FISH" | "DELI" | "FROZEN" | "PANTRY" | "CANNED" | "CONDIMENTS" | "BEVERAGES" | "SNACKS" | "HOUSEHOLD" | "PERSONAL_CARE" | "OTHER";
         };
         ConstraintsResponse: {
             vegetarian?: boolean;
@@ -3944,6 +3947,8 @@ export interface components {
             /** Format: uuid */
             createdByUserId?: string;
             createdByUsername?: string;
+            /** @enum {string} */
+            shoppingCategory?: "PRODUCE" | "BAKERY" | "DAIRY" | "MEAT" | "FISH" | "DELI" | "FROZEN" | "PANTRY" | "CANNED" | "CONDIMENTS" | "BEVERAGES" | "SNACKS" | "HOUSEHOLD" | "PERSONAL_CARE" | "OTHER";
         };
         UpdateIngredientTranslationRequest: {
             en: components["schemas"]["LocaleData"];
@@ -3961,30 +3966,6 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
             premiumEnabled?: boolean;
-        };
-        UpdateIpDocumentRequest: {
-            title: string;
-            summary: string;
-            content: string;
-            tags?: string[];
-            changeNote?: string;
-        };
-        IpDocumentResponse: {
-            /** Format: uuid */
-            id?: string;
-            slug?: string;
-            title?: string;
-            category?: string;
-            summary?: string;
-            content?: string;
-            tags?: string[];
-            published?: boolean;
-            /** Format: int32 */
-            version?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            /** Format: date-time */
-            updatedAt?: string;
         };
         TasteSignalRequest: {
             /** @enum {string} */
@@ -4355,6 +4336,40 @@ export interface components {
             /** Format: uuid */
             secondId: string;
         };
+        AdHocShoppingListItemRequest: {
+            /** Format: uuid */
+            ingredientId?: string;
+            adhocName?: string;
+            amount?: number;
+            unit?: string;
+        };
+        ItemResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            ingredientId?: string;
+            name?: string;
+            amount?: number;
+            unit?: string;
+            source?: string;
+            /** Format: date-time */
+            tickedAt?: string;
+        };
+        CategoryGroup: {
+            /** @enum {string} */
+            category?: "PRODUCE" | "BAKERY" | "DAIRY" | "MEAT" | "FISH" | "DELI" | "FROZEN" | "PANTRY" | "CANNED" | "CONDIMENTS" | "BEVERAGES" | "SNACKS" | "HOUSEHOLD" | "PERSONAL_CARE" | "OTHER";
+            categoryDisplayKey?: string;
+            items?: components["schemas"]["ItemResponse"][];
+        };
+        PersistentShoppingListResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            planId?: string;
+            /** Format: date-time */
+            generatedAt?: string;
+            groups?: components["schemas"]["CategoryGroup"][];
+        };
         AiPlanEditRequest: {
             message: string;
             /** Format: uuid */
@@ -4419,6 +4434,45 @@ export interface components {
             recipeId?: string;
             recipeName?: string;
             estimatedCost?: number;
+        };
+        TryAnotherRequest: {
+            /** Format: int64 */
+            seed?: number;
+        };
+        GeneratedMealResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: int32 */
+            day?: number;
+            /** @enum {string} */
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            recipe?: components["schemas"]["RecipeResponse"];
+            servingMultiplier?: number;
+            estimatedCost?: number;
+            macros?: components["schemas"]["MacrosResponse"];
+            isBatchCookLeftover?: boolean;
+            /** Format: uuid */
+            memberId?: string;
+        };
+        MealPlanResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: int32 */
+            days?: number;
+            /** Format: int32 */
+            mealsPerDay?: number;
+            score?: string;
+            totalEstimatedCost?: number;
+            /** Format: uuid */
+            savedPlanId?: string;
+            meals?: components["schemas"]["GeneratedMealResponse"][];
+        };
+        TryAnotherResponse: {
+            /** Format: uuid */
+            runId?: string;
+            /** Format: int64 */
+            seed?: number;
+            plan?: components["schemas"]["MealPlanResponse"];
         };
         RecurrenceSpec: {
             /** Format: int32 */
@@ -4727,6 +4781,34 @@ export interface components {
             email?: string;
             role?: string;
         };
+        ChatTurn: {
+            role: string;
+            content: string;
+        };
+        ConversationalTurnRequest: {
+            messages: components["schemas"]["ChatTurn"][];
+        };
+        ConversationalTurnResponse: {
+            sessionId?: string;
+            assistantMessage?: string;
+            ready?: boolean;
+            extracted?: components["schemas"]["PreferencesDraft"];
+        };
+        PreferencesDraft: {
+            /** Format: int32 */
+            householdSize?: number;
+            /** Format: int32 */
+            kcalTarget?: number;
+            dietaryRestrictions?: string[];
+            /** Format: int32 */
+            shoppingCadenceDays?: number;
+            preferredShoppingDay?: string;
+            forbiddenIngredientIds?: string[];
+        };
+        ConversationalFinalizeRequest: {
+            sessionId: string;
+            confirmedDraft: components["schemas"]["PreferencesDraft"];
+        };
         LogOffPlanMealRequest: {
             /** Format: date */
             date: string;
@@ -4800,6 +4882,8 @@ export interface components {
             density?: number;
             gramsPerPiece?: number;
             pantryItem?: boolean;
+            /** @enum {string} */
+            shoppingCategory?: "PRODUCE" | "BAKERY" | "DAIRY" | "MEAT" | "FISH" | "DELI" | "FROZEN" | "PANTRY" | "CANNED" | "CONDIMENTS" | "BEVERAGES" | "SNACKS" | "HOUSEHOLD" | "PERSONAL_CARE" | "OTHER";
         };
         AiIngredientEnrichRequest: {
             rawText: string;
@@ -5041,31 +5125,6 @@ export interface components {
             observationEn?: string;
             proposedPlanEditIntent?: string;
         };
-        CreateInvestorTokenRequest: {
-            label: string;
-            /** Format: date-time */
-            expiresAt?: string;
-        };
-        IpInvestorTokenResponse: {
-            /** Format: uuid */
-            id?: string;
-            token?: string;
-            label?: string;
-            /** Format: date-time */
-            expiresAt?: string;
-            /** Format: date-time */
-            lastUsedAt?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
-        CreateIpDocumentRequest: {
-            slug: string;
-            title: string;
-            category: string;
-            summary: string;
-            content: string;
-            tags?: string[];
-        };
         ImpersonationTokenResponse: {
             accessToken?: string;
             userId?: string;
@@ -5178,6 +5237,7 @@ export interface components {
             generatedAt?: string;
             /** Format: date-time */
             eatenAt?: string;
+            servings?: number;
         };
         ReplaceRecipeRequest: {
             /** Format: uuid */
@@ -5605,18 +5665,6 @@ export interface components {
                 [key: string]: number;
             };
         };
-        IpDocumentVersionResponse: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: int32 */
-            versionNumber?: number;
-            title?: string;
-            summary?: string;
-            content?: string;
-            changeNote?: string;
-            /** Format: date-time */
-            createdAt?: string;
-        };
     };
     responses: never;
     parameters: never;
@@ -5626,6 +5674,66 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ShoppingCategoryOrderResponse"];
+                };
+            };
+        };
+    };
+    updateOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateShoppingCategoryOrderRequest"];
+            };
+        };
+        responses: {
+            /** @description Order saved */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ShoppingCategoryOrderResponse"];
+                };
+            };
+            /** @description Validation error — wrong count, unknown name, or duplicate */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "type": "urn:kalmio:error:bad-request",
+                     *       "status": 400,
+                     *       "detail": "Shopping category order must contain exactly 15 categories, got 5"
+                     *     }
+                     */
+                    "application/problem+json": unknown;
+                };
+            };
+        };
+    };
     updateSettings: {
         parameters: {
             query?: never;
@@ -6203,74 +6311,6 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["AdminUserResponse"];
                 };
-            };
-        };
-    };
-    getById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"];
-                };
-            };
-        };
-    };
-    update_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateIpDocumentRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"];
-                };
-            };
-        };
-    };
-    delete_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -7533,6 +7573,54 @@ export interface operations {
             };
         };
     };
+    addAdHocItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                planId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdHocShoppingListItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ItemResponse"];
+                };
+            };
+        };
+    };
+    generate_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                planId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PersistentShoppingListResponse"];
+                };
+            };
+        };
+    };
     conversationalEdit: {
         parameters: {
             query?: never;
@@ -7629,6 +7717,60 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PlanTemplateResponse"];
+                };
+            };
+        };
+    };
+    tryAnother: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Plan template UUID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["TryAnotherRequest"];
+            };
+        };
+        responses: {
+            /** @description Plan variant generated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TryAnotherResponse"];
+                };
+            };
+            /** @description Not the owner or co-planner */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TryAnotherResponse"];
+                };
+            };
+            /** @description Plan not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TryAnotherResponse"];
+                };
+            };
+            /** @description Solver could not produce a feasible plan */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TryAnotherResponse"];
                 };
             };
         };
@@ -8115,6 +8257,52 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["AuthenticateFinishResponse"];
                 };
+            };
+        };
+    };
+    turn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationalTurnRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConversationalTurnResponse"];
+                };
+            };
+        };
+    };
+    finalize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConversationalFinalizeRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -9152,94 +9340,6 @@ export interface operations {
             };
         };
     };
-    listTokens: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpInvestorTokenResponse"][];
-                };
-            };
-        };
-    };
-    createToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateInvestorTokenRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpInvestorTokenResponse"];
-                };
-            };
-        };
-    };
-    listAll: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"][];
-                };
-            };
-        };
-    };
-    create_7: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateIpDocumentRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"];
-                };
-            };
-        };
-    };
     rejectIngredient: {
         parameters: {
             query?: never;
@@ -9528,6 +9628,50 @@ export interface operations {
             };
         };
     };
+    untick: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ItemResponse"];
+                };
+            };
+        };
+    };
+    tick: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ItemResponse"];
+                };
+            };
+        };
+    };
     toggleItem: {
         parameters: {
             query?: never;
@@ -9556,7 +9700,7 @@ export interface operations {
             };
         };
     };
-    getById_1: {
+    getById: {
         parameters: {
             query?: never;
             header?: never;
@@ -9615,7 +9759,7 @@ export interface operations {
             };
         };
     };
-    update_3: {
+    update_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -9745,7 +9889,7 @@ export interface operations {
             };
         };
     };
-    getById_2: {
+    getById_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -9804,7 +9948,7 @@ export interface operations {
             };
         };
     };
-    update_4: {
+    update_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -10055,7 +10199,7 @@ export interface operations {
             };
         };
     };
-    delete_3: {
+    delete_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -10266,28 +10410,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminUserResponse"];
-                };
-            };
-        };
-    };
-    togglePublish: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"];
                 };
             };
         };
@@ -10791,6 +10913,28 @@ export interface operations {
             };
         };
     };
+    getForPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                planId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PersistentShoppingListResponse"];
+                };
+            };
+        };
+    };
     getRecap: {
         parameters: {
             query?: never;
@@ -10942,7 +11086,7 @@ export interface operations {
             };
         };
     };
-    getById_3: {
+    getById_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -10964,7 +11108,7 @@ export interface operations {
             };
         };
     };
-    delete_4: {
+    delete_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -11191,120 +11335,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DailyMacroDto"];
-                };
-            };
-        };
-    };
-    listPublished: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"][];
-                };
-            };
-        };
-    };
-    getPublished: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path: {
-                slug: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentResponse"];
-                };
-            };
-        };
-    };
-    verifyToken: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        [key: string]: boolean;
-                    };
-                };
-            };
-        };
-    };
-    getValuation: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/html": string;
-                };
-            };
-        };
-    };
-    getTimeline: {
-        parameters: {
-            query: {
-                token: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "text/html": string;
                 };
             };
         };
@@ -11603,28 +11633,6 @@ export interface operations {
             };
         };
     };
-    getVersions: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["IpDocumentVersionResponse"][];
-                };
-            };
-        };
-    };
     listPendingIngredients: {
         parameters: {
             query?: never;
@@ -11645,7 +11653,7 @@ export interface operations {
             };
         };
     };
-    listAll_1: {
+    listAll: {
         parameters: {
             query?: never;
             header?: never;
@@ -11769,7 +11777,27 @@ export interface operations {
             };
         };
     };
-    delete_5: {
+    deleteItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -11817,26 +11845,6 @@ export interface operations {
             path: {
                 id: string;
                 userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    revokeToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
             };
             cookie?: never;
         };

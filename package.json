@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "predev": "node scripts/gen-api.mjs",
+    "prebuild": "node scripts/gen-api.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

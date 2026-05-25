@@ -36,6 +36,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      # Drift check: if KALMIO_API_URL is set (e.g. a backend sidecar is running in CI),
+      # regenerate src/types/api.d.ts and fail if it differs from the committed version.
+      # If KALMIO_API_URL is not set we skip — the predev/prebuild hook on every dev's
+      # machine is the primary guard. This step exists so a CI environment with a
+      # live backend can catch drift before it reaches production.
+      - name: Check API types are up to date
+        if: ${{ env.KALMIO_API_URL != '' }}
+        run: |
+          pnpm gen:api
+          git diff --exit-code src/types/api.d.ts || (echo "ERROR: Run npm run gen:api locally and commit the updated src/types/api.d.ts — backend OpenAPI routes have drifted." && exit 1)
+        working-directory: kalmio-frontend
+
       - name: Build
         run: pnpm build
         env:
