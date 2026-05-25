@@ -203,7 +203,7 @@ export default function App() {
                   <Route path="schedules" element={<Navigate to="/app/plans" replace />} />
                   <Route path="schedules/new" element={<ScheduleNew />} />
                   <Route path="schedules/:id" element={<ScheduleDetail />} />
-                  <Route path="calendar" element={<Navigate to="/app/dashboard?view=calendar" replace />} />
+                  <Route path="calendar" element={<Navigate to="/app?view=calendar" replace />} />
                   {import.meta.env.DEV && PlantingPreview && DiofaPreview && TasteSwipePreview && (
                     <>
                       <Route path="_preview/planting" element={<Suspense fallback={null}><PlantingPreview /></Suspense>} />

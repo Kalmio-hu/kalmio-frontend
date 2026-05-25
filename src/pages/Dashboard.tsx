@@ -155,7 +155,10 @@ export function Dashboard() {
 
   useEffect(() => {
     if (searchParams.get('view') != null) {
-      navigate('/app/dashboard', { replace: true })
+      // Dashboard is the index route at /app, not /app/dashboard. Targeting the
+      // wrong path here falls through React Router's catch-all and bounces the
+      // user out to the landing page.
+      navigate('/app', { replace: true })
     }
     // Only on mount; subsequent toggles update state and localStorage, not the URL.
     // eslint-disable-next-line react-hooks/exhaustive-deps
