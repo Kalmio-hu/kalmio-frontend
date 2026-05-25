@@ -238,12 +238,28 @@ export function Profile() {
   // this nested-scroller setup. Walk up to the nearest scrollable ancestor and
   // set its scrollTop directly. Depends on `user` because the Identity card
   // above reaches its final height only after the users/me query lands.
+  //
+  // KALMIO-410 follow-up: a single setTimeout was flaky on reload — by the
+  // time the 150ms timer fired, sibling cards (TDEE, Goal feedback) were
+  // still hydrating and the body-data card's final Y kept shifting. We now
+  // retry on a small schedule until either the section is visible in the
+  // viewport, the user navigates away, or we exhaust the budget.
   const bodyDataRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (sectionParam !== 'body-data' || activeTab !== 'profile' || !user) return
-    const id = window.setTimeout(() => {
+    // Retry schedule: the first attempt fires once the user query is loaded;
+    // subsequent attempts catch later layout shifts (TDEE / Goal cards
+    // hydrating). We assign `scrollTop` directly instead of using
+    // `behavior: 'smooth'` because successive retries kept cancelling each
+    // other's smooth animations — the user ended up seeing nothing move.
+    const attempts = [80, 250, 600, 1200, 2000]
+    const timers: number[] = []
+    let stop = false
+
+    const tryScroll = () => {
+      if (stop) return false
       const target = bodyDataRef.current
-      if (!target) return
+      if (!target) return false
       let scroller: HTMLElement | null = target.parentElement
       while (scroller && scroller !== document.body) {
         const cs = getComputedStyle(scroller)
@@ -251,17 +267,36 @@ export function Profile() {
             scroller.scrollHeight > scroller.clientHeight) break
         scroller = scroller.parentElement
       }
-      const top = target.getBoundingClientRect().top
+      const rect = target.getBoundingClientRect()
+      const scrollerRect = scroller ? scroller.getBoundingClientRect() : null
+      // Already near the top of the (nested) viewport? Mark satisfied so the
+      // remaining attempts don't fight each other on the same target.
+      const viewportTop = scrollerRect ? scrollerRect.top : 0
+      if (rect.top - viewportTop < 80 && rect.top - viewportTop > -20) return true
+      const top = rect.top
         + (scroller ? scroller.scrollTop : window.scrollY)
         - (scroller ? scroller.getBoundingClientRect().top : 0)
         - 16
       if (scroller && scroller !== document.body) {
-        scroller.scrollTo({ top, behavior: 'smooth' })
+        scroller.scrollTop = top
       } else {
-        window.scrollTo({ top, behavior: 'smooth' })
+        window.scrollTo(0, top)
       }
-    }, 150)
-    return () => window.clearTimeout(id)
+      return false
+    }
+
+    for (const delay of attempts) {
+      timers.push(window.setTimeout(() => {
+        if (tryScroll()) {
+          stop = true
+          for (const id of timers) window.clearTimeout(id)
+        }
+      }, delay))
+    }
+    return () => {
+      stop = true
+      for (const id of timers) window.clearTimeout(id)
+    }
   }, [sectionParam, activeTab, user])
 
   const { data: targets, isLoading: targetsLoading } = useQuery({
