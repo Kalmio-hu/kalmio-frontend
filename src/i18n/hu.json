@@ -1512,6 +1512,8 @@
       "pageTitle": "Sablon szerkesztése",
       "memberFallback": "{{index}}. tag",
       "memberMe": "Én",
+      "scheduleCta": "Ütemezés",
+      "scheduleCtaAria": "Terv ütemezése a naptáron",
       "dayLabel": "{{day}}. nap",
       "slotsChipAria": "Étkezési sávok",
       "membersChipAria": "Tagok",

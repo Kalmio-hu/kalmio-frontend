@@ -251,6 +251,20 @@ export function OnboardingShell() {
     }
   }, [currentStep, userId])
 
+  // KALMIO-408 — auto-skip the TDEE step (3) when the user has no body data
+  // yet, so the backend has nothing to compute a suggestion from. The step
+  // would otherwise render an empty "we computed your target from your body
+  // data" card with only a Skip button — a dead screen on first run.
+  useEffect(() => {
+    if (currentStep !== 3) return
+    if (!user) return
+    const hasSuggestion = user.suggestedKcalTarget != null
+    if (hasSuggestion) return
+    // Advance past the dead step. setCurrentStep is safe inside effect once
+    // because the condition will not match again after the step changes.
+    setCurrentStep(4)
+  }, [currentStep, user])
+
   const goToStep = useCallback(
     (step: number) => {
       const clamped = Math.min(Math.max(1, step), TOTAL_STEPS)

@@ -347,7 +347,7 @@ export function Dashboard() {
           {/* 6. Macros + Points — side-by-side on ≥768px, stacked on mobile */}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <MacrosModule date={selectedDate} />
-            <PointsModule />
+            <PointsModule hasActivePlan={hasActivePlan} />
           </div>
 
           {/* 7. Weekly summary */}

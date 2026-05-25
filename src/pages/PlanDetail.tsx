@@ -17,7 +17,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft, MoreHorizontal, Check, Plus, Pause, Play, Square, Pencil, Zap } from 'lucide-react'
+import { ChevronLeft, MoreHorizontal, Check, Plus, Pause, Play, Square, Pencil, Zap, CalendarPlus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -912,6 +912,25 @@ export function PlanDetail() {
               {fillCtaLabel}
             </button>
           )}
+
+          {/* KALMIO-404 — "Schedule this plan" CTA, previously only reachable
+              via the Futtatások tab. Stays visible whether or not the template
+              is filled, so the user can schedule an empty template too. */}
+          <button
+            type="button"
+            onClick={() => navigate(`/app/schedules/new?planId=${id}`)}
+            className="
+              inline-flex items-center gap-1.5 h-8 px-3 rounded-full
+              bg-[#F28C28] text-white text-sm font-medium
+              hover:bg-[#d97a20] active:bg-[#c06d1c]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-1
+              transition-colors
+            "
+            aria-label={t('plan.detail.scheduleCtaAria')}
+          >
+            <CalendarPlus className="w-3.5 h-3.5" aria-hidden />
+            {t('plan.detail.scheduleCta')}
+          </button>
 
           <button
             type="button"

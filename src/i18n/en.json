@@ -1512,6 +1512,8 @@
       "pageTitle": "Edit template",
       "memberFallback": "Member {{index}}",
       "memberMe": "Me",
+      "scheduleCta": "Schedule",
+      "scheduleCtaAria": "Schedule this plan onto the calendar",
       "dayLabel": "Day {{day}}",
       "slotsChipAria": "Meal slots",
       "membersChipAria": "Members",
