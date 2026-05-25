@@ -283,8 +283,8 @@ export function ConversationalOnboarding() {
     onError: (err: unknown) => {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 409) {
-        // Already completed — redirect to the app
-        navigate('/app', { replace: true })
+        // Already completed — redirect to the plans list (D-FE07 qa-2026-05-26)
+        navigate('/app/plans', { replace: true })
       } else if (status === 402) {
         // Legacy: backend no longer sends 402, but handle gracefully
         setIsPremiumBlocked(true)
@@ -307,7 +307,8 @@ export function ConversationalOnboarding() {
       })
     },
     onSuccess: () => {
-      navigate('/app', { replace: true })
+      // D-FE07 (qa-2026-05-26): route to plans list, not /app (dashboard index)
+      navigate('/app/plans', { replace: true })
     },
     onError: () => {
       setErrorKey('onboarding.conversational.errorFinalize')

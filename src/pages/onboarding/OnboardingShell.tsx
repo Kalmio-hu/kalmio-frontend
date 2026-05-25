@@ -383,10 +383,12 @@ export function OnboardingShell() {
         clearOnboardingStep(userId)
       }
       // Body data is now captured in-flow at step 3 (with a skip path), so we
-      // always land the user on the dashboard. The old KALMIO-241 fallback
+      // always land the user on the plans list. The old KALMIO-241 fallback
       // bounced skippers to /app/profile, but that broke the "your week is
       // ready" moment for users who legitimately chose not to share.
-      navigate('/app/dashboard', { replace: true })
+      // D-FE07 (qa-2026-05-26): /app/dashboard does not exist as a route; the
+      // catch-all was silently redirecting users back to "/" (marketing page).
+      navigate('/app/plans', { replace: true })
       return
     }
     goToStep(currentStep + 1)
@@ -398,7 +400,7 @@ export function OnboardingShell() {
       writeOnboardingDone(userId)
       clearOnboardingStep(userId)
     }
-    navigate('/app/dashboard', { replace: true })
+    navigate('/app/plans', { replace: true })
   }, [navigate, userId])
 
   // Map shell step (1-indexed) to PlantingScene step (0-indexed, 0..10).
