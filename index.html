@@ -18,9 +18,139 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@800&display=swap"
       rel="stylesheet"
     />
+    <!-- KALMIO-405: branded preloader — paints before React boots so first-paint is never a void -->
+    <style>
+      #kalmio-preloader {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #1A1A1A;
+        /* Fade out after 3s as a safety net so it never blocks a slow load */
+        animation: kp-safety-fade 0.35s ease-out 3s forwards;
+      }
+
+      /* The wordmark: "Kalmio" set in the headline font at a comfortable weight */
+      #kalmio-preloader .kp-wordmark {
+        font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
+        font-weight: 800;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+        color: #F9F7F2;
+        margin-bottom: 1.5rem;
+        opacity: 0;
+        animation: kp-wordmark-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+      }
+
+      /* Orange accent bar beneath the wordmark — brand anchor */
+      #kalmio-preloader .kp-accent {
+        width: 2rem;
+        height: 3px;
+        background-color: #F28C28;
+        border-radius: 2px;
+        margin-bottom: 2.5rem;
+        opacity: 0;
+        animation: kp-wordmark-in 0.4s ease-out 0.3s forwards;
+      }
+
+      /* Three pulsing dots */
+      #kalmio-preloader .kp-dots {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      #kalmio-preloader .kp-dots span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #F28C28;
+        opacity: 0;
+        animation: kp-dot-pulse 1.2s ease-in-out infinite;
+      }
+
+      #kalmio-preloader .kp-dots span:nth-child(1) { animation-delay: 0s; }
+      #kalmio-preloader .kp-dots span:nth-child(2) { animation-delay: 0.2s; }
+      #kalmio-preloader .kp-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+      @keyframes kp-wordmark-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes kp-dot-pulse {
+        0%, 100% { opacity: 0.2; transform: scale(0.85); }
+        50%       { opacity: 1;   transform: scale(1); }
+      }
+
+      /* Safety-net fade — triggers at 3s if React has not yet mounted */
+      @keyframes kp-safety-fade {
+        from { opacity: 1; pointer-events: auto; }
+        to   { opacity: 0; pointer-events: none; }
+      }
+
+      /* Respect reduced-motion: skip animations, keep overlay visible until JS removes it */
+      @media (prefers-reduced-motion: reduce) {
+        #kalmio-preloader .kp-wordmark,
+        #kalmio-preloader .kp-accent {
+          animation: none;
+          opacity: 1;
+          transform: none;
+        }
+        #kalmio-preloader .kp-dots span {
+          animation: none;
+          opacity: 0.6;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- KALMIO-405: preloader overlay — removed by MutationObserver once React sets #root children -->
+    <div id="kalmio-preloader" aria-hidden="true" role="presentation">
+      <span class="kp-wordmark">Kalmio</span>
+      <span class="kp-accent"></span>
+      <div class="kp-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <!-- KALMIO-405: self-removal — MutationObserver fires when React inserts its first child into #root -->
+    <script>
+      (function () {
+        var root = document.getElementById('root');
+        var preloader = document.getElementById('kalmio-preloader');
+        if (!root || !preloader) return;
+
+        function removePreloader() {
+          // Fade out over 350ms then detach from DOM
+          preloader.style.transition = 'opacity 0.35s ease-out';
+          preloader.style.opacity = '0';
+          preloader.style.pointerEvents = 'none';
+          setTimeout(function () {
+            if (preloader.parentNode) {
+              preloader.parentNode.removeChild(preloader);
+            }
+          }, 370);
+        }
+
+        var observer = new MutationObserver(function (mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            if (mutations[i].addedNodes.length > 0) {
+              observer.disconnect();
+              removePreloader();
+              return;
+            }
+          }
+        });
+
+        observer.observe(root, { childList: true });
+      })();
+    </script>
   </body>
 </html>
