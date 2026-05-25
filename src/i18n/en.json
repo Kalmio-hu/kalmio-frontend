@@ -1509,6 +1509,7 @@
       "settings": "Plan settings",
       "pageTitle": "Edit template",
       "memberFallback": "Member {{index}}",
+      "memberMe": "Me",
       "dayLabel": "Day {{day}}",
       "slotsChipAria": "Meal slots",
       "membersChipAria": "Members",

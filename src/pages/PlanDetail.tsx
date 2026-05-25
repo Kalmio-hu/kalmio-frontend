@@ -233,7 +233,7 @@ export function PlanDetail() {
     plan.memberIds.forEach((uid, idx) => {
       if (uid === currentUserId && me) {
         const full = [me.firstName, me.lastName].filter(Boolean).join(' ')
-        memberNames[uid] = full || me.email || t('plan.detail.memberFallback', { index: idx + 1 })
+        memberNames[uid] = full || me.username || t('plan.detail.memberMe')
       } else if (familyDisplayName[uid]) {
         memberNames[uid] = familyDisplayName[uid]
       } else {

@@ -1509,6 +1509,7 @@
       "settings": "Terv beállításai",
       "pageTitle": "Sablon szerkesztése",
       "memberFallback": "{{index}}. tag",
+      "memberMe": "Én",
       "dayLabel": "{{day}}. nap",
       "slotsChipAria": "Étkezési sávok",
       "membersChipAria": "Tagok",
