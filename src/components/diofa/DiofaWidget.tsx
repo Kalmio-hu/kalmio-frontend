@@ -119,14 +119,11 @@ export function DiofaWidget({ stage, moisture, className = '' }: DiofaWidgetProp
         className="w-full h-full object-cover"
         draggable={false}
       />
-
-      {/* Stage + moisture badge — for development visibility; hide in production if desired */}
-      <span
-        aria-hidden
-        className="absolute bottom-2 right-2 text-[10px] font-mono bg-black/30 text-white px-1.5 py-0.5 rounded"
-      >
-        {stage} · {moisture}
-      </span>
+      {/* KALMIO-416: removed the raw `MAG · WET` dev-visibility badge. The
+          enum values leaked into production UI (English DRY/WET/OK on a
+          Hungarian-first product). The diófa image itself communicates the
+          state; if a textual label is needed in future it should be wired
+          through i18n with proper HU translations for both axes. */}
     </div>
   )
 }
