@@ -43,10 +43,10 @@ function makeLocalStorageStub(): Storage {
   } as Storage
 }
 
-// KALMIO-94: updated from 5 → 6 to match the current 6-step shell
-// (KALMIO-94 inserted the TDEE suggestion step as step 2; previous steps 2–5
-// are now steps 3–6).
-const TOTAL_STEPS = 6
+// KALMIO-393: updated from 6 → 7 to match the current 7-step shell
+// (KALMIO-393 re-added the Preferences capture step as step 2; previous steps 2–6
+// are now steps 3–7).
+const TOTAL_STEPS = 7
 const TEST_USER_ID = 'user-shell-xyz'
 
 // ---------------------------------------------------------------------------
@@ -126,12 +126,12 @@ describe('OnboardingShell — final-step completion calls writeOnboardingDone', 
     expect(readOnboardingDone(TEST_USER_ID)).toBe(false)
   })
 
-  // ── Regression guard: step 5 is NOT the final step in a 6-step shell ───────
-  // KALMIO-94: TOTAL_STEPS is now 6. Before this change it was 5, so goNext on
-  // step 5 would have prematurely completed onboarding. Assert it no longer does.
+  // ── Regression guard: step 6 is NOT the final step in a 7-step shell ───────
+  // KALMIO-393: TOTAL_STEPS is now 7. Before this change it was 6, so goNext on
+  // step 6 would have prematurely completed onboarding. Assert it no longer does.
 
-  it('goNext on step 5 (penultimate step) does NOT set the done-flag', () => {
-    simulateGoNextOnFinalStep(TEST_USER_ID, 5)
+  it('goNext on step 6 (penultimate step) does NOT set the done-flag', () => {
+    simulateGoNextOnFinalStep(TEST_USER_ID, 6)
     expect(readOnboardingDone(TEST_USER_ID)).toBe(false)
   })
 

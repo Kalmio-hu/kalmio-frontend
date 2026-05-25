@@ -2087,14 +2087,18 @@
           "body": "Diófát ültetsz. Lassan nő, mert érdemes lassan nőnie. Eleinte törékeny — minden napod egy kis öntözés. Pár hónap alatt mély gyökeret ereszt, és onnan már sokkal megbocsátóbb. Kezdjük."
         },
         "2": {
+          "lead": "A dió a kezedben van. Megismerem a kertet.",
+          "body": "Néhány kérdés az étkezési szokásaidról — ezek alapján tervezem meg az első hetedet. Mindezt a Profilban bármikor módosíthatod, nincs rögzített szám."
+        },
+        "3": {
           "lead": "Mielőtt elültetnénk, megismerjük a földet.",
           "body": "Pár szám rólad — testmagasság, súly, mennyit mozogsz egy átlagos napon. Ennyi kell, hogy értelmes kalória- és fehérjecélt javasoljak. A többit menet közben finomítjuk."
         },
-        "3": {
+        "4": {
           "lead": "A mag a földben van. Innen három mozdulat tartja életben.",
           "body": "Heti tervezés, hűtőátnézés a vásárlás előtt, újratervezés, ha közbeszól az élet. Megmutatom mindhármat, hogy ne legyen meglepetés. Ezek a kis öntözések."
         },
-        "4": {
+        "5": {
           "lead": "Az első víz.",
           "body": "A föld eleinte nehéz, mert még nem ismer. Egy pillanat — összerakom a hetedet aszerint, amit eddig megosztottál. Aztán már csak a tieden múlik."
         }
@@ -2104,12 +2108,35 @@
       "planGeneratingBody": "Egy pillanat — összerakom a heted az eddig megadott adatok alapján.",
       "stepLabels": {
         "1": "Üdvözlés",
-        "2": "Kalóriacél",
-        "3": "Így működik a tervező",
-        "4": "Étrend összerakása…",
-        "5": "Az első heted kész",
-        "6": "Csemete — az első cselekvés"
+        "2": "Az étkezési szokásaid",
+        "3": "Kalóriacél",
+        "4": "Így működik a tervező",
+        "5": "Étrend összerakása…",
+        "6": "Az első heted kész",
+        "7": "Csemete — az első cselekvés"
       }
+    },
+    "preferencesStep": {
+      "title": "Ismerjük meg egymást.",
+      "body": "Pár kérdés az étkezési szokásaidról — ezek alapján tervezem meg a heted. A Profilban bármikor módosíthatod.",
+      "householdLabel": "Hány főre főzöl?",
+      "kcalLabel": "Napi kalóriacél (kcal)",
+      "kcalCustom": "Egyedi szám",
+      "kcalCustomAriaLabel": "Egyedi kalóriacél megadása",
+      "kcalError": "Az értéknek 1000 és 5000 kcal között kell lennie.",
+      "dietaryLabel": "Étrendi megszorítások",
+      "cadenceLabel": "Milyen sűrűn vásárolsz be?",
+      "cadenceDays_one": "{{count}} nap",
+      "cadenceDays_other": "{{count}} nap",
+      "cadenceCustom": "Egyedi",
+      "cadenceCustomAriaLabel": "Egyedi bevásárlási gyakoriság (napok száma)",
+      "cadenceError": "Az értéknek 1 és 14 nap között kell lennie.",
+      "shoppingDayLabel": "Melyik nap a legjobb a bevásárláshoz?",
+      "forbiddenLabel": "Kizárt hozzávalók",
+      "forbiddenHint": "Nem kötelező. Ha valamit biztosan nem szeretnél a tervben, keresd rá és add hozzá.",
+      "cta": "Tovább",
+      "saving": "Mentés…",
+      "householdError": "Kérlek válassz 1 és 6 közötti értéket."
     },
     "planting": {
       "ariaLabel": "Dióültetés animáció — az ültetési folyamat előrehaladása",

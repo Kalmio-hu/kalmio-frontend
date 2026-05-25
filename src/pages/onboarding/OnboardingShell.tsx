@@ -1,21 +1,22 @@
 /**
- * OnboardingShell — KALMIO-167 / KALMIO-241
+ * OnboardingShell — KALMIO-167 / KALMIO-241 / KALMIO-393
  *
  * Multi-step onboarding container.  Owns:
- *   1. A 5-step progress indicator (OnboardingProgressBar, top of screen).
+ *   1. A 7-step progress indicator (OnboardingProgressBar, top of screen).
  *   2. A "Kihagyom most" link visible from step 2 onward (SkipConfirmModal).
  *   3. Resume: reads the last persisted step from localStorage on mount
  *      and lands the returning user there automatically.
  *   4. Step content: renders a step-specific content panel.
  *
- * KALMIO-241: Steps 2–6 (household size, activity+calories, dietary,
- * shopping cadence, forbidden ingredients) were removed because they
- * duplicate the Profile and Preferences pages. The flow is now 5 steps:
+ * KALMIO-393: Re-added the 6-field preferences capture step (PRD §4.2)
+ * between Welcome (step 1) and TDEE (now step 3).  Full flow:
  *   1. Welcome
- *   2. App orientation (taste-swipe mini-tutorial)
- *   3. Plan generation loading
- *   4. First plan reveal
- *   5. Csemete moment
+ *   2. Preferences (household, kcal, dietary, shopping cadence/day, forbidden)
+ *   3. TDEE suggestion
+ *   4. App orientation (MiniTutorialPlanner)
+ *   5. Plan generation loading
+ *   6. First plan reveal
+ *   7. Csemete moment
  *
  * Post-completion redirect:
  *   - Body data incomplete (weightKg or heightCm null) → /app/profile?section=body-data
@@ -25,10 +26,12 @@
  *
  * Step → PlantingScene mapping (shell is 1-indexed; PlantingScene is 0-indexed):
  *   Shell step 1  → PlantingScene 0  — Welcome (hand above soil)
- *   Shell step 2  → PlantingScene 6  — Orientation (scene fast-forwards: hole, walnut, cover, mound, stake, swipe details all visible)
- *   Shell step 3  → PlantingScene 7  — Plan generation (watering can)
- *   Shell step 4  → PlantingScene 8  — First plan reveal (moist soil)
- *   Shell step 5  → PlantingScene 10 — Csemete (sprout)
+ *   Shell step 2  → PlantingScene 2  — Preferences (walnut in the hole — we have the data)
+ *   Shell step 3  → PlantingScene 0  — TDEE (no scene change — informational)
+ *   Shell step 4  → PlantingScene 6  — Orientation (scene fast-forwards: hole, walnut, cover, mound, stake, swipe details)
+ *   Shell step 5  → PlantingScene 7  — Plan generation (watering can)
+ *   Shell step 6  → PlantingScene 8  — First plan reveal (moist soil)
+ *   Shell step 7  → PlantingScene 10 — Csemete (sprout)
  */
 
 import { useCallback, useEffect, useState } from 'react'
@@ -43,6 +46,7 @@ import { MiniTutorialPlanner } from '@/components/onboarding/MiniTutorialPlanner
 import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
 import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
 import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
+import { PreferencesStep, type PreferencesStepValues } from '@/components/onboarding/PreferencesStep'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
 import {
@@ -57,31 +61,33 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * KALMIO-94: TDEE step added as step 2.
- * The previous steps 2–5 are now steps 3–6.
+ * KALMIO-393: Preferences step re-added as step 2 (founder reversal).
+ * KALMIO-94: TDEE step is now step 3.
  *
  * Step 1 — Welcome
- * Step 2 — TDEE suggestion (new — reads suggestedKcalTarget from user settings)
- * Step 3 — App orientation (MiniTutorialPlanner)
- * Step 4 — Plan generation loading
- * Step 5 — First plan reveal
- * Step 6 — Csemete moment
+ * Step 2 — Preferences (household, kcal, dietary, shopping, forbidden)
+ * Step 3 — TDEE suggestion (reads suggestedKcalTarget from user settings)
+ * Step 4 — App orientation (MiniTutorialPlanner)
+ * Step 5 — Plan generation loading
+ * Step 6 — First plan reveal
+ * Step 7 — Csemete moment
  */
-const TOTAL_STEPS = 6
+const TOTAL_STEPS = 7
 
 /**
- * Maps the 1-indexed shell step to the PlantingScene 0-indexed step.
- * Steps 2–6 from the old shell (data-collection) are collapsed into a
- * fast-forward to PlantingScene step 6 so the scene still tells its story.
- * TDEE step (2) stays at planting step 0 (same as welcome — no scene change).
+ * Maps the 1-indexed shell step to the PlantingScene 0-indexed step (0..10).
+ * Step 2 (Preferences) advances to PlantingScene 2 — walnut in the hole.
+ * Step 3 (TDEE) stays at 0 — no visual change, informational only.
+ * Step 4 (Orientation) fast-forwards to PlantingScene 6.
  */
 const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   1: 0,
-  2: 0,
-  3: 6,
-  4: 7,
-  5: 8,
-  6: 10,
+  2: 2,
+  3: 0,
+  4: 6,
+  5: 7,
+  6: 8,
+  7: 10,
 }
 
 // ---------------------------------------------------------------------------
@@ -92,7 +98,8 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
 
 function NarrativeBlock({ step }: { step: number }) {
   const { t } = useTranslation()
-  if (step < 1 || step > 4) return null
+  // Narrative blocks shown for steps 1–5 (before full-bleed reveal / csemete)
+  if (step < 1 || step > 5) return null
   return (
     <div className="flex flex-col gap-4 text-center text-[#5C3D1E] max-w-md">
       <p className="font-headline text-xl lg:text-2xl leading-snug font-semibold">
@@ -117,7 +124,7 @@ function PlanGenerationStep() {
       data-testid="step-plan-generation"
     >
       <p className="text-base font-semibold text-[#1A1A1A]">
-        {t('onboarding.shell.stepLabels.4')}
+        {t('onboarding.shell.stepLabels.5')}
       </p>
       <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
         {t('onboarding.shell.planGeneratingBody')}
@@ -180,6 +187,34 @@ export function OnboardingShell() {
     queryFn: usersService.getMe,
     staleTime: 30_000,
     enabled: !!userId,
+  })
+
+  // ── Preferences step: persist all six fields on advance ──────────────────
+  const preferencesMutation = useMutation({
+    mutationFn: (values: PreferencesStepValues) => {
+      const { householdSize, kcalTarget, dietary, cadenceDays, shoppingDayOfWeek, forbiddenIngredientIds } = values
+      return usersService.updateSettings({
+        mealPlanPreferences: {
+          ...user?.mealPlanPreferences,
+          kcalTarget,
+          days: cadenceDays,
+          forbiddenIngredientIds: forbiddenIngredientIds.length > 0 ? forbiddenIngredientIds : undefined,
+          // Map household size (1–6) to servingConfig.maxMultiplier so analytics
+          // can derive a household-size bucket from the existing pattern.
+          servingConfig: {
+            minMultiplier: 1,
+            maxMultiplier: householdSize,
+            step: 1,
+          },
+        },
+        dietaryPreferences: dietary,
+        // preferredPrepDayOfWeek doubles as shopping day of week in this context.
+        preferredPrepDayOfWeek: shoppingDayOfWeek,
+      })
+    },
+    onSuccess: (updated) => {
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+    },
   })
 
   // ── TDEE step: persist accepted suggestion to mealPlanPreferences ─────────
@@ -263,13 +298,13 @@ export function OnboardingShell() {
       data-testid="onboarding-shell"
     >
       {/* ---- Desktop-only illustration column (md+) ---- */}
-      {/* Hidden on steps 5–6 where FirstPlanReveal / CsemeteWelcomeMoment
+      {/* Hidden on steps 6–7 where FirstPlanReveal / CsemeteWelcomeMoment
           have their own full-bleed visuals. */}
       <aside
         className="hidden md:flex md:w-[45%] lg:w-[40%] md:flex-col md:items-center md:justify-center bg-[#F5EDD8] p-8 lg:p-12"
-        aria-hidden={currentStep > 4}
+        aria-hidden={currentStep > 5}
       >
-        {currentStep <= 4 && (
+        {currentStep <= 5 && (
           <div className="flex flex-col items-center gap-10 w-full max-w-xl">
             <NarrativeBlock step={currentStep} />
             <PlantingScene step={plantingStep} className="w-full" />
@@ -299,7 +334,7 @@ export function OnboardingShell() {
         </header>
 
         {/* ---- Mobile-only planting scene (hidden on md+) ---- */}
-        {currentStep <= 4 && (
+        {currentStep <= 5 && (
           <div className="md:hidden px-4 pt-4">
             <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
           </div>
@@ -312,8 +347,26 @@ export function OnboardingShell() {
           <WelcomeStep onNext={goNext} />
         )}
 
-        {/* Step 2: TDEE suggestion — KALMIO-94 */}
+        {/* Step 2: Preferences — KALMIO-393 */}
         {currentStep === 2 && (
+          <PreferencesStep
+            initialValues={{
+              kcalTarget: user?.mealPlanPreferences?.kcalTarget ?? 2000,
+              dietary: user?.dietaryPreferences ?? undefined,
+              cadenceDays: user?.mealPlanPreferences?.days ?? 7,
+              shoppingDayOfWeek: user?.preferredPrepDayOfWeek ?? 7,
+              forbiddenIngredientIds: (user?.mealPlanPreferences?.forbiddenIngredientIds ?? []) as string[],
+            }}
+            onAdvance={(values) => {
+              preferencesMutation.mutate(values, { onSettled: () => goNext() })
+            }}
+            onBack={() => goToStep(1)}
+            isSubmitting={preferencesMutation.isPending}
+          />
+        )}
+
+        {/* Step 3: TDEE suggestion — KALMIO-94 */}
+        {currentStep === 3 && (
           <div className="flex flex-col gap-4 py-6">
             <div className="text-center px-2">
               <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
@@ -344,7 +397,7 @@ export function OnboardingShell() {
 
             <button
               type="button"
-              onClick={() => goToStep(1)}
+              onClick={() => goToStep(2)}
               className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
             >
               {t('common.back')}
@@ -352,15 +405,15 @@ export function OnboardingShell() {
           </div>
         )}
 
-        {/* Step 3: App orientation (MiniTutorialPlanner) */}
-        {currentStep === 3 && (
+        {/* Step 4: App orientation (MiniTutorialPlanner) */}
+        {currentStep === 4 && (
           <>
             {/* MiniTutorialPlanner: onSkip advances to the next step */}
             <MiniTutorialPlanner onSkip={goNext} />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
-                onClick={() => goToStep(2)}
+                onClick={() => goToStep(3)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -369,8 +422,8 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 4: Plan generation loading */}
-        {currentStep === 4 && (
+        {/* Step 5: Plan generation loading */}
+        {currentStep === 5 && (
           <>
             <PlanGenerationStep />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
@@ -383,7 +436,7 @@ export function OnboardingShell() {
               </button>
               <button
                 type="button"
-                onClick={() => goToStep(3)}
+                onClick={() => goToStep(4)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -392,13 +445,13 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 5: First plan reveal */}
-        {currentStep === 5 && (
+        {/* Step 6: First plan reveal */}
+        {currentStep === 6 && (
           <FirstPlanReveal onDismiss={goNext} />
         )}
 
-        {/* Step 6: Csemete moment */}
-        {currentStep === 6 && (
+        {/* Step 7: Csemete moment */}
+        {currentStep === 7 && (
           <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
         </main>

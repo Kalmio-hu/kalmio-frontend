@@ -2087,14 +2087,18 @@
           "body": "You are planting a walnut tree. It grows slowly because it is meant to grow slowly. Fragile at first — each day is a small watering. After a few months it puts down deep roots, and from there it forgives almost everything. Let's begin."
         },
         "2": {
+          "lead": "The walnut is in your hand. Let me learn the garden.",
+          "body": "A few questions about your eating habits — these shape your first week. Everything you tell me here can be changed any time in your Profile. There are no locked-in numbers."
+        },
+        "3": {
           "lead": "Before we plant, we get to know the soil.",
           "body": "A few numbers about you — height, weight, how much you move on a normal day. That is enough for me to suggest a sensible calorie and protein target. We fine-tune the rest as we go."
         },
-        "3": {
+        "4": {
           "lead": "The seed is in the ground. Three small motions keep it alive.",
           "body": "Weekly planning, a fridge review before shopping, replanning when life intervenes. I'll show you all three now, so nothing surprises you. These are your small waterings."
         },
-        "4": {
+        "5": {
           "lead": "The first water.",
           "body": "The ground is heavy at the start because it doesn't know you yet. One moment — I'm assembling your week from what you've told me so far. After this, the rest is yours."
         }
@@ -2104,12 +2108,35 @@
       "planGeneratingBody": "One moment — putting your week together from what we have so far.",
       "stepLabels": {
         "1": "Welcome",
-        "2": "Calorie target",
-        "3": "How the planner works",
-        "4": "Building your plan…",
-        "5": "Your first week is ready",
-        "6": "Csemete — your first action"
+        "2": "Your eating habits",
+        "3": "Calorie target",
+        "4": "How the planner works",
+        "5": "Building your plan…",
+        "6": "Your first week is ready",
+        "7": "Csemete — your first action"
       }
+    },
+    "preferencesStep": {
+      "title": "Let us get to know each other.",
+      "body": "A few questions about your eating habits — these shape your first week. You can change them any time in your Profile.",
+      "householdLabel": "How many people are you cooking for?",
+      "kcalLabel": "Daily calorie target (kcal)",
+      "kcalCustom": "Custom",
+      "kcalCustomAriaLabel": "Enter a custom calorie target",
+      "kcalError": "The value must be between 1000 and 5000 kcal.",
+      "dietaryLabel": "Dietary restrictions",
+      "cadenceLabel": "How often do you shop?",
+      "cadenceDays_one": "{{count}} day",
+      "cadenceDays_other": "{{count}} days",
+      "cadenceCustom": "Custom",
+      "cadenceCustomAriaLabel": "Enter a custom shopping frequency in days",
+      "cadenceError": "The value must be between 1 and 14 days.",
+      "shoppingDayLabel": "Which day works best for shopping?",
+      "forbiddenLabel": "Excluded ingredients",
+      "forbiddenHint": "Optional. If you want to keep something out of your plan entirely, search and add it here.",
+      "cta": "Next",
+      "saving": "Saving…",
+      "householdError": "Please choose a value between 1 and 6."
     },
     "planting": {
       "ariaLabel": "Walnut planting animation — progress through the planting sequence",
