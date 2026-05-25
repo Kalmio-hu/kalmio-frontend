@@ -60,7 +60,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 5 * 60, maxEntries: 50, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -75,7 +74,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 60 * 60, maxEntries: 50, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -90,7 +88,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 6 * 60 * 60, maxEntries: 100, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -105,7 +102,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 6 * 60 * 60, maxEntries: 100, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -119,7 +115,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 7 * 24 * 60 * 60, maxEntries: 500, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -133,7 +128,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 7 * 24 * 60 * 60, maxEntries: 1000, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -147,7 +141,6 @@ registerRoute(
     plugins: [
       new ExpirationPlugin({ maxAgeSeconds: 24 * 60 * 60, maxEntries: 200, purgeOnQuotaError: true }),
     ],
-    fetchOptions: { credentials: 'include' },
   }),
   'GET',
 )
@@ -226,7 +219,6 @@ function _isMutableApiRoute({ url }: { request: Request; url: URL }): boolean {
 
 const _networkOnlyWithBgSync = new NetworkOnly({
   plugins: [bgSyncPlugin],
-  fetchOptions: { credentials: 'include' },
 })
 
 registerRoute(_isMutableApiRoute, _networkOnlyWithBgSync, 'POST')
