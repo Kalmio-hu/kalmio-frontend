@@ -89,6 +89,18 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
+      workbox-core:
+        specifier: 7.4.1
+        version: 7.4.1
+      workbox-expiration:
+        specifier: 7.4.1
+        version: 7.4.1
+      workbox-routing:
+        specifier: 7.4.1
+        version: 7.4.1
+      workbox-strategies:
+        specifier: 7.4.1
+        version: 7.4.1
       zod:
         specifier: ^4.4.3
         version: 4.4.3

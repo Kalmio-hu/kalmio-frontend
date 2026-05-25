@@ -1,12 +1,13 @@
 /// <reference lib="webworker" />
-// Custom Kalmio service worker (KALMIO-316).
+// Custom Kalmio service worker (KALMIO-316, KALMIO-363).
 // Loaded via VitePWA injectManifest strategy — Workbox injects the precache manifest at build time.
-// This file handles push-notification click actions and routes them back to open window clients
-// so that SnoozeActionHandler can react without the SW needing direct API access.
-//
-// We intentionally do NOT import workbox-precaching here because the package is not installed
-// as a production dependency.  VitePWA's injectManifest mode handles precaching automatically
-// by injecting the manifest token; at runtime it falls back to the app shell navigation fallback.
+// This file handles:
+//   - Push-notification click actions (KALMIO-316)
+//   - Workbox runtime caching for GET /api/* with per-endpoint TTLs (KALMIO-363)
+
+import { registerRoute } from 'workbox-routing'
+import { StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies'
+import { ExpirationPlugin } from 'workbox-expiration'
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -22,6 +23,149 @@ self.addEventListener('install', () => {
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
   event.waitUntil(self.clients.claim())
+})
+
+// ── Runtime API caching (KALMIO-363) ──────────────────────────────────────────
+//
+// Design constraints:
+//   1. Only GET requests are cached — non-GET bypass all routes entirely.
+//   2. Per-user isolation: on sign-out the app posts CLEAR_API_CACHE and all
+//      kalmio-api-* caches are wiped, preventing one user's data from being
+//      served to the next user on the same device.
+//   3. ExpirationPlugin enforces both TTL and maxEntries with purgeOnQuotaError.
+//
+// Route precedence (most-specific first — registerRoute order matters):
+//   a. /api/macro-rollup/**   — NetworkFirst, 5 min   (real-time rollup, must be fresh)
+//   b. /api/fridge/**         — NetworkFirst, 1 hour
+//   c. /api/plans/**          — NetworkFirst, 6 hours
+//   d. /api/planned-meals/**  — NetworkFirst, 6 hours
+//   e. /api/recipes/**        — StaleWhileRevalidate,  7 days  (reference data, rarely changes)
+//   f. /api/ingredients/**    — StaleWhileRevalidate,  7 days
+//   g. /api/**                — StaleWhileRevalidate, 24 hours, max 200 entries (fallback)
+//
+// Non-GET requests are never matched by any registerRoute call below; they fall
+// through to the network without touching the cache.
+
+const CACHE_PREFIX = 'kalmio-api'
+
+// ── (a) /api/macro-rollup/** — NetworkFirst, 5 minutes ───────────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/macro-rollup'),
+  new NetworkFirst({
+    cacheName: `${CACHE_PREFIX}-macro-rollup`,
+    networkTimeoutSeconds: 10,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 5 * 60, maxEntries: 50, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (b) /api/fridge/** — NetworkFirst, 1 hour ─────────────────────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/fridge'),
+  new NetworkFirst({
+    cacheName: `${CACHE_PREFIX}-fridge`,
+    networkTimeoutSeconds: 10,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 60 * 60, maxEntries: 50, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (c) /api/plans/** — NetworkFirst, 6 hours ─────────────────────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/plans'),
+  new NetworkFirst({
+    cacheName: `${CACHE_PREFIX}-plans`,
+    networkTimeoutSeconds: 10,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 6 * 60 * 60, maxEntries: 100, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (d) /api/planned-meals/** — NetworkFirst, 6 hours ────────────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/planned-meals'),
+  new NetworkFirst({
+    cacheName: `${CACHE_PREFIX}-planned-meals`,
+    networkTimeoutSeconds: 10,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 6 * 60 * 60, maxEntries: 100, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (e) /api/recipes/** — StaleWhileRevalidate, 7 days ───────────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/recipes'),
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_PREFIX}-recipes`,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 7 * 24 * 60 * 60, maxEntries: 500, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (f) /api/ingredients/** — StaleWhileRevalidate, 7 days ───────────────────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/ingredients'),
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_PREFIX}-ingredients`,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 7 * 24 * 60 * 60, maxEntries: 1000, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── (g) /api/** default — StaleWhileRevalidate, 24 hours, max 200 entries ────
+registerRoute(
+  ({ request, url }: { request: Request; url: URL }) =>
+    request.method === 'GET' && url.pathname.startsWith('/api/'),
+  new StaleWhileRevalidate({
+    cacheName: `${CACHE_PREFIX}-default`,
+    plugins: [
+      new ExpirationPlugin({ maxAgeSeconds: 24 * 60 * 60, maxEntries: 200, purgeOnQuotaError: true }),
+    ],
+    fetchOptions: { credentials: 'include' },
+  }),
+  'GET',
+)
+
+// ── Sign-out cache clear ───────────────────────────────────────────────────────
+// The app posts { type: 'CLEAR_API_CACHE' } from useAuthStore's signOut action.
+// All kalmio-api-* caches are deleted to prevent one user's data from being
+// served to the next user on the same device.
+self.addEventListener('message', (event: ExtendableMessageEvent) => {
+  if ((event.data as { type?: string } | null)?.type === 'CLEAR_API_CACHE') {
+    event.waitUntil(
+      caches.keys().then(keys =>
+        Promise.all(
+          keys
+            .filter(k => k.startsWith(CACHE_PREFIX))
+            .map(k => caches.delete(k)),
+        ),
+      ),
+    )
+  }
 })
 
 // ── Notification click handler ────────────────────────────────────────────────
