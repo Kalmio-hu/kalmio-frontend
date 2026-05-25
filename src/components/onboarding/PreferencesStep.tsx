@@ -130,7 +130,11 @@ export function PreferencesStep({
   const [kcalCustom, setKcalCustom] = useState(
     KCAL_PRESETS.includes(init.kcalTarget as typeof KCAL_PRESETS[number]) ? '' : String(init.kcalTarget)
   )
-  const [dietary, setDietary] = useState<DietaryPreferences>(init.dietary)
+  // Caller may pass `dietary: user?.dietaryPreferences ?? undefined` (a fresh
+  // user has no preferences yet). Object spread propagates explicit-undefined
+  // properties, so a `?? undefined` from upstream overwrites DEFAULT_VALUES.dietary.
+  // Guard with one more coalesce — see Maria persona QA report 2026-05-25.
+  const [dietary, setDietary] = useState<DietaryPreferences>(init.dietary ?? EMPTY_DIETARY)
   const [cadencePreset, setCadencePreset] = useState<7 | 14 | 'custom'>(
     CADENCE_PRESETS.includes(init.cadenceDays as typeof CADENCE_PRESETS[number]) ? (init.cadenceDays as 7 | 14) : 'custom'
   )
