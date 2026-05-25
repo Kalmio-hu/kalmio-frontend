@@ -364,3 +364,22 @@ h1, h2, h3 {
     animation: none;
   }
 }
+
+/* KALMIO-421: when the cookie consent banner is visible, reserve room at
+   the bottom of every scrollable surface so the user can scroll past the
+   fixed banner to reach the page's last actionable element ("Tovább",
+   "Mentés", etc.). The consent banner exposes its measured height via the
+   `--consent-banner-h` custom property; consumers add it as bottom padding. */
+:root {
+  --consent-banner-h: 0px;
+}
+body {
+  padding-bottom: var(--consent-banner-h, 0px);
+}
+main.flex-1.overflow-y-auto {
+  /* AppShell's inner scroll container needs the same room — padding-bottom
+     on an overflow-y:auto element extends the scrollable area, letting the
+     user scroll the last form button up clear of the fixed consent card. */
+  padding-bottom: var(--consent-banner-h, 0px);
+  scroll-padding-bottom: var(--consent-banner-h, 0px);
+}

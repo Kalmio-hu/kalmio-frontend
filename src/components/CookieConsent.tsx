@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { acceptAnalytics, declineAnalytics, getConsent } from '@/lib/analytics'
@@ -6,6 +6,36 @@ import { acceptAnalytics, declineAnalytics, getConsent } from '@/lib/analytics'
 export function CookieConsent() {
   const { t } = useTranslation()
   const [visible, setVisible] = useState(() => getConsent() === null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // KALMIO-421: while the banner is visible, expose its measured height as a
+  // CSS custom property so scrollable containers (AppShell main, the
+  // onboarding shell, etc.) can leave room at the bottom and the user can
+  // actually scroll to the last form button. Previously the fixed banner
+  // overlaid the "Tovább" button on mobile — clicks at the button's center
+  // landed on the banner text instead, blocking onboarding entirely.
+  useEffect(() => {
+    if (!visible) {
+      document.documentElement.style.removeProperty('--consent-banner-h')
+      return
+    }
+    const el = cardRef.current
+    if (!el) return
+    const setVar = () => {
+      const h = el.getBoundingClientRect().height
+      // Add 16px breathing room above the banner so focused inputs aren't flush against it.
+      document.documentElement.style.setProperty('--consent-banner-h', `${Math.ceil(h) + 16}px`)
+    }
+    setVar()
+    const ro = new ResizeObserver(setVar)
+    ro.observe(el)
+    window.addEventListener('resize', setVar)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', setVar)
+      document.documentElement.style.removeProperty('--consent-banner-h')
+    }
+  }, [visible])
 
   if (!visible) return null
 
@@ -25,7 +55,10 @@ export function CookieConsent() {
       aria-label={t('common.cookieConsentRegion')}
       className="fixed bottom-0 left-0 right-0 z-50 flex justify-center px-4 pb-4 pointer-events-none"
     >
-      <div className="pointer-events-auto w-full max-w-lg bg-white rounded-t-2xl shadow-xl px-6 py-5">
+      <div
+        ref={cardRef}
+        className="pointer-events-auto w-full max-w-lg bg-white rounded-t-2xl shadow-xl px-6 py-5"
+      >
         <p className="text-sm text-[#1A1A1A]/80 leading-relaxed">
           {'🍪 '}{t('consent.body')}
         </p>
