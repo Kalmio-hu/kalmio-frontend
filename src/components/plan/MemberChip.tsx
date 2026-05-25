@@ -17,11 +17,20 @@ interface MemberChipProps {
   size?: 'sm' | 'md'
 }
 
-const INITIALS_RE = /\b\w/g
-
+// Unicode-aware: match the first letter of each whitespace-separated token.
+// Default \w / \b are ASCII-only, so "Én" → "N", "Ági" → "G", "Örs" → "R".
+// We split on whitespace and grab the first letter of up to the first two
+// tokens, which keeps the chip's two-letter ceiling.
 function initials(name: string): string {
-  const matches = name.match(INITIALS_RE) ?? []
-  return matches.slice(0, 2).join('').toUpperCase()
+  const tokens = name.trim().split(/\s+/).filter(Boolean).slice(0, 2)
+  const letters: string[] = []
+  for (const tok of tokens) {
+    // Codepoint iteration handles surrogate pairs cleanly; we just need the
+    // first user-perceived character per token.
+    const first = [...tok][0]
+    if (first) letters.push(first.toLocaleUpperCase('hu-HU'))
+  }
+  return letters.join('')
 }
 
 export function MemberChip({ name, colorClass, hasAllergenWarning = false, onClick, size = 'sm' }: MemberChipProps) {

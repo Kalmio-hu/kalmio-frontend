@@ -4,13 +4,31 @@
  * Fallback chain (ordered):
  *   1. Full name    — firstName + lastName (both must be non-empty)
  *   2. First name   — firstName alone
- *   3. Email local-part — text before "@", first letter capitalised
+ *   3. Email local-part — ONLY when it looks name-like (lowercase letters,
+ *                          optional accents, optional single dot), first
+ *                          letter capitalised. Synthetic / system emails
+ *                          (`teszt+staff-qa-...`, `nora.kovacs+work@...`,
+ *                          long hyphenated IDs, digits) skip this rung.
  *   4. Positional label — provided by the caller via `fallbackLabel`
  *                         (e.g. t('plan.detail.memberMe') or
  *                              t('plan.detail.memberFallback', { index: n }))
  *
  * Raw email is NEVER shown directly in a user-facing label.
  */
+
+/**
+ * Returns true when an email's local-part is plausibly a real name we can
+ * show as a fallback. Accepts simple forms like `nora`, `nora.kovacs`,
+ * `peter`, `peter.szabo`. Rejects anything containing `+`, digits, more
+ * than one dot, hyphens, or a length suggesting a system identifier
+ * (>24 chars).
+ */
+function isNameLikeLocalPart(local: string): boolean {
+  if (!local || local.length > 24) return false
+  if (/[+\-_0-9]/.test(local)) return false
+  // Hungarian + ASCII letters, optional single dot between two words.
+  return /^[a-záéíóöőúüű]+(?:\.[a-záéíóöőúüű]+)?$/i.test(local)
+}
 
 /**
  * Resolves a display name from potentially sparse user identity fields.
@@ -35,10 +53,10 @@ export function resolveDisplayName(opts: {
   if (first && last) return `${first} ${last}`
   if (first) return first
 
-  // (c) — email local-part, first letter capitalised
+  // (c) — email local-part, only when it looks name-like
   if (email) {
     const localPart = email.split('@')[0]
-    if (localPart) {
+    if (localPart && isNameLikeLocalPart(localPart)) {
       return localPart.charAt(0).toUpperCase() + localPart.slice(1)
     }
   }
