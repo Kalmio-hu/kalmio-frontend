@@ -5,6 +5,7 @@ import { X, Search } from 'lucide-react'
 import { ingredientsService } from '@/services/ingredients'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
+import { getIngredientName, getIngredientAliases, getIngredientSearchHaystack, type SupportedLocale } from '@/lib/i18nIngredient'
 import type { Ingredient } from '@/types'
 
 interface ForbiddenIngredientsPickerProps {
@@ -27,7 +28,8 @@ export function ForbiddenIngredientsPicker({
   onChange,
   className,
 }: ForbiddenIngredientsPickerProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang: SupportedLocale = (i18n.language?.startsWith('hu') ? 'hu' : 'en')
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -52,14 +54,13 @@ export function ForbiddenIngredientsPicker({
 
   const selectedIngredients = ingredients.filter(i => value.includes(i.id))
 
+  // KALMIO-429: filter against the full multilingual haystack (HU + EN names
+  // + aliases) so users typing the other-language name still find the
+  // ingredient. Display always uses the user's locale.
   const filteredIngredients = ingredients.filter(ing => {
     if (value.includes(ing.id)) return false
     if (!query.trim()) return true
-    const q = query.toLowerCase()
-    return (
-      ing.name.toLowerCase().includes(q) ||
-      (ing.aliases ?? []).some(a => a.toLowerCase().includes(q))
-    )
+    return getIngredientSearchHaystack(ing).includes(query.toLowerCase())
   })
 
   function select(ing: Ingredient) {
@@ -84,23 +85,26 @@ export function ForbiddenIngredientsPicker({
       {/* Selected chips */}
       {selectedIngredients.length > 0 && (
         <div className="flex flex-wrap gap-1.5" role="list" aria-label={t('plan.forbiddenIngredients.label')}>
-          {selectedIngredients.map(ing => (
-            <span
-              key={ing.id}
-              role="listitem"
-              className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700"
-            >
-              {ing.name}
-              <button
-                type="button"
-                onClick={() => remove(ing.id)}
-                aria-label={`${ing.name} eltávolítása`}
-                className="ml-0.5 rounded-full text-red-500 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          {selectedIngredients.map(ing => {
+            const displayName = getIngredientName(ing, lang)
+            return (
+              <span
+                key={ing.id}
+                role="listitem"
+                className="inline-flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-medium text-red-700"
               >
-                <X className="h-3 w-3" />
-              </button>
-            </span>
-          ))}
+                {displayName}
+                <button
+                  type="button"
+                  onClick={() => remove(ing.id)}
+                  aria-label={t('plan.forbiddenIngredients.removeAria', { name: displayName, defaultValue: `${displayName} eltávolítása` })}
+                  className="ml-0.5 rounded-full text-red-500 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            )
+          })}
         </div>
       )}
 
@@ -147,24 +151,34 @@ export function ForbiddenIngredientsPicker({
             </p>
           ) : (
             <ul className="max-h-52 overflow-y-auto divide-y divide-gray-50">
-              {filteredIngredients.slice(0, 40).map(ing => (
-                <li key={ing.id}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={false}
-                    onClick={() => select(ing)}
-                    className="w-full text-left px-3 py-2 text-sm text-[#1A1A1A] hover:bg-[#F9F7F2] transition-colors focus-visible:outline-none focus-visible:bg-[#F9F7F2]"
-                  >
-                    {ing.name}
-                    {ing.aliases.length > 0 && (
-                      <span className="ml-1.5 text-xs text-gray-400">
-                        ({ing.aliases.slice(0, 2).join(', ')})
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
+              {filteredIngredients.slice(0, 40).map(ing => {
+                const displayName = getIngredientName(ing, lang)
+                // Secondary aliases: use the other-locale list so HU users see
+                // English alternatives as a parenthetical hint, and vice-versa.
+                const otherLang: SupportedLocale = lang === 'hu' ? 'en' : 'hu'
+                const otherAliases = getIngredientAliases(ing, otherLang)
+                const otherName = ing.translations?.[otherLang]?.name
+                const secondaryParts = [otherName, ...(otherAliases ?? [])]
+                  .filter((s): s is string => !!s && s !== displayName)
+                return (
+                  <li key={ing.id}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={false}
+                      onClick={() => select(ing)}
+                      className="w-full text-left px-3 py-2 text-sm text-[#1A1A1A] hover:bg-[#F9F7F2] transition-colors focus-visible:outline-none focus-visible:bg-[#F9F7F2]"
+                    >
+                      {displayName}
+                      {secondaryParts.length > 0 && (
+                        <span className="ml-1.5 text-xs text-gray-400">
+                          ({secondaryParts.slice(0, 2).join(', ')})
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>

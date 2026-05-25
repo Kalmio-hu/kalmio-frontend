@@ -199,7 +199,8 @@ interface AddItemFormProps {
 }
 
 function AddItemForm({ planId, onAdded, onCancel }: AddItemFormProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang: 'hu' | 'en' = i18n.language?.startsWith('hu') ? 'hu' : 'en'
   const queryClient = useQueryClient()
   const [query, setQuery] = useState('')
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null)
@@ -277,20 +278,26 @@ function AddItemForm({ planId, onAdded, onCancel }: AddItemFormProps) {
               {t('shopNow.noIngredientMatch')} — {t('shopNow.willAddAdhoc')}
             </li>
           )}
-          {suggestions?.map((ingredient) => (
-            <li key={ingredient.id}>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedIngredient(ingredient)
-                  setQuery(ingredient.name)
-                }}
-                className="w-full text-left px-3 py-2 text-[14px] hover:bg-neutral-50 active:bg-neutral-100 min-h-[44px] flex items-center"
-              >
-                {ingredient.name}
-              </button>
-            </li>
-          ))}
+          {suggestions?.map((ingredient) => {
+            // KALMIO-429: prefer the user-locale name from translations; fall
+            // back to canonical (often English) name only when no translation
+            // exists.
+            const displayName = ingredient.translations?.[lang]?.name ?? ingredient.name
+            return (
+              <li key={ingredient.id}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedIngredient(ingredient)
+                    setQuery(displayName)
+                  }}
+                  className="w-full text-left px-3 py-2 text-[14px] hover:bg-neutral-50 active:bg-neutral-100 min-h-[44px] flex items-center"
+                >
+                  {displayName}
+                </button>
+              </li>
+            )
+          })}
         </ul>
       )}
 
