@@ -15,7 +15,20 @@ import { useFeatureFlag } from '@/lib/featureFlags'
 
 const BUILD_TIME_ENABLED = import.meta.env.VITE_PREMIUM_ENABLED === 'true'
 
+/**
+ * Dev/QA escape hatch: append `?premium=1` to any URL to force the premium gate
+ * on for the current page load. Only honoured in dev mode so it can never leak
+ * into a production build. Safer than relying on PostHog's URL-param override,
+ * which silently no-ops if consent has not been granted on the current session.
+ */
+function hasDevUrlOverride(): boolean {
+  if (!import.meta.env.DEV) return false
+  if (typeof window === 'undefined') return false
+  return new URLSearchParams(window.location.search).get('premium') === '1'
+}
+
 export function useIsPremiumFeatureEnabled(): boolean {
   const runtimeEnabled = useFeatureFlag('premium_enabled')
+  if (hasDevUrlOverride()) return true
   return BUILD_TIME_ENABLED && Boolean(runtimeEnabled)
 }
