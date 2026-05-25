@@ -2754,7 +2754,10 @@
     "oneMinuteAgo": "1 minute ago",
     "minutesAgo": "{{count}} minutes ago",
     "dismiss": "Dismiss",
-    "tooltipOffline": "No network — this action is not available offline."
+    "tooltipOffline": "No network — this action is not available offline.",
+    "queuedActions_one": "{{count}} action queued, will sync when online.",
+    "queuedActions_other": "{{count}} actions queued, will sync when online.",
+    "queuedActionsSynced": "Synced."
   },
   "shopNow": {
     "title": "Shopping",

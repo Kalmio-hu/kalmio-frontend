@@ -2754,7 +2754,10 @@
     "oneMinuteAgo": "1 perce",
     "minutesAgo": "{{count}} perce",
     "dismiss": "Bezárás",
-    "tooltipOffline": "Nincs hálózat — ez a funkció nem érhető el offline."
+    "tooltipOffline": "Nincs hálózat — ez a funkció nem érhető el offline.",
+    "queuedActions_one": "{{count}} művelet sorban — szinkronizálásra vár.",
+    "queuedActions_other": "{{count}} művelet sorban — szinkronizálásra vár.",
+    "queuedActionsSynced": "Szinkronizálva."
   },
   "shopNow": {
     "title": "Bevásárlás",

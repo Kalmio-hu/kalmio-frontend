@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -489,6 +489,17 @@ export function ShoppingList() {
               {t('shoppingList.tescoMappingWeak')}
             </div>
           )}
+
+          {/* Shop now CTA — routes to manual shopping mode (C12) */}
+          <div className="mt-6 mb-2">
+            <Link
+              to={`/app/shop/${calendarPlan!.id}`}
+              className="flex items-center justify-center gap-2 w-full rounded-[12px] bg-[#4F7942] px-4 py-3 text-sm font-semibold text-white hover:bg-[#3e6134] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] focus-visible:ring-offset-2 transition-colors"
+            >
+              <ShoppingCart className="h-4 w-4 shrink-0" />
+              {t('shoppingList.shopNowEntry.button')}
+            </Link>
+          </div>
 
           {/* Footer action bar */}
           <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-200">
