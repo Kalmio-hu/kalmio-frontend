@@ -1155,6 +1155,8 @@
     "passkeyForEmail": "Jelszókulcs",
     "useEmailInstead": "Inkább e-maillel",
     "passkeyError": "A jelszókulcsos bejelentkezés nem sikerült. Győződj meg róla, hogy van regisztrált jelszókulcsod ehhez a fiókhoz.",
+    "passkeyAbandon": "Inkább másképp lépek be",
+    "passkeyTimeout": "Az azonosítás túl sokáig tartott. Próbáld e-maillel vagy Google-fiókkal.",
     "continueWithEmail": "Folytatás e-maillel",
     "emailLabel": "E-mail cím",
     "emailPlaceholder": "te@pelda.hu",

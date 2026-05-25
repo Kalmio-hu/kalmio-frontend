@@ -90,9 +90,31 @@ export function Auth() {
 
   // ── Passkey flows ─────────────────────────────────────────────────────────
 
+  // KALMIO-425: passkey safety timeout. The WebAuthn prompt can sit indefinitely
+  // if the user looks away or the browser's native dialog doesn't surface (some
+  // OS configurations) — at which point every login button stays disabled and
+  // the user is stuck. A 90-second hard timeout releases the loading state so
+  // the user can fall back to email/Google.
+  const passkeyTimeoutRef = useRef<number | null>(null)
+  function clearPasskeyTimeout() {
+    if (passkeyTimeoutRef.current != null) {
+      window.clearTimeout(passkeyTimeoutRef.current)
+      passkeyTimeoutRef.current = null
+    }
+  }
+  function startPasskeyTimeout() {
+    clearPasskeyTimeout()
+    passkeyTimeoutRef.current = window.setTimeout(() => {
+      setPasskeyLoading(false)
+      setShowEmailFallback(true)
+      setError(t('auth.passkeyTimeout'))
+    }, 90_000)
+  }
+
   /** Primary: discoverable credential — browser picks from all enrolled passkeys */
   const signInWithPasskeyDiscoverable = async () => {
     setPasskeyLoading(true)
+    startPasskeyTimeout()
     setError(null)
     capture('signup_started', { method: 'passkey' })
     try {
@@ -109,6 +131,7 @@ export function Auth() {
         setShowEmailFallback(true)
       }
     } finally {
+      clearPasskeyTimeout()
       setPasskeyLoading(false)
     }
   }
@@ -116,6 +139,7 @@ export function Auth() {
   /** Fallback: email-targeted passkey when user types their email first */
   const signInWithPasskeyForEmail = async (email: string) => {
     setPasskeyLoading(true)
+    startPasskeyTimeout()
     setError(null)
     try {
       const result = await authenticateWithPasskey(email)
@@ -124,8 +148,20 @@ export function Auth() {
     } catch {
       setError(t('auth.passkeyError'))
     } finally {
+      clearPasskeyTimeout()
       setPasskeyLoading(false)
     }
+  }
+
+  /**
+   * Explicit "use another method" escape hatch from the passkey loading state.
+   * WebAuthn may keep running in the background (its result is discarded by the
+   * timeout), but the UI is unlocked so the user can try email or Google.
+   */
+  function abandonPasskey() {
+    clearPasskeyTimeout()
+    setPasskeyLoading(false)
+    setShowEmailFallback(true)
   }
 
   // ── Google OAuth ──────────────────────────────────────────────────────────
@@ -284,6 +320,20 @@ export function Auth() {
                     : <Fingerprint size={18} />}
                   {passkeyLoading ? t('auth.passkeyVerifying') : t('auth.continueWithPasskey')}
                 </Button>
+
+                {/* KALMIO-425: visible escape while the WebAuthn prompt is up so the
+                    user is never stranded if the OS dialog hangs or their authenticator
+                    is unavailable. Clicking abandons the in-progress attempt and
+                    reveals the email/Google alternatives. */}
+                {passkeyLoading && (
+                  <button
+                    type="button"
+                    onClick={abandonPasskey}
+                    className="w-full text-xs text-gray-500 hover:text-gray-700 underline underline-offset-2 transition-colors py-1"
+                  >
+                    {t('auth.passkeyAbandon')}
+                  </button>
+                )}
 
                 {/* Google OAuth */}
                 <ProviderButton

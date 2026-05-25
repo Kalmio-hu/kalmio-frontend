@@ -1155,6 +1155,8 @@
     "passkeyForEmail": "Passkey",
     "useEmailInstead": "Use email instead",
     "passkeyError": "Passkey sign-in failed. Make sure you have a passkey registered for this account.",
+    "passkeyAbandon": "Use another method",
+    "passkeyTimeout": "Passkey took too long. Try email or Google sign-in.",
     "continueWithEmail": "Continue with Email",
     "emailLabel": "Email address",
     "emailPlaceholder": "you@example.com",
