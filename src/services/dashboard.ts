@@ -18,13 +18,19 @@ export const dashboardService = {
     api.get<DailyMacroDto>('/api/macros/daily', { params: { date } }).then(r => r.data),
 
   logOffPlanMeal: (req: LogOffPlanMealRequest): Promise<unknown> =>
-    api.post('/api/off-plan-meals', req).then(r => r.data),
+    api
+      .post('/api/off-plan-meals', req, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   updateOffPlanMeal: (id: string, req: UpdateOffPlanMealRequest): Promise<unknown> =>
-    api.patch(`/api/off-plan-meals/${id}`, req).then(r => r.data),
+    api
+      .patch(`/api/off-plan-meals/${id}`, req, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   deleteOffPlanMeal: (id: string): Promise<void> =>
-    api.delete(`/api/off-plan-meals/${id}`).then(r => r.data),
+    api
+      .delete(`/api/off-plan-meals/${id}`, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   getCalendar: (from: string, to: string): Promise<CalendarDayDto[]> =>
     api.get<CalendarDayDto[]>('/api/dashboard/calendar', { params: { from, to } }).then(r => r.data),
@@ -35,5 +41,7 @@ export const dashboardService = {
 
 export const prepTaskService = {
   updateStatus: (id: string, status: string): Promise<unknown> =>
-    api.patch(`/api/prep-tasks/${id}/status`, { status }).then(r => r.data),
+    api
+      .patch(`/api/prep-tasks/${id}/status`, { status }, { requestIdempotencyKey: true })
+      .then(r => r.data),
 }

@@ -2805,5 +2805,12 @@
       "PERSONAL_CARE": "Higiénia",
       "OTHER": "Egyéb"
     }
+  },
+  "mutation": {
+    "rollbackError": "A módosítás nem sikerült. A korábbi állapot visszaállt.",
+    "mealStatusError": "Az étkezés állapotát nem sikerült frissíteni.",
+    "prepTaskError": "Az előkészítési feladat állapotát nem sikerült frissíteni.",
+    "fridgeAddError": "A hűtő feltöltése nem sikerült.",
+    "fridgeDeleteError": "A hűtőből való törlés nem sikerült."
   }
 }

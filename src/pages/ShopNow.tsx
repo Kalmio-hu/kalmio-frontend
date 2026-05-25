@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
 import { persistentShoppingListService } from '@/services/shoppingList'
 import { ingredientsService } from '@/services/ingredients'
+import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
 import type {
   PersistentShoppingListResponse,
   PersistentShoppingListItem,
@@ -315,6 +316,9 @@ export function ShopNow() {
   const queryClient = useQueryClient()
   const [showAddForm, setShowAddForm] = useState(false)
   const undoMapRef = useRef<Map<string, UndoEntry>>(new Map())
+
+  // Re-align with server state after background-sync drains (KALMIO-378).
+  useSyncInvalidation([shopListKey(planId!)])
 
   // ── Load the shopping list ─────────────────────────────────────────────
 

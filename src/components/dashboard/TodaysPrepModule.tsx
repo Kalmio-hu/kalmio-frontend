@@ -7,7 +7,8 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { prepTaskService } from '@/services/dashboard'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
-import type { PrepTaskCard, PrepType, PrepWindow } from '@/types'
+import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
+import type { PrepTaskCard, PrepType, PrepWindow, DashboardDto } from '@/types'
 
 interface TodaysPrepModuleProps {
   tasks: PrepTaskCard[]
@@ -39,13 +40,34 @@ function PrepTaskRow({ task, dashboardDate }: PrepTaskRowProps) {
       if (!task.id) return Promise.reject(new Error('no id'))
       return prepTaskService.updateStatus(task.id, 'DONE')
     },
+    onMutate: async () => {
+      if (!task.id) return undefined
+      await queryClient.cancelQueries({ queryKey: ['dashboard', dashboardDate] })
+      const snapshot = queryClient.getQueryData<DashboardDto>(['dashboard', dashboardDate])
+      // Optimistically mark the task as DONE in the dashboard cache.
+      queryClient.setQueryData<DashboardDto>(['dashboard', dashboardDate], (prev) => {
+        if (!prev) return prev
+        function applyDone(list: PrepTaskCard[]): PrepTaskCard[] {
+          return list.map((p) => p.id === task.id ? { ...p, status: 'DONE' } : p)
+        }
+        return {
+          ...prev,
+          todaysPrepTasks: applyDone(prev.todaysPrepTasks),
+          tomorrowsPrepTasks: applyDone(prev.tomorrowsPrepTasks),
+        }
+      })
+      return { snapshot }
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', dashboardDate] })
       void queryClient.invalidateQueries({ queryKey: ['points'] })
       toast({ title: t('dashboard.prep.markDone'), variant: 'success' })
     },
-    onError: () => {
-      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['dashboard', dashboardDate], context.snapshot)
+      }
+      toast({ title: t('mutation.prepTaskError'), variant: 'destructive' })
     },
   })
 
@@ -118,6 +140,9 @@ function PrepTaskRow({ task, dashboardDate }: PrepTaskRowProps) {
 
 export function TodaysPrepModule({ tasks, dashboardDate }: TodaysPrepModuleProps) {
   const { t } = useTranslation()
+
+  // Re-align with server state after background-sync drains (KALMIO-378).
+  useSyncInvalidation([['dashboard', dashboardDate], ['points']])
 
   if (tasks.length === 0) return null
 

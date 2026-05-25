@@ -32,10 +32,12 @@ export const planService = {
     api.get<Plan>(`/api/plans/calendar/${id}`).then(r => r.data),
 
   updateMeal: (planId: string, mealId: string, req: UpdatePlannedMealRequest): Promise<PlannedMeal> =>
-    api.patch<PlannedMeal>(`/api/plans/calendar/${planId}/meals/${mealId}`, req).then(r => r.data),
+    api
+      .patch<PlannedMeal>(`/api/plans/calendar/${planId}/meals/${mealId}`, req, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   delete: (id: string): Promise<void> =>
-    api.delete(`/api/plans/calendar/${id}`).then(() => undefined),
+    api.delete(`/api/plans/calendar/${id}`, { requestIdempotencyKey: true }).then(() => undefined),
 
   evaluateReplan: (planId: string, fromDate?: string): Promise<ReplanDiff | null> =>
     api.post<ReplanDiff>(
@@ -57,7 +59,9 @@ export const planService = {
     api.get<ShoppingList>(`/api/plans/calendar/${planId}/shopping-list`).then(r => r.data),
 
   patchMealScheduledTime: (planId: string, mealId: string, scheduledTime: string | null): Promise<void> =>
-    api.patch(`/api/plans/calendar/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }).then(() => undefined),
+    api
+      .patch(`/api/plans/calendar/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }, { requestIdempotencyKey: true })
+      .then(() => undefined),
 }
 
 // ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────

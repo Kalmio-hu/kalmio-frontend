@@ -41,11 +41,15 @@ export const prepTasksService = {
    * Also accepts an optional scheduledTime override.
    */
   patchSchedule: (taskId: string, body: UpdatePrepTaskScheduleRequest): Promise<PrepTaskDto> =>
-    api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/schedule`, body).then(r => r.data),
+    api
+      .patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/schedule`, body, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   /** PATCH /api/prep-tasks/{id}/scheduled-time — set or clear the time override. */
   patchScheduledTime: (taskId: string, scheduledTime: string | null): Promise<void> =>
-    api.patch(`/api/prep-tasks/${taskId}/scheduled-time`, { scheduledTime }).then(() => undefined),
+    api
+      .patch(`/api/prep-tasks/${taskId}/scheduled-time`, { scheduledTime }, { requestIdempotencyKey: true })
+      .then(() => undefined),
 
   /**
    * GET /api/prep-tasks?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
@@ -61,7 +65,9 @@ export const prepTasksService = {
    * Returns the resulting tasks (KALMIO-268 / Prep-H).
    */
   split: (taskId: string): Promise<PrepTaskDto[]> =>
-    api.post<PrepTaskDto[]>(`/api/prep-tasks/${taskId}/split`).then(r => r.data),
+    api
+      .post<PrepTaskDto[]>(`/api/prep-tasks/${taskId}/split`, null, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   /**
    * PATCH /api/prep-tasks/{id}/execute-immediately-before — toggle embed/detach.
@@ -70,7 +76,13 @@ export const prepTasksService = {
    * Used by goo drag (KALMIO-325) and keyboard a11y buttons (KALMIO-328).
    */
   patchExecuteImmediatelyBefore: (taskId: string, value: boolean): Promise<PrepTaskDto> =>
-    api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/execute-immediately-before`, { value }).then(r => r.data),
+    api
+      .patch<PrepTaskDto>(
+        `/api/prep-tasks/${taskId}/execute-immediately-before`,
+        { value },
+        { requestIdempotencyKey: true },
+      )
+      .then(r => r.data),
 
   /**
    * PATCH /api/prep-tasks/{id}/status — toggle a prep task between PENDING and DONE.
@@ -78,7 +90,9 @@ export const prepTasksService = {
    * On PENDING: restores fridge items from the depletion ledger (KALMIO-311).
    */
   updateStatus: (taskId: string, status: 'DONE' | 'PENDING' | 'SKIPPED'): Promise<PrepTaskDto> =>
-    api.patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/status`, { status }).then(r => r.data),
+    api
+      .patch<PrepTaskDto>(`/api/prep-tasks/${taskId}/status`, { status }, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   /**
    * Convert a PrepTaskDto to the PrepTaskCard shape used by the dashboard

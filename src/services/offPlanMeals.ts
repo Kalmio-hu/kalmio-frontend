@@ -9,13 +9,17 @@ import type {
 
 export const offPlanMealsService = {
   log: (req: LogOffPlanMealRequest): Promise<OffPlanMealCard> =>
-    api.post<OffPlanMealCard>('/api/dashboard/off-plan-meals', req).then(r => r.data),
+    api
+      .post<OffPlanMealCard>('/api/dashboard/off-plan-meals', req, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   list: (date: string): Promise<OffPlanMealCard[]> =>
     api.get<OffPlanMealCard[]>('/api/dashboard/off-plan-meals', { params: { date } }).then(r => r.data),
 
   delete: (id: string): Promise<void> =>
-    api.delete(`/api/dashboard/off-plan-meals/${id}`).then(() => undefined),
+    api
+      .delete(`/api/dashboard/off-plan-meals/${id}`, { requestIdempotencyKey: true })
+      .then(() => undefined),
 
   /**
    * Sets or clears (with null) the timeline scheduled time for an off-plan meal.
@@ -23,7 +27,7 @@ export const offPlanMealsService = {
    */
   patchScheduledTime: (id: string, scheduledTime: string | null): Promise<void> =>
     api
-      .patch(`/api/dashboard/off-plan-meals/${id}/scheduled-time`, { scheduledTime })
+      .patch(`/api/dashboard/off-plan-meals/${id}/scheduled-time`, { scheduledTime }, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /**
@@ -31,7 +35,9 @@ export const offPlanMealsService = {
    * 402 = not premium, 429 = rate-limited (10/min).
    */
   logFromText: (req: AiOffPlanLogTextRequest): Promise<AiOffPlanLogResponse> =>
-    api.post<AiOffPlanLogResponse>('/api/off-plan-meals/from-text', req).then(r => r.data),
+    api
+      .post<AiOffPlanLogResponse>('/api/off-plan-meals/from-text', req, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   /**
    * Premium: transcribe a voice memo via Whisper, parse, and persist.
@@ -48,7 +54,7 @@ export const offPlanMealsService = {
     if (opts?.mealType) form.append('mealType', opts.mealType)
     if (opts?.eatenAt) form.append('eatenAt', opts.eatenAt)
     return api
-      .post<AiOffPlanLogResponse>('/api/off-plan-meals/from-voice', form)
+      .post<AiOffPlanLogResponse>('/api/off-plan-meals/from-voice', form, { requestIdempotencyKey: true })
       .then(r => r.data)
   },
 
@@ -68,7 +74,7 @@ export const offPlanMealsService = {
     if (opts?.mealType) form.append('mealType', opts.mealType)
     if (opts?.eatenAt) form.append('eatenAt', opts.eatenAt)
     return api
-      .post<AiOffPlanLogResponse>('/api/off-plan-meals/from-photo', form)
+      .post<AiOffPlanLogResponse>('/api/off-plan-meals/from-photo', form, { requestIdempotencyKey: true })
       .then(r => r.data)
   },
 }

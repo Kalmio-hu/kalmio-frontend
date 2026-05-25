@@ -2805,5 +2805,12 @@
       "PERSONAL_CARE": "Personal care",
       "OTHER": "Other"
     }
+  },
+  "mutation": {
+    "rollbackError": "The change could not be saved. The previous state has been restored.",
+    "mealStatusError": "Could not update the meal status.",
+    "prepTaskError": "Could not update the prep task status.",
+    "fridgeAddError": "Could not add the item to the fridge.",
+    "fridgeDeleteError": "Could not remove the item from the fridge."
   }
 }

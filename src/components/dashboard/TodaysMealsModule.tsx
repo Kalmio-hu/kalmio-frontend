@@ -12,7 +12,8 @@ import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { LogOffPlanMealModal } from './LogOffPlanMealModal'
 import { todayIsoLocal } from '@/lib/utils'
-import type { TodaysMealCard, OffPlanMealCard, Plan } from '@/types'
+import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
+import type { TodaysMealCard, OffPlanMealCard, Plan, DashboardDto, PlannedMealStatusExtended } from '@/types'
 
 interface TodaysMealsModuleProps {
   meals: TodaysMealCard[]
@@ -85,42 +86,75 @@ function MealCard({ meal, planId, today }: MealCardProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [menuOpen])
 
+  // ── Optimistic helpers ──────────────────────────────────────────────────
+  // Applies a status change directly to the cached DashboardDto so the UI
+  // responds instantly without waiting for the network. The snapshot is
+  // stored in onMutate context and restored on terminal error.
+  function applyOptimisticMealStatus(newStatus: PlannedMealStatusExtended) {
+    void queryClient.cancelQueries({ queryKey: ['dashboard', today] })
+    const snapshot = queryClient.getQueryData<DashboardDto>(['dashboard', today])
+    queryClient.setQueryData<DashboardDto>(['dashboard', today], (prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        todaysMeals: prev.todaysMeals.map((m) =>
+          m.mealId === meal.mealId ? { ...m, status: newStatus } : m,
+        ),
+      }
+    })
+    return { snapshot }
+  }
+
+  function rollbackMealStatus(context: { snapshot: DashboardDto | undefined } | undefined) {
+    if (context?.snapshot) {
+      queryClient.setQueryData(['dashboard', today], context.snapshot)
+    }
+  }
+
   const markEaten = useMutation({
     mutationFn: () =>
       planService.updateMeal(planId, meal.mealId, { status: 'EATEN' }),
+    onMutate: () => applyOptimisticMealStatus('EATEN'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
       void queryClient.invalidateQueries({ queryKey: ['macros', today] })
       toast({ title: t('dashboard.meals.markEaten'), variant: 'success' })
     },
-    onError: () => {
-      toast({ title: t('dashboard.meals.errorUpdating'), variant: 'destructive' })
+    onError: (_err, _vars, context) => {
+      rollbackMealStatus(context)
+      toast({ title: t('mutation.mealStatusError'), variant: 'destructive' })
     },
   })
 
   const markSkipped = useMutation({
     mutationFn: () =>
       planService.updateMeal(planId, meal.mealId, { status: 'SKIPPED' }),
+    onMutate: () => applyOptimisticMealStatus('SKIPPED'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
       void queryClient.invalidateQueries({ queryKey: ['macros', today] })
       setMenuOpen(false)
     },
-    onError: () => {
-      toast({ title: t('dashboard.meals.errorUpdating'), variant: 'destructive' })
+    onError: (_err, _vars, context) => {
+      rollbackMealStatus(context)
+      toast({ title: t('mutation.mealStatusError'), variant: 'destructive' })
+      setMenuOpen(false)
     },
   })
 
   const markPlanned = useMutation({
     mutationFn: () =>
       planService.updateMeal(planId, meal.mealId, { status: 'PLANNED' }),
+    onMutate: () => applyOptimisticMealStatus('PLANNED'),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
       void queryClient.invalidateQueries({ queryKey: ['macros', today] })
       setMenuOpen(false)
     },
-    onError: () => {
-      toast({ title: t('dashboard.meals.errorUpdating'), variant: 'destructive' })
+    onError: (_err, _vars, context) => {
+      rollbackMealStatus(context)
+      toast({ title: t('mutation.mealStatusError'), variant: 'destructive' })
+      setMenuOpen(false)
     },
   })
 
@@ -274,11 +308,26 @@ function OffPlanMealCardItem({ meal, today }: { meal: OffPlanMealCard; today: st
 
   const deleteMeal = useMutation({
     mutationFn: () => dashboardService.deleteOffPlanMeal(meal.id),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['dashboard', today] })
+      const snapshot = queryClient.getQueryData<DashboardDto>(['dashboard', today])
+      queryClient.setQueryData<DashboardDto>(['dashboard', today], (prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          offPlanMeals: prev.offPlanMeals.filter((m) => m.id !== meal.id),
+        }
+      })
+      return { snapshot }
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
       void queryClient.invalidateQueries({ queryKey: ['macros', today] })
     },
-    onError: () => {
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['dashboard', today], context.snapshot)
+      }
       toast({ title: t('dashboard.meals.errorUpdating'), variant: 'destructive' })
     },
   })
@@ -338,6 +387,9 @@ export function TodaysMealsModule({ meals, offPlanMeals, activePlan, isLoading }
   const { t } = useTranslation()
   const today = todayIsoLocal()
   const [addModalOpen, setAddModalOpen] = useState(false)
+
+  // Re-align with server state after background-sync drains (KALMIO-378).
+  useSyncInvalidation([['dashboard', today], ['macros', today]])
 
   if (isLoading) {
     return (

@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label'
 import { IngredientSearchDialog } from '@/components/IngredientSearchDialog'
 import { fridgeService } from '@/services/fridge'
 import { capture } from '@/lib/analytics'
+import { toast } from '@/components/ui/toast'
+import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
 import type { FridgeItem, Ingredient, IngredientCategory, Unit } from '@/types'
 
 const CATEGORY_COLOR: Record<IngredientCategory, 'green' | 'orange' | 'gray' | 'black'> = {
@@ -103,8 +105,33 @@ export function Fridge() {
     queryFn: fridgeService.list,
   })
 
+  // Re-align with server state after background-sync drains (KALMIO-378).
+  useSyncInvalidation([['fridge']])
+
   const addMutation = useMutation({
     mutationFn: fridgeService.add,
+    onMutate: async (req) => {
+      await queryClient.cancelQueries({ queryKey: ['fridge'] })
+      const snapshot = queryClient.getQueryData<FridgeItem[]>(['fridge'])
+      // Optimistic placeholder — use a temp id; server will assign the real one.
+      // We do not know the ingredient name at this point (the request only
+      // carries the ingredientId), so we leave a minimal placeholder. The
+      // invalidation in onSuccess will replace it with the real server item.
+      const tempItem: FridgeItem = {
+        id: `temp-${Date.now()}`,
+        ingredientId: req.ingredientId,
+        ingredientName: '…',
+        ingredientCategory: null,
+        pantryItem: false,
+        amount: req.amount,
+        unit: req.unit,
+        addedAt: new Date().toISOString(),
+        expiryDate: req.expiryDate ?? null,
+        source: 'MANUAL',
+      }
+      queryClient.setQueryData<FridgeItem[]>(['fridge'], (prev) => [...(prev ?? []), tempItem])
+      return { snapshot }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fridge'] })
       capture('fridge_item_added')
@@ -115,13 +142,33 @@ export function Fridge() {
       setExpiryDate('')
       setExpiryAutoFilled(false)
     },
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['fridge'], context.snapshot)
+      }
+      toast({ title: t('mutation.fridgeAddError'), variant: 'destructive' })
+    },
   })
 
   const deleteMutation = useMutation({
     mutationFn: fridgeService.delete,
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['fridge'] })
+      const snapshot = queryClient.getQueryData<FridgeItem[]>(['fridge'])
+      queryClient.setQueryData<FridgeItem[]>(['fridge'], (prev) =>
+        (prev ?? []).filter((item) => item.id !== id),
+      )
+      return { snapshot }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fridge'] })
       capture('fridge_item_marked_used')
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['fridge'], context.snapshot)
+      }
+      toast({ title: t('mutation.fridgeDeleteError'), variant: 'destructive' })
     },
   })
 
