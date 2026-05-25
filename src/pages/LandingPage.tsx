@@ -192,37 +192,41 @@ export function LandingPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/80" />
 
         <div className="relative z-10 text-white px-6 max-w-3xl mx-auto">
+          {/* KALMIO-405 — cumulative animation delays (was 0.2 → 0.65s) left
+              the hero blank for ~1.2s on cold load, which read as a broken
+              page. Render content immediately; the fade-in (no y-shift, no
+              delay) is still elegant but never leaves a void. */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
             className="text-[#F28C28] font-semibold text-sm uppercase tracking-widest mb-4"
           >
             {t('landing.hero.label')}
           </motion.p>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35, duration: 0.7 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
             className="font-headline text-4xl sm:text-5xl md:text-6xl font-bold leading-tight mb-6"
           >
             {t('landing.hero.headline')}
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
             className="text-white/80 text-lg sm:text-xl leading-relaxed mb-10 max-w-2xl mx-auto"
           >
             {t('landing.hero.subheadline')}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.65, duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Link
               to="/app/plans"
