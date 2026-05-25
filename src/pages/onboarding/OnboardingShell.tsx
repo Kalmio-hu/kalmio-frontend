@@ -47,6 +47,8 @@ import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
 import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
 import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
 import { PreferencesStep, type PreferencesStepValues } from '@/components/onboarding/PreferencesStep'
+import { TasteSwipe } from '@/components/taste/TasteSwipe'
+import { tasteSignalsService } from '@/services/tasteSignals'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
 import {
@@ -62,32 +64,38 @@ import {
 
 /**
  * KALMIO-393: Preferences step re-added as step 2 (founder reversal).
- * KALMIO-94: TDEE step is now step 3.
+ * KALMIO-94:  TDEE step is now step 3.
+ * KALMIO-431: TasteSwipe step inserted at position 4 (founder request) —
+ *             bumps tutorial → 5, plan-gen → 6, reveal → 7, csemete → 8.
  *
  * Step 1 — Welcome
- * Step 2 — Preferences (household, kcal, dietary, shopping, forbidden)
+ * Step 2 — Preferences (household, kcal, dietary, shopping, forbidden, budget)
  * Step 3 — TDEE suggestion (reads suggestedKcalTarget from user settings)
- * Step 4 — App orientation (MiniTutorialPlanner)
- * Step 5 — Plan generation loading
- * Step 6 — First plan reveal
- * Step 7 — Csemete moment
+ * Step 4 — TasteSwipe (Tinder-style swipe over 20 ingredient/recipe cards)
+ * Step 5 — App orientation (MiniTutorialPlanner)
+ * Step 6 — Plan generation loading
+ * Step 7 — First plan reveal
+ * Step 8 — Csemete moment
  */
-const TOTAL_STEPS = 7
+const TOTAL_STEPS = 8
 
 /**
  * Maps the 1-indexed shell step to the PlantingScene 0-indexed step (0..10).
  * Step 2 (Preferences) advances to PlantingScene 2 — walnut in the hole.
  * Step 3 (TDEE) stays at 0 — no visual change, informational only.
- * Step 4 (Orientation) fast-forwards to PlantingScene 6.
+ * Step 4 (TasteSwipe) sits between hole and cover — use PlantingScene 4
+ *   (mound forming) so the visual moves while the user is engaged.
+ * Step 5 (Orientation) fast-forwards to PlantingScene 6.
  */
 const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   1: 0,
   2: 2,
   3: 0,
-  4: 6,
-  5: 7,
-  6: 8,
-  7: 10,
+  4: 4,
+  5: 6,
+  6: 7,
+  7: 8,
+  8: 10,
 }
 
 // ---------------------------------------------------------------------------
@@ -98,8 +106,8 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
 
 function NarrativeBlock({ step }: { step: number }) {
   const { t } = useTranslation()
-  // Narrative blocks shown for steps 1–5 (before full-bleed reveal / csemete)
-  if (step < 1 || step > 5) return null
+  // Narrative blocks shown for steps 1–6 (before full-bleed reveal / csemete)
+  if (step < 1 || step > 6) return null
   return (
     <div className="flex flex-col gap-4 text-center text-[#5C3D1E] max-w-md">
       <p className="font-headline text-xl lg:text-2xl leading-snug font-semibold">
@@ -124,11 +132,78 @@ function PlanGenerationStep() {
       data-testid="step-plan-generation"
     >
       <p className="text-base font-semibold text-[#1A1A1A]">
-        {t('onboarding.shell.stepLabels.5')}
+        {t('onboarding.shell.stepLabels.6')}
       </p>
       <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
         {t('onboarding.shell.planGeneratingBody')}
       </p>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// TasteSwipe step (step 4) — KALMIO-431
+// Loads the user's taste deck from the backend and renders the swipe UI.
+// onContinue fires when the deck is exhausted, the user taps skip-all, or
+// the deck failed to load — we never let the user get stuck here.
+// ---------------------------------------------------------------------------
+
+interface TasteSwipeStepProps {
+  onContinue: () => void
+}
+
+function TasteSwipeStep({ onContinue }: TasteSwipeStepProps) {
+  const { t } = useTranslation()
+  const { data: deck, isLoading, isError } = useQuery({
+    queryKey: ['taste-deck'],
+    queryFn: () => tasteSignalsService.buildDeck(),
+    staleTime: 5 * 60_000,
+  })
+
+  // Auto-advance if the deck failed entirely so the user isn't stuck on
+  // an empty screen. If it just hasn't loaded yet, show the spinner.
+  useEffect(() => {
+    if (isError) onContinue()
+  }, [isError, onContinue])
+
+  return (
+    <div
+      className="flex flex-col items-center gap-5 px-4 py-2 w-full"
+      data-testid="step-taste-swipe"
+    >
+      <div className="text-center max-w-md mx-auto">
+        <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug">
+          {t('taste.onboardingTitle')}
+        </h2>
+        <p className="text-sm text-[#6B6460] mt-1.5 leading-relaxed">
+          {t('taste.onboardingBody')}
+        </p>
+      </div>
+
+      {isLoading || !deck ? (
+        <div className="flex items-center justify-center w-full h-[520px]">
+          <div className="w-10 h-10 rounded-full border-2 border-[#F28C28] border-t-transparent animate-spin" />
+        </div>
+      ) : deck.length === 0 ? (
+        // Empty deck — nothing to rate; just continue.
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <p className="text-sm text-[#6B6460]">{t('taste.emptyDeck', { defaultValue: 'Most nincs mit értékelned — folytasd a következő lépéssel.' })}</p>
+          <button
+            type="button"
+            onClick={onContinue}
+            className="h-11 px-6 rounded-[12px] bg-[#F28C28] text-white font-semibold text-sm hover:bg-[#d97a20] transition-colors"
+          >
+            {t('onboarding.shell.next')}
+          </button>
+        </div>
+      ) : (
+        <TasteSwipe
+          cards={deck}
+          source="ONBOARDING"
+          onComplete={onContinue}
+          onSkipAll={onContinue}
+        />
+      )}
     </div>
   )
 }
@@ -449,11 +524,10 @@ export function OnboardingShell() {
           </div>
         )}
 
-        {/* Step 4: App orientation (MiniTutorialPlanner) */}
+        {/* Step 4: TasteSwipe (KALMIO-431) — Tinder-style swipe over up to 20 cards */}
         {currentStep === 4 && (
           <>
-            {/* MiniTutorialPlanner: onSkip advances to the next step */}
-            <MiniTutorialPlanner onSkip={goNext} />
+            <TasteSwipeStep onContinue={goNext} />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
@@ -466,8 +540,25 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 5: Plan generation loading */}
+        {/* Step 5: App orientation (MiniTutorialPlanner) */}
         {currentStep === 5 && (
+          <>
+            {/* MiniTutorialPlanner: onSkip advances to the next step */}
+            <MiniTutorialPlanner onSkip={goNext} />
+            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
+              <button
+                type="button"
+                onClick={() => goToStep(4)}
+                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+              >
+                {t('common.back')}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 6: Plan generation loading */}
+        {currentStep === 6 && (
           <>
             <PlanGenerationStep />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
@@ -480,7 +571,7 @@ export function OnboardingShell() {
               </button>
               <button
                 type="button"
-                onClick={() => goToStep(4)}
+                onClick={() => goToStep(5)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
@@ -489,13 +580,13 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 6: First plan reveal */}
-        {currentStep === 6 && (
+        {/* Step 7: First plan reveal */}
+        {currentStep === 7 && (
           <FirstPlanReveal onDismiss={goNext} />
         )}
 
-        {/* Step 7: Csemete moment */}
-        {currentStep === 7 && (
+        {/* Step 8: Csemete moment */}
+        {currentStep === 8 && (
           <CsemeteWelcomeMoment onDismiss={goNext} />
         )}
         </main>

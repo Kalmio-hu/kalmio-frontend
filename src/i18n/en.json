@@ -1995,15 +1995,20 @@
   "taste": {
     "love": "Love it",
     "ok": "I'd eat it",
-    "hate": "Never",
+    "hate": "Not for me",
     "skip": "Skip",
+    "skipCard": "Skip card",
+    "skipAll": "Skip the rest",
     "progress": "{{current}} / {{total}}",
     "actionsLabel": "Rate this",
     "cardIngredient": "Ingredient",
     "cardRecipe": "Recipe",
     "done": "Your preferences are noted.",
     "doneSubtitle": "We will factor these into your plan — nothing else to do.",
-    "errorSubmit": "Could not save your response. Please try again."
+    "errorSubmit": "Could not save your response. Please try again.",
+    "swipeHint": "Swipe right to love · left to skip · up if you'd eat it · down to skip this card",
+    "onboardingTitle": "Tell me what you like.",
+    "onboardingBody": "Swipe each card the way you feel about it — there's no wrong answer. You can stop any time."
   },
   "grove": {
     "title": "The Kalmio Grove",
@@ -2106,10 +2111,14 @@
           "body": "A few numbers about you — height, weight, how much you move on a normal day. That is enough for me to suggest a sensible calorie and protein target. We fine-tune the rest as we go."
         },
         "4": {
+          "lead": "Your taste — a few cards.",
+          "body": "I'll show you ingredients and recipes. Swipe right if you love it, left if it's a no. A handful of these and your week gets much more personal."
+        },
+        "5": {
           "lead": "The seed is in the ground. Three small motions keep it alive.",
           "body": "Weekly planning, a fridge review before shopping, replanning when life intervenes. I'll show you all three now, so nothing surprises you. These are your small waterings."
         },
-        "5": {
+        "6": {
           "lead": "The first water.",
           "body": "The ground is heavy at the start because it doesn't know you yet. One moment — I'm assembling your week from what you've told me so far. After this, the rest is yours."
         }
@@ -2121,10 +2130,11 @@
         "1": "Welcome",
         "2": "Your eating habits",
         "3": "Calorie target",
-        "4": "How the planner works",
-        "5": "Building your plan…",
-        "6": "Your first week is ready",
-        "7": "Csemete — your first action"
+        "4": "Your taste",
+        "5": "How the planner works",
+        "6": "Building your plan…",
+        "7": "Your first week is ready",
+        "8": "Csemete — your first action"
       }
     },
     "preferencesStep": {

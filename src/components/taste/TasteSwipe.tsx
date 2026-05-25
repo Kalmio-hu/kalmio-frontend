@@ -1,29 +1,42 @@
 /**
  * TasteSwipe — KALMIO-156 / E9.5
  *
- * Three-button taste-rating card deck.
+ * A full Tinder-style swipe deck for taste-rating ingredients and recipes.
+ * Drag the top card in any of four directions; the card follows the finger,
+ * rotates with the horizontal travel, and a colour-tinted label fades in to
+ * communicate the action that release will commit:
  *
- * Props:
- *   cards         — ordered array of TasteCard items to rate
- *   source        — which context is triggering the ratings ('ONBOARDING' | 'IN_APP' | …)
- *   onSignal      — called after each successful submission (for planting-animation
- *                   micro-steps, analytics, etc.)
- *   onComplete    — called when all cards are rated or skipped
- *   onSkipAll     — called when the user taps "Kihagyom" (skip-all)
+ *   ← left  → "Nem ízlik"   (HATE)   red
+ *   → right → "Imádom"      (LOVE)   green / kalmio green
+ *   ↑ up    → "Megeszem"   (OK)     amber
+ *   ↓ down  → "Kihagyom"   (skip card, no signal)
  *
- * Gesture support (keyboard + pointer):
- *   ArrowRight / L key → LOVE
- *   ArrowUp    / U key → OK
- *   ArrowLeft  / J key → HATE
- *   Escape / S key     → skip current card (same as "Kihagyom" per-card behaviour)
+ * On release past the threshold the card flies off in the same direction
+ * with momentum; below the threshold it springs back to centre. Two ghost
+ * cards peek behind the active one so the deck has visual depth.
  *
- * Backend dependency:
- *   POST /api/users/me/taste-signals  (KALMIO-153 / E9.1).
- *   submitTasteSignal() swallows 404 so the UI advances even when backend is absent.
+ * Photos: when `card.imageUrl` is set the card is full-bleed image with a
+ * legibility gradient at the bottom. Without a photo we draw a warm
+ * gradient panel with a large category-appropriate glyph and a single
+ * uppercase initial as the visual anchor — works fine until photo
+ * generation catches up.
+ *
+ * Keyboard: ←/→/↑/↓ (also j/u/l/s) for hate/ok/love/skip.
+ *
+ * Backend dependency: POST /api/users/me/taste-signals (KALMIO-153).
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  useAnimationControls,
+  AnimatePresence,
+  type PanInfo,
+} from 'framer-motion'
+import { Heart, X, ThumbsUp, ChevronDown, Sparkles, Carrot, UtensilsCrossed } from 'lucide-react'
 import { capture } from '@/lib/analytics'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import type { TasteCard, TasteSignalSource, TasteSignalValue } from '@/types'
@@ -38,12 +51,256 @@ export interface TasteSwipeProps {
   onSkipAll?: () => void
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────
+type Direction = 'left' | 'right' | 'up' | 'down'
 
-// Minimum horizontal/vertical pointer delta to count as a swipe.
-const SWIPE_THRESHOLD_PX = 60
+// ── Tuning ─────────────────────────────────────────────────────────────────
 
-// ── Component ─────────────────────────────────────────────────────────────
+/** Pixels of drag travel needed to commit. */
+const COMMIT_PX = 110
+/** Pixels of travel at which the overlay label reaches full opacity. */
+const LABEL_FULL_PX = 80
+/** Maximum tilt (degrees) at the edge of the drag range. */
+const MAX_TILT = 18
+/** Off-screen distance the card flies to on commit. */
+const FLY_OFF_DISTANCE = 800
+/** Off-screen flight duration (seconds). */
+const FLY_OFF_DURATION = 0.32
+
+// ── Visual helpers ─────────────────────────────────────────────────────────
+
+function fallbackGradient(card: TasteCard): string {
+  // Stable hue per card so re-renders don't flicker. Use the first 6 chars of
+  // the id as a 24-bit number; map to hue. Warm for ingredients (15–55deg),
+  // cool-green for recipes (95–165deg). Keeps everything on-brand-ish.
+  const hash = parseInt((card.id || card.name).slice(0, 6).replace(/[^0-9a-f]/g, ''), 16) || 0
+  const isIng = card.targetType === 'INGREDIENT'
+  const hue = isIng ? 15 + (hash % 40) : 95 + (hash % 70)
+  return `linear-gradient(135deg, hsl(${hue}, 70%, 78%) 0%, hsl(${hue + 25}, 65%, 60%) 100%)`
+}
+
+function initialFor(name: string): string {
+  const ch = [...(name || '').trim()][0]
+  return ch ? ch.toLocaleUpperCase('hu-HU') : '?'
+}
+
+// ── Active card (the one you can drag) ─────────────────────────────────────
+
+interface ActiveCardProps {
+  card: TasteCard
+  onCommit: (direction: Direction) => void
+  disabled?: boolean
+  labels: Record<Direction, string>
+  hint: { ingredient: string; recipe: string }
+}
+
+function ActiveCard({ card, onCommit, disabled, labels, hint }: ActiveCardProps) {
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const controls = useAnimationControls()
+
+  // Rotation tracks horizontal travel for that satisfying Tinder tilt.
+  const rotate = useTransform(x, [-300, 0, 300], [-MAX_TILT, 0, MAX_TILT])
+
+  // Label opacity — clamps to [0, 1] once you cross LABEL_FULL_PX.
+  const loveOpacity = useTransform(x, [0, LABEL_FULL_PX], [0, 1], { clamp: true })
+  const hateOpacity = useTransform(x, [-LABEL_FULL_PX, 0], [1, 0], { clamp: true })
+  const okOpacity = useTransform(y, [-LABEL_FULL_PX, 0], [1, 0], { clamp: true })
+  const skipOpacity = useTransform(y, [0, LABEL_FULL_PX], [0, 1], { clamp: true })
+
+  // Subtle background tint as the user commits — green right, red left,
+  // amber up, stone down. Mixed into the bottom gradient via an overlay.
+  const tintRight = useTransform(x, [0, LABEL_FULL_PX], [0, 0.4], { clamp: true })
+  const tintLeft = useTransform(x, [-LABEL_FULL_PX, 0], [0.4, 0], { clamp: true })
+  const tintUp = useTransform(y, [-LABEL_FULL_PX, 0], [0.35, 0], { clamp: true })
+  const tintDown = useTransform(y, [0, LABEL_FULL_PX], [0, 0.35], { clamp: true })
+
+  const handleDragEnd = (_: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    if (disabled) return
+    const dx = info.offset.x
+    const dy = info.offset.y
+    const vx = info.velocity.x
+    const vy = info.velocity.y
+    // Either travel OR a sharp flick should commit.
+    const horizontalWins = Math.abs(dx) >= Math.abs(dy)
+    const goRight = (dx > COMMIT_PX || vx > 800) && horizontalWins
+    const goLeft = (dx < -COMMIT_PX || vx < -800) && horizontalWins
+    const goUp = (dy < -COMMIT_PX || vy < -800) && !horizontalWins
+    const goDown = (dy > COMMIT_PX || vy > 800) && !horizontalWins
+
+    if (goRight) {
+      void controls.start({
+        x: FLY_OFF_DISTANCE, y: dy, rotate: MAX_TILT, opacity: 0,
+        transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
+      })
+      onCommit('right')
+    } else if (goLeft) {
+      void controls.start({
+        x: -FLY_OFF_DISTANCE, y: dy, rotate: -MAX_TILT, opacity: 0,
+        transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
+      })
+      onCommit('left')
+    } else if (goUp) {
+      void controls.start({
+        x: dx, y: -FLY_OFF_DISTANCE, rotate: 0, opacity: 0,
+        transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
+      })
+      onCommit('up')
+    } else if (goDown) {
+      void controls.start({
+        x: dx, y: FLY_OFF_DISTANCE, rotate: 0, opacity: 0,
+        transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
+      })
+      onCommit('down')
+    } else {
+      // Spring back to centre.
+      void controls.start({
+        x: 0, y: 0, rotate: 0,
+        transition: { type: 'spring', stiffness: 320, damping: 28 },
+      })
+    }
+  }
+
+  const categoryLabel =
+    card.targetType === 'INGREDIENT' ? hint.ingredient : hint.recipe
+
+  return (
+    <motion.div
+      className="absolute inset-0 cursor-grab active:cursor-grabbing select-none"
+      drag={disabled ? false : true}
+      dragElastic={0.6}
+      dragMomentum={false}
+      onDragEnd={handleDragEnd}
+      animate={controls}
+      style={{ x, y, rotate, touchAction: 'none' }}
+      aria-label={card.name}
+    >
+      <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-[0_18px_40px_-15px_rgba(26,26,26,0.45),0_8px_18px_-12px_rgba(26,26,26,0.25)] bg-white">
+
+        {/* ── Visual layer: photo or fallback gradient ──────────────────── */}
+        {card.imageUrl ? (
+          <img
+            src={card.imageUrl}
+            alt={card.name}
+            draggable={false}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ background: fallbackGradient(card) }}
+          >
+            <div className="flex flex-col items-center gap-3 opacity-90">
+              {card.targetType === 'INGREDIENT' ? (
+                <Carrot className="w-16 h-16 text-white/85" strokeWidth={1.4} />
+              ) : (
+                <UtensilsCrossed className="w-16 h-16 text-white/85" strokeWidth={1.4} />
+              )}
+              <span className="text-7xl font-black text-white/90 tracking-tight">
+                {initialFor(card.name)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* ── Bottom legibility gradient ──────────────────────────────── */}
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-2/5 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0.78) 100%)',
+          }}
+        />
+
+        {/* ── Title block ─────────────────────────────────────────────── */}
+        <div className="absolute inset-x-0 bottom-0 p-5 pb-6 text-white">
+          <span className="inline-block text-[10px] font-mono uppercase tracking-widest opacity-80 mb-1.5">
+            {categoryLabel}
+          </span>
+          <p className="text-2xl font-semibold leading-tight drop-shadow-sm">
+            {card.name}
+          </p>
+          {card.subtitle && (
+            <p className="text-sm opacity-85 mt-1 drop-shadow-sm">{card.subtitle}</p>
+          )}
+        </div>
+
+        {/* ── Colour tint overlays (active during drag) ───────────────── */}
+        <motion.div aria-hidden style={{ opacity: tintRight }} className="absolute inset-0 pointer-events-none bg-[#4F7942]/55 mix-blend-multiply" />
+        <motion.div aria-hidden style={{ opacity: tintLeft }} className="absolute inset-0 pointer-events-none bg-red-600/50 mix-blend-multiply" />
+        <motion.div aria-hidden style={{ opacity: tintUp }} className="absolute inset-0 pointer-events-none bg-[#F28C28]/50 mix-blend-multiply" />
+        <motion.div aria-hidden style={{ opacity: tintDown }} className="absolute inset-0 pointer-events-none bg-stone-900/40 mix-blend-multiply" />
+
+        {/* ── Big overlay labels — fade in as user drags ──────────────── */}
+        <motion.div
+          aria-hidden
+          style={{ opacity: loveOpacity }}
+          className="absolute top-8 left-6 -rotate-[18deg] flex items-center gap-2 px-4 py-2 rounded-xl border-[3px] border-[#4F7942] bg-[#4F7942]/15 text-[#1f3a1d] backdrop-blur-sm"
+        >
+          <Heart className="w-6 h-6 fill-[#4F7942] text-[#4F7942]" />
+          <span className="text-2xl font-black uppercase tracking-wider">{labels.right}</span>
+        </motion.div>
+
+        <motion.div
+          aria-hidden
+          style={{ opacity: hateOpacity }}
+          className="absolute top-8 right-6 rotate-[18deg] flex items-center gap-2 px-4 py-2 rounded-xl border-[3px] border-red-600 bg-red-600/15 text-red-900 backdrop-blur-sm"
+        >
+          <X className="w-6 h-6 text-red-700" strokeWidth={3} />
+          <span className="text-2xl font-black uppercase tracking-wider">{labels.left}</span>
+        </motion.div>
+
+        <motion.div
+          aria-hidden
+          style={{ opacity: okOpacity }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 px-5 py-3 rounded-2xl border-[3px] border-[#F28C28] bg-[#F28C28]/20 text-[#8a4a06] backdrop-blur-sm"
+        >
+          <ThumbsUp className="w-6 h-6 text-[#F28C28]" />
+          <span className="text-2xl font-black uppercase tracking-wider">{labels.up}</span>
+        </motion.div>
+
+        <motion.div
+          aria-hidden
+          style={{ opacity: skipOpacity }}
+          className="absolute bottom-32 left-1/2 -translate-x-1/2 flex items-center gap-2 px-4 py-2 rounded-xl border-[3px] border-stone-700 bg-stone-900/30 text-white backdrop-blur-sm"
+        >
+          <ChevronDown className="w-6 h-6 text-white" />
+          <span className="text-xl font-black uppercase tracking-wider">{labels.down}</span>
+        </motion.div>
+      </div>
+    </motion.div>
+  )
+}
+
+// ── Ghost card (the ones peeking behind) ───────────────────────────────────
+
+function GhostCard({ card, depth }: { card: TasteCard; depth: 1 | 2 }) {
+  // Two slots: directly behind (depth 1, slightly smaller and offset) and
+  // furthest back (depth 2, smaller still).
+  const scale = depth === 1 ? 0.96 : 0.92
+  const yOff = depth === 1 ? 10 : 22
+  const opacity = depth === 1 ? 0.85 : 0.55
+  return (
+    <div
+      aria-hidden
+      className="absolute inset-0 pointer-events-none"
+      style={{
+        transform: `translateY(${yOff}px) scale(${scale})`,
+        opacity,
+      }}
+    >
+      <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-md bg-white">
+        {card.imageUrl ? (
+          <img src={card.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" draggable={false} />
+        ) : (
+          <div className="absolute inset-0" style={{ background: fallbackGradient(card) }} />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────
 
 export function TasteSwipe({
   cards,
@@ -56,28 +313,18 @@ export function TasteSwipe({
   const [index, setIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Track swipe drag state for pointer-based gesture.
-  const dragStart = useRef<{ x: number; y: number } | null>(null)
-  // The card wrapper — used for keyboard focus.
-  const cardRef = useRef<HTMLDivElement>(null)
+  const cardKeyRef = useRef(0) // bumps when we advance so Framer remounts the active card
 
   const current = cards[index] ?? null
   const total = cards.length
   const done = index >= total
 
-  // Auto-focus the card on mount and index change so keyboard works.
-  useEffect(() => {
-    if (!done) cardRef.current?.focus({ preventScroll: true })
-  }, [index, done])
-
-  // ── Core action ──
-
+  // ── Submit a signal and advance ──────────────────────────────────────
   const submit = useCallback(
     async (signal: TasteSignalValue) => {
       if (!current || submitting) return
       setError(null)
       setSubmitting(true)
-
       try {
         await tasteSignalsService.submitSignal({
           targetType: current.targetType,
@@ -85,7 +332,6 @@ export function TasteSwipe({
           signal,
           source,
         })
-
         capture('taste_signal_submitted', {
           targetType: current.targetType,
           targetId: current.id,
@@ -93,8 +339,8 @@ export function TasteSwipe({
           source,
           deckPosition: index,
         })
-
         onSignal?.(current.id, signal)
+        cardKeyRef.current += 1
         setIndex((i) => i + 1)
       } catch {
         setError(t('taste.errorSubmit'))
@@ -112,237 +358,174 @@ export function TasteSwipe({
       targetId: current.id,
       deckPosition: index,
     })
+    cardKeyRef.current += 1
     setIndex((i) => i + 1)
   }, [current, submitting, index])
 
-  // ── Keyboard ──
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (done || submitting) return
-      switch (e.key) {
-        case 'ArrowRight':
-        case 'l':
-        case 'L':
-          e.preventDefault()
-          submit('LOVE')
-          break
-        case 'ArrowUp':
-        case 'u':
-        case 'U':
-          e.preventDefault()
-          submit('OK')
-          break
-        case 'ArrowLeft':
-        case 'j':
-        case 'J':
-          e.preventDefault()
-          submit('HATE')
-          break
-        case 'Escape':
-        case 's':
-        case 'S':
-          e.preventDefault()
-          skipCard()
-          break
+  // ── Map a swipe direction to a signal ────────────────────────────────
+  const commitDirection = useCallback(
+    (dir: Direction) => {
+      switch (dir) {
+        case 'right': void submit('LOVE'); break
+        case 'left':  void submit('HATE'); break
+        case 'up':    void submit('OK');   break
+        case 'down':  skipCard(); break
       }
     },
-    [done, submitting, submit, skipCard],
+    [submit, skipCard],
   )
 
-  // ── Pointer / touch swipe ──
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    dragStart.current = { x: e.clientX, y: e.clientY }
-  }
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!dragStart.current || done || submitting) return
-    const dx = e.clientX - dragStart.current.x
-    const dy = e.clientY - dragStart.current.y
-    dragStart.current = null
-
-    const absDx = Math.abs(dx)
-    const absDy = Math.abs(dy)
-
-    if (absDx > SWIPE_THRESHOLD_PX && absDx > absDy) {
-      // Horizontal swipe.
-      submit(dx > 0 ? 'LOVE' : 'HATE')
-    } else if (-dy > SWIPE_THRESHOLD_PX && absDy > absDx) {
-      // Upward swipe.
-      submit('OK')
+  // ── Keyboard ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (done) return
+    function onKey(e: KeyboardEvent) {
+      if (submitting) return
+      switch (e.key) {
+        case 'ArrowRight': case 'l': case 'L': e.preventDefault(); void submit('LOVE'); break
+        case 'ArrowLeft':  case 'j': case 'J': e.preventDefault(); void submit('HATE'); break
+        case 'ArrowUp':    case 'u': case 'U': e.preventDefault(); void submit('OK');   break
+        case 'ArrowDown':  case 's': case 'S': case 'Escape':
+          e.preventDefault(); skipCard(); break
+      }
     }
-    // Downward swipe / short drag — do nothing.
-  }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [done, submitting, submit, skipCard])
 
-  // ── onComplete callback when deck is exhausted ──
-
+  // ── onComplete when deck is exhausted ────────────────────────────────
   useEffect(() => {
     if (done) onComplete?.()
   }, [done, onComplete])
 
-  // ── Render: done state ──
-
+  // ── Render: done state ───────────────────────────────────────────────
   if (done) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
-        <p className="text-lg font-semibold text-stone-800">
-          {t('taste.done')}
-        </p>
-        <p className="text-sm text-stone-500 max-w-xs">
-          {t('taste.doneSubtitle')}
-        </p>
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#4F7942]/15">
+          <Sparkles className="w-8 h-8 text-[#4F7942]" />
+        </div>
+        <p className="text-lg font-semibold text-stone-800">{t('taste.done')}</p>
+        <p className="text-sm text-stone-500 max-w-xs">{t('taste.doneSubtitle')}</p>
       </div>
     )
   }
 
-  // ── Render: active deck ──
-
+  // ── Render: active deck ──────────────────────────────────────────────
+  const labels: Record<Direction, string> = {
+    left: t('taste.hate'),
+    right: t('taste.love'),
+    up: t('taste.ok'),
+    down: t('taste.skip'),
+  }
+  const hint = {
+    ingredient: t('taste.cardIngredient'),
+    recipe: t('taste.cardRecipe'),
+  }
+  const next1 = cards[index + 1]
+  const next2 = cards[index + 2]
   const progress = index / total
 
   return (
-    <div className="flex flex-col items-center gap-6 w-full max-w-sm mx-auto select-none">
+    <div className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto">
 
-      {/* Progress bar */}
-      <div
-        className="w-full h-1 rounded-full bg-stone-200 overflow-hidden"
-        role="progressbar"
-        aria-valuenow={index}
-        aria-valuemin={0}
-        aria-valuemax={total}
-        aria-label={t('taste.progress', { current: index + 1, total })}
-      >
+      {/* Progress + counter */}
+      <div className="w-full flex items-center gap-3">
         <div
-          className="h-full bg-amber-600 rounded-full transition-all duration-300"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-
-      {/* Progress label */}
-      <p className="text-xs text-stone-400 font-mono self-start">
-        {t('taste.progress', { current: index + 1, total })}
-      </p>
-
-      {/* Card */}
-      <div
-        ref={cardRef}
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        className={[
-          'w-full rounded-2xl border border-stone-200 bg-white shadow-sm',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600',
-          'cursor-grab active:cursor-grabbing',
-          submitting ? 'opacity-60' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-        aria-label={current.name}
-      >
-        {/* Image area — shown only when imageUrl is present */}
-        {current.imageUrl && (
-          <div className="w-full aspect-video overflow-hidden rounded-t-2xl bg-stone-100">
-            <img
-              src={current.imageUrl}
-              alt={current.name}
-              className="w-full h-full object-cover"
-              draggable={false}
-            />
-          </div>
-        )}
-
-        {/* Text area */}
-        <div className="p-5 space-y-1">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-stone-400">
-            {current.targetType === 'INGREDIENT'
-              ? t('taste.cardIngredient')
-              : t('taste.cardRecipe')}
-          </p>
-          <p className="text-xl font-semibold text-stone-800 leading-snug">
-            {current.name}
-          </p>
-          {current.subtitle && (
-            <p className="text-sm text-stone-500">{current.subtitle}</p>
-          )}
+          className="flex-1 h-1.5 rounded-full bg-stone-200 overflow-hidden"
+          role="progressbar"
+          aria-valuenow={index}
+          aria-valuemin={0}
+          aria-valuemax={total}
+          aria-label={t('taste.progress', { current: index + 1, total })}
+        >
+          <motion.div
+            className="h-full bg-[#F28C28] rounded-full"
+            animate={{ width: `${progress * 100}%` }}
+            transition={{ type: 'spring', stiffness: 200, damping: 28 }}
+          />
         </div>
+        <span className="text-xs text-stone-500 font-mono tabular-nums shrink-0">
+          {index + 1} / {total}
+        </span>
       </div>
 
-      {/* Error message */}
+      {/* Card stack */}
+      <div className="relative w-full aspect-[3/4] max-h-[520px]">
+        {next2 && <GhostCard key={`g2-${next2.id}`} card={next2} depth={2} />}
+        {next1 && <GhostCard key={`g1-${next1.id}`} card={next1} depth={1} />}
+        <AnimatePresence mode="wait">
+          <ActiveCard
+            key={`active-${cardKeyRef.current}-${current.id}`}
+            card={current}
+            onCommit={commitDirection}
+            disabled={submitting}
+            labels={labels}
+            hint={hint}
+          />
+        </AnimatePresence>
+      </div>
+
       {error && (
         <p className="text-sm text-red-600" role="alert">
           {error}
         </p>
       )}
 
-      {/* Three action buttons */}
-      <div className="flex w-full gap-3" role="group" aria-label={t('taste.actionsLabel')}>
-
-        {/* HATE — left / red */}
+      {/* Action buttons — tap-friendly alternative to swiping */}
+      <div className="flex w-full items-center justify-between gap-2 px-2" role="group" aria-label={t('taste.actionsLabel')}>
         <button
-          onClick={() => submit('HATE')}
+          type="button"
+          onClick={() => void submit('HATE')}
           disabled={submitting}
           aria-label={t('taste.hate')}
-          className={[
-            'flex-1 rounded-xl border-2 border-red-200 bg-red-50 py-4 text-sm font-semibold text-red-700',
-            'transition-colors hover:bg-red-100 active:bg-red-200',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500',
-            'disabled:opacity-40',
-          ].join(' ')}
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-red-200 text-red-600 shadow-sm hover:border-red-400 hover:bg-red-50 active:scale-95 transition disabled:opacity-40"
         >
-          {/* Functional status indicator — not decorative emoji in body copy */}
-          <span aria-hidden="true" className="mr-1.5 text-base">✕</span>
-          {t('taste.hate')}
+          <X className="w-7 h-7" strokeWidth={2.5} />
         </button>
-
-        {/* OK — center / stone */}
         <button
-          onClick={() => submit('OK')}
+          type="button"
+          onClick={() => skipCard()}
+          disabled={submitting}
+          aria-label={t('taste.skipCard')}
+          className="flex items-center justify-center w-12 h-12 rounded-full bg-white border-2 border-stone-200 text-stone-500 shadow-sm hover:border-stone-400 hover:bg-stone-50 active:scale-95 transition disabled:opacity-40"
+        >
+          <ChevronDown className="w-5 h-5" strokeWidth={2.5} />
+        </button>
+        <button
+          type="button"
+          onClick={() => void submit('OK')}
           disabled={submitting}
           aria-label={t('taste.ok')}
-          className={[
-            'flex-1 rounded-xl border-2 border-stone-200 bg-stone-50 py-4 text-sm font-semibold text-stone-700',
-            'transition-colors hover:bg-stone-100 active:bg-stone-200',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-500',
-            'disabled:opacity-40',
-          ].join(' ')}
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-[#F28C28]/40 text-[#F28C28] shadow-sm hover:border-[#F28C28] hover:bg-[#F28C28]/5 active:scale-95 transition disabled:opacity-40"
         >
-          <span aria-hidden="true" className="mr-1.5 text-base">👍</span>
-          {t('taste.ok')}
+          <ThumbsUp className="w-7 h-7" />
         </button>
-
-        {/* LOVE — right / amber */}
         <button
-          onClick={() => submit('LOVE')}
+          type="button"
+          onClick={() => void submit('LOVE')}
           disabled={submitting}
           aria-label={t('taste.love')}
-          className={[
-            'flex-1 rounded-xl border-2 border-amber-200 bg-amber-50 py-4 text-sm font-semibold text-amber-800',
-            'transition-colors hover:bg-amber-100 active:bg-amber-200',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600',
-            'disabled:opacity-40',
-          ].join(' ')}
+          className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-[#4F7942]/40 text-[#4F7942] shadow-sm hover:border-[#4F7942] hover:bg-[#4F7942]/5 active:scale-95 transition disabled:opacity-40"
         >
-          <span aria-hidden="true" className="mr-1.5 text-base">❤</span>
-          {t('taste.love')}
+          <Heart className="w-7 h-7 fill-[#4F7942]" />
         </button>
-
       </div>
 
-      {/* Skip (Kihagyom) */}
-      <button
-        onClick={onSkipAll ?? skipCard}
-        disabled={submitting}
-        className={[
-          'text-xs text-stone-400 underline underline-offset-2',
-          'hover:text-stone-600 transition-colors',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-400',
-          'disabled:opacity-40',
-        ].join(' ')}
-      >
-        {t('taste.skip')}
-      </button>
+      {/* Hint copy + skip-all */}
+      <p className="text-[11px] text-stone-400 text-center leading-snug px-4">
+        {t('taste.swipeHint')}
+      </p>
 
+      {onSkipAll && (
+        <button
+          type="button"
+          onClick={onSkipAll}
+          disabled={submitting}
+          className="text-xs text-stone-400 underline underline-offset-2 hover:text-stone-600 transition disabled:opacity-40"
+        >
+          {t('taste.skipAll')}
+        </button>
+      )}
     </div>
   )
 }

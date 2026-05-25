@@ -1995,15 +1995,20 @@
   "taste": {
     "love": "Imádom",
     "ok": "Megeszem",
-    "hate": "Soha",
+    "hate": "Nem ízlik",
     "skip": "Kihagyom",
+    "skipCard": "Most kihagyom",
+    "skipAll": "Inkább kihagyom az egészet",
     "progress": "{{current}} / {{total}}",
     "actionsLabel": "Értékelés",
     "cardIngredient": "Hozzávaló",
     "cardRecipe": "Recept",
     "done": "Megvan az ízlésed.",
     "doneSubtitle": "Felhasználjuk a hetedben — nincs más dolgod.",
-    "errorSubmit": "Nem sikerült rögzíteni. Próbáld újra."
+    "errorSubmit": "Nem sikerült rögzíteni. Próbáld újra.",
+    "swipeHint": "Húzd jobbra, ha imádod · balra, ha nem · felfelé, ha megeszed · lefelé, ha most kihagyod",
+    "onboardingTitle": "Pár kép, és kitapintom az ízlésed.",
+    "onboardingBody": "Húzd a kártyákat ahogy érzed — semmi rossz válasz nincs. Bármikor kihagyhatod."
   },
   "grove": {
     "title": "A Kalmio-liget",
@@ -2106,10 +2111,14 @@
           "body": "Pár szám rólad — testmagasság, súly, mennyit mozogsz egy átlagos napon. Ennyi kell, hogy értelmes kalória- és fehérjecélt javasoljak. A többit menet közben finomítjuk."
         },
         "4": {
+          "lead": "Az ízlésed — pár kép.",
+          "body": "Megmutatok pár hozzávalót és receptet. Húzd jobbra, ha bejön, balra, ha nem. Ennyitől már sokkal pontosabb lesz a heted."
+        },
+        "5": {
           "lead": "A mag a földben van. Innen három mozdulat tartja életben.",
           "body": "Heti tervezés, hűtőátnézés a vásárlás előtt, újratervezés, ha közbeszól az élet. Megmutatom mindhármat, hogy ne legyen meglepetés. Ezek a kis öntözések."
         },
-        "5": {
+        "6": {
           "lead": "Az első víz.",
           "body": "A föld eleinte nehéz, mert még nem ismer. Egy pillanat — összerakom a hetedet aszerint, amit eddig megosztottál. Aztán már csak a tieden múlik."
         }
@@ -2121,10 +2130,11 @@
         "1": "Üdvözlés",
         "2": "Az étkezési szokásaid",
         "3": "Kalóriacél",
-        "4": "Így működik a tervező",
-        "5": "Étrend összerakása…",
-        "6": "Az első heted kész",
-        "7": "Csemete — az első cselekvés"
+        "4": "Az ízlésed",
+        "5": "Így működik a tervező",
+        "6": "Étrend összerakása…",
+        "7": "Az első heted kész",
+        "8": "Csemete — az első cselekvés"
       }
     },
     "preferencesStep": {

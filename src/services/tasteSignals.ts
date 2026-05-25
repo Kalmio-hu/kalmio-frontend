@@ -55,11 +55,26 @@ export async function submitTasteSignal(
  * The placeholder simply picks the first 18 ingredients + 3 recipes from the
  * API, sorted by name.  The real algorithm ships with E9.2.
  */
+/**
+ * KALMIO-431: server returns each card with a `type: "INGREDIENT" | "RECIPE"`
+ * field, but the frontend type contract (and POST /taste-signals payload) is
+ * `targetType`. Normalise here so consumers downstream can rely on a single
+ * field name without per-call translation.
+ */
+type ServerTasteCard = TasteCard & { type?: 'INGREDIENT' | 'RECIPE' }
+
+function normalizeCard(c: ServerTasteCard): TasteCard {
+  const targetType = c.targetType ?? c.type
+  // Don't trust the server enum to be present — fall back to INGREDIENT so the
+  // UI still renders, but never let the POST go out with an undefined field.
+  return { ...c, targetType: targetType ?? 'INGREDIENT' }
+}
+
 export async function buildTasteDeck(): Promise<TasteCard[]> {
   // 1. Try the real endpoint first.
   try {
-    const res = await api.get<TasteCard[]>('/api/users/me/taste-deck')
-    if (res.data && res.data.length > 0) return res.data
+    const res = await api.get<ServerTasteCard[]>('/api/users/me/taste-deck')
+    if (res.data && res.data.length > 0) return res.data.map(normalizeCard)
   } catch (err: unknown) {
     const status = (err as { response?: { status?: number } })?.response?.status
     if (status !== 404) throw err
