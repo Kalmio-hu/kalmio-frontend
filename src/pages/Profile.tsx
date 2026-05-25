@@ -233,16 +233,36 @@ export function Profile() {
   }
 
   // ── Scroll to body-data section when arriving from onboarding ────────────
+  // AppShell wraps content in <main class="overflow-y-auto">, so the document
+  // itself does not scroll — scrollIntoView is unreliable across browsers in
+  // this nested-scroller setup. Walk up to the nearest scrollable ancestor and
+  // set its scrollTop directly. Depends on `user` because the Identity card
+  // above reaches its final height only after the users/me query lands.
   const bodyDataRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (sectionParam === 'body-data' && activeTab === 'profile' && bodyDataRef.current) {
-      // Small delay lets the layout settle after route transition.
-      const id = window.setTimeout(() => {
-        bodyDataRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 300)
-      return () => window.clearTimeout(id)
-    }
-  }, [sectionParam, activeTab])
+    if (sectionParam !== 'body-data' || activeTab !== 'profile' || !user) return
+    const id = window.setTimeout(() => {
+      const target = bodyDataRef.current
+      if (!target) return
+      let scroller: HTMLElement | null = target.parentElement
+      while (scroller && scroller !== document.body) {
+        const cs = getComputedStyle(scroller)
+        if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') &&
+            scroller.scrollHeight > scroller.clientHeight) break
+        scroller = scroller.parentElement
+      }
+      const top = target.getBoundingClientRect().top
+        + (scroller ? scroller.scrollTop : window.scrollY)
+        - (scroller ? scroller.getBoundingClientRect().top : 0)
+        - 16
+      if (scroller && scroller !== document.body) {
+        scroller.scrollTo({ top, behavior: 'smooth' })
+      } else {
+        window.scrollTo({ top, behavior: 'smooth' })
+      }
+    }, 150)
+    return () => window.clearTimeout(id)
+  }, [sectionParam, activeTab, user])
 
   const { data: targets, isLoading: targetsLoading } = useQuery({
     queryKey: [...USERS_ME_QUERY_KEY, 'targets'],
