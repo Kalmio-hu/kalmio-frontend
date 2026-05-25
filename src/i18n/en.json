@@ -1892,7 +1892,10 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "cookieSettings": "Cookie settings",
-    "status": "System status"
+    "status": "System status",
+    "operatorName": "Hard Rock Coders Ltd.",
+    "operatorLabel": "Operated by",
+    "impressum": "Imprint"
   },
   "consent": {
     "body": "This site uses low-calorie cookies, made with lots of love from my mum's recipe.",

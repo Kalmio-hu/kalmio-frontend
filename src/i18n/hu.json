@@ -1892,7 +1892,10 @@
     "privacy": "Adatkezelési tájékoztató",
     "terms": "Felhasználási feltételek",
     "cookieSettings": "Sütibeállítások",
-    "status": "Rendszerállapot"
+    "status": "Rendszerállapot",
+    "operatorName": "Hard Rock Coders Kft.",
+    "operatorLabel": "Üzemeltető",
+    "impressum": "Impresszum"
   },
   "consent": {
     "body": "Ez az oldal alacsony kalóriás sütiket használ, rengeteg szeretettel a mamám receptje alapján.",
