@@ -198,7 +198,7 @@ export function LandingPage() {
             transition={{ delay: 0.2, duration: 0.6 }}
             className="text-[#F28C28] font-semibold text-sm uppercase tracking-widest mb-4"
           >
-            Beta
+            {t('landing.hero.label')}
           </motion.p>
 
           <motion.h1

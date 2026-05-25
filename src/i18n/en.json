@@ -1088,6 +1088,7 @@
       "ctaLoggedIn": "Open App"
     },
     "hero": {
+      "label": "Beta",
       "headline": "Healthy eating. Math, not magic.",
       "subheadline": "Forget crash dieting and complicated calorie tables. Kalmio automatically plans your week around your goals, budget, and taste.",
       "cta": "Try it now",
@@ -1148,7 +1149,7 @@
     "subheadline": "Sign in or create your account — no password needed.",
     "continueWithGoogle": "Sign in with Google",
     "googleLoading": "Redirecting…",
-    "continueWithPasskey": "Continue with Passkey",
+    "continueWithPasskey": "Sign in with fingerprint or face",
     "passkeyVerifying": "Verifying…",
     "passkeyForEmail": "Passkey",
     "useEmailInstead": "Use email instead",
@@ -2077,7 +2078,7 @@
       },
       "welcome": {
         "title": "Welcome to Kalmio.",
-        "body": "A few questions and we will put your first week together. The whole thing takes about ten minutes.",
+        "body": "A few quick questions and I'll assemble your first week. Just a couple of minutes.",
         "cta": "Let's start",
         "chatToggle": "I would rather talk it through"
       },

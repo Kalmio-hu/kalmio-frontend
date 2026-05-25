@@ -332,7 +332,7 @@
       "mealCaloriesHint": "Húzd fel/le a gombokat — az értékek mindig a napi kalóriacélt adják ki",
       "kcalTarget": "Kalória cél (kcal) *",
       "proteinTarget": "Fehérjecél (g)",
-      "budgetMax": "Max. napi büdzsé (Ft)",
+      "budgetMax": "Max. napi keret (Ft)",
       "prepTimeMax": "Max. elkészítési idő (perc)",
       "maxRepeats": "Hány napon jelenhet meg ugyanaz a recept",
       "maxRepeatsHint": "Ajánlott: 2–3. Alacsonyabb értéknél változatosabb az étrend, de kevesebb receptből is el kell készülnie.",
@@ -355,7 +355,7 @@
       "generateAnyway": "Mégis generálás",
       "dietaryActive": "Aktív étrendi korlátozások",
       "infeasibleTitle": "Nem található érvényes étrend",
-      "infeasibleDesc": "A megadott beállításokkal nem sikerült érvényes étrendet létrehozni. Próbáld lazítani az étrendi korlátozásokat, a kalória célt vagy a büdzsét — vagy adj hozzá több receptet a katalógushoz."
+      "infeasibleDesc": "A megadott beállításokkal nem sikerült érvényes étrendet létrehozni. Próbáld lazítani az étrendi korlátozásokat, a kalória célt vagy a kerett — vagy adj hozzá több receptet a katalógushoz."
     },
     "savedConfirmation": "A terv mentve a fiókodba",
     "summary": {
@@ -1088,6 +1088,7 @@
       "ctaLoggedIn": "Megnyitom"
     },
     "hero": {
+      "label": "Béta",
       "headline": "Egészséges étkezés. Matek, nem mágia.",
       "subheadline": "Felejtsd el a koplalást és a bonyolult kalóriatáblázatokat. A Kalmio automatikusan összeállítja a hetedet a céljaid, a pénztárcád és az ízlésed alapján.",
       "cta": "Próbáld ki most",
@@ -1115,7 +1116,7 @@
       "title": "Három lépés, és kész",
       "step1": {
         "title": "Add meg a célod",
-        "desc": "Kalória, fehérje, büdzsé – te döntesz, Kalmio optimalizál."
+        "desc": "Kalória, fehérje, keret – te döntesz, Kalmio optimalizál."
       },
       "step2": {
         "title": "Állítsd be a kereted",
@@ -1135,7 +1136,7 @@
     "foundingMember": {
       "label": "Alapító tag",
       "headline": "Az első 1000 alapító tag.",
-      "sub": "Élethosszigtartó hozzáférés minden prémium funkcióhoz — 19 990 Ft.",
+      "sub": "Élethosszig tartó hozzáférés minden prémium funkcióhoz — 19 990 Ft.",
       "counter": "Még {{remaining}} hely érhető el.",
       "cta": "Alapító tag leszek",
       "soldOut": "Az alapító tagság elkelt — köszönjük az érdeklődést."
@@ -1148,7 +1149,7 @@
     "subheadline": "Lépj be vagy hozz létre fiókot — jelszó nélkül.",
     "continueWithGoogle": "Bejelentkezés Google-fiókkal",
     "googleLoading": "Átirányítás…",
-    "continueWithPasskey": "Folytatás jelszókulccsal",
+    "continueWithPasskey": "Belépés ujjlenyomattal vagy arccal",
     "passkeyVerifying": "Azonosítás…",
     "passkeyForEmail": "Jelszókulcs",
     "useEmailInstead": "Inkább e-maillel",
@@ -1782,7 +1783,7 @@
     "inviteMember": "Meghívás",
     "inviteComingSoon": "Meghívó funkció hamarosan elérhető.",
     "constraints": "Tervező beállítások",
-    "budgetMax": "Max. napi büdzsé",
+    "budgetMax": "Max. napi keret",
     "budgetUnit": "Ft/nap",
     "prepTimeMax": "Max. elkészítési idő",
     "prepTimeUnit": "perc/étkezés",
@@ -1934,7 +1935,7 @@
     "comingSoon": "Hamarosan elérhető.",
     "buy": {
       "label": "Alapító tagság",
-      "headline": "Élethosszigtartó hozzáférés.",
+      "headline": "Élethosszig tartó hozzáférés.",
       "sub": "Egyszer fizetsz, örökre a tiéd minden prémium funkció — a mostani és a jövőbeniek is.",
       "priceLine": "{{price, number}} Ft — egyszeri díj.",
       "remainingLine": "Még {{remaining}} hely az első 1000-ből.",
@@ -2077,7 +2078,7 @@
       },
       "welcome": {
         "title": "Üdvözlünk a Kalmióban.",
-        "body": "Néhány kérdés, és összerakjuk az első hetedet. Körülbelül tíz perc az egész.",
+        "body": "Pár gyors kérdés, és összerakom az első hetedet. Néhány perc az egész.",
         "cta": "Kezdjük",
         "chatToggle": "Inkább beszéljük meg"
       },
