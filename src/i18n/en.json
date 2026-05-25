@@ -911,6 +911,17 @@
       "quietTodayActive": "Quiet today — prep notifications are paused.",
       "resume": "Resume notifications",
       "hint": "You can also manage notification permissions in your browser settings."
+    },
+    "categoryOrder": {
+      "title": "Shopping order",
+      "description": "Arrange the categories to match your supermarket layout — the shopping list will follow the same order.",
+      "instruction": "Drag categories into your preferred order.",
+      "save": "Save order",
+      "saving": "Saving…",
+      "reset": "Reset to default",
+      "saveSuccess": "Order saved.",
+      "saveError": "Could not save the order.",
+      "validationError": "The order is invalid — please try again."
     }
   },
   "impersonation": {

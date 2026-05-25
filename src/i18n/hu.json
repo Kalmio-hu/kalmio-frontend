@@ -911,6 +911,17 @@
       "quietTodayActive": "Ma csend — az előkészítési értesítések szünetelnek.",
       "resume": "Értesítések visszakapcsolása",
       "hint": "Az értesítési beállítások a böngészőben is módosíthatók."
+    },
+    "categoryOrder": {
+      "title": "Bevásárlási sorrend",
+      "description": "Rendezd a kategóriákat a saját szupermarketedhez igazítva — így a bevásárlólista is abban a sorrendben jelenik meg, ahogy te jársz.",
+      "instruction": "Húzd át a kategóriákat a kívánt sorrendbe.",
+      "save": "Sorrend mentése",
+      "saving": "Mentés…",
+      "reset": "Alapértelmezés visszaállítása",
+      "saveSuccess": "Sorrend elmentve.",
+      "saveError": "Nem sikerült menteni a sorrendet.",
+      "validationError": "A sorrend érvénytelen — kérjük, próbáld újra."
     }
   },
   "impersonation": {

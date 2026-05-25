@@ -2,7 +2,26 @@ import { useEffect, useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useForm } from 'react-hook-form'
-import { Fingerprint, Trash2, LogOut, ChevronRight, Key, Copy, Check, Star, Bell, BellOff } from 'lucide-react'
+import { Fingerprint, Trash2, LogOut, ChevronRight, Key, Copy, Check, Star, Bell, BellOff, GripVertical, RotateCcw } from 'lucide-react'
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers'
+import { CSS } from '@dnd-kit/utilities'
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import { Link } from 'react-router-dom'
 import { Header } from '@/components/layout/Header'
@@ -23,9 +42,230 @@ import { apiKeysService, type ApiKey, type ApiKeyCreated } from '@/services/apiK
 import { useAuthStore } from '@/store/auth'
 import { formatLocalDate } from '@/lib/utils'
 import { capture } from '@/lib/analytics'
+import shoppingCategoryOrderService, { SHOPPING_CATEGORY_ORDER_QUERY_KEY } from '@/services/shoppingCategoryOrder'
+import type { ShoppingCategory } from '@/types'
 
 interface FormValues {
   languagePreference: string
+}
+
+// ── Shopping Category Order section (KALMIO-373) ───────────────────────────
+
+/** The natural enum order — used for "Reset to default". */
+const DEFAULT_CATEGORY_ORDER: ShoppingCategory[] = [
+  'PRODUCE', 'BAKERY', 'DAIRY', 'MEAT', 'FISH', 'DELI', 'FROZEN',
+  'PANTRY', 'CANNED', 'CONDIMENTS', 'BEVERAGES', 'SNACKS',
+  'HOUSEHOLD', 'PERSONAL_CARE', 'OTHER',
+]
+
+interface SortableCategoryItemProps {
+  id: ShoppingCategory
+  label: string
+  index: number
+}
+
+function SortableCategoryItem({ id, label, index }: SortableCategoryItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+    opacity: isDragging ? 0.85 : 1,
+  }
+
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      className={[
+        'flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-3 py-3',
+        'min-h-[44px] select-none',
+        isDragging ? 'shadow-md ring-1 ring-gray-200' : '',
+      ].join(' ')}
+    >
+      {/* drag handle — minimum 44×44 touch target */}
+      <button
+        type="button"
+        className="flex items-center justify-center h-11 w-11 -ml-2 shrink-0 text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#1A1A1A] rounded-lg touch-none"
+        aria-label={label}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical size={16} aria-hidden="true" />
+      </button>
+      <span className="text-xs text-gray-400 w-5 shrink-0 tabular-nums text-right select-none">
+        {index + 1}
+      </span>
+      <span className="text-sm font-medium text-[#1A1A1A] flex-1 min-w-0 truncate">
+        {label}
+      </span>
+    </li>
+  )
+}
+
+function ShoppingCategoryOrderSection() {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: SHOPPING_CATEGORY_ORDER_QUERY_KEY,
+    queryFn: shoppingCategoryOrderService.getOrder,
+    staleTime: 30_000,
+  })
+
+  /**
+   * User-driven reordering override.
+   * - `null`  → no user changes yet; display the server order (or default)
+   * - array   → the user has reordered; display this instead
+   * "Reset to default" sets this to the DEFAULT array.
+   * After a successful save the override stays (the server echoes it back).
+   * We deliberately do NOT sync this from server data inside an effect to
+   * avoid the react-hooks/set-state-in-effect lint rule.
+   */
+  const [override, setOverride] = useState<ShoppingCategory[] | null>(null)
+
+  const serverOrder = data?.order as ShoppingCategory[] | undefined
+  const displayOrder = override ?? serverOrder ?? DEFAULT_CATEGORY_ORDER
+
+  const saveMutation = useMutation({
+    mutationFn: (order: ShoppingCategory[]) =>
+      shoppingCategoryOrderService.updateOrder({ order }),
+    onMutate: async (order) => {
+      // Optimistic update
+      await qc.cancelQueries({ queryKey: SHOPPING_CATEGORY_ORDER_QUERY_KEY })
+      const previous = qc.getQueryData(SHOPPING_CATEGORY_ORDER_QUERY_KEY)
+      qc.setQueryData(SHOPPING_CATEGORY_ORDER_QUERY_KEY, { order })
+      return { previous }
+    },
+    onSuccess: (saved) => {
+      qc.setQueryData(SHOPPING_CATEGORY_ORDER_QUERY_KEY, saved)
+      // Clear the local override so future server revalidations show through
+      setOverride(null)
+      toast({ title: t('settings.categoryOrder.saveSuccess'), variant: 'success' })
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        qc.setQueryData(SHOPPING_CATEGORY_ORDER_QUERY_KEY, context.previous)
+      }
+      // Distinguish validation errors (HTTP 400) from other failures
+      const status = (_err as { response?: { status?: number } })?.response?.status
+      const key = status === 400
+        ? 'settings.categoryOrder.validationError'
+        : 'settings.categoryOrder.saveError'
+      toast({ title: t(key), variant: 'destructive' })
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: SHOPPING_CATEGORY_ORDER_QUERY_KEY })
+    },
+  })
+
+  // Touch sensor with 250ms delay to avoid accidental drags on scroll
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = displayOrder.indexOf(active.id as ShoppingCategory)
+    const newIndex = displayOrder.indexOf(over.id as ShoppingCategory)
+    if (oldIndex === -1 || newIndex === -1) return
+    setOverride(arrayMove(displayOrder, oldIndex, newIndex))
+  }
+
+  const handleReset = () => {
+    setOverride(DEFAULT_CATEGORY_ORDER)
+  }
+
+  const handleSave = () => {
+    saveMutation.mutate(displayOrder)
+  }
+
+  return (
+    <div className="space-y-4 max-w-lg mt-6">
+      <Card>
+        <CardContent className="pt-5 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm text-[#1A1A1A]">
+              {t('settings.categoryOrder.title')}
+            </h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {t('settings.categoryOrder.description')}
+            </p>
+          </div>
+
+          {isLoading ? (
+            <div className="flex justify-center py-4"><Spinner /></div>
+          ) : isError ? (
+            <p className="text-xs text-red-500">{t('settings.categoryOrder.saveError')}</p>
+          ) : (
+            <>
+              <p className="text-xs text-gray-400">{t('settings.categoryOrder.instruction')}</p>
+
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={displayOrder}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <ul className="space-y-2" aria-label={t('settings.categoryOrder.title')}>
+                    {displayOrder.map((cat, i) => (
+                      <SortableCategoryItem
+                        key={cat}
+                        id={cat}
+                        index={i}
+                        label={t(`shopNow.categories.${cat}`)}
+                      />
+                    ))}
+                  </ul>
+                </SortableContext>
+              </DndContext>
+
+              <div className="flex gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleReset}
+                  disabled={saveMutation.isPending}
+                  className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#1A1A1A]"
+                  aria-label={t('settings.categoryOrder.reset')}
+                >
+                  <RotateCcw size={13} aria-hidden="true" />
+                  {t('settings.categoryOrder.reset')}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saveMutation.isPending}
+                  className="flex-1 bg-midnight-black hover:bg-midnight-black/90 text-white rounded-xl"
+                >
+                  {saveMutation.isPending
+                    ? t('settings.categoryOrder.saving')
+                    : t('settings.categoryOrder.save')}
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  )
 }
 
 function deviceLabel(): string {
@@ -667,6 +907,9 @@ export function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Card 6 — Shopping Category Order (KALMIO-373) */}
+      <ShoppingCategoryOrderSection />
 
       {/* Sign-out — mobile only */}
       <div className="max-w-lg mt-6 md:hidden">

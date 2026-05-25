@@ -1541,3 +1541,23 @@ export interface AdHocShoppingListItemRequest {
   amount?: number | null
   unit?: string | null
 }
+
+// ── Shopping Category Order (KALMIO-373 / C10) ───────────────────────────────
+
+/**
+ * Response body for GET /api/users/me/shopping-category-order.
+ * Always returns exactly 15 ShoppingCategory names in the user's preferred order.
+ * Falls back to enum natural order (PRODUCE first, OTHER last) if never customised.
+ */
+export interface ShoppingCategoryOrderResponse {
+  order: ShoppingCategory[]
+}
+
+/**
+ * Request body for PUT /api/users/me/shopping-category-order.
+ * Must contain all 15 ShoppingCategory names exactly once.
+ * Backend rejects partial lists, unknown names, and duplicates with HTTP 400.
+ */
+export interface UpdateShoppingCategoryOrderRequest {
+  order: ShoppingCategory[]
+}
