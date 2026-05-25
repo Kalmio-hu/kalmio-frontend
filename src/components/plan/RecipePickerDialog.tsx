@@ -95,8 +95,11 @@ export function RecipePickerDialog({ open, currentRecipeId, onSelect, onClose }:
                       </span>
                       {recipe.macros && (
                         <>
-                          <span>{t('mealPlan.recipePicker.kcal', { kcal: recipe.macros.kcal.toFixed(0) })}</span>
-                          <span>{t('mealPlan.recipePicker.protein', { protein: recipe.macros.protein.toFixed(0) })}</span>
+                          {/* recipe.macros holds RECIPE-TOTAL values; divide by servings
+                              so the picker shows per-portion numbers consistent with the
+                              Receptek list and the Dashboard meal cards. */}
+                          <span>{t('mealPlan.recipePicker.kcal', { kcal: (recipe.macros.kcal / Math.max(1, recipe.servings)).toFixed(0) })}</span>
+                          <span>{t('mealPlan.recipePicker.protein', { protein: (recipe.macros.protein / Math.max(1, recipe.servings)).toFixed(0) })}</span>
                         </>
                       )}
                     </div>
