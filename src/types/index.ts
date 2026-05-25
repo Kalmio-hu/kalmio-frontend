@@ -515,7 +515,7 @@ export type PlannedMealStatusExtended = 'PLANNED' | 'EATEN' | 'SKIPPED' | 'REPLA
  * - `BATCH`: same-recipe meals batched within the fridge hold window.
  * - `FREEZE_BATCH`: batch whose later slots are served from the freezer.
  */
-export type PrepType = 'OVERNIGHT' | 'BATCH' | 'FREEZE_BATCH'
+export type PrepType = 'OVERNIGHT' | 'BATCH' | 'FREEZE_BATCH' | 'FRESH'
 export type PrepWindow = 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT'
 
 export interface TodaysMealCard {
