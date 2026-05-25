@@ -17,8 +17,18 @@ import { ProviderButton } from '@/components/auth/ProviderButton'
 import { useAuthStore } from '@/store/auth'
 import { capture, identify, alias } from '@/lib/analytics'
 import { mapAuthError } from '@/lib/authErrors'
+import { isValidEmail } from '@/lib/validators'
 
-const emailSchema = z.object({ email: z.string().email() })
+// RFC-5321-friendly schema: accepts + . _ % - in the local part.
+// z.string().email() in Zod v4 also accepts these, but we use an
+// explicit .refine() so the validator is testable in isolation and
+// the intent is unambiguous to future readers.
+const emailSchema = z.object({
+  email: z
+    .string()
+    .min(1)
+    .refine(isValidEmail, { message: 'invalid_email_format' }),
+})
 type EmailForm = z.infer<typeof emailSchema>
 
 type Step = { mode: 'home' } | { mode: 'sent'; email: string }
