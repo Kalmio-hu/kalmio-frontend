@@ -2744,5 +2744,49 @@
     "minutesAgo": "{{count}} minutes ago",
     "dismiss": "Dismiss",
     "tooltipOffline": "No network — this action is not available offline."
+  },
+  "shopNow": {
+    "title": "Shopping",
+    "back": "Back",
+    "progress": "{{ticked}} / {{total}}",
+    "emptyState": {
+      "title": "No shopping list yet",
+      "body": "I'll compile the list from the current plan.",
+      "generate": "Build list"
+    },
+    "generating": "Building…",
+    "itemTicked": "Got it",
+    "undo": "Undo",
+    "allDone": "All items collected.",
+    "addItem": "Add item",
+    "addItemPlaceholder": "Search or free text…",
+    "add": "Add",
+    "adding": "Adding…",
+    "searching": "Searching…",
+    "noIngredientMatch": "No matching ingredient",
+    "willAddAdhoc": "will be added as custom item",
+    "error": {
+      "load": "Could not load the shopping list.",
+      "generate": "Could not build the shopping list.",
+      "tick": "Could not update the item.",
+      "addItem": "Could not add the item."
+    },
+    "categories": {
+      "PRODUCE": "Produce",
+      "BAKERY": "Bakery",
+      "DAIRY": "Dairy",
+      "MEAT": "Meat",
+      "FISH": "Fish",
+      "DELI": "Deli",
+      "FROZEN": "Frozen",
+      "PANTRY": "Dry goods",
+      "CANNED": "Canned goods",
+      "CONDIMENTS": "Condiments",
+      "BEVERAGES": "Beverages",
+      "SNACKS": "Snacks",
+      "HOUSEHOLD": "Household",
+      "PERSONAL_CARE": "Personal care",
+      "OTHER": "Other"
+    }
   }
 }

@@ -2744,5 +2744,49 @@
     "minutesAgo": "{{count}} perce",
     "dismiss": "Bezárás",
     "tooltipOffline": "Nincs hálózat — ez a funkció nem érhető el offline."
+  },
+  "shopNow": {
+    "title": "Bevásárlás",
+    "back": "Vissza",
+    "progress": "{{ticked}} / {{total}}",
+    "emptyState": {
+      "title": "Még nincs bevásárlólista",
+      "body": "Összerakom a listát az aktuális terv alapján.",
+      "generate": "Lista összeállítása"
+    },
+    "generating": "Összerakom…",
+    "itemTicked": "Megvan",
+    "undo": "Mégse",
+    "allDone": "Minden megvan.",
+    "addItem": "Termék hozzáadása",
+    "addItemPlaceholder": "Keresés vagy szabad szöveg…",
+    "add": "Hozzáad",
+    "adding": "Hozzáadom…",
+    "searching": "Keresés…",
+    "noIngredientMatch": "Nincs egyező termék",
+    "willAddAdhoc": "saját névként adom hozzá",
+    "error": {
+      "load": "Nem sikerült betölteni a listát.",
+      "generate": "Nem sikerült összeállítani a listát.",
+      "tick": "Nem sikerült jelölni a terméket.",
+      "addItem": "Nem sikerült hozzáadni a terméket."
+    },
+    "categories": {
+      "PRODUCE": "Zöldség / gyümölcs",
+      "BAKERY": "Pékáru",
+      "DAIRY": "Tejtermék",
+      "MEAT": "Hús",
+      "FISH": "Hal",
+      "DELI": "Felvágott / sajt-pult",
+      "FROZEN": "Mirelit",
+      "PANTRY": "Száraz alapanyag",
+      "CANNED": "Konzerv",
+      "CONDIMENTS": "Fűszer, szósz",
+      "BEVERAGES": "Ital",
+      "SNACKS": "Édesség, snack",
+      "HOUSEHOLD": "Háztartási",
+      "PERSONAL_CARE": "Higiénia",
+      "OTHER": "Egyéb"
+    }
   }
 }

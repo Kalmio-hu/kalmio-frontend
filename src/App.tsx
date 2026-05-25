@@ -54,6 +54,7 @@ import { ShoppingCart } from '@/pages/ShoppingCart'
 import ReceiptScanPage from '@/pages/ReceiptScanPage'
 import { CookMode } from '@/pages/CookMode'
 import { RecipeDetail } from '@/pages/RecipeDetail'
+import { ShopNow } from '@/pages/ShopNow'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
 // Vite's dead-code elimination ensures they are absent from production chunks.
@@ -176,6 +177,8 @@ export default function App() {
                   <Route path="recipes" element={<Recipes />} />
                   <Route path="ingredients" element={<Ingredients />} />
                   <Route path="shopping-list" element={<ShoppingList />} />
+                  {/* Persistent in-store shopping checklist (KALMIO-375 / C12) */}
+                  <Route path="shop/:planId" element={<ShopNow />} />
                   <Route path="fridge" element={<Fridge />} />
                   <Route path="grooming" element={<Grooming />} />
                   {/* retail-products legacy path — redirect to admin route (KALMIO-305) */}

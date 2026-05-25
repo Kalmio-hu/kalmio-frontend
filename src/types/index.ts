@@ -1464,3 +1464,80 @@ export interface CartReceiptConfirmRequest {
   retailer: string | null
   lines: ReceiptMatchLine[]
 }
+
+// ── Persistent Shopping List (KALMIO-374 / C11) ───────────────────────────
+
+/**
+ * Supermarket aisle categories — mirrors the backend ShoppingCategory enum.
+ * Ordered to match a typical Hungarian supermarket layout.
+ */
+export type ShoppingCategory =
+  | 'PRODUCE'
+  | 'BAKERY'
+  | 'DAIRY'
+  | 'MEAT'
+  | 'FISH'
+  | 'DELI'
+  | 'FROZEN'
+  | 'PANTRY'
+  | 'CANNED'
+  | 'CONDIMENTS'
+  | 'BEVERAGES'
+  | 'SNACKS'
+  | 'HOUSEHOLD'
+  | 'PERSONAL_CARE'
+  | 'OTHER'
+
+/** Source of a shopping list item. */
+export type ShoppingListItemSource = 'PLAN' | 'ADHOC'
+
+/**
+ * A single item in the persistent shopping list.
+ * Mirrors PersistentShoppingListResponse.ItemResponse from the backend.
+ */
+export interface PersistentShoppingListItem {
+  id: string
+  /** Null for ADHOC items with no ingredient catalog match. */
+  ingredientId: string | null
+  name: string
+  amount: number | null
+  unit: string | null
+  source: ShoppingListItemSource
+  /** Null = not yet ticked. ISO-8601 instant when the user ticked off the item. */
+  tickedAt: string | null
+}
+
+/**
+ * Items grouped by supermarket aisle.
+ * Mirrors PersistentShoppingListResponse.CategoryGroup from the backend.
+ */
+export interface PersistentShoppingListCategoryGroup {
+  category: ShoppingCategory
+  /** i18n key used as the category header label (e.g. "shopNow.categories.PRODUCE"). */
+  categoryDisplayKey: string
+  items: PersistentShoppingListItem[]
+}
+
+/**
+ * Full persistent shopping list for a plan.
+ * Mirrors PersistentShoppingListResponse from the backend.
+ */
+export interface PersistentShoppingListResponse {
+  id: string
+  planId: string
+  generatedAt: string   // ISO-8601 instant
+  groups: PersistentShoppingListCategoryGroup[]
+}
+
+/**
+ * Request body for POST /api/plans/{planId}/shopping-list/items.
+ * Either ingredientId or adhocName must be supplied.
+ */
+export interface AdHocShoppingListItemRequest {
+  /** Optional: resolved ingredient ID from catalog search. */
+  ingredientId?: string | null
+  /** Required when ingredientId is null — free-text item name. */
+  adhocName?: string | null
+  amount?: number | null
+  unit?: string | null
+}
