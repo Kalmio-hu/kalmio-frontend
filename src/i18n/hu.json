@@ -274,7 +274,8 @@
       "viewFull": "Teljes terv"
     },
     "points": {
-      "total": "{{count}} pont"
+      "total": "{{count}} pont",
+      "weeklyTitle": "Heti pontjaid: {{count}} pont"
     },
     "activation": {
       "title": "Még nincs heti terved",

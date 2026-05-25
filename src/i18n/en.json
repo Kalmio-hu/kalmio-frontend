@@ -274,7 +274,8 @@
       "viewFull": "Full plan"
     },
     "points": {
-      "total": "{{count}} points"
+      "total": "{{count}} points",
+      "weeklyTitle": "Your weekly points: {{count}}"
     },
     "activation": {
       "title": "No weekly plan yet",

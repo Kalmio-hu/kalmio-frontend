@@ -24,6 +24,35 @@ export function PointsModule({ hasActivePlan = false }: PointsModuleProps = {}) 
   const total = data?.total ?? 0
   const earnedTypes = new Set(data?.earnedFirstAchievements ?? [])
 
+  // KALMIO-406: when the user has an active plan, show a "plan exists" view:
+  // — header switches to "Heti pontjaid: X pont" (dashboard.points.weeklyTitle)
+  // — hint text comes from nextHintKey, which already skips the firstPlan nudge
+  //   when hasActivePlan is true, preventing the "Tervezd meg a heted" CTA from
+  //   appearing for users who already have a schedule.
+  if (hasActivePlan) {
+    return (
+      <Card>
+        <CardContent className="pt-5">
+          <div className="flex items-baseline justify-between">
+            <span className="text-sm font-headline font-bold text-[#1A1A1A]">
+              {t('dashboard.points.weeklyTitle', { count: total })}
+            </span>
+            <div
+              aria-hidden
+              className="text-xs font-mono font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full tabular-nums"
+            >
+              {total} pt
+            </div>
+          </div>
+          <p className="mt-1.5 text-xs text-gray-500">
+            {t(nextHintKey(earnedTypes, hasActivePlan))}
+          </p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // No active plan — show the generic total with the "plan your week" nudge.
   return (
     <Card>
       <CardContent className="pt-5">
