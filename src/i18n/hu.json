@@ -2606,7 +2606,11 @@
       "summaryPlans_one": "{{count}} terv",
       "summaryPlans_other": "{{count}} terv",
       "summaryCadence": "Ciklus: {{days}} nap",
-      "summaryStart": "Kezdés: {{date}}"
+      "summaryStart": "Kezdés: {{date}}",
+      "dateValidation": {
+        "invalidDate": "Érvénytelen dátum — kérjük ellenőrizd a megadott értéket.",
+        "invalidYear": "Érvénytelen dátum — válassz a következő öt évből."
+      }
     },
     "detail": {
       "title": "Ütemezés részletei",
@@ -2844,5 +2848,12 @@
     "prepTaskError": "Az előkészítési feladat állapotát nem sikerült frissíteni.",
     "fridgeAddError": "A hűtő feltöltése nem sikerült.",
     "fridgeDeleteError": "A hűtőből való törlés nem sikerült."
+  },
+  "planDetail": {
+    "memberLabel": {
+      "me": "Én",
+      "emailLocalPart": "{{localPart}}",
+      "fallback": "{{index}}. tag"
+    }
   }
 }

@@ -2606,7 +2606,11 @@
       "summaryPlans_one": "{{count}} plan",
       "summaryPlans_other": "{{count}} plans",
       "summaryCadence": "Cycle: {{days}} days",
-      "summaryStart": "Starts: {{date}}"
+      "summaryStart": "Starts: {{date}}",
+      "dateValidation": {
+        "invalidDate": "Invalid date — please check the value you entered.",
+        "invalidYear": "Invalid date — please choose a date within the next five years."
+      }
     },
     "detail": {
       "title": "Schedule details",
@@ -2844,5 +2848,12 @@
     "prepTaskError": "Could not update the prep task status.",
     "fridgeAddError": "Could not add the item to the fridge.",
     "fridgeDeleteError": "Could not remove the item from the fridge."
+  },
+  "planDetail": {
+    "memberLabel": {
+      "me": "Me",
+      "emailLocalPart": "{{localPart}}",
+      "fallback": "Member {{index}}"
+    }
   }
 }

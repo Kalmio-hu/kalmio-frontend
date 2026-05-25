@@ -206,8 +206,33 @@ export function ScheduleNew() {
     return selectedPlanIds.length > 0
   }
 
+  /**
+   * Returns a localised error string if startDate is invalid, or null if OK.
+   *
+   * Rejects:
+   *  - empty / unparseable values (Invalid Date)
+   *  - year outside [today.year, today.year + 5]
+   *
+   * The upper bound of today.year + 5 matches the acceptance criteria range.
+   * We keep this as a pure derivation (no state) so it always stays in sync
+   * with whatever value KALMIO-399 writes into startDate.
+   */
+  function startDateError(): string | null {
+    if (!startDate) return null // field not touched yet — silent
+    const parsed = new Date(startDate)
+    if (isNaN(parsed.getTime())) {
+      return t('schedules.wizard.dateValidation.invalidDate')
+    }
+    const year = parsed.getFullYear()
+    const todayYear = new Date().getFullYear()
+    if (year < todayYear || year > todayYear + 5) {
+      return t('schedules.wizard.dateValidation.invalidYear')
+    }
+    return null
+  }
+
   function canAdvanceStep2() {
-    return !!startDate
+    return !!startDate && startDateError() === null
   }
 
   function canSubmit() {
@@ -403,10 +428,20 @@ export function ScheduleNew() {
                 setStartDate(e.target.value)
                 setStartDateTouched(true)
               }}
-              className="mt-1"
+              className={`mt-1 ${startDateError() ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
+              aria-describedby={startDateError() ? 'start-date-error' : 'start-date-hint'}
+              aria-invalid={startDateError() ? true : undefined}
               required
             />
-            <p className="text-xs text-gray-400 mt-1">{t('schedules.wizard.startDateHint')}</p>
+            {startDateError() ? (
+              <p id="start-date-error" role="alert" className="text-xs text-red-500 mt-1">
+                {startDateError()}
+              </p>
+            ) : (
+              <p id="start-date-hint" className="text-xs text-gray-400 mt-1">
+                {t('schedules.wizard.startDateHint')}
+              </p>
+            )}
           </div>
 
           {/* End date — only for continuous mode */}
