@@ -8,7 +8,6 @@ import { DailyTimeline } from '@/components/dashboard/DailyTimeline'
 import { WeeklySummaryModule } from '@/components/dashboard/WeeklySummaryModule'
 import { ActivationCard } from '@/components/dashboard/ActivationCard'
 import { ReplanDiffCard } from '@/components/dashboard/ReplanDiffCard'
-import { TodaysMealsModule } from '@/components/dashboard/TodaysMealsModule'
 import { TodaysPrepModule } from '@/components/dashboard/TodaysPrepModule'
 import { TomorrowPrepModule } from '@/components/dashboard/TomorrowPrepModule'
 import { PlanGlanceModule } from '@/components/dashboard/PlanGlanceModule'
@@ -200,7 +199,7 @@ export function Dashboard() {
   const hasActivePlan = activePlan != null || todayPlannedMeals.length > 0
 
   // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
-  const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
+  const { data: dashboardData } = useQuery({
     queryKey: ['dashboard', today],
     queryFn: () => dashboardService.get(today),
     staleTime: 30_000,
@@ -251,8 +250,6 @@ export function Dashboard() {
   const hasUpcomingPrepSlots = (upcomingPrepTasks?.length ?? 0) > 0
 
   // Derive dashboard data for active-plan modules.
-  const todaysMeals = dashboardData?.todaysMeals ?? []
-  const offPlanMeals = dashboardData?.offPlanMeals ?? []
   const todaysPrepTasks = dashboardData?.todaysPrepTasks ?? []
   const tomorrowsPrepTasks = dashboardData?.tomorrowsPrepTasks ?? []
   const planGlance = dashboardData?.planGlance ?? null
@@ -317,10 +314,13 @@ export function Dashboard() {
           />
 
           {hasActivePlan ? (
-        /* ── Active-plan dashboard composition (PRD §4.4) ─────────────────── */
+        /* ── Active-plan dashboard composition ─────────────────────────────
+           KALMIO-409: DailyTimeline is the primary today view. The card-stack
+           composition introduced by KALMIO-237 demoted the timeline; restored
+           below the replan-diff card and above the supplementary modules. */
         <div className="flex flex-col gap-3 px-4 pt-3 pb-6">
 
-          {/* 1. Replan diff — conditional, above the timeline (PRD §4.5) */}
+          {/* Replan diff — conditional, above the timeline (PRD §4.5) */}
           {showReplanDiff && activePlan && (
             <ReplanDiffCard
               planId={activePlan.id}
@@ -329,46 +329,31 @@ export function Dashboard() {
             />
           )}
 
-          {/* 2. Today's meals */}
-          <TodaysMealsModule
-            meals={todaysMeals}
-            offPlanMeals={offPlanMeals}
-            activePlan={activePlan}
-            isLoading={dashboardLoading}
+          {/* Primary: daily timeline with drag-to-reschedule, embedded prep,
+              off-plan logging. Reuses today's planned_meals query when on today. */}
+          <DailyTimeline
+            date={selectedDate}
+            hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
+            activePlanId={activePlan?.id ?? null}
+            plannedMeals={selectedDate === today ? todayPlannedMeals : undefined}
           />
 
-          {/* 3. Today's prep tasks */}
+          {/* Supplementary modules below the timeline */}
           <TodaysPrepModule
             tasks={todaysPrepTasks}
             dashboardDate={today}
           />
-
-          {/* 4. Tomorrow's prep tasks */}
           <TomorrowPrepModule tasks={tomorrowsPrepTasks} />
-
-          {/* 5. Plan glance */}
           <PlanGlanceModule glance={planGlance} />
 
-          {/* 6. Macros + Points — side-by-side on ≥768px, stacked on mobile */}
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
             <MacrosModule date={selectedDate} />
             <PointsModule hasActivePlan={hasActivePlan} />
           </div>
 
-          {/* 7. Weekly summary */}
           <WeeklySummaryModule />
 
-          {/* 8. DailyTimeline — secondary detail view for non-today date selection */}
-          {selectedDate !== today && (
-            <DailyTimeline
-              date={selectedDate}
-              hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
-              activePlanId={activePlan?.id ?? null}
-              plannedMeals={undefined}
-            />
-          )}
-
-          {/* 9. Diófa — demoted to bottom of page, framed as status section */}
+          {/* Diófa — demoted to bottom of page, framed as status section */}
           <section aria-label={t('diofa.statusSection')}>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
               {t('diofa.statusSection')}
