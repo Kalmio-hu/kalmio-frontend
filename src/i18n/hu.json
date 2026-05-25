@@ -2251,7 +2251,13 @@
       "proteinUnit": "g fehérje / nap",
       "bodyDataMissing": "Testadatok megadásával személyre szabott javaslatot adok. Ha most nem akarod, kihagyhatod.",
       "skip": "Inkább kihagyom",
-      "accepted": "Kalóriacél beállítva."
+      "accepted": "Kalóriacél beállítva.",
+      "noBodyData": {
+        "title": "Ehhez szükséges a testadatod",
+        "description": "A kalóriacélt csak akkor tudom kiszámítani, ha megadod a magasságodat, súlyodat és aktivitásod szintjét.",
+        "cta": "Testadatok megadása",
+        "skip": "Inkább kihagyom most"
+      }
     }
   },
   "family": {

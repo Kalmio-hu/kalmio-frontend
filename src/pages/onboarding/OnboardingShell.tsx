@@ -251,19 +251,9 @@ export function OnboardingShell() {
     }
   }, [currentStep, userId])
 
-  // KALMIO-408 — auto-skip the TDEE step (3) when the user has no body data
-  // yet, so the backend has nothing to compute a suggestion from. The step
-  // would otherwise render an empty "we computed your target from your body
-  // data" card with only a Skip button — a dead screen on first run.
-  useEffect(() => {
-    if (currentStep !== 3) return
-    if (!user) return
-    const hasSuggestion = user.suggestedKcalTarget != null
-    if (hasSuggestion) return
-    // Advance past the dead step. setCurrentStep is safe inside effect once
-    // because the condition will not match again after the step changes.
-    setCurrentStep(4)
-  }, [currentStep, user])
+  // KALMIO-403 — no auto-skip for the TDEE step when body data is absent.
+  // Instead the step renders a clear "add body data" state so the user
+  // understands what is needed and has a path forward (see step-3 JSX below).
 
   const goToStep = useCallback(
     (step: number) => {
@@ -379,35 +369,70 @@ export function OnboardingShell() {
           />
         )}
 
-        {/* Step 3: TDEE suggestion — KALMIO-94 */}
+        {/* Step 3: TDEE suggestion — KALMIO-94 / KALMIO-403 */}
         {currentStep === 3 && (
           <div className="flex flex-col gap-4 py-6">
-            <div className="text-center px-2">
-              <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
-                {t('onboarding.tdeeStep.title')}
-              </h2>
-              <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
-                {t('onboarding.tdeeStep.body')}
-              </p>
-            </div>
+            {user?.suggestedKcalTarget == null ? (
+              /* KALMIO-403: No body data yet — render a clear CTA instead of a
+                 blank/dead TDEE card.  The user can navigate to Profile to fill
+                 in their body data, then return here, or skip the step. */
+              <>
+                <div className="text-center px-2">
+                  <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                    {t('onboarding.tdeeStep.noBodyData.title')}
+                  </h2>
+                  <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                    {t('onboarding.tdeeStep.noBodyData.description')}
+                  </p>
+                </div>
 
-            <TdeeSuggestionBanner
-              suggestedKcal={user?.suggestedKcalTarget ?? null}
-              suggestedProtein={user?.suggestedProteinTarget ?? null}
-              accepting={tdeeMutation.isPending}
-              onAccept={({ kcalTarget }) => {
-                // proteinTarget from TdeeSuggestionValues is intentionally not
-                // persisted here. The AC for KALMIO-94 specifies kcalTarget only;
-                // protein is shown as an informational reference in the banner but
-                // is not written to mealPlanPreferences at this stage.
-                if (kcalTarget != null) {
-                  tdeeMutation.mutate(kcalTarget, { onSettled: () => goNext() })
-                } else {
-                  goNext()
-                }
-              }}
-              onSkip={goNext}
-            />
+                <div className="rounded-2xl border border-[#E8E4DC] bg-white p-5 flex flex-col gap-4">
+                  <Link
+                    to="/app/profile?section=body-data"
+                    className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#F28C28] px-6 text-base font-semibold text-white transition-colors hover:bg-[#d97a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+                  >
+                    {t('onboarding.tdeeStep.noBodyData.cta')}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={goNext}
+                    className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+                  >
+                    {t('onboarding.tdeeStep.noBodyData.skip')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              /* Normal path: body data present, show suggestion banner */
+              <>
+                <div className="text-center px-2">
+                  <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                    {t('onboarding.tdeeStep.title')}
+                  </h2>
+                  <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                    {t('onboarding.tdeeStep.body')}
+                  </p>
+                </div>
+
+                <TdeeSuggestionBanner
+                  suggestedKcal={user.suggestedKcalTarget}
+                  suggestedProtein={user?.suggestedProteinTarget ?? null}
+                  accepting={tdeeMutation.isPending}
+                  onAccept={({ kcalTarget }) => {
+                    // proteinTarget from TdeeSuggestionValues is intentionally not
+                    // persisted here. The AC for KALMIO-94 specifies kcalTarget only;
+                    // protein is shown as an informational reference in the banner but
+                    // is not written to mealPlanPreferences at this stage.
+                    if (kcalTarget != null) {
+                      tdeeMutation.mutate(kcalTarget, { onSettled: () => goNext() })
+                    } else {
+                      goNext()
+                    }
+                  }}
+                  onSkip={goNext}
+                />
+              </>
+            )}
 
             <button
               type="button"

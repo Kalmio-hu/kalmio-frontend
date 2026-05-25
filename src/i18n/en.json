@@ -2251,7 +2251,13 @@
       "proteinUnit": "g protein / day",
       "bodyDataMissing": "Add your body data and I can suggest a personalised target. You can skip this for now.",
       "skip": "Skip for now",
-      "accepted": "Calorie target set."
+      "accepted": "Calorie target set.",
+      "noBodyData": {
+        "title": "Body data required",
+        "description": "I can calculate your calorie target once you have added your height, weight, and activity level.",
+        "cta": "Add body data",
+        "skip": "Skip for now"
+      }
     }
   },
   "family": {
