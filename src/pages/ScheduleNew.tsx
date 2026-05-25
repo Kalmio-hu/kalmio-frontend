@@ -9,7 +9,7 @@
  *
  * On success → navigate to /app/schedules/{id}
  */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -87,12 +87,10 @@ export function ScheduleNew() {
   })
 
   // Step 2
-  // Default: nextMonday for users who already have a schedule (matches the
-  // master plan shopping-cadence rhythm). For the first-ever schedule, bump
-  // the default to today so a new user sees today's meals on the dashboard
-  // right after onboarding instead of an empty week.
-  const [startDate, setStartDate] = useState(nextMonday)
-  const [startDateTouched, setStartDateTouched] = useState(false)
+  // KALMIO-399 — startDateInput tracks what the user has explicitly typed.
+  // When null the effective start date is derived: today for first-ever users,
+  // nextMonday for returning users (once the schedules query settles).
+  const [startDateInput, setStartDateInput] = useState<string | null>(null)
   const [endDate, setEndDate] = useState('')
   const [cadenceDays, setCadenceDays] = useState<number | null>(null)
   const [recurrenceMode, setRecurrenceMode] = useState<RecurrenceMode>('continuous')
@@ -108,17 +106,23 @@ export function ScheduleNew() {
     staleTime: 30_000,
   })
 
-  // KALMIO-397 — first-ever schedule defaults to today, not nextMonday.
+  // Used to determine the right default start date (today vs nextMonday).
   const { data: existingSchedules = [], isSuccess: schedulesLoaded } = useQuery({
     queryKey: ['schedules'],
     queryFn: schedulesService.list,
     staleTime: 30_000,
   })
-  useEffect(() => {
-    if (schedulesLoaded && existingSchedules.length === 0 && !startDateTouched) {
-      setStartDate(todayIsoLocal())
-    }
-  }, [schedulesLoaded, existingSchedules.length, startDateTouched])
+
+  // Derived default: today for first-ever schedules; nextMonday once we know
+  // the user has prior schedules. Falls back to today while the query is in
+  // flight so the input is never blank.
+  const defaultStartDate = schedulesLoaded && existingSchedules.length > 0
+    ? nextMonday()
+    : todayIsoLocal()
+
+  // The authoritative start date: user's explicit input wins; otherwise the
+  // derived default above is used.
+  const startDate = startDateInput ?? defaultStartDate
 
   // Auto-derive cadence from selected plans' lengthDays
   const derivedCadence = selectedPlanIds.reduce((sum, id) => {
@@ -425,8 +429,7 @@ export function ScheduleNew() {
               value={startDate}
               min={todayIsoLocal()}
               onChange={e => {
-                setStartDate(e.target.value)
-                setStartDateTouched(true)
+                setStartDateInput(e.target.value)
               }}
               className={`mt-1 ${startDateError() ? 'border-red-400 focus-visible:ring-red-400' : ''}`}
               aria-describedby={startDateError() ? 'start-date-error' : 'start-date-hint'}
