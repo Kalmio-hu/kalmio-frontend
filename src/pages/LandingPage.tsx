@@ -6,7 +6,7 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { LegalFooter } from '@/components/layout/LegalFooter'
 import { useAuthStore } from '@/store/auth'
 import { ArrowRight, CheckCircle2, XCircle, Clock, Leaf, ShoppingCart } from 'lucide-react'
-import { getLatestPosts, type BlogCategory } from '@/data/blog'
+import { getLatestPostsForLanding, type BlogCategory } from '@/data/blog'
 import { FoundingMemberPromo } from '@/pages/landing/FoundingMemberPromo'
 
 const categoryColor: Record<BlogCategory, string> = {
@@ -29,7 +29,7 @@ const stagger = {
 function BlogPreviewSection() {
   const { t, i18n } = useTranslation()
   const isHu = i18n.language === 'hu'
-  const latestPosts = getLatestPosts(2)
+  const latestPosts = getLatestPostsForLanding(2)
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(isHu ? 'hu-HU' : 'en-GB', {

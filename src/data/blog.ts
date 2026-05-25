@@ -200,3 +200,25 @@ export function getPost(slug: string): BlogPost | undefined {
 export function getLatestPosts(n = 2): BlogPost[] {
   return [...posts].sort((a, b) => b.date.localeCompare(a.date)).slice(0, n)
 }
+
+/**
+ * Posts surfaced on the public landing page.
+ *
+ * Maria persona QA (2026-05-25) found that "Feature" posts about the
+ * MCP server / OAuth / ChatGPT integration push tech jargon at the
+ * day-1 acquisition audience (a 58-year-old Hungarian teacher), eroding
+ * trust before she even reads the headline. The landing should only
+ * surface posts that speak to the target user's life — Nutrition tips,
+ * Roadmap, News — not engineering announcements. The full set is still
+ * reachable at /blog.
+ */
+const LANDING_HIDDEN_SLUGS = new Set<string>([
+  'talk-to-kalmio-from-claude-or-chatgpt',
+])
+
+export function getLatestPostsForLanding(n = 2): BlogPost[] {
+  return [...posts]
+    .filter((p) => !LANDING_HIDDEN_SLUGS.has(p.slug))
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, n)
+}
