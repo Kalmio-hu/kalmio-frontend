@@ -65,6 +65,7 @@ import { schedulesService } from '@/services/schedules'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
+import { resolveDisplayName } from '@/lib/userDisplay'
 import { toast } from '@/components/ui/toast'
 import type { MealType, TemplateMeal, RecipeFilter } from '@/types'
 
@@ -232,14 +233,22 @@ export function PlanDetail() {
   if (plan) {
     plan.memberIds.forEach((uid, idx) => {
       if (uid === currentUserId && me) {
-        const full = [me.firstName, me.lastName].filter(Boolean).join(' ')
-        memberNames[uid] = full || me.username || t('plan.detail.memberMe')
+        // Fallback chain for the current user:
+        //   (a) full name → (b) first name → (c) email local-part → (d) "Én" / "Me"
+        memberNames[uid] = resolveDisplayName({
+          firstName: me.firstName,
+          lastName: me.lastName,
+          email: me.email,
+          fallbackLabel: t('planDetail.memberLabel.me'),
+        })
       } else if (familyDisplayName[uid]) {
+        // Family member — displayName is already resolved server-side via the
+        // same fallback chain (first/last → username → email local-part → UUID).
         memberNames[uid] = familyDisplayName[uid]
       } else {
         // Family hasn't loaded the row yet OR the member was removed —
-        // either way, show a friendly label so the user never sees a UUID.
-        memberNames[uid] = t('plan.detail.memberFallback', { index: idx + 1 })
+        // either way, show a friendly positional label; never expose a UUID or email.
+        memberNames[uid] = t('planDetail.memberLabel.fallback', { index: idx + 1 })
       }
     })
   }
