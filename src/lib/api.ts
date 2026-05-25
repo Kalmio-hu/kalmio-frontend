@@ -1,15 +1,84 @@
 import axios from 'axios'
+import type { InternalAxiosRequestConfig } from 'axios'
 import { supabase } from './supabase'
 import { useAuthStore, waitForAuthInit } from '@/store/auth'
 import { buildSessionFromAccessToken, persistPasskeyToken } from './passkeySession'
 import { toast } from '@/components/ui/toast'
 import i18n from '../i18n'
 
+// ── Axios type augmentation ────────────────────────────────────────────────────
+// Extends AxiosRequestConfig to accept the opt-in idempotency flag.
+// Set `requestIdempotencyKey: true` on a mutation request to have the interceptor
+// generate and attach a stable `Idempotency-Key` UUID header. The same UUID is
+// reused on every retry so the backend (KALMIO-365/366) can safely deduplicate.
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    /**
+     * When `true`, the Axios request interceptor generates a UUID and sets the
+     * `Idempotency-Key` header exactly once for this logical request. The header
+     * survives Workbox BackgroundSync replay because the SW re-sends the full
+     * original request (headers included) from its IndexedDB queue.
+     *
+     * Only set this on endpoints annotated with `@IdempotencyKeyRequired` on the
+     * backend. Do NOT set it on plan-generation or replan calls.
+     */
+    requestIdempotencyKey?: boolean
+  }
+}
+
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 export const api = axios.create({
   baseURL: BASE,
 })
+
+// ── Idempotency-Key interceptor (KALMIO-377) ──────────────────────────────────
+//
+// Runs on every request. For mutating methods where the caller has opted in via
+// `requestIdempotencyKey: true`, this interceptor generates a UUID once and
+// attaches it as the `Idempotency-Key` header.
+//
+// Idempotency guarantee across retries:
+//   - If the header is already present (e.g. set by the caller explicitly, or
+//     this interceptor already ran on a previous Axios retry), it is left as-is.
+//   - Workbox BackgroundSync replays the original fetch (headers included), so
+//     the header persists through offline queuing without any extra work.
+//
+// Methods that generate `Idempotency-Key`: POST, PATCH, PUT, DELETE.
+// GET requests are skipped — they are idempotent by definition and the backend
+// does not require the header there.
+//
+// NOTE: Axios request interceptors run in LIFO order. This interceptor is
+// registered AFTER the auth interceptor so it executes BEFORE it — the
+// Idempotency-Key is in place before the Bearer token is attached.
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const method = (config.method ?? '').toUpperCase()
+  const isMutation = ['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)
+
+  if (isMutation && config.requestIdempotencyKey) {
+    // Only generate if not already set — preserves manual overrides and
+    // ensures the same key is used across Axios-level retries.
+    const existing = config.headers.get?.('Idempotency-Key') ?? config.headers['Idempotency-Key']
+    if (!existing) {
+      const key =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : _fallbackUUID()
+      config.headers['Idempotency-Key'] = key
+    }
+  }
+
+  return config
+})
+
+/** Fallback UUID v4 generator for environments without `crypto.randomUUID`. */
+function _fallbackUUID(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
 
 api.interceptors.request.use(async (config) => {
   // Tell the backend which UI language the caller is using so AI-generated copy

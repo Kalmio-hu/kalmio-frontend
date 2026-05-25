@@ -1,13 +1,15 @@
 /// <reference lib="webworker" />
-// Custom Kalmio service worker (KALMIO-316, KALMIO-363).
+// Custom Kalmio service worker (KALMIO-316, KALMIO-363, KALMIO-377).
 // Loaded via VitePWA injectManifest strategy — Workbox injects the precache manifest at build time.
 // This file handles:
 //   - Push-notification click actions (KALMIO-316)
 //   - Workbox runtime caching for GET /api/* with per-endpoint TTLs (KALMIO-363)
+//   - BackgroundSync queue for mutating requests to /api/* (KALMIO-377)
 
 import { registerRoute } from 'workbox-routing'
-import { StaleWhileRevalidate, NetworkFirst } from 'workbox-strategies'
+import { StaleWhileRevalidate, NetworkFirst, NetworkOnly } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
+import { BackgroundSyncPlugin, Queue } from 'workbox-background-sync'
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -149,6 +151,88 @@ registerRoute(
   }),
   'GET',
 )
+
+// ── BackgroundSync for mutating requests (KALMIO-377) ─────────────────────────
+//
+// Any POST / PATCH / PUT / DELETE to /api/* that fails due to network error or
+// a 5xx response is queued in IndexedDB by BackgroundSyncPlugin. When the SW
+// receives a Background Sync event (or the next time the device comes online),
+// Workbox replays the queued requests in FIFO order.
+//
+// Idempotency: the original request headers (including Idempotency-Key, if the
+// caller opted in via the Axios interceptor) are preserved in the queue, so the
+// backend can safely deduplicate replays — no re-generation is needed.
+//
+// Queue name: 'kalmio-mutations' — 24-hour retention window.
+//
+// After each successful or exhausted replay, the SW posts
+// { type: 'SYNC_QUEUE_UPDATE', count: <remaining items> }
+// to all open window clients so the banner in the app can update its count.
+//
+// NOTE: plan-generation and replan endpoints are NOT routed here. Those are
+// intentionally excluded — they are non-idempotent, long-running operations
+// that must not be auto-retried by the SW. They bypass the BackgroundSync route
+// because registerRoute matches on the request URL, not the Axios opt-in flag.
+// The consumer is responsible for not enabling `requestIdempotencyKey` on those.
+
+const MUTATION_QUEUE_NAME = 'kalmio-mutations'
+const MUTATION_MAX_RETENTION_SECONDS = 24 * 60 * 60 // 24 hours
+
+const bgSyncPlugin = new BackgroundSyncPlugin(MUTATION_QUEUE_NAME, {
+  maxRetentionTime: MUTATION_MAX_RETENTION_SECONDS,
+  async onSync({ queue }: { queue: Queue }) {
+    // Attempt to replay all queued requests.
+    let entry = await queue.shiftRequest()
+    while (entry) {
+      try {
+        await fetch(entry.request.clone())
+      } catch {
+        // Network still down — push it back and abort the sync attempt.
+        await queue.unshiftRequest(entry)
+        // Broadcast the current queue size so the UI banner stays accurate.
+        await _broadcastQueueSize(queue)
+        throw new Error('Sync aborted: network still unavailable')
+      }
+      entry = await queue.shiftRequest()
+    }
+    // All requests replayed successfully — notify clients.
+    await _broadcastQueueSize(queue)
+  },
+})
+
+// Helper: reads the queue size and posts it to all open window clients.
+// Queue.size() is O(1) — it queries the IDB count without draining the queue.
+async function _broadcastQueueSize(queue: Queue): Promise<void> {
+  const count = await queue.size()
+  const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+  for (const client of clients) {
+    client.postMessage({ type: 'SYNC_QUEUE_UPDATE', count })
+  }
+}
+
+// Route: POST / PATCH / PUT / DELETE to /api/* — NetworkOnly + BackgroundSync fallback.
+// Excludes plan-generation and replan paths which must never be auto-retried.
+//
+// Workbox's registerRoute(captureFn, handler, method) matches only the specified
+// HTTP method. We register four separate routes — one per verb — sharing the
+// same capture logic and plugin instance.
+
+function _isMutableApiRoute({ url }: { request: Request; url: URL }): boolean {
+  if (!url.pathname.startsWith('/api/')) return false
+  // Exclude plan generation / replan: they are not idempotent.
+  if (url.pathname.includes('/generate') || url.pathname.includes('/replan')) return false
+  return true
+}
+
+const _networkOnlyWithBgSync = new NetworkOnly({
+  plugins: [bgSyncPlugin],
+  fetchOptions: { credentials: 'include' },
+})
+
+registerRoute(_isMutableApiRoute, _networkOnlyWithBgSync, 'POST')
+registerRoute(_isMutableApiRoute, _networkOnlyWithBgSync, 'PATCH')
+registerRoute(_isMutableApiRoute, _networkOnlyWithBgSync, 'PUT')
+registerRoute(_isMutableApiRoute, _networkOnlyWithBgSync, 'DELETE')
 
 // ── Sign-out cache clear ───────────────────────────────────────────────────────
 // The app posts { type: 'CLEAR_API_CACHE' } from useAuthStore's signOut action.

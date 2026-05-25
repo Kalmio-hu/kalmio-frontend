@@ -89,6 +89,9 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
+      workbox-background-sync:
+        specifier: 7.4.1
+        version: 7.4.1
       workbox-core:
         specifier: 7.4.1
         version: 7.4.1

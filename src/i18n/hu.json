@@ -1227,6 +1227,9 @@
     "allInFridge": {
       "title": "Minden megvan a hűtőben",
       "desc": "A tervhez szükséges összes hozzávaló megvan."
+    },
+    "shopNowEntry": {
+      "button": "Vásárlás indítása"
     }
   },
   "feedback": {

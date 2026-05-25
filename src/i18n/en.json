@@ -1264,6 +1264,9 @@
     "allInFridge": {
       "title": "Everything's in the fridge",
       "desc": "All ingredients for your plan are in the fridge."
+    },
+    "shopNowEntry": {
+      "button": "Start shopping"
     }
   },
   "fridge": {
