@@ -2145,6 +2145,11 @@
       "shoppingDayLabel": "Which day works best for shopping?",
       "forbiddenLabel": "Excluded ingredients",
       "forbiddenHint": "Optional. If you want to keep something out of your plan entirely, search and add it here.",
+      "budgetLabel": "Weekly grocery budget",
+      "budgetHint": "Optional. If you set one, the planner will try to keep the weekly shop under this amount.",
+      "budgetPlaceholder": "e.g. 25000",
+      "budgetSuffix": "HUF / week",
+      "budgetError": "The value must be between 1,000 and 500,000 HUF.",
       "cta": "Next",
       "saving": "Saving…",
       "householdError": "Please choose a value between 1 and 6."

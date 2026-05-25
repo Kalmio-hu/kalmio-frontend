@@ -79,6 +79,8 @@ export interface PreferencesStepValues {
   cadenceDays: number
   shoppingDayOfWeek: number   // ISO 1–7
   forbiddenIngredientIds: string[]
+  /** KALMIO-430: optional weekly budget in HUF. Null = no budget cap. */
+  budgetMax: number | null
 }
 
 const DEFAULT_VALUES: PreferencesStepValues = {
@@ -88,6 +90,7 @@ const DEFAULT_VALUES: PreferencesStepValues = {
   cadenceDays: 7,
   shoppingDayOfWeek: 7,   // Sunday
   forbiddenIngredientIds: [],
+  budgetMax: null,
 }
 
 // ── Props ─────────────────────────────────────────────────────────────────────
@@ -147,6 +150,11 @@ export function PreferencesStep({
   )
   const [shoppingDayOfWeek, setShoppingDayOfWeek] = useState(init.shoppingDayOfWeek)
   const [forbiddenIngredientIds, setForbiddenIngredientIds] = useState<string[]>(init.forbiddenIngredientIds)
+  // KALMIO-430: optional weekly budget. Empty string ⇒ "no budget cap"; a
+  // positive integer ⇒ budgetMax in HUF for the solver's soft constraint.
+  const [budgetMax, setBudgetMax] = useState<string>(
+    init.budgetMax != null ? String(init.budgetMax) : '',
+  )
 
   // ── Dietary toggle ─────────────────────────────────────────────────────────
 
@@ -185,7 +193,24 @@ export function PreferencesStep({
   const householdError: string | null =
     householdSize < 1 || householdSize > 6 ? t('onboarding.preferencesStep.householdError') : null
 
-  const canAdvance = !kcalError && !cadenceError && !householdError
+  // KALMIO-430: budget is optional. Empty input = no cap. Any value must be
+  // a positive integer at or above 1 000 Ft/week (lower is unrealistic for
+  // even a single person) and at or below 500 000 Ft/week (sanity ceiling).
+  const resolvedBudget: number | null = (() => {
+    const trimmed = budgetMax.trim()
+    if (trimmed === '') return null
+    const n = parseInt(trimmed, 10)
+    return isNaN(n) ? null : n
+  })()
+  const budgetError: string | null = (() => {
+    const trimmed = budgetMax.trim()
+    if (trimmed === '') return null
+    const n = parseInt(trimmed, 10)
+    if (isNaN(n) || n < 1000 || n > 500000) return t('onboarding.preferencesStep.budgetError')
+    return null
+  })()
+
+  const canAdvance = !kcalError && !cadenceError && !householdError && !budgetError
 
   // ── Submit ─────────────────────────────────────────────────────────────────
 
@@ -198,8 +223,9 @@ export function PreferencesStep({
       cadenceDays: resolvedCadence,
       shoppingDayOfWeek,
       forbiddenIngredientIds,
+      budgetMax: resolvedBudget,
     })
-  }, [canAdvance, householdSize, resolvedKcal, dietary, resolvedCadence, shoppingDayOfWeek, forbiddenIngredientIds, onAdvance])
+  }, [canAdvance, householdSize, resolvedKcal, dietary, resolvedCadence, shoppingDayOfWeek, forbiddenIngredientIds, resolvedBudget, onAdvance])
 
   // ── Dietary marker groups ──────────────────────────────────────────────────
 
@@ -450,7 +476,35 @@ export function PreferencesStep({
         ))}
       </div>
 
-      {/* ── 6. Forbidden ingredients ──────────────────────────────────────── */}
+      {/* ── 6. Weekly budget (optional) ──────────────────────────────────── */}
+      <SectionLabel>{t('onboarding.preferencesStep.budgetLabel')}</SectionLabel>
+      <p className="text-xs text-[#6B6460] -mt-1 mb-1">
+        {t('onboarding.preferencesStep.budgetHint')}
+      </p>
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          inputMode="numeric"
+          min={1000}
+          max={500000}
+          step={500}
+          value={budgetMax}
+          onChange={(e) => setBudgetMax(e.target.value)}
+          aria-label={t('onboarding.preferencesStep.budgetLabel')}
+          aria-invalid={budgetError != null}
+          aria-describedby={budgetError ? 'budget-error' : undefined}
+          placeholder={t('onboarding.preferencesStep.budgetPlaceholder')}
+          className="h-10 w-32 rounded-[10px] border border-gray-300 bg-white px-3 text-sm text-[#1A1A1A] placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#F28C28]/40 focus:border-[#F28C28] transition-colors"
+        />
+        <span className="text-sm text-[#6B6460]">{t('onboarding.preferencesStep.budgetSuffix')}</span>
+      </div>
+      {budgetError && (
+        <p id="budget-error" className="text-xs text-red-600 mt-1">
+          {budgetError}
+        </p>
+      )}
+
+      {/* ── 7. Forbidden ingredients ──────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.forbiddenLabel')}</SectionLabel>
       <p className="text-xs text-[#6B6460] -mt-1 mb-1">
         {t('onboarding.preferencesStep.forbiddenHint')}

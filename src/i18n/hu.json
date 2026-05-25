@@ -2145,6 +2145,11 @@
       "shoppingDayLabel": "Melyik nap a legjobb a bevásárláshoz?",
       "forbiddenLabel": "Kizárt hozzávalók",
       "forbiddenHint": "Nem kötelező. Ha valamit biztosan nem szeretnél a tervben, keresd rá és add hozzá.",
+      "budgetLabel": "Heti élelmiszerkeret",
+      "budgetHint": "Nem kötelező. Ha megadod, a tervező a megadott összeg alatt próbálja tartani a heti bevásárlást.",
+      "budgetPlaceholder": "pl. 25000",
+      "budgetSuffix": "Ft / hét",
+      "budgetError": "Az értéknek 1 000 és 500 000 Ft között kell lennie.",
       "cta": "Tovább",
       "saving": "Mentés…",
       "householdError": "Kérlek válassz 1 és 6 közötti értéket."

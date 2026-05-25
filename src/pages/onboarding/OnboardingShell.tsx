@@ -190,15 +190,19 @@ export function OnboardingShell() {
   })
 
   // ── Preferences step: persist all six fields on advance ──────────────────
+  // KALMIO-430: the budget field is optional. `budgetMax === null` clears any
+  // previously-set value; a positive integer constrains the solver's soft
+  // cost penalty for the whole week.
   const preferencesMutation = useMutation({
     mutationFn: (values: PreferencesStepValues) => {
-      const { householdSize, kcalTarget, dietary, cadenceDays, shoppingDayOfWeek, forbiddenIngredientIds } = values
+      const { householdSize, kcalTarget, dietary, cadenceDays, shoppingDayOfWeek, forbiddenIngredientIds, budgetMax } = values
       return usersService.updateSettings({
         mealPlanPreferences: {
           ...user?.mealPlanPreferences,
           kcalTarget,
           days: cadenceDays,
           forbiddenIngredientIds: forbiddenIngredientIds.length > 0 ? forbiddenIngredientIds : undefined,
+          budgetMax: budgetMax ?? undefined,
           // Map household size (1–6) to servingConfig.maxMultiplier so analytics
           // can derive a household-size bucket from the existing pattern.
           servingConfig: {
@@ -360,6 +364,7 @@ export function OnboardingShell() {
               cadenceDays: user?.mealPlanPreferences?.days ?? 7,
               shoppingDayOfWeek: user?.preferredPrepDayOfWeek ?? 7,
               forbiddenIngredientIds: (user?.mealPlanPreferences?.forbiddenIngredientIds ?? []) as string[],
+              budgetMax: user?.mealPlanPreferences?.budgetMax ?? null,
             }}
             onAdvance={(values) => {
               preferencesMutation.mutate(values, { onSettled: () => goNext() })
