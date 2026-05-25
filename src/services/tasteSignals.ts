@@ -56,10 +56,9 @@ export async function submitTasteSignal(
  * API, sorted by name.  The real algorithm ships with E9.2.
  */
 /**
- * KALMIO-431: server returns each card with a `type: "INGREDIENT" | "RECIPE"`
- * field, but the frontend type contract (and POST /taste-signals payload) is
- * `targetType`. Normalise here so consumers downstream can rely on a single
- * field name without per-call translation.
+ * KALMIO-431 / KALMIO-432: server returns each card with `type` (instead of
+ * `targetType`) and an optional `category` enum for ingredients. Normalise
+ * here so the rest of the stack consumes a single, stable shape.
  */
 type ServerTasteCard = TasteCard & { type?: 'INGREDIENT' | 'RECIPE' }
 

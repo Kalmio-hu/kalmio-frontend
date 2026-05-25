@@ -36,7 +36,11 @@ import {
   AnimatePresence,
   type PanInfo,
 } from 'framer-motion'
-import { Heart, X, ThumbsUp, ChevronDown, Sparkles, Carrot, UtensilsCrossed } from 'lucide-react'
+import {
+  Heart, X, ThumbsUp, ChevronDown, Sparkles,
+  Carrot, UtensilsCrossed, Drumstick, Wheat, Droplet, Flame,
+  type LucideIcon,
+} from 'lucide-react'
 import { capture } from '@/lib/analytics'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import type { TasteCard, TasteSignalSource, TasteSignalValue } from '@/types'
@@ -83,6 +87,45 @@ function initialFor(name: string): string {
   return ch ? ch.toLocaleUpperCase('hu-HU') : '?'
 }
 
+/**
+ * KALMIO-432: pick a category-appropriate glyph for the no-photo fallback.
+ * Recipe cards always get the utensils icon; ingredient cards branch on the
+ * server-provided IngredientCategory enum. If the category is missing or
+ * unknown we fall back to Carrot — a safer "vegetable" generic than a
+ * meat icon.
+ */
+function iconForCard(card: TasteCard): LucideIcon {
+  if (card.targetType === 'RECIPE') return UtensilsCrossed
+  switch (card.category) {
+    case 'PROTEIN': return Drumstick
+    case 'CARB':    return Wheat
+    case 'FAT':     return Droplet
+    case 'VEGGIE':  return Carrot
+    case 'SPICE':   return Flame
+    default:        return Carrot
+  }
+}
+
+/**
+ * Direction values we track during the drag. The single-direction guard
+ * (KALMIO-432) picks at most one of these so the overlay labels and colour
+ * tints never compete on a diagonal drag.
+ */
+type DirectionMatch = 'left' | 'right' | 'up' | 'down' | 'none'
+
+/**
+ * Returns the dominant drag direction based on (dx, dy), or 'none' when
+ * neither axis has moved enough to register. Symmetric break-tie on the
+ * horizontal axis to keep the experience predictable.
+ */
+function dominantDirection(dx: number, dy: number): DirectionMatch {
+  const ax = Math.abs(dx)
+  const ay = Math.abs(dy)
+  if (ax < 8 && ay < 8) return 'none'
+  if (ax >= ay) return dx > 0 ? 'right' : 'left'
+  return dy < 0 ? 'up' : 'down'
+}
+
 // ── Active card (the one you can drag) ─────────────────────────────────────
 
 interface ActiveCardProps {
@@ -101,18 +144,44 @@ function ActiveCard({ card, onCommit, disabled, labels, hint }: ActiveCardProps)
   // Rotation tracks horizontal travel for that satisfying Tinder tilt.
   const rotate = useTransform(x, [-300, 0, 300], [-MAX_TILT, 0, MAX_TILT])
 
-  // Label opacity — clamps to [0, 1] once you cross LABEL_FULL_PX.
-  const loveOpacity = useTransform(x, [0, LABEL_FULL_PX], [0, 1], { clamp: true })
-  const hateOpacity = useTransform(x, [-LABEL_FULL_PX, 0], [1, 0], { clamp: true })
-  const okOpacity = useTransform(y, [-LABEL_FULL_PX, 0], [1, 0], { clamp: true })
-  const skipOpacity = useTransform(y, [0, LABEL_FULL_PX], [0, 1], { clamp: true })
+  // KALMIO-432: pick a single dominant direction so a diagonal drag never
+  // shows two overlay labels at once. Each label / tint reads its opacity
+  // from this single source.
+  const loveOpacity = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'right') return 0
+    return Math.min(1, Math.max(0, xv / LABEL_FULL_PX))
+  })
+  const hateOpacity = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'left') return 0
+    return Math.min(1, Math.max(0, -xv / LABEL_FULL_PX))
+  })
+  const okOpacity = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'up') return 0
+    return Math.min(1, Math.max(0, -yv / LABEL_FULL_PX))
+  })
+  const skipOpacity = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'down') return 0
+    return Math.min(1, Math.max(0, yv / LABEL_FULL_PX))
+  })
 
-  // Subtle background tint as the user commits — green right, red left,
-  // amber up, stone down. Mixed into the bottom gradient via an overlay.
-  const tintRight = useTransform(x, [0, LABEL_FULL_PX], [0, 0.4], { clamp: true })
-  const tintLeft = useTransform(x, [-LABEL_FULL_PX, 0], [0.4, 0], { clamp: true })
-  const tintUp = useTransform(y, [-LABEL_FULL_PX, 0], [0.35, 0], { clamp: true })
-  const tintDown = useTransform(y, [0, LABEL_FULL_PX], [0, 0.35], { clamp: true })
+  // Tints follow the same dominant-axis rule, capped at lower max opacity so
+  // they read as a subtle overlay rather than blocking the card content.
+  const tintRight = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'right') return 0
+    return Math.min(0.4, Math.max(0, (xv / LABEL_FULL_PX) * 0.4))
+  })
+  const tintLeft = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'left') return 0
+    return Math.min(0.4, Math.max(0, (-xv / LABEL_FULL_PX) * 0.4))
+  })
+  const tintUp = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'up') return 0
+    return Math.min(0.35, Math.max(0, (-yv / LABEL_FULL_PX) * 0.35))
+  })
+  const tintDown = useTransform<number, number>([x, y], ([xv, yv]) => {
+    if (dominantDirection(xv, yv) !== 'down') return 0
+    return Math.min(0.35, Math.max(0, (yv / LABEL_FULL_PX) * 0.35))
+  })
 
   const handleDragEnd = (_: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     if (disabled) return
@@ -185,21 +254,25 @@ function ActiveCard({ card, onCommit, disabled, labels, hint }: ActiveCardProps)
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{ background: fallbackGradient(card) }}
-          >
-            <div className="flex flex-col items-center gap-3 opacity-90">
-              {card.targetType === 'INGREDIENT' ? (
-                <Carrot className="w-16 h-16 text-white/85" strokeWidth={1.4} />
-              ) : (
-                <UtensilsCrossed className="w-16 h-16 text-white/85" strokeWidth={1.4} />
-              )}
-              <span className="text-7xl font-black text-white/90 tracking-tight">
-                {initialFor(card.name)}
-              </span>
-            </div>
-          </div>
+          // KALMIO-432: pick a category-appropriate glyph (chicken leg for
+          // PROTEIN, wheat for CARB, oil drop for FAT, carrot for VEGGIE,
+          // flame for SPICE, utensils-crossed for recipes).
+          (() => {
+            const Icon = iconForCard(card)
+            return (
+              <div
+                className="absolute inset-0 flex items-center justify-center"
+                style={{ background: fallbackGradient(card) }}
+              >
+                <div className="flex flex-col items-center gap-3 opacity-90">
+                  <Icon className="w-16 h-16 text-white/85" strokeWidth={1.4} />
+                  <span className="text-7xl font-black text-white/90 tracking-tight">
+                    {initialFor(card.name)}
+                  </span>
+                </div>
+              </div>
+            )
+          })()
         )}
 
         {/* ── Bottom legibility gradient ──────────────────────────────── */}

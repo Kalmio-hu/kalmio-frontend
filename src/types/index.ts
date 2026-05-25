@@ -753,6 +753,9 @@ export interface TasteSignalRequest {
   source: TasteSignalSource
 }
 
+/** Ingredient macro category — mirrors backend IngredientCategory enum. */
+export type IngredientCategoryCode = 'PROTEIN' | 'CARB' | 'FAT' | 'VEGGIE' | 'SPICE'
+
 /** A single card shown in the taste-swipe deck. */
 export interface TasteCard {
   id: string
@@ -763,6 +766,12 @@ export interface TasteCard {
   subtitle?: string
   /** Optional image URL. */
   imageUrl?: string | null
+  /**
+   * Ingredient macro category (KALMIO-432). Server-provided for ingredient
+   * cards so the frontend can pick a category-appropriate icon when no
+   * photo is available. Null/undefined for recipes.
+   */
+  category?: IngredientCategoryCode | null
 }
 
 // ── Dashboard State (E2 — module gating) ─────────────────────────────────
