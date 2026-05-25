@@ -142,8 +142,10 @@ export function PreferencesStep({
   // properties, so a `?? undefined` from upstream overwrites DEFAULT_VALUES.dietary.
   // Guard with one more coalesce — see Maria persona QA report 2026-05-25.
   const [dietary, setDietary] = useState<DietaryPreferences>(init.dietary ?? EMPTY_DIETARY)
-  const [cadencePreset, setCadencePreset] = useState<7 | 14 | 'custom'>(
-    CADENCE_PRESETS.includes(init.cadenceDays as typeof CADENCE_PRESETS[number]) ? (init.cadenceDays as 7 | 14) : 'custom'
+  const [cadencePreset, setCadencePreset] = useState<typeof CADENCE_PRESETS[number] | 'custom'>(
+    CADENCE_PRESETS.includes(init.cadenceDays as typeof CADENCE_PRESETS[number])
+      ? (init.cadenceDays as typeof CADENCE_PRESETS[number])
+      : 'custom'
   )
   const [cadenceCustom, setCadenceCustom] = useState(
     CADENCE_PRESETS.includes(init.cadenceDays as typeof CADENCE_PRESETS[number]) ? '' : String(init.cadenceDays)
