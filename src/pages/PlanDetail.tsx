@@ -905,18 +905,18 @@ export function PlanDetail() {
               title={fillCtaTooltip}
               aria-label={fillCtaLabel}
               className="
-                flex items-center gap-1.5 px-3 py-1.5 rounded-[10px]
-                bg-[#4f46e5] text-white text-sm font-medium
-                hover:bg-[#4338ca] active:bg-[#3730a3]
+                inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px]
+                bg-white text-[#1A1A1A] text-sm font-medium border border-[#e5e4e7]
+                hover:bg-[#f9f7f2] hover:border-[#1A1A1A]/20 active:bg-[#f3f1ea]
                 disabled:opacity-60 disabled:cursor-not-allowed
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] focus-visible:ring-offset-1
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-1
                 transition-colors
               "
             >
               {solveMutation.isPending ? (
-                <Spinner className="h-3.5 w-3.5 text-white" />
+                <Spinner className="h-3.5 w-3.5 text-[#1A1A1A]" />
               ) : (
-                <Zap className="w-3.5 h-3.5" aria-hidden />
+                <Zap className="w-3.5 h-3.5 text-[#F28C28]" aria-hidden />
               )}
               {fillCtaLabel}
             </button>
