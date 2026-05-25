@@ -41,7 +41,11 @@ const KCAL_PRESETS = [1500, 1800, 2000, 2200, 2500] as const
 
 // ── Cadence options ──────────────────────────────────────────────────────────
 
-const CADENCE_PRESETS = [7, 14] as const
+// KALMIO-426: add a 3-day preset for urban-single users who shop more
+// frequently with smaller baskets. David persona feedback — buried in
+// "Egyedi" the option felt like power-user territory; surfacing the
+// short cycle keeps fresh-food shoppers on the happy path.
+const CADENCE_PRESETS = [3, 7, 14] as const
 
 // ── Weekday keys → ISO weekday 1 (Mon) – 7 (Sun) ────────────────────────────
 
