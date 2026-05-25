@@ -68,7 +68,14 @@ export function OnboardingGate() {
   const hasPreferences = !!(user?.mealPlanPreferences || user?.dietaryPreferences)
   const needsOnboarding = !doneLocally && !hasPreferences
 
-  if (needsOnboarding) {
+  // KALMIO-414: paths the gate should let through even mid-onboarding, so the
+  // body-data CTA on onboarding step 3 doesn't dead-end the user back into
+  // the same flow they came from. /app/profile is the destination for the
+  // "Testadatok megadása" link; /app/settings hosts language/passkey controls.
+  const ALWAYS_ALLOWED = ['/app/profile', '/app/settings']
+  const isAllowed = ALWAYS_ALLOWED.some((p) => location.pathname.startsWith(p))
+
+  if (needsOnboarding && !isAllowed) {
     // Preserve the intended destination so we can return there after onboarding
     // completes (wired in OnboardingShell when navigate('/app') is called).
     return (
