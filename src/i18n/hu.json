@@ -2734,5 +2734,15 @@
       "success": "Csend a mai napra beállítva.",
       "error": "Nem sikerült beállítani a csendet"
     }
+  },
+  "offline": {
+    "bannerOffline": "Most offline vagy.",
+    "bannerReconnected": "Kapcsolat visszaállt.",
+    "lastUpdated": "Utolsó szinkron: {{time}}",
+    "justNow": "az imént",
+    "oneMinuteAgo": "1 perce",
+    "minutesAgo": "{{count}} perce",
+    "dismiss": "Bezárás",
+    "tooltipOffline": "Nincs hálózat — ez a funkció nem érhető el offline."
   }
 }

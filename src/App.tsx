@@ -1,7 +1,6 @@
 import React, { useEffect, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppShell } from '@/components/layout/AppShell'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AdminRoute } from '@/components/AdminRoute'
@@ -77,10 +76,6 @@ if (_testSource) {
   registerSuperProperties({ test_source: _testSource })
 }
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
-})
-
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const setSession = useAuthStore((s) => s.setSession)
   const setAppRole = useAuthStore((s) => s.setAppRole)
@@ -146,7 +141,7 @@ export default function App() {
   useDocumentTitle()
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <Toaster />
       <OfflineBanner />
       <BrowserRouter>
@@ -234,6 +229,6 @@ export default function App() {
           </Routes>
         </AuthProvider>
       </BrowserRouter>
-    </QueryClientProvider>
+    </>
   )
 }

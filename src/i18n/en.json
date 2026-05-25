@@ -2734,5 +2734,15 @@
       "success": "Quiet mode set for today.",
       "error": "Could not set quiet mode"
     }
+  },
+  "offline": {
+    "bannerOffline": "You're offline.",
+    "bannerReconnected": "Connection restored.",
+    "lastUpdated": "Last synced {{time}}",
+    "justNow": "just now",
+    "oneMinuteAgo": "1 minute ago",
+    "minutesAgo": "{{count}} minutes ago",
+    "dismiss": "Dismiss",
+    "tooltipOffline": "No network — this action is not available offline."
   }
 }
