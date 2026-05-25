@@ -175,7 +175,7 @@ export function Dashboard() {
   // to localStorage so future sessions can compute their own gap.
   const engagementGapBucket = useEngagementGap()
 
-  const { data: activePlan } = useQuery({
+  const { data: activePlan, isLoading: activePlanLoading } = useQuery({
     queryKey: ['plan', 'active'],
     queryFn: planService.getActive,
     staleTime: 60_000,
@@ -183,17 +183,20 @@ export function Dashboard() {
 
   // Today's meals from the materialized planned_meal table (meal-planning-v2).
   // Used by DailyTimeline to render the new source of truth for today's meal slots.
-  const { data: todayPlannedMeals = [] } = useQuery({
+  const { data: todayPlannedMeals = [], isLoading: plannedMealsLoading } = useQuery({
     queryKey: ['planned-meals', today, today],
     queryFn: () => plannedMealsService.listInRange(today, today),
     staleTime: 30_000,
   })
 
-  // KALMIO-398 — the v1 `planService.getActive` endpoint returns 404 for v2-only
-  // users (schedule → planned_meals). Trust materialized planned_meals as a
-  // second source of truth so the activation card disappears the moment a
-  // schedule starts producing meals, even if the legacy endpoint hasn't caught
-  // up. Once KALMIO-392 lands, getActive will be retired.
+  // KALMIO-400 — the activation card must hide as soon as either signal confirms an
+  // active plan. Two signals are needed because v2-only users have no legacy
+  // /api/plans/calendar/active record; instead their plan exists only in
+  // planned_meals (schedule → materialise → planned_meals).
+  //
+  // Do NOT show the activation card while either query is still loading — that
+  // avoids a flash-of-card on every page load for users who do have an active plan.
+  const planQueriesLoading = activePlanLoading || plannedMealsLoading
   const hasActivePlan = activePlan != null || todayPlannedMeals.length > 0
 
   // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
@@ -298,7 +301,9 @@ export function Dashboard() {
           )}
 
           {/* ── Empty-plan state (PRD §4.1) ─────────────────────────────────── */}
-          {!hasActivePlan && (
+          {/* KALMIO-400: suppress while queries are in-flight to avoid a
+              flash-of-card for users who do have an active plan. */}
+          {!planQueriesLoading && !hasActivePlan && (
             <div className="px-4 pt-4 pb-2">
               <ActivationCard />
             </div>
