@@ -2861,6 +2861,10 @@
       "me": "Én",
       "emailLocalPart": "{{localPart}}",
       "fallback": "{{index}}. tag"
+    },
+    "scheduleCta": {
+      "button": "Ütemezem a tervet",
+      "tooltip": "Terv ütemezése a naptáron"
     }
   }
 }

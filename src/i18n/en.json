@@ -2861,6 +2861,10 @@
       "me": "Me",
       "emailLocalPart": "{{localPart}}",
       "fallback": "Member {{index}}"
+    },
+    "scheduleCta": {
+      "button": "Schedule this plan",
+      "tooltip": "Schedule this plan onto the calendar"
     }
   }
 }
