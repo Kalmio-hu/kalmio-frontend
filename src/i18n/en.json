@@ -2257,8 +2257,8 @@
       "skip": "Skip for now",
       "accepted": "Calorie target set.",
       "noBodyData": {
-        "title": "Body data required",
-        "description": "I can calculate your calorie target once you have added your height, weight, and activity level.",
+        "title": "Refine your calorie target?",
+        "description": "Adding your body data lets me make a more accurate suggestion. Skip for now and your current calorie target stays as-is.",
         "cta": "Add body data",
         "skip": "Skip for now"
       }

@@ -2257,8 +2257,8 @@
       "skip": "Inkább kihagyom",
       "accepted": "Kalóriacél beállítva.",
       "noBodyData": {
-        "title": "Ehhez szükséges a testadatod",
-        "description": "A kalóriacélt csak akkor tudom kiszámítani, ha megadod a magasságodat, súlyodat és aktivitásod szintjét.",
+        "title": "Finomítsuk a kalóriacélt?",
+        "description": "Ha megadod a testadataidat, pontosabb javaslatot tudok adni. Ha most kihagyod, a megadott kalóriacélod megmarad.",
         "cta": "Testadatok megadása",
         "skip": "Inkább kihagyom most"
       }
