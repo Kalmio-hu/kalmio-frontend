@@ -224,7 +224,8 @@
       "prepTypeLabels": {
         "OVERNIGHT": "Éjszakai előkészítés",
         "BATCH": "Előre elkészített adag",
-        "FREEZE_BATCH": "Előre elkészített adag fagyasztással"
+        "FREEZE_BATCH": "Előre elkészített adag fagyasztással",
+        "FRESH": "Frissen készül"
       },
       "embedded": {
         "listLabel": "Tálalás előtt",

@@ -224,7 +224,8 @@
       "prepTypeLabels": {
         "OVERNIGHT": "Overnight prep",
         "BATCH": "Batch prep",
-        "FREEZE_BATCH": "Batch prep with freezing"
+        "FREEZE_BATCH": "Batch prep with freezing",
+        "FRESH": "Made fresh"
       },
       "embedded": {
         "listLabel": "Before serving",
