@@ -178,7 +178,20 @@ export function Dashboard() {
     staleTime: 60_000,
   })
 
-  const hasActivePlan = activePlan != null
+  // Today's meals from the materialized planned_meal table (meal-planning-v2).
+  // Used by DailyTimeline to render the new source of truth for today's meal slots.
+  const { data: todayPlannedMeals = [] } = useQuery({
+    queryKey: ['planned-meals', today, today],
+    queryFn: () => plannedMealsService.listInRange(today, today),
+    staleTime: 30_000,
+  })
+
+  // KALMIO-398 — the v1 `planService.getActive` endpoint returns 404 for v2-only
+  // users (schedule → planned_meals). Trust materialized planned_meals as a
+  // second source of truth so the activation card disappears the moment a
+  // schedule starts producing meals, even if the legacy endpoint hasn't caught
+  // up. Once KALMIO-392 lands, getActive will be retired.
+  const hasActivePlan = activePlan != null || todayPlannedMeals.length > 0
 
   // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
   const { data: dashboardData, isLoading: dashboardLoading } = useQuery({
@@ -186,14 +199,6 @@ export function Dashboard() {
     queryFn: () => dashboardService.get(today),
     staleTime: 30_000,
     enabled: hasActivePlan,
-  })
-
-  // Today's meals from the materialized planned_meal table (meal-planning-v2).
-  // Used by DailyTimeline to render the new source of truth for today's meal slots.
-  const { data: todayPlannedMeals = [] } = useQuery({
-    queryKey: ['planned-meals', today, today],
-    queryFn: () => plannedMealsService.listInRange(today, today),
-    staleTime: 30_000,
   })
 
   const { data: dashboardState } = useQuery({
