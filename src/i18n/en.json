@@ -1103,7 +1103,9 @@
       },
       "myth2": {
         "problem": "Eating healthy is expensive",
-        "solution": "Optimised shopping lists that prevent food waste. Save up to 50,000 HUF/month."
+        "solution": "The Hungarian food-safety authority NÉBIH reports an average household throws out 128 000 HUF of food per year. Kalmio's optimised shopping list helps you stop being one of them.",
+        "sourceLabel": "Source: NÉBIH Maradék nélkül (Without Leftovers) study",
+        "sourceUrl": "https://portal.nebih.gov.hu/-/ujabb-lepes-a-fenntarthatosag-fele-a-magyar-haztartasok-egyre-kevesebb-elelmiszert-pazarolnak"
       },
       "myth3": {
         "problem": "I don't have time to plan",

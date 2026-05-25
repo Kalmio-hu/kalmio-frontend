@@ -1103,7 +1103,9 @@
       },
       "myth2": {
         "problem": "Egészségesen enni drága",
-        "solution": "Optimalizált bevásárlólista, ami megakadályozza az élelmiszerpazarlást. Spórolj akár 50 000 Ft/hó."
+        "solution": "A NÉBIH szerint egy átlagos magyar háztartás évente 128 000 Ft értékű élelmiszert dob ki. A Kalmio optimalizált bevásárlólistája segít, hogy te ne tartozz közéjük.",
+        "sourceLabel": "Forrás: NÉBIH Maradék nélkül felmérés",
+        "sourceUrl": "https://portal.nebih.gov.hu/-/ujabb-lepes-a-fenntarthatosag-fele-a-magyar-haztartasok-egyre-kevesebb-elelmiszert-pazarolnak"
       },
       "myth3": {
         "problem": "Nincs időm megtervezni",

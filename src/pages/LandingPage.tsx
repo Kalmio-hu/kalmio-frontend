@@ -128,6 +128,12 @@ export function LandingPage() {
       icon: <ShoppingCart className="h-6 w-6" />,
       problem: t('landing.pain.myth2.problem'),
       solution: t('landing.pain.myth2.solution'),
+      // KALMIO-428: quantitative claims need a footnote with the source —
+      // Hungarian advertising law (Fttv. 2008. évi XLVII. tv.) requires
+      // substantiation for measurable comparisons. NÉBIH "Maradék nélkül"
+      // is the canonical HU household-food-waste study.
+      sourceLabel: t('landing.pain.myth2.sourceLabel'),
+      sourceUrl: t('landing.pain.myth2.sourceUrl'),
     },
     {
       icon: <Clock className="h-6 w-6" />,
@@ -272,7 +278,7 @@ export function LandingPage() {
             viewport={{ once: true, margin: '-60px' }}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {painPoints.map(({ icon, problem, solution }, i) => (
+            {painPoints.map((pp, i) => (
               <motion.div
                 key={i}
                 variants={fadeUp}
@@ -281,16 +287,26 @@ export function LandingPage() {
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 text-[#F28C28]"
                   style={{ background: 'rgba(242,140,40,0.12)' }}
                 >
-                  {icon}
+                  {pp.icon}
                 </div>
                 <div className="flex items-start gap-2 mb-3">
                   <XCircle className="h-4 w-4 text-red-400/70 shrink-0 mt-0.5" />
-                  <p className="text-white/40 text-sm line-through leading-snug">{problem}</p>
+                  <p className="text-white/40 text-sm line-through leading-snug">{pp.problem}</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[#4F7942] shrink-0 mt-0.5" />
-                  <p className="text-white font-medium leading-snug">{solution}</p>
+                  <p className="text-white font-medium leading-snug">{pp.solution}</p>
                 </div>
+                {'sourceLabel' in pp && pp.sourceLabel && pp.sourceUrl && (
+                  <a
+                    href={pp.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-block text-xs text-white/40 hover:text-white/70 underline underline-offset-2 transition-colors"
+                  >
+                    {pp.sourceLabel}
+                  </a>
+                )}
               </motion.div>
             ))}
           </motion.div>
