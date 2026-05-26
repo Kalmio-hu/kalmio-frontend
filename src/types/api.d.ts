@@ -4475,6 +4475,7 @@ export interface components {
             runId?: string;
             /** Format: int64 */
             seed?: number;
+            score?: string;
             plan?: components["schemas"]["MealPlanResponse"];
         };
         RecurrenceSpec: {
@@ -5285,6 +5286,8 @@ export interface components {
             id?: string;
             name?: string;
             imageUrl?: string;
+            /** @enum {string} */
+            category?: "PROTEIN" | "CARB" | "FAT" | "VEGGIE" | "SPICE";
         };
         TargetSetResponse: {
             /** Format: int32 */
