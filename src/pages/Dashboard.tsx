@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Header } from '@/components/layout/Header'
 import { CalendarStrip } from '@/components/dashboard/CalendarStrip'
@@ -236,6 +236,34 @@ export function Dashboard() {
   const todayBand = moistureHistory?.[moistureHistory.length - 1]?.band
   const diofaMoisture: DiofaMoisture = todayBand ? toWidgetMoisture(todayBand) : 'OK'
 
+  // ── KALMIO-455: sprouting animation — once per user, server-persisted ──────
+  // The user data is fetched above for the body-data hint; coachmarksSeen is on
+  // the same object. We only show the animation when the user record is loaded —
+  // no flash of animation on re-render after it has already been marked seen.
+  const queryClient = useQueryClient()
+  const coachmarksSeen = user?.coachmarksSeen ?? null // null = still loading
+  const SPROUT_COACHMARK_KEY = 'diofaSprout'
+  // Only play when we have confirmed the user has NOT seen it yet.
+  const showSproutAnimation =
+    coachmarksSeen !== null && !coachmarksSeen.includes(SPROUT_COACHMARK_KEY)
+
+  // Guard against the mutation being triggered multiple times if the component
+  // re-renders between animation-end and the server response arriving.
+  const sproutMarkPending = useRef(false)
+
+  const markSproutSeen = useMutation({
+    mutationFn: () => usersService.markCoachmarkSeen(SPROUT_COACHMARK_KEY),
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData(USERS_ME_QUERY_KEY, updatedUser)
+    },
+  })
+
+  function handleSproutAnimationEnd() {
+    if (sproutMarkPending.current) return
+    sproutMarkPending.current = true
+    markSproutSeen.mutate()
+  }
+
   // KALMIO-315: 7-day prep task window for the notification permission prompt.
   // Checks whether the user has any upcoming prep slots in the next 7 days so the
   // prompt is shown at the right moment (AC: "active plan with prep slots in the next
@@ -360,7 +388,12 @@ export function Dashboard() {
             </p>
             <div className="space-y-2">
               <TeachOnReturnHint bucket={engagementGapBucket} />
-              <DiofaWidget stage={diofaStage} moisture={diofaMoisture} />
+              <DiofaWidget
+                stage={diofaStage}
+                moisture={diofaMoisture}
+                showSproutAnimation={showSproutAnimation}
+                onSproutAnimationEnd={handleSproutAnimationEnd}
+              />
               <MoistureHistoryStrip />
             </div>
           </section>
@@ -388,7 +421,12 @@ export function Dashboard() {
             </p>
             <div className="space-y-2">
               <TeachOnReturnHint bucket={engagementGapBucket} />
-              <DiofaWidget stage={diofaStage} moisture={diofaMoisture} />
+              <DiofaWidget
+                stage={diofaStage}
+                moisture={diofaMoisture}
+                showSproutAnimation={showSproutAnimation}
+                onSproutAnimationEnd={handleSproutAnimationEnd}
+              />
               <MoistureHistoryStrip />
             </div>
           </section>

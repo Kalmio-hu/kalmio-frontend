@@ -2,8 +2,13 @@
  * DiofaWidget — walnut tree (diófa) growth + soil-moisture widget.
  *
  * Props:
- *   stage    — one of MAG | CSEMETE | SUHANG | FIATAL | TERMO
- *   moisture — one of DRY | OK | WET
+ *   stage              — one of MAG | CSEMETE | SUHANG | FIATAL | TERMO
+ *   moisture           — one of DRY | OK | WET
+ *   showSproutAnimation — when true, plays the one-shot sprouting animation
+ *                         (KALMIO-455). Caller is responsible for only passing
+ *                         true on the first dashboard view (coachmarksSeen check).
+ *   onSproutAnimationEnd — callback fired when the sprout animation finishes.
+ *                          Use it to mark the coachmark as seen.
  *
  * Each (stage, moisture) combination renders a hand-painted PNG from
  * src/assets/diofa/ (KALMIO-128 / KALMIO-129, the textured-ink + warm-
@@ -27,6 +32,7 @@
  *   .diofa-dry  → no animation, soil-crack overlay visible
  */
 
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getMoistureClass } from './diofaUtils'
 
@@ -56,6 +62,19 @@ export interface DiofaWidgetProps {
   moisture: DiofaMoisture
   /** Optional extra class applied to the outer wrapper */
   className?: string
+  /**
+   * When true, plays the one-shot sprouting animation (KALMIO-455).
+   * The caller must only pass true once per user (guarded by the `diofaSprout`
+   * coachmark key). Defaults to false.
+   */
+  showSproutAnimation?: boolean
+  /**
+   * Fired when the sprouting animation finishes. Use to mark the coachmark seen.
+   * Not called when `showSproutAnimation` is false, or when the user has
+   * `prefers-reduced-motion` set (the CSS suppresses the animation in that case,
+   * but we still fire the callback on mount so the coachmark is recorded).
+   */
+  onSproutAnimationEnd?: () => void
 }
 
 // ─── Asset lookup ─────────────────────────────────────────────────────────────
@@ -90,8 +109,29 @@ const DIOFA_PNG: Record<DiofaStage, Record<DiofaMoisture, string>> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function DiofaWidget({ stage, moisture, className = '' }: DiofaWidgetProps) {
+export function DiofaWidget({
+  stage,
+  moisture,
+  className = '',
+  showSproutAnimation = false,
+  onSproutAnimationEnd,
+}: DiofaWidgetProps) {
   const { t } = useTranslation()
+
+  // When the sprouting animation is requested and the user prefers reduced
+  // motion, the CSS will not fire animationend — the animation is suppressed
+  // at the media-query level. We fire the callback via an effect so the
+  // coachmark is still marked seen even without motion.
+  useEffect(() => {
+    if (!showSproutAnimation) return
+    const prefersReduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!prefersReduced) return
+    // Defer slightly so the image has painted before the mark-seen call.
+    const id = setTimeout(() => onSproutAnimationEnd?.(), 80)
+    return () => clearTimeout(id)
+  }, [showSproutAnimation, onSproutAnimationEnd])
 
   const ariaLabel = t('diofa.ariaLabel', {
     stage: t(`diofa.stages.${stage}`),
@@ -102,28 +142,47 @@ export function DiofaWidget({ stage, moisture, className = '' }: DiofaWidgetProp
   const src = DIOFA_PNG[stage][moisture]
 
   return (
-    <div
-      role="img"
-      aria-label={ariaLabel}
-      className={[
-        'relative w-full max-w-[360px] mx-auto overflow-hidden rounded-xl',
-        moistureClass,
-        className,
-      ].join(' ')}
-      style={{ aspectRatio: '1 / 1' }}
-    >
-      <img
-        src={src}
-        alt=""
-        aria-hidden
-        className="w-full h-full object-cover"
-        draggable={false}
-      />
-      {/* KALMIO-416: removed the raw `MAG · WET` dev-visibility badge. The
-          enum values leaked into production UI (English DRY/WET/OK on a
-          Hungarian-first product). The diófa image itself communicates the
-          state; if a textual label is needed in future it should be wired
-          through i18n with proper HU translations for both axes. */}
-    </div>
+    <>
+      {/* KALMIO-455: aria-live region announces the sprouting moment to screen
+          readers without repeating the main widget label. Rendered inline so
+          assistive technology picks it up from the same DOM subtree. */}
+      {showSproutAnimation && (
+        <p
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {t('diofa.sprout.ariaAnnouncement')}
+        </p>
+      )}
+      <div
+        role="img"
+        aria-label={ariaLabel}
+        className={[
+          'relative w-full max-w-[360px] mx-auto overflow-hidden rounded-xl',
+          moistureClass,
+          showSproutAnimation ? 'diofa-sprout-in' : '',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        style={{ aspectRatio: '1 / 1' }}
+        onAnimationEnd={showSproutAnimation ? onSproutAnimationEnd : undefined}
+      >
+        <img
+          src={src}
+          alt=""
+          aria-hidden
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
+        {/* KALMIO-416: removed the raw `MAG · WET` dev-visibility badge. The
+            enum values leaked into production UI (English DRY/WET/OK on a
+            Hungarian-first product). The diófa image itself communicates the
+            state; if a textual label is needed in future it should be wired
+            through i18n with proper HU translations for both axes. */}
+      </div>
+    </>
   )
 }
