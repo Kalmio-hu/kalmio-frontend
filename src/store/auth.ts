@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { clearPasskeyToken } from '@/lib/passkeySession'
+import { queryClient } from '@/lib/queryClient'
 
 export type AppRole = 'USER' | 'ADMIN'
 
@@ -53,6 +54,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       impersonatedEmail: null,
       impersonationContext: null,
     })
+    // Wipe in-memory React Query cache and persisted SW API caches so the
+    // next user on this device cannot read the previous user's data.
+    // The SW listens for CLEAR_API_CACHE in sw.ts and deletes every
+    // kalmio-api-* cache; the runtime cache otherwise survives up to 24h.
+    queryClient.clear()
+    if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.controller?.postMessage({ type: 'CLEAR_API_CACHE' })
+    }
   },
   startImpersonation: (token, email, context = 'admin') =>
     set({ impersonationToken: token, impersonatedEmail: email, impersonationContext: context }),
