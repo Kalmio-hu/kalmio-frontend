@@ -1697,7 +1697,11 @@
         "title": "Too far from the last prep",
         "body": "{{dayGap}} days longer than this recipe keeps in the fridge ({{fridgeWindow}} days). Add a prep slot to keep it fresh.",
         "cta": "Add prep",
-        "splitSuccess": "New prep slot added"
+        "splitSuccess": "New prep slot added",
+        "freezeSuggestion": {
+          "title": "Freeze it",
+          "body": "{{dayGap}} days past the fridge window, but frozen it keeps for {{freezerWindow}} days."
+        }
       }
     },
     "member": {
@@ -2683,7 +2687,11 @@
         "title": "Too far from the last prep",
         "body": "{{dayGap}} days longer than this recipe keeps in the fridge ({{fridgeWindow}} days). Add a prep slot to keep it fresh.",
         "cta": "Add prep",
-        "splitSuccess": "New prep slot added"
+        "splitSuccess": "New prep slot added",
+        "freezeSuggestion": {
+          "title": "Freeze it",
+          "body": "{{dayGap}} days past the fridge window, but frozen it keeps for {{freezerWindow}} days."
+        }
       }
     }
   },

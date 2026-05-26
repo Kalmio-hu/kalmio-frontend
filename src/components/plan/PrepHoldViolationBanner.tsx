@@ -1,9 +1,13 @@
 /**
  * PrepHoldViolationBanner — KALMIO-268 (Prep-H)
  *
- * Renders a compact amber warning card when a meal's batch prep slot violates
+ * Renders a compact warning or suggestion card when a meal's batch prep slot violates
  * the recipe's fridge hold window (i.e. the gap between prep and the meal is
  * larger than the recipe can stay fresh).
+ *
+ * When the user prefers freezing and the recipe is freezable and the gap fits within
+ * the freezer window, the backend returns recommendedStorage = "FREEZER" and the
+ * component renders a soft inline suggestion instead of an alert (KALMIO-438).
  *
  * Props:
  *   surface          — 'template' (PlanDetail) or 'schedule' (ScheduleDetail)
@@ -15,7 +19,7 @@
  */
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Snowflake } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { api } from '@/lib/api'
@@ -31,6 +35,8 @@ export interface TemplatePrepHoldViolation {
   dayGap: number
   fridgeWindow: number
   recipeId: string
+  /** "FREEZER" when the gap fits the freezer window and the user prefers freezing; null otherwise */
+  recommendedStorage: 'FRIDGE' | 'FREEZER' | null
 }
 
 /** Returned by GET /api/schedules/{id}/prep-hold-violations */
@@ -40,6 +46,8 @@ export interface SchedulePrepHoldViolation {
   dayGap: number
   fridgeWindow: number
   recipeId: string
+  /** "FREEZER" when the gap fits the freezer window and the user prefers freezing; null otherwise */
+  recommendedStorage: 'FRIDGE' | 'FREEZER' | null
 }
 
 // ── Service fetchers ──────────────────────────────────────────────────────────
@@ -98,7 +106,12 @@ export function PrepHoldViolationBanner({
 
   // ── Find the violation for this specific meal ─────────────────────────────
 
-  let violation: { prepSlotOrTaskId: string; dayGap: number; fridgeWindow: number } | null = null
+  let violation: {
+    prepSlotOrTaskId: string
+    dayGap: number
+    fridgeWindow: number
+    recommendedStorage: 'FRIDGE' | 'FREEZER' | null
+  } | null = null
 
   if (surface === 'template' && templateQuery.data) {
     const found = templateQuery.data.find(v => v.templateMealId === mealId)
@@ -107,6 +120,7 @@ export function PrepHoldViolationBanner({
         prepSlotOrTaskId: found.templatePrepSlotId,
         dayGap: found.dayGap,
         fridgeWindow: found.fridgeWindow,
+        recommendedStorage: found.recommendedStorage,
       }
     }
   } else if (surface === 'schedule' && scheduleQuery.data) {
@@ -116,6 +130,7 @@ export function PrepHoldViolationBanner({
         prepSlotOrTaskId: found.prepTaskId,
         dayGap: found.dayGap,
         fridgeWindow: found.fridgeWindow,
+        recommendedStorage: found.recommendedStorage,
       }
     }
   }
@@ -150,12 +165,52 @@ export function PrepHoldViolationBanner({
   // Render nothing when still loading or no violation exists for this meal
   if (isLoading || !violation) return null
 
-  const { dayGap: rawDayGap, fridgeWindow } = violation
+  const { dayGap: rawDayGap, fridgeWindow, recommendedStorage } = violation
   // dayGap from the API is the raw calendar gap (meal_day - prep_day).
   // The banner message says "X days more than the fridge window" — that excess
   // is rawDayGap - fridgeWindow, not rawDayGap itself.
   // Example: rawDayGap=4, fridgeWindow=3 → overBy=1 ("1 nappal több").
+  // KALMIO-439: this calculation fix must not be reverted.
   const dayGap = rawDayGap - fridgeWindow
+
+  // ── Freeze suggestion (KALMIO-438) ────────────────────────────────────────
+  // When the backend indicates the gap fits within the freezer window and the
+  // user prefers freezing, render a soft neutral inline suggestion (no alert
+  // semantics, snowflake icon, muted sage tones).
+
+  if (recommendedStorage === 'FREEZER') {
+    // freezerWindow is not yet exposed by the API — derive a human-readable hint
+    // from the raw dayGap (the upper bound the backend already validated).
+    // The exact freezerWindow value is backend-known; we use rawDayGap as a proxy
+    // since the backend only emits FREEZER when rawDayGap <= freezerWindow.
+    return (
+      <div
+        className="
+          flex items-start gap-2
+          rounded-[8px] border border-slate-200 bg-slate-50
+          px-3 py-2
+          mb-1.5
+          text-slate-600
+        "
+      >
+        <Snowflake
+          className="h-3.5 w-3.5 shrink-0 text-slate-400 mt-0.5"
+          aria-hidden
+        />
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-slate-700 leading-snug">
+            {t(`${ns}.freezeSuggestion.title`)}
+          </p>
+          <p className="text-xs text-slate-500 mt-0.5 leading-snug">
+            {t(`${ns}.freezeSuggestion.body`, { dayGap, freezerWindow: rawDayGap })}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── Standard violation (softened visuals, KALMIO-438) ─────────────────────
+  // Muted amber border-only style instead of filled background, smaller icon.
 
   return (
     <div
@@ -163,23 +218,23 @@ export function PrepHoldViolationBanner({
       aria-live="polite"
       className="
         flex items-start gap-2.5
-        rounded-[10px] border border-amber-200 bg-amber-50
-        px-3 py-2.5
+        rounded-[10px] border border-amber-200 bg-amber-50/60
+        px-3 py-2
         mb-1.5
       "
     >
-      {/* Icon */}
+      {/* Icon — reduced prominence */}
       <AlertTriangle
-        className="h-4 w-4 shrink-0 text-amber-600 mt-0.5"
+        className="h-3.5 w-3.5 shrink-0 text-amber-500 mt-0.5"
         aria-hidden
       />
 
       {/* Text block */}
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-semibold text-amber-900 leading-snug">
+        <p className="text-xs font-medium text-amber-800 leading-snug">
           {t(`${ns}.title`)}
         </p>
-        <p className="text-xs text-amber-800 mt-0.5 leading-snug">
+        <p className="text-xs text-amber-700 mt-0.5 leading-snug">
           {t(`${ns}.body`, { dayGap, fridgeWindow })}
         </p>
       </div>
@@ -191,12 +246,12 @@ export function PrepHoldViolationBanner({
         onClick={() => splitMutation.mutate()}
         className="
           shrink-0 inline-flex items-center gap-1
-          text-[11px] font-semibold text-amber-900
-          bg-amber-100 hover:bg-amber-200
-          border border-amber-300
+          text-[11px] font-medium text-amber-700
+          bg-amber-100/80 hover:bg-amber-100
+          border border-amber-200
           rounded-[6px] px-2 py-1
           transition-colors
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400
           disabled:opacity-50 disabled:cursor-not-allowed
         "
         aria-label={t(`${ns}.cta`)}

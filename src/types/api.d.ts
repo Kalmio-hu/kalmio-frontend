@@ -3893,6 +3893,7 @@ export interface components {
             protein: number;
             fat: number;
             carbs: number;
+            fiber?: number;
         };
         UpdateIngredientRequest: {
             name: string;

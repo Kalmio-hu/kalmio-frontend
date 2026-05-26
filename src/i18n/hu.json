@@ -1697,7 +1697,11 @@
         "title": "Túl messze van az előkészítéstől",
         "body": "{{dayGap}} nappal több, mint amennyit a hűtőben eltart ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést a frissesség megtartásához.",
         "cta": "Új előkészítés",
-        "splitSuccess": "Új előkészítés hozzáadva"
+        "splitSuccess": "Új előkészítés hozzáadva",
+        "freezeSuggestion": {
+          "title": "Fagyaszd be",
+          "body": "{{dayGap}} nappal több, mint a hűtő tárolja, de fagyasztva {{freezerWindow}} napig eláll."
+        }
       }
     },
     "member": {
@@ -2683,7 +2687,11 @@
         "title": "Túl messze van az előkészítéstől",
         "body": "{{dayGap}} nappal több, mint amennyit a hűtőben eltart ({{fridgeWindow}} nap). Adj hozzá egy újabb előkészítést a frissesség megtartásához.",
         "cta": "Új előkészítés",
-        "splitSuccess": "Új előkészítés hozzáadva"
+        "splitSuccess": "Új előkészítés hozzáadva",
+        "freezeSuggestion": {
+          "title": "Fagyaszd be",
+          "body": "{{dayGap}} nappal több, mint a hűtő tárolja, de fagyasztva {{freezerWindow}} napig eláll."
+        }
       }
     }
   },
