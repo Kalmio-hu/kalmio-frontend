@@ -54,6 +54,20 @@ interface PreferencesDraft {
   forbiddenIngredientIds: string[]
 }
 
+// ── Required fields for progress tracking (KALMIO-446) ─────────────────────
+// Count non-null values out of the 4 required fields the LLM must collect.
+const REQUIRED_FIELD_COUNT = 4
+
+function countCollectedFields(draft: PreferencesDraft | null): number {
+  if (!draft) return 0
+  let count = 0
+  if (draft.householdSize !== null) count++
+  if (draft.kcalTarget !== null) count++
+  if (draft.shoppingCadenceDays !== null) count++
+  if (draft.preferredShoppingDay !== null) count++
+  return count
+}
+
 interface TurnResponse {
   sessionId: string
   assistantMessage: string
@@ -117,6 +131,30 @@ function TypingIndicator({ visible }: TypingIndicatorProps) {
         <span className="w-2 h-2 bg-[#6B6460] rounded-full animate-bounce [animation-delay:150ms]" />
         <span className="w-2 h-2 bg-[#6B6460] rounded-full animate-bounce [animation-delay:300ms]" />
       </div>
+    </div>
+  )
+}
+
+// ── Progress pill (KALMIO-446) ────────────────────────────────────────────
+
+interface ChatProgressPillProps {
+  collected: number
+  total: number
+  visible: boolean
+}
+
+function ChatProgressPill({ collected, total, visible }: ChatProgressPillProps) {
+  const { t } = useTranslation()
+  if (!visible) return null
+  return (
+    <div
+      aria-live="polite"
+      aria-atomic="true"
+      className="flex items-center justify-end px-1 pb-1"
+    >
+      <span className="text-[11px] text-[#6B6460] bg-[#F0EDE8] rounded-full px-2.5 py-0.5 tabular-nums">
+        {t('onboarding.conversational.progress', { collected, total })}
+      </span>
     </div>
   )
 }
@@ -268,6 +306,10 @@ export function ConversationalOnboarding() {
   const [ready, setReady] = useState(false)
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
+  // KALMIO-446: track the latest extracted draft for progress counting.
+  // The backend only returns extracted when ready=true; we keep the last seen
+  // non-null draft so the pill doesn't reset if the card is interacted with.
+  const [latestExtracted, setLatestExtracted] = useState<PreferencesDraft | null>(null)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -290,6 +332,7 @@ export function ConversationalOnboarding() {
       if (data.ready && data.extracted) {
         setDraft(data.extracted)
         setReady(true)
+        setLatestExtracted(data.extracted)
       }
       setErrorKey(null)
     },
@@ -449,44 +492,52 @@ export function ConversationalOnboarding() {
 
       {/* ---- Input area (hidden when ready=true and waiting for confirmation) ---- */}
       {!ready && (
-        <div className="px-4 pb-6 pt-2 border-t border-[#E8E4DC] bg-[#F9F7F2]">
-          <div className="flex gap-2 items-end max-w-2xl mx-auto">
-            <textarea
-              ref={inputRef}
-              rows={1}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={t('onboarding.conversational.inputPlaceholder')}
-              disabled={turnMutation.isPending}
-              aria-label={t('onboarding.conversational.inputPlaceholder')}
-              className="flex-1 resize-none rounded-2xl border border-[#D4CFC8] bg-white px-4 py-3 text-sm text-[#1A1A1A] leading-relaxed placeholder:text-[#B0A89F] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1 disabled:opacity-60 max-h-32 overflow-y-auto"
-              style={{ fieldSizing: 'content' } as React.CSSProperties}
-            />
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={!inputValue.trim() || turnMutation.isPending}
-              aria-label={t('onboarding.conversational.send')}
-              className="h-11 w-11 shrink-0 rounded-full bg-[#F28C28] text-white flex items-center justify-center transition-colors hover:bg-[#d97a20] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
-            >
-              {/* Arrow-up icon (inline SVG — no extra dep) */}
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-                aria-hidden="true"
+        <div className="border-t border-[#E8E4DC] bg-[#F9F7F2]">
+          {/* Progress pill — KALMIO-446: shown once the first assistant turn arrives */}
+          <ChatProgressPill
+            collected={countCollectedFields(latestExtracted)}
+            total={REQUIRED_FIELD_COUNT}
+            visible={messages.length > 0}
+          />
+          <div className="px-4 pb-6 pt-1 max-w-2xl mx-auto">
+            <div className="flex gap-2 items-end">
+              <textarea
+                ref={inputRef}
+                rows={1}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={t('onboarding.conversational.inputPlaceholder')}
+                disabled={turnMutation.isPending}
+                aria-label={t('onboarding.conversational.inputPlaceholder')}
+                className="flex-1 resize-none rounded-2xl border border-[#D4CFC8] bg-white px-4 py-3 text-sm text-[#1A1A1A] leading-relaxed placeholder:text-[#B0A89F] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1 disabled:opacity-60 max-h-32 overflow-y-auto"
+                style={{ fieldSizing: 'content' } as React.CSSProperties}
+              />
+              <button
+                type="button"
+                onClick={handleSend}
+                disabled={!inputValue.trim() || turnMutation.isPending}
+                aria-label={t('onboarding.conversational.send')}
+                className="h-11 w-11 shrink-0 rounded-full bg-[#F28C28] text-white flex items-center justify-center transition-colors hover:bg-[#d97a20] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
-                <path
-                  d="M9 14V4M9 4L4.5 8.5M9 4L13.5 8.5"
-                  stroke="currentColor"
-                  strokeWidth="1.75"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
+                {/* Arrow-up icon (inline SVG — no extra dep) */}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 18 18"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M9 14V4M9 4L4.5 8.5M9 4L13.5 8.5"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}

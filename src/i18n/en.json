@@ -2139,9 +2139,8 @@
         "3": "Body data",
         "4": "Calorie target",
         "5": "Your taste",
-        "6": "Recipes",
-        "7": "How the planner works",
-        "8": "Building your plan…",
+        "6": "How the planner works",
+        "7": "Building your plan…",
         "9": "Your first week is ready",
         "10": "Csemete — your first action"
       }
@@ -2275,6 +2274,7 @@
       "switchBack": "Back to the form",
       "inputPlaceholder": "Write a message…",
       "send": "Send",
+      "progress": "{{collected}} / {{total}} collected",
       "confirmTitle": "Check your details",
       "confirmCta": "These look right",
       "confirming": "Saving…",
