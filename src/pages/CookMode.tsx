@@ -31,11 +31,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Timer,
 } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { cookModeService } from '@/services/cookMode'
 import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
+import { parseTimerWindow } from '@/lib/parseTimerWindow'
+import { CookTimer } from '@/components/cook/CookTimer'
+import { CookTimerStrip } from '@/components/cook/CookTimerStrip'
+import { useCookTimersStore, maybeNotify, type CookTimer as CookTimerType } from '@/store/cookTimers'
 
 const CONTEXT_WINDOW = 5
 
@@ -120,6 +125,51 @@ export function CookMode() {
   const [exchanges, setExchanges] = useState<Exchange[]>([])
   const [question, setQuestion] = useState('')
   const transcriptRef = useRef<HTMLDivElement>(null)
+
+  // ── Timer state ───────────────────────────────────────────────────────────
+  const [activeTimerId, setActiveTimerId] = useState<string | null>(null)
+  const startTimer = useCookTimersStore(s => s.startTimer)
+  const registerAlertCallbacks = useCookTimersStore(s => s.registerAlertCallbacks)
+
+  // Register alert callbacks once. We use refs to avoid a re-registration loop.
+  useEffect(() => {
+    registerAlertCallbacks(
+      (timer: CookTimerType) => {
+        // Soft alert: min reached
+        const minMin = Math.round(timer.window.minSeconds / 60)
+        const maxMin = Math.round(timer.window.maxSeconds / 60)
+        maybeNotify(
+          t('cook.timer.softAlertTitle'),
+          t('cook.timer.softAlertBody', { min: minMin, max: maxMin }),
+        )
+      },
+      (timer: CookTimerType) => {
+        // Hard alert: max reached
+        const maxMin = Math.round(timer.window.maxSeconds / 60)
+        maybeNotify(
+          t('cook.timer.hardAlertTitle'),
+          t('cook.timer.hardAlertBody', { max: maxMin }),
+        )
+      },
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleTimerAffordance = useCallback((step: string, idx: number) => {
+    const win = parseTimerWindow(step)
+    if (!win || !recipeId) return
+    const id = `${recipeId}-step-${idx}`
+    const minMin = Math.round(win.minSeconds / 60)
+    const maxMin = Math.round(win.maxSeconds / 60)
+    startTimer({
+      id,
+      recipeId,
+      stepIdx: idx,
+      stepLabel: t('cook.timer.stepLabel', { step: idx + 1, min: minMin, max: maxMin }),
+      window: win,
+    })
+    setActiveTimerId(id)
+  }, [recipeId, startTimer, t])
 
   useWakeLock(!!recipeId)
 
@@ -240,6 +290,20 @@ export function CookMode() {
         <ChefHat className="h-5 w-5 text-[#F28C28]" aria-hidden />
       </header>
 
+      {/* Timer strip */}
+      <CookTimerStrip
+        selectedTimerId={activeTimerId}
+        onSelect={id => setActiveTimerId(prev => prev === id ? null : id)}
+      />
+
+      {/* Active clock face */}
+      {activeTimerId && (
+        <CookTimer
+          timerId={activeTimerId}
+          onClose={() => setActiveTimerId(null)}
+        />
+      )}
+
       {/* Progress bar */}
       {hasSteps && (
         <div
@@ -269,6 +333,36 @@ export function CookMode() {
             <p className="text-lg sm:text-xl text-[#1A1A1A] leading-relaxed whitespace-pre-line">
               {currentStep}
             </p>
+
+            {/* Timer affordance — shown when the step body contains a parseable time window */}
+            {currentStep && (() => {
+              const win = parseTimerWindow(currentStep)
+              if (!win) return null
+              const timerId = recipeId ? `${recipeId}-step-${stepIdx}` : null
+              const minMin = Math.round(win.minSeconds / 60)
+              const maxMin = Math.round(win.maxSeconds / 60)
+              return (
+                <button
+                  type="button"
+                  onClick={() => handleTimerAffordance(currentStep, stepIdx)}
+                  className="
+                    mt-4 inline-flex items-center gap-2 rounded-xl border border-[#EDEAE2]
+                    bg-[#F9F7F2] px-3 py-2 text-sm font-semibold text-[#4F7942]
+                    hover:bg-[#EFF5EE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
+                    transition-colors
+                  "
+                  aria-label={t('cook.timer.startAriaLabel', { min: minMin, max: maxMin })}
+                >
+                  <Timer className="h-4 w-4" aria-hidden />
+                  {minMin === maxMin
+                    ? t('cook.timer.affordanceSingle', { min: minMin })
+                    : t('cook.timer.affordanceRange', { min: minMin, max: maxMin })}
+                  {timerId && activeTimerId === timerId && (
+                    <span className="inline-block h-2 w-2 rounded-full bg-[#4F7942] animate-pulse" aria-hidden />
+                  )}
+                </button>
+              )
+            })()}
           </article>
         ) : (
           <p className="m-auto text-sm text-[#6b7280]">

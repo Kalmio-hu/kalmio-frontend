@@ -333,3 +333,46 @@ self.addEventListener('push', (event: PushEvent) => {
 
   event.waitUntil(self.registration.showNotification(title, options))
 })
+
+// ── Kitchen timer notifications (KALMIO-408) ──────────────────────────────────
+// Called from the main thread via postMessage when a timer boundary fires and
+// the tab is backgrounded. Uses the existing SW registration so the notification
+// appears even when the app is not in focus.
+//
+// NOTE: Does NOT intercept notificationclick for these timer alerts; they are
+// informational only and dismissed by tapping.
+
+self.addEventListener('message', (event: ExtendableMessageEvent) => {
+  const data = event.data as { type?: string; title?: string; body?: string } | null
+  if (data?.type === 'SHOW_TIMER_NOTIFICATION') {
+    const title = data.title ?? 'Kalmio'
+    const body  = data.body  ?? ''
+    event.waitUntil(
+      self.registration.showNotification(title, {
+        body,
+        icon: '/icons/icon-192.png',
+        tag: 'kalmio-timer',
+        renotify: true,
+      }),
+    )
+  }
+})
+
+/**
+ * showTimerNotification — helper callable from the main thread via postMessage.
+ * Posts { type: 'SHOW_TIMER_NOTIFICATION', title, body } to the active SW.
+ *
+ * Exported as a named function so unit tests and the Vite build can tree-shake it;
+ * the actual posting is done from cookTimers.ts in the main thread context, not
+ * from within this SW file.
+ *
+ * @param label  Short timer label (e.g. "Lépés 2 — 10 perc")
+ * @param body   Alert body copy (HU/EN string from i18n)
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function showTimerNotification(label: string, body: string): void {
+  if (!('serviceWorker' in navigator)) return
+  navigator.serviceWorker.ready.then(reg => {
+    reg.active?.postMessage({ type: 'SHOW_TIMER_NOTIFICATION', title: label, body })
+  }).catch(() => undefined)
+}

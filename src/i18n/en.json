@@ -2898,5 +2898,26 @@
       "button": "Schedule this plan",
       "tooltip": "Schedule this plan onto the calendar"
     }
+  },
+  "cook": {
+    "timer": {
+      "stripLabel": "Running timers",
+      "stepLabel": "Step {{step}} — {{min}}–{{max}} min",
+      "affordanceRange": "{{min}}–{{max}} min",
+      "affordanceSingle": "{{min}} min",
+      "startAriaLabel": "Start timer — {{min}}–{{max}} min",
+      "pause": "Pause",
+      "resume": "Resume",
+      "tapToPause": "Tap to pause",
+      "tapToResume": "Tap to resume",
+      "longPressToReset": "hold to reset",
+      "remainingUntilMin": "{{time}} until ready",
+      "readyZone": "Ready — you can take it off now",
+      "pastZone": "{{time}} past",
+      "softAlertTitle": "Kalmio — timer",
+      "softAlertBody": "{{min}} minutes done. It is ready when you are — you have until {{max}} minutes.",
+      "hardAlertTitle": "Kalmio — timer",
+      "hardAlertBody": "{{max}} minutes — take it off."
+    }
   }
 }

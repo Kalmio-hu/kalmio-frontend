@@ -2898,5 +2898,26 @@
       "button": "Ütemezem a tervet",
       "tooltip": "Terv ütemezése a naptáron"
     }
+  },
+  "cook": {
+    "timer": {
+      "stripLabel": "Futó időzítők",
+      "stepLabel": "{{step}}. lépés — {{min}}–{{max}} perc",
+      "affordanceRange": "{{min}}–{{max}} perc",
+      "affordanceSingle": "{{min}} perc",
+      "startAriaLabel": "Időzítő indítása — {{min}}–{{max}} perc",
+      "pause": "Szünet",
+      "resume": "Folytatás",
+      "tapToPause": "Koppints a szüneteltetéshez",
+      "tapToResume": "Koppints a folytatáshoz",
+      "longPressToReset": "tartsd nyomva a nullázáshoz",
+      "remainingUntilMin": "{{time}} van hátra a minimumig",
+      "readyZone": "Kész — most veheted le",
+      "pastZone": "{{time}} óta túl van",
+      "softAlertTitle": "Kalmio — időzítő",
+      "softAlertBody": "{{min}} perc megvolt. Most már a tied — ha tovább pirítanád, {{max}} percig megteheted.",
+      "hardAlertTitle": "Kalmio — időzítő",
+      "hardAlertBody": "{{max}} perc — vedd le."
+    }
   }
 }
