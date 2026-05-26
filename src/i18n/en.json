@@ -2136,11 +2136,23 @@
         "3": "Body data",
         "4": "Calorie target",
         "5": "Your taste",
-        "6": "How the planner works",
-        "7": "Building your plan…",
-        "8": "Your first week is ready",
-        "9": "Csemete — your first action"
+        "6": "Recipes",
+        "7": "How the planner works",
+        "8": "Building your plan…",
+        "9": "Your first week is ready",
+        "10": "Csemete — your first action"
       }
+    },
+    "preferences": {
+      "title": "Which recipes appeal to you?",
+      "body": "Swipe right for dishes you would happily cook, left for ones you would rather skip.",
+      "likeLabel": "Yes",
+      "passLabel": "No",
+      "progressLabel": "{{current}} of {{total}} recipes",
+      "actionsLabel": "Action buttons",
+      "swipeHint": "Swipe left or right, or use the buttons.",
+      "skipAll": "Skip this step",
+      "emptyDeck": "No recipes to show right now — continuing to the next step."
     },
     "preferencesStep": {
       "title": "Let us get to know each other.",

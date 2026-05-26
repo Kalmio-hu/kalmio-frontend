@@ -2136,11 +2136,23 @@
         "3": "Testadatok",
         "4": "Kalóriacél",
         "5": "Az ízlésed",
-        "6": "Így működik a tervező",
-        "7": "Étrend összerakása…",
-        "8": "Az első heted kész",
-        "9": "Csemete — az első cselekvés"
+        "6": "Receptek",
+        "7": "Így működik a tervező",
+        "8": "Étrend összerakása…",
+        "9": "Az első heted kész",
+        "10": "Csemete — az első cselekvés"
       }
+    },
+    "preferences": {
+      "title": "Melyik receptek jönnek be?",
+      "body": "Húzd jobbra, amit szívesen főznél, balra, amit inkább kihagynál.",
+      "likeLabel": "Megvan",
+      "passLabel": "Inkább nem",
+      "progressLabel": "{{current}} / {{total}} recept",
+      "actionsLabel": "Reakciógombok",
+      "swipeHint": "Húzd jobbra vagy balra, vagy használd a gombokat.",
+      "skipAll": "Átugrom ezt a lépést",
+      "emptyDeck": "Most nincs megjeleníthető recept — folytatom a következő lépéssel."
     },
     "preferencesStep": {
       "title": "Ismerjük meg egymást.",
