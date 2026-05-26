@@ -46,7 +46,9 @@ interface ChatTurn {
 }
 
 interface PreferencesDraft {
-  householdSize: number | null
+  // KALMIO-451: householdSize removed from collection — kept as optional for
+  // backward-compat with the backend DTO (always null now, never collected).
+  householdSize?: number | null
   kcalTarget: number | null
   dietaryRestrictions: string[]
   shoppingCadenceDays: number | null
@@ -54,14 +56,13 @@ interface PreferencesDraft {
   forbiddenIngredientIds: string[]
 }
 
-// ── Required fields for progress tracking (KALMIO-446) ─────────────────────
-// Count non-null values out of the 4 required fields the LLM must collect.
-const REQUIRED_FIELD_COUNT = 4
+// ── Required fields for progress tracking (KALMIO-446, updated by KALMIO-451) ─
+// KALMIO-451: householdSize removed → 3 required fields (kcal, cadence, day).
+const REQUIRED_FIELD_COUNT = 3
 
 function countCollectedFields(draft: PreferencesDraft | null): number {
   if (!draft) return 0
   let count = 0
-  if (draft.householdSize !== null) count++
   if (draft.kcalTarget !== null) count++
   if (draft.shoppingCadenceDays !== null) count++
   if (draft.preferredShoppingDay !== null) count++
@@ -171,10 +172,7 @@ interface ConfirmCardProps {
 function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProps) {
   const { t } = useTranslation()
 
-  const handleHouseholdSize = (v: string) => {
-    const n = parseInt(v, 10)
-    onChange({ ...draft, householdSize: isNaN(n) ? null : n })
-  }
+  // KALMIO-451: handleHouseholdSize removed — field no longer collected.
 
   const handleKcal = (v: string) => {
     const n = parseInt(v, 10)
@@ -197,21 +195,6 @@ function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProp
       </h2>
 
       <div className="flex flex-col gap-3">
-        {/* Household size */}
-        <label className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-[#6B6460]">
-            {t('onboarding.conversational.confirm.householdSize')}
-          </span>
-          <input
-            type="number"
-            min={1}
-            max={10}
-            value={draft.householdSize ?? ''}
-            onChange={(e) => handleHouseholdSize(e.target.value)}
-            className="h-9 rounded-lg border border-[#D4CFC8] px-3 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1"
-          />
-        </label>
-
         {/* Kcal target */}
         <label className="flex flex-col gap-1">
           <span className="text-xs font-medium text-[#6B6460]">
@@ -329,10 +312,14 @@ export function ConversationalOnboarding() {
         ...prev,
         { role: 'assistant', content: data.assistantMessage },
       ])
+      // KALMIO-451: backend now always returns partial draft (not just on ready=true),
+      // so we can track progress incrementally for the KALMIO-446 progress pill.
+      if (data.extracted) {
+        setLatestExtracted(data.extracted)
+      }
       if (data.ready && data.extracted) {
         setDraft(data.extracted)
         setReady(true)
-        setLatestExtracted(data.extracted)
       }
       setErrorKey(null)
     },

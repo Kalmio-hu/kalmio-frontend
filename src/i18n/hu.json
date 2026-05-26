@@ -2298,7 +2298,6 @@
       "errorTurn": "Nem sikerült feldolgozni az üzenetet. Próbáld újra.",
       "errorFinalize": "Nem sikerült menteni a beállításokat. Próbáld újra.",
       "confirm": {
-        "householdSize": "Hány főre főzöl?",
         "kcalTarget": "Napi kalóriacél (kcal)",
         "shoppingCadence": "Bevásárlás gyakorisága (nap)",
         "shoppingDay": "Szokásos bevásárlónap",

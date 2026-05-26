@@ -2298,7 +2298,6 @@
       "errorTurn": "Could not process your message. Please try again.",
       "errorFinalize": "Could not save your preferences. Please try again.",
       "confirm": {
-        "householdSize": "How many people are you cooking for?",
         "kcalTarget": "Daily calorie target (kcal)",
         "shoppingCadence": "Shopping frequency (days)",
         "shoppingDay": "Usual shopping day",
