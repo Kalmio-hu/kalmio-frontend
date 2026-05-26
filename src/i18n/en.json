@@ -2184,7 +2184,8 @@
       "budgetError": "The value must be between 1,000 and 500,000 HUF.",
       "cta": "Next",
       "saving": "Saving…",
-      "householdError": "Please choose a value between 1 and 6."
+      "householdError": "Please choose a value between 1 and 6.",
+      "chatDraftSignpost": "I have pre-filled these fields from our conversation — check them over and adjust anything you need."
     },
     "planting": {
       "ariaLabel": "Walnut planting animation — progress through the planting sequence",

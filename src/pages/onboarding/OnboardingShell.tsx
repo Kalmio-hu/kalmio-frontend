@@ -519,6 +519,7 @@ export function OnboardingShell() {
               forbiddenIngredientIds: (user?.mealPlanPreferences?.forbiddenIngredientIds ?? []) as string[],
               budgetMax: user?.mealPlanPreferences?.budgetMax ?? null,
             }}
+            chatDraft={user?.onboardingChatDraft ?? null}
             onAdvance={(values) => {
               preferencesMutation.mutate(values, { onSettled: () => goNext() })
             }}

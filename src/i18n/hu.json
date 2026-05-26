@@ -2184,7 +2184,8 @@
       "budgetError": "Az értéknek 1 000 és 500 000 Ft között kell lennie.",
       "cta": "Tovább",
       "saving": "Mentés…",
-      "householdError": "Kérlek válassz 1 és 6 közötti értéket."
+      "householdError": "Kérlek válassz 1 és 6 közötti értéket.",
+      "chatDraftSignpost": "A csevegésünk alapján előre kitöltöttem a mezőket — ellenőrizd és módosítsd, ha szükséges."
     },
     "planting": {
       "ariaLabel": "Dióültetés animáció — az ültetési folyamat előrehaladása",

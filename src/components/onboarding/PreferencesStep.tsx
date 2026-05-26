@@ -18,7 +18,7 @@
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
-import type { DietaryPreferences } from '@/services/users'
+import type { DietaryPreferences, OnboardingChatDraft } from '@/services/users'
 import type { DietaryRestrictionKey } from '@/types'
 
 // ── Dietary marker groups (mirrors Profile.tsx) ─────────────────────────────
@@ -93,11 +93,100 @@ const DEFAULT_VALUES: PreferencesStepValues = {
   budgetMax: null,
 }
 
+// ── Chat draft → PreferencesStepValues converter (KALMIO-449) ───────────────
+//
+// Converts the partial draft returned from the conversational onboarding chat
+// into a partial PreferencesStepValues that can seed the form's initial state.
+// Only fields that are non-null in the draft are propagated.
+
+/**
+ * Maps a LLM-extracted dietary restriction term (camelCase key or free-text) to
+ * a partial DietaryPreferences object.  Mirrors freeTextToDietaryFlags in
+ * ConversationalOnboarding.tsx but returns a boolean object instead of a Set.
+ */
+function draftDietaryToPreferences(terms: string[]): DietaryPreferences {
+  const result: DietaryPreferences = { ...EMPTY_DIETARY }
+  for (const raw of terms) {
+    if (!raw) continue
+    const t = raw.trim().toLowerCase()
+    if (['vegan', 'vegán', 'vegán étrend'].includes(t)) {
+      result.vegan = true; result.vegetarian = true
+    } else if (['vegetarian', 'vegetáriánus', 'vegetárius', 'vegetáriánus étrend'].includes(t)) {
+      result.vegetarian = true
+    } else if (['pescatarian', 'pescatariánus', 'pescetarian'].includes(t)) {
+      result.pescatarian = true
+    } else if (['gluten-free', 'gluténmentes', 'gluténérzékeny', 'lisztérzékeny'].includes(t)) {
+      result.glutenFree = true
+    } else if (['dairy-free', 'tejtermékmentes'].includes(t)) {
+      result.dairyFree = true
+    } else if (['lactose-free', 'laktózmentes', 'laktózérzékeny'].includes(t)) {
+      result.lactoseFree = true
+    } else if (['halal'].includes(t)) {
+      result.halal = true
+    } else if (['kosher', 'kóser'].includes(t)) {
+      result.kosher = true
+    } else if (['keto', 'ketogenic', 'ketogén'].includes(t)) {
+      result.keto = true
+    } else if (['paleo', 'paleolit'].includes(t)) {
+      result.paleo = true
+    } else {
+      // Try direct camelCase key match
+      const key = raw as DietaryRestrictionKey
+      if (key in result) {
+        result[key] = true
+      }
+    }
+  }
+  return result
+}
+
+/**
+ * ISO weekday name → number (1=Mon..7=Sun).  Returns undefined for unknown values.
+ */
+function shoppingDayToIso(name: string | null): number | undefined {
+  if (!name) return undefined
+  const map: Record<string, number> = {
+    MONDAY: 1, TUESDAY: 2, WEDNESDAY: 3, THURSDAY: 4,
+    FRIDAY: 5, SATURDAY: 6, SUNDAY: 7,
+  }
+  return map[name.toUpperCase()]
+}
+
+/**
+ * Converts an OnboardingChatDraft into a Partial<PreferencesStepValues> suitable
+ * for seeding the form's initialValues.
+ */
+function chatDraftToInitialValues(draft: OnboardingChatDraft): Partial<PreferencesStepValues> {
+  const partial: Partial<PreferencesStepValues> = {}
+  if (draft.kcalTarget != null) {
+    partial.kcalTarget = draft.kcalTarget
+  }
+  if (draft.dietaryRestrictions && draft.dietaryRestrictions.length > 0) {
+    partial.dietary = draftDietaryToPreferences(draft.dietaryRestrictions)
+  }
+  if (draft.shoppingCadenceDays != null) {
+    partial.cadenceDays = draft.shoppingCadenceDays
+  }
+  if (draft.preferredShoppingDay != null) {
+    const iso = shoppingDayToIso(draft.preferredShoppingDay)
+    if (iso != null) {
+      partial.shoppingDayOfWeek = iso
+    }
+  }
+  return partial
+}
+
 // ── Props ─────────────────────────────────────────────────────────────────────
 
 interface PreferencesStepProps {
   /** Prefilled values from the server (user may have partially completed). */
   initialValues?: Partial<PreferencesStepValues>
+  /**
+   * KALMIO-449: Partial draft extracted from the conversational onboarding chat.
+   * When present, the form is pre-filled from the chat and a sign-post banner is shown.
+   * Takes lower priority than `initialValues` so explicit server values win.
+   */
+  chatDraft?: OnboardingChatDraft | null
   /** Called when the user advances.  Parent handles the PATCH + navigation. */
   onAdvance: (values: PreferencesStepValues) => void
   /** Called when the user presses "back". */
@@ -120,6 +209,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function PreferencesStep({
   initialValues,
+  chatDraft,
   onAdvance,
   onBack,
   isSubmitting = false,
@@ -128,7 +218,15 @@ export function PreferencesStep({
 
   // ── Local state ────────────────────────────────────────────────────────────
 
-  const init: PreferencesStepValues = { ...DEFAULT_VALUES, ...initialValues }
+  // KALMIO-449: merge chatDraft (lower priority) with initialValues (higher priority).
+  // initialValues wins for any field that is explicitly set on the server.
+  const chatDraftValues: Partial<PreferencesStepValues> = chatDraft
+    ? chatDraftToInitialValues(chatDraft)
+    : {}
+  const init: PreferencesStepValues = { ...DEFAULT_VALUES, ...chatDraftValues, ...initialValues }
+
+  // True when any field was pre-filled from the chat draft and not already set via initialValues.
+  const hasChatPrefill = chatDraft != null && Object.keys(chatDraftValues).length > 0
 
   const [householdSize, setHouseholdSize] = useState(init.householdSize)
   const [kcalPreset, setKcalPreset] = useState<number | 'custom'>(
@@ -293,6 +391,27 @@ export function PreferencesStep({
           {t('onboarding.preferencesStep.body')}
         </p>
       </div>
+
+      {/* KALMIO-449: Chat draft sign-post — shown when inputs were pre-filled from the chat */}
+      {hasChatPrefill && (
+        <div
+          role="note"
+          className="flex items-start gap-2.5 rounded-xl border border-[#D4EBD0] bg-[#F2FAF0] px-4 py-3 text-sm text-[#2E6B3E]"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+            className="mt-0.5 shrink-0"
+          >
+            <circle cx="8" cy="8" r="7" stroke="#2E6B3E" strokeWidth="1.5" />
+            <path d="M5 8l2 2 4-4" stroke="#2E6B3E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span>{t('onboarding.preferencesStep.chatDraftSignpost')}</span>
+        </div>
+      )}
 
       {/* ── 1. Household size ─────────────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.householdLabel')}</SectionLabel>

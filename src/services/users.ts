@@ -76,6 +76,22 @@ export interface UserSettings {
    * KALMIO-352.
    */
   preferLocallySourced: boolean
+  /**
+   * KALMIO-449: Partially extracted preferences draft from an in-flight conversational
+   * onboarding chat. Non-null when the user started (but has not yet finished) the chat.
+   * PreferencesStep uses this to pre-fill its inputs when the user switches back.
+   * Cleared on finalize (chat path) or on click-through preference advance.
+   */
+  onboardingChatDraft: OnboardingChatDraft | null
+}
+
+/** KALMIO-449: draft extracted from the conversational onboarding chat. */
+export interface OnboardingChatDraft {
+  kcalTarget: number | null
+  dietaryRestrictions: string[]
+  shoppingCadenceDays: number | null
+  preferredShoppingDay: string | null
+  forbiddenIngredientIds: string[]
 }
 
 export interface BodyDataRequest {
