@@ -38,7 +38,7 @@ import {
 } from 'framer-motion'
 import {
   Heart, X, ThumbsUp, ChevronDown, Sparkles,
-  Carrot, UtensilsCrossed, Drumstick, Wheat, Droplet, Flame,
+  Carrot, UtensilsCrossed, Egg, Wheat, Droplet, Flame,
   type LucideIcon,
 } from 'lucide-react'
 import { capture } from '@/lib/analytics'
@@ -93,11 +93,15 @@ function initialFor(name: string): string {
  * server-provided IngredientCategory enum. If the category is missing or
  * unknown we fall back to Carrot — a safer "vegetable" generic than a
  * meat icon.
+ *
+ * PROTEIN uses Egg rather than Drumstick — Drumstick was hard-coded meat and
+ * landed on plant-protein cards like Tofu, signalling the wrong story to
+ * vegetarian users.
  */
 function iconForCard(card: TasteCard): LucideIcon {
   if (card.targetType === 'RECIPE') return UtensilsCrossed
   switch (card.category) {
-    case 'PROTEIN': return Drumstick
+    case 'PROTEIN': return Egg
     case 'CARB':    return Wheat
     case 'FAT':     return Droplet
     case 'VEGGIE':  return Carrot
