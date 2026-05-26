@@ -390,7 +390,14 @@ export function ConversationalOnboarding() {
 
   const handleSend = useCallback(() => {
     const text = inputValue.trim()
-    if (!text || turnMutation.isPending || ready) return
+    // Edge case (KALMIO-447): empty/whitespace message must not reopen the conversation.
+    if (!text || turnMutation.isPending) return
+
+    // KALMIO-447: if the user types after ready=true, reopen the conversation.
+    // Flip ready back to false so the confirm card is re-evaluated on the next turn.
+    if (ready) {
+      setReady(false)
+    }
 
     const userTurn: ChatTurn = { role: 'user', content: text }
     const nextMessages: ChatTurn[] = [...messages, userTurn]
@@ -422,12 +429,14 @@ export function ConversationalOnboarding() {
   const hasUserContent = messages.some((m) => m.role === 'user')
 
   const handleSwitchBackRequest = useCallback(() => {
-    if (hasUserContent && !ready) {
+    // KALMIO-447: show confirmation dialog whenever user has typed anything,
+    // even if ready=true (the card is visible). Removing the !ready guard.
+    if (hasUserContent) {
       setExitConfirmOpen(true)
     } else {
       navigate('/app/onboarding')
     }
-  }, [hasUserContent, ready, navigate])
+  }, [hasUserContent, navigate])
 
   const handleSwitchBackConfirm = useCallback(() => {
     setExitConfirmOpen(false)
@@ -490,57 +499,55 @@ export function ConversationalOnboarding() {
         </div>
       </div>
 
-      {/* ---- Input area (hidden when ready=true and waiting for confirmation) ---- */}
-      {!ready && (
-        <div className="border-t border-[#E8E4DC] bg-[#F9F7F2]">
-          {/* Progress pill — KALMIO-446: shown once the first assistant turn arrives */}
-          <ChatProgressPill
-            collected={countCollectedFields(latestExtracted)}
-            total={REQUIRED_FIELD_COUNT}
-            visible={messages.length > 0}
-          />
-          <div className="px-4 pb-6 pt-1 max-w-2xl mx-auto">
-            <div className="flex gap-2 items-end">
-              <textarea
-                ref={inputRef}
-                rows={1}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder={t('onboarding.conversational.inputPlaceholder')}
-                disabled={turnMutation.isPending}
-                aria-label={t('onboarding.conversational.inputPlaceholder')}
-                className="flex-1 resize-none rounded-2xl border border-[#D4CFC8] bg-white px-4 py-3 text-sm text-[#1A1A1A] leading-relaxed placeholder:text-[#B0A89F] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1 disabled:opacity-60 max-h-32 overflow-y-auto"
-                style={{ fieldSizing: 'content' } as React.CSSProperties}
-              />
-              <button
-                type="button"
-                onClick={handleSend}
-                disabled={!inputValue.trim() || turnMutation.isPending}
-                aria-label={t('onboarding.conversational.send')}
-                className="h-11 w-11 shrink-0 rounded-full bg-[#F28C28] text-white flex items-center justify-center transition-colors hover:bg-[#d97a20] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+      {/* ---- Input area — always visible (KALMIO-447: input live after ready=true) ---- */}
+      <div className="border-t border-[#E8E4DC] bg-[#F9F7F2]">
+        {/* Progress pill — KALMIO-446: shown once the first assistant turn arrives */}
+        <ChatProgressPill
+          collected={countCollectedFields(latestExtracted)}
+          total={REQUIRED_FIELD_COUNT}
+          visible={messages.length > 0}
+        />
+        <div className="px-4 pb-6 pt-1 max-w-2xl mx-auto">
+          <div className="flex gap-2 items-end">
+            <textarea
+              ref={inputRef}
+              rows={1}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={t('onboarding.conversational.inputPlaceholder')}
+              disabled={turnMutation.isPending}
+              aria-label={t('onboarding.conversational.inputPlaceholder')}
+              className="flex-1 resize-none rounded-2xl border border-[#D4CFC8] bg-white px-4 py-3 text-sm text-[#1A1A1A] leading-relaxed placeholder:text-[#B0A89F] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1 disabled:opacity-60 max-h-32 overflow-y-auto"
+              style={{ fieldSizing: 'content' } as React.CSSProperties}
+            />
+            <button
+              type="button"
+              onClick={handleSend}
+              disabled={!inputValue.trim() || turnMutation.isPending}
+              aria-label={t('onboarding.conversational.send')}
+              className="h-11 w-11 shrink-0 rounded-full bg-[#F28C28] text-white flex items-center justify-center transition-colors hover:bg-[#d97a20] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+            >
+              {/* Arrow-up icon (inline SVG — no extra dep) */}
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 18 18"
+                fill="none"
+                aria-hidden="true"
               >
-                {/* Arrow-up icon (inline SVG — no extra dep) */}
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 18 18"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M9 14V4M9 4L4.5 8.5M9 4L13.5 8.5"
-                    stroke="currentColor"
-                    strokeWidth="1.75"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
+                <path
+                  d="M9 14V4M9 4L4.5 8.5M9 4L13.5 8.5"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
-      )}
+      </div>
 
       {/* ---- Exit-confirm dialog: avoid throwing away the conversation ---- */}
       <Dialog open={exitConfirmOpen} onOpenChange={setExitConfirmOpen}>
