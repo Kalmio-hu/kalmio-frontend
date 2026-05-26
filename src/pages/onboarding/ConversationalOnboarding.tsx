@@ -27,6 +27,7 @@ import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
 import { USERS_ME_QUERY_KEY } from '@/services/users'
 import { writeOnboardingDone, clearOnboardingStep } from '@/hooks/useOnboardingProgress'
+import type { DietaryRestrictionKey } from '@/types'
 import {
   Dialog,
   DialogContent,
@@ -36,6 +37,118 @@ import {
   DialogClose,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+
+// ── Dietary flag data (KALMIO-448) ────────────────────────────────────────
+// Dietary flag groups mirror PreferencesStep.tsx — kept self-contained here
+// to avoid cross-component imports. Translation keys are stable under dietary.*.
+
+interface DietaryFlagItem {
+  key: DietaryRestrictionKey
+}
+
+interface DietaryFlagGroup {
+  labelKey: string
+  items: DietaryFlagItem[]
+}
+
+const DIETARY_FLAG_GROUPS: DietaryFlagGroup[] = [
+  {
+    labelKey: 'dietary.groups.lifestyle',
+    items: [
+      { key: 'vegetarian' },
+      { key: 'vegan' },
+      { key: 'pescatarian' },
+    ],
+  },
+  {
+    labelKey: 'dietary.groups.allergens',
+    items: [
+      { key: 'glutenFree' },
+      { key: 'dairyFree' },
+      { key: 'lactoseFree' },
+      { key: 'milkProteinFree' },
+      { key: 'eggFree' },
+      { key: 'nutFree' },
+      { key: 'peanutFree' },
+      { key: 'soyFree' },
+      { key: 'fishFree' },
+      { key: 'shellfishFree' },
+      { key: 'sesameFree' },
+    ],
+  },
+  {
+    labelKey: 'dietary.groups.religious',
+    items: [
+      { key: 'halal' },
+      { key: 'kosher' },
+    ],
+  },
+  {
+    labelKey: 'dietary.groups.metabolic',
+    items: [
+      { key: 'keto' },
+      { key: 'lowGi' },
+      { key: 'lowFodmap' },
+      { key: 'paleo' },
+    ],
+  },
+]
+
+/**
+ * Convert a list of LLM free-text dietary restriction strings (as extracted by
+ * the backend in the conversation) into a set of active DietaryRestrictionKey flag names.
+ * Uses the same term recognition logic as backend's DietaryTermMapper (KALMIO-441).
+ *
+ * Returns a Set<DietaryRestrictionKey> of active flags.
+ */
+function freeTextToDietaryFlags(terms: string[]): Set<DietaryRestrictionKey> {
+  const active = new Set<DietaryRestrictionKey>()
+  for (const raw of terms) {
+    if (!raw) continue
+    const t = raw.trim().toLowerCase()
+    // Lifestyle
+    if (['vegan', 'vegán', 'vegán étrend', 'vegan diet'].includes(t)) {
+      active.add('vegan')
+      active.add('vegetarian')
+    } else if (['vegetarian', 'vegetáriánus', 'vegetáriánus étrend', 'vegetarian diet', 'vegetárius'].includes(t)) {
+      active.add('vegetarian')
+    } else if (['pescatarian', 'pescatariánus', 'pescetarian', 'pescetariánus', 'hal fogyasztó vegetáriánus'].includes(t)) {
+      active.add('pescatarian')
+    }
+    // Allergens
+    else if (['gluten-free', 'gluten free', 'gluténmentes', 'glutén-mentes', 'gluténérzékeny', 'glutén érzékeny', 'celiac', 'coeliac', 'coeliakia', 'lisztérzékenység', 'lisztérzékeny'].includes(t)) {
+      active.add('glutenFree')
+    } else if (['dairy-free', 'dairy free', 'tejtermékmentes', 'tejtermék-mentes', 'laktóz és tejtermék mentes'].includes(t)) {
+      active.add('dairyFree')
+    } else if (['lactose-free', 'lactose free', 'laktózmentes', 'laktóz-mentes', 'laktózérzékeny', 'laktóz érzékeny', 'laktózintolerancia'].includes(t)) {
+      active.add('lactoseFree')
+    }
+    // Religious
+    else if (['halal', 'háláál'].includes(t)) {
+      active.add('halal')
+    } else if (['kosher', 'kóser', 'kósher'].includes(t)) {
+      active.add('kosher')
+    }
+    // Metabolic
+    else if (['keto', 'ketogenic', 'ketogén', 'ketogén étrend', 'ketogenic diet'].includes(t)) {
+      active.add('keto')
+    } else if (['paleo', 'paleolithic diet', 'paleo étrend', 'paleolit', 'paleolit étrend'].includes(t)) {
+      active.add('paleo')
+    }
+    // Also handle camelCase flag keys directly (from round-trip after user edit)
+    else {
+      const allKeys: DietaryRestrictionKey[] = [
+        'vegetarian', 'vegan', 'pescatarian', 'glutenFree', 'dairyFree', 'lactoseFree',
+        'milkProteinFree', 'eggFree', 'nutFree', 'peanutFree', 'soyFree', 'fishFree',
+        'shellfishFree', 'sesameFree', 'halal', 'kosher', 'keto', 'lowGi', 'lowFodmap', 'paleo',
+      ]
+      if (allKeys.includes(raw as DietaryRestrictionKey)) {
+        active.add(raw as DietaryRestrictionKey)
+      }
+    }
+  }
+  return active
+}
 
 // ── Inline conversational onboarding service (KALMIO-394: backends restored, USE_STUB flipped to false)
 // Backend endpoints: POST /api/onboarding/conversational/turn + /finalize (free for all users).
@@ -172,6 +285,24 @@ interface ConfirmCardProps {
 function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProps) {
   const { t } = useTranslation()
 
+  // KALMIO-448: internal dietary flag state, initialized from the LLM-extracted
+  // free-text terms via freeTextToDietaryFlags().
+  const [activeFlags, setActiveFlags] = useState<Set<DietaryRestrictionKey>>(
+    () => freeTextToDietaryFlags(draft.dietaryRestrictions)
+  )
+
+  const handleFlagToggle = (key: DietaryRestrictionKey) => {
+    const next = new Set(activeFlags)
+    if (next.has(key)) {
+      next.delete(key)
+    } else {
+      next.add(key)
+    }
+    setActiveFlags(next)
+    // Propagate camelCase flag keys to parent draft for finalize (KALMIO-448).
+    onChange({ ...draft, dietaryRestrictions: Array.from(next) })
+  }
+
   // KALMIO-451: handleHouseholdSize removed — field no longer collected.
 
   const handleKcal = (v: string) => {
@@ -247,17 +378,41 @@ function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProp
           </select>
         </label>
 
-        {/* Dietary restrictions — display-only for now */}
-        {draft.dietaryRestrictions.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-[#6B6460]">
-              {t('onboarding.conversational.confirm.dietaryRestrictions')}
-            </span>
-            <p className="text-sm text-[#1A1A1A]">
-              {draft.dietaryRestrictions.join(', ')}
-            </p>
-          </div>
-        )}
+        {/* Dietary restrictions — KALMIO-448: editable 20-flag toggle grid */}
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-medium text-[#6B6460]">
+            {t('onboarding.conversational.confirm.dietaryRestrictions')}
+          </span>
+          {DIETARY_FLAG_GROUPS.map((group) => (
+            <div key={group.labelKey}>
+              <p className="text-[10px] font-medium text-gray-400 uppercase tracking-wider mb-1.5">
+                {t(group.labelKey)}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {group.items.map(({ key }) => {
+                  const active = activeFlags.has(key)
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={active}
+                      title={t(`dietary.${key}Desc`, { defaultValue: '' })}
+                      onClick={() => handleFlagToggle(key)}
+                      className={[
+                        'h-8 px-3 rounded-full border text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2',
+                        active
+                          ? 'border-[#E8956D] bg-[#FFF5F0] text-[#C0622A]'
+                          : 'border-gray-200 bg-white text-[#6B6460] hover:border-[#E8956D]',
+                      ].join(' ')}
+                    >
+                      {t(`dietary.${key}`)}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <button
