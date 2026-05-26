@@ -559,7 +559,6 @@ export function Profile() {
   const [mealKcals, setMealKcals] = useState<Record<string, number>>(
     equalMealKcals(['BREAKFAST', 'LUNCH', 'DINNER'], 2000),
   )
-  const [proteinTarget, setProteinTarget] = useState<string>('')
   const [mealPrefSaving, setMealPrefSaving] = useState(false)
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -573,7 +572,6 @@ export function Profile() {
         ?? ['BREAKFAST', 'LUNCH', 'DINNER']
       setSelectedMeals(meals)
       setMealKcals(prefs?.mealCalorieTargets ?? equalMealKcals(meals, kcal))
-      setProteinTarget(prefs?.proteinTarget != null ? String(prefs.proteinTarget) : '')
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])
@@ -587,7 +585,6 @@ export function Profile() {
           kcalTarget: mealKcalTarget,
           selectedMealTypes: selectedMeals,
           mealCalorieTargets: mealKcals,
-          proteinTarget: proteinTarget.trim() ? Number(proteinTarget) : undefined,
         },
       })
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
@@ -1342,37 +1339,6 @@ export function Profile() {
               <p className="text-xs text-gray-500 mt-1">{t('profile.mealPrefs.subtitle')}</p>
             </div>
 
-            {/* Calorie target */}
-            <div>
-              <Label htmlFor="kcal-target">{t('profile.mealPrefs.kcalTarget')}</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="kcal-target"
-                  type="number"
-                  min={500}
-                  max={6000}
-                  value={mealKcalTarget}
-                  onChange={e => setMealKcalTarget(Number(e.target.value))}
-                  onBlur={() => {
-                    const clamped = Math.max(500, Math.min(6000, mealKcalTarget))
-                    setMealKcalTarget(clamped)
-                    const total = selectedMeals.reduce((s, m) => s + (mealKcals[m] ?? 0), 0)
-                    if (total > 0) {
-                      const scaled: Record<string, number> = {}
-                      let alloc = 0
-                      selectedMeals.forEach((m, i) => {
-                        if (i === selectedMeals.length - 1) scaled[m] = Math.max(0, clamped - alloc)
-                        else { const v = Math.round(((mealKcals[m] ?? 0) / total) * clamped); scaled[m] = v; alloc += v }
-                      })
-                      setMealKcals(scaled)
-                    }
-                  }}
-                  className="w-28"
-                />
-                <span className="text-sm text-gray-500">kcal</span>
-              </div>
-            </div>
-
             {/* Meal type toggles */}
             <div>
               <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
@@ -1434,24 +1400,6 @@ export function Profile() {
                 </div>
               </div>
             )}
-
-            {/* Protein target */}
-            <div>
-              <Label htmlFor="protein-target">{t('profile.mealPrefs.proteinTarget')}</Label>
-              <div className="flex items-center gap-2 mt-1">
-                <Input
-                  id="protein-target"
-                  type="number"
-                  min={0}
-                  max={500}
-                  value={proteinTarget}
-                  onChange={e => setProteinTarget(e.target.value)}
-                  placeholder={t('common.optional')}
-                  className="w-28"
-                />
-                <span className="text-sm text-gray-500">{t('profile.mealPrefs.proteinUnit')}</span>
-              </div>
-            </div>
 
             <Button type="button" onClick={saveMealPreferences} disabled={mealPrefSaving} className="w-full">
               {mealPrefSaving ? `${t('common.save')}…` : t('profile.mealPrefs.save')}
