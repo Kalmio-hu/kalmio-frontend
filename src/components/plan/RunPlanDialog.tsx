@@ -85,6 +85,12 @@ interface RunPlanDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onSuccess?: () => void
+  /**
+   * When `'firstSchedule'`, the dialog shows an onboarding-flavoured title and
+   * a one-sentence explanation of what scheduling does.
+   * KALMIO-445.
+   */
+  context?: 'firstSchedule'
 }
 
 // -- Helpers --
@@ -100,6 +106,7 @@ export function RunPlanDialog({
   open,
   onOpenChange,
   onSuccess,
+  context,
 }: RunPlanDialogProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -236,7 +243,16 @@ export function RunPlanDialog({
     <Dialog open={open} onOpenChange={handleDialogOpenChange}>
       <DialogContent className="max-w-sm w-full">
         <DialogHeader>
-          <DialogTitle>{t('plan.run.dialogTitle')}</DialogTitle>
+          <DialogTitle>
+            {context === 'firstSchedule'
+              ? t('onboarding.handoff.scheduleDialogTitle')
+              : t('plan.run.dialogTitle')}
+          </DialogTitle>
+          {context === 'firstSchedule' && (
+            <p className="text-sm text-[#6b7280] mt-1">
+              {t('onboarding.handoff.scheduleDialogBody')}
+            </p>
+          )}
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
