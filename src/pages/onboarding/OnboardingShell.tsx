@@ -1,8 +1,8 @@
 /**
- * OnboardingShell — KALMIO-167 / KALMIO-241 / KALMIO-393 / KALMIO-436 / KALMIO-435
+ * OnboardingShell — KALMIO-167 / KALMIO-241 / KALMIO-393 / KALMIO-436 / KALMIO-435 / KALMIO-450
  *
  * Multi-step onboarding container.  Owns:
- *   1. An 8-step progress indicator (OnboardingProgressBar, top of screen).
+ *   1. A 7-step progress indicator (OnboardingProgressBar, top of screen).
  *   2. A "Kihagyom most" link visible from step 2 onward (SkipConfirmModal).
  *   3. Resume: reads the last persisted step from localStorage on mount
  *      and lands the returning user there automatically.
@@ -11,22 +11,24 @@
  * KALMIO-393: Re-added the 6-field preferences capture step (PRD §4.2)
  * between Welcome (step 1) and TDEE (now step 3).
  *
- * KALMIO-435: Added step 6 — PreferenceSwipe — a recipe-focused two-direction
- * swipe deck inserted between TasteSwipe (step 5) and app orientation (step 7).
- * TOTAL_STEPS bumped from 7 to 8.
+ * KALMIO-435: Added PreferenceSwipe — recipe-focused two-direction swipe deck.
+ *
+ * KALMIO-450: Consolidated TasteSwipe (step 5) and PreferenceSwipe (step 6) into
+ * a single combined step 5 using TasteSwipe (which already handles both ingredient
+ * and recipe cards). Step 6 is removed. TOTAL_STEPS drops from 8 to 7.
+ * The planting-metaphor mapping is updated accordingly.
  *
  * Full flow:
  *   1. Welcome
  *   2. Preferences (household, kcal, dietary, shopping cadence/day, forbidden)
  *   3. Body data
  *   4. TDEE suggestion
- *   5. TasteSwipe (ingredient + recipe broad taste signals)
- *   6. PreferenceSwipe (recipe-level preference — "would you want this in your plan?")
- *   7. App orientation (MiniTutorialPlanner)
- *   8. Plan generation loading → redirect to /app/plans?fresh=1
+ *   5. TasteSwipe (ingredient + recipe cards, combined deck, capped at 20)
+ *   6. App orientation (MiniTutorialPlanner)
+ *   7. Plan generation loading → redirect to /app/plans?fresh=1
  *
  * KALMIO-436: Steps 8 (FirstPlanReveal) and 9 (CsemeteWelcomeMoment) removed
- * from the shell flow. On completion of step 8, the user is redirected directly
+ * from the shell flow. On completion of step 7, the user is redirected directly
  * to /app/plans?fresh=1, which auto-triggers plan generation. The Csemete
  * welcome moment is shown later by AppShell's useCsemeteWelcomeMoment hook
  * once the MAG → CSEMETE stage transition has occurred.
@@ -41,10 +43,9 @@
  *   Shell step 2  → PlantingScene 2  — Preferences (walnut in the hole — we have the data)
  *   Shell step 3  → PlantingScene 3  — Body data
  *   Shell step 4  → PlantingScene 4  — TDEE suggestion
- *   Shell step 5  → PlantingScene 5  — TasteSwipe
- *   Shell step 6  → PlantingScene 5  — PreferenceSwipe (same planting moment)
- *   Shell step 7  → PlantingScene 6  — Orientation
- *   Shell step 8  → PlantingScene 7  — Plan generation (watering can)
+ *   Shell step 5  → PlantingScene 5  — TasteSwipe (combined ingredient + recipe deck)
+ *   Shell step 6  → PlantingScene 6  — Orientation
+ *   Shell step 7  → PlantingScene 7  — Plan generation (watering can)
  */
 
 import { useCallback, useEffect, useState } from 'react'
@@ -60,9 +61,7 @@ import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
 import { PreferencesStep, type PreferencesStepValues } from '@/components/onboarding/PreferencesStep'
 import { BodyDataStep, type BodyDataStepValues } from '@/components/onboarding/BodyDataStep'
 import { TasteSwipe } from '@/components/taste/TasteSwipe'
-import { PreferenceSwipe } from '@/components/onboarding/PreferenceSwipe'
 import { tasteSignalsService } from '@/services/tasteSignals'
-import { recipePreferencesService } from '@/services/recipePreferences'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
 import {
@@ -83,21 +82,22 @@ import {
  *          in-flow capture so TDEE has data to render and the user is never
  *          bounced to /app/profile mid-tutorial.
  * Step 4 — TDEE suggestion (reads suggestedKcalTarget from user settings)
- * Step 5 — TasteSwipe (Tinder-style swipe over 20 ingredient/recipe cards)
- * Step 6 — PreferenceSwipe (KALMIO-435: recipe-focused like/pass deck)
- * Step 7 — App orientation (MiniTutorialPlanner)
- * Step 8 — Plan generation loading → redirect to /app/plans?fresh=1
+ * Step 5 — TasteSwipe (combined ingredient + recipe deck, capped at 20 cards)
+ *          KALMIO-450: merged former step 6 (PreferenceSwipe) into this step.
+ *          TasteSwipe already handles both INGREDIENT and RECIPE targetTypes.
+ *          Analytics events fire under their original source tags.
+ * Step 6 — App orientation (MiniTutorialPlanner)
+ * Step 7 — Plan generation loading → redirect to /app/plans?fresh=1
  *
  * KALMIO-436: Steps 8 (FirstPlanReveal) and 9 (CsemeteWelcomeMoment) are
  * no longer part of the shell flow. Plan generation and the welcome moment
  * happen on the Plans page after redirect.
  */
-const TOTAL_STEPS = 8
+const TOTAL_STEPS = 7
 
 /**
  * Maps the 1-indexed shell step to the PlantingScene 0-indexed step (0..10).
- * Steps 5 and 6 share PlantingScene 5 — both are preference-gathering moments
- * in the same metaphorical phase (learning the garden).
+ * KALMIO-450: step 6 (PreferenceSwipe) removed; steps renumbered.
  */
 const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   1: 0,
@@ -105,16 +105,15 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   3: 3,
   4: 4,
   5: 5,
-  6: 5,
-  7: 6,
-  8: 7,
+  6: 6,
+  7: 7,
 }
 
 /**
  * Narrative copy is keyed 1–6 in i18n. Step 4 (TDEE) reuses narrative 3
  * because the body-data narrative ("we'll suggest a calorie target")
- * naturally bridges the two screens. Step 6 (PreferenceSwipe) reuses
- * narrative 4 because both step 5 and step 6 are preference-gathering.
+ * naturally bridges the two screens.
+ * KALMIO-450: step 6 (PreferenceSwipe) removed; steps 6 and 7 take narratives 5 and 6.
  */
 const SHELL_TO_NARRATIVE: Record<number, number | null> = {
   1: 1,
@@ -122,9 +121,8 @@ const SHELL_TO_NARRATIVE: Record<number, number | null> = {
   3: 3,
   4: 3,
   5: 4,
-  6: 4,
-  7: 5,
-  8: 6,
+  6: 5,
+  7: 6,
 }
 
 // ---------------------------------------------------------------------------
@@ -161,7 +159,7 @@ function PlanGenerationStep() {
       data-testid="step-plan-generation"
     >
       <p className="text-base font-semibold text-[#1A1A1A]">
-        {t('onboarding.shell.stepLabels.8')}
+        {t('onboarding.shell.stepLabels.7')}
       </p>
       <p className="text-sm text-[#6B6460] max-w-xs leading-relaxed">
         {t('onboarding.shell.planGeneratingBody')}
@@ -237,68 +235,9 @@ function TasteSwipeStep({ onContinue }: TasteSwipeStepProps) {
   )
 }
 
-// ---------------------------------------------------------------------------
-// PreferenceSwipe step (step 6) — KALMIO-435
-// Recipe-focused two-direction swipe: like / pass. Uses the same taste-signals
-// endpoint as TasteSwipe (targetType=RECIPE, source=ONBOARDING). Fetches a
-// shuffled sample of recipes from GET /api/recipes via recipePreferencesService.
-// ---------------------------------------------------------------------------
-
-interface PreferenceSwipeStepProps {
-  onContinue: () => void
-}
-
-function PreferenceSwipeStep({ onContinue }: PreferenceSwipeStepProps) {
-  const { t } = useTranslation()
-  const { data: deck, isLoading, isError } = useQuery({
-    queryKey: ['recipe-preference-deck'],
-    queryFn: () => recipePreferencesService.buildDeck(),
-    staleTime: 5 * 60_000,
-  })
-
-  // If the fetch failed entirely, advance silently.
-  useEffect(() => {
-    if (isError) onContinue()
-  }, [isError, onContinue])
-
-  return (
-    <div
-      className="flex flex-col items-center gap-5 px-4 py-2 w-full"
-      data-testid="step-preference-swipe"
-    >
-      <div className="text-center max-w-md mx-auto">
-        <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug">
-          {t('onboarding.preferences.title')}
-        </h2>
-        <p className="text-sm text-[#6B6460] mt-1.5 leading-relaxed">
-          {t('onboarding.preferences.body')}
-        </p>
-      </div>
-
-      {isLoading || !deck ? (
-        <div className="flex items-center justify-center w-full h-[520px]">
-          <div className="w-10 h-10 rounded-full border-2 border-[#F28C28] border-t-transparent animate-spin" />
-        </div>
-      ) : deck.length === 0 ? (
-        // Empty deck — no recipes available yet; continue without blocking.
-        <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <p className="text-sm text-[#6B6460]">
-            {t('onboarding.preferences.emptyDeck')}
-          </p>
-          <button
-            type="button"
-            onClick={onContinue}
-            className="h-11 px-6 rounded-[12px] bg-[#F28C28] text-white font-semibold text-sm hover:bg-[#d97a20] transition-colors"
-          >
-            {t('onboarding.shell.next')}
-          </button>
-        </div>
-      ) : (
-        <PreferenceSwipe cards={deck} onComplete={onContinue} />
-      )}
-    </div>
-  )
-}
+// PreferenceSwipeStep removed (KALMIO-450): recipe preference cards are now
+// included in the TasteSwipe deck (step 5). The PreferenceSwipe component is
+// kept in the codebase for standalone use but is no longer wired into the shell.
 
 // ---------------------------------------------------------------------------
 // Welcome step (step 1) — always shown first, cannot be skipped
@@ -670,10 +609,11 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 6: PreferenceSwipe (KALMIO-435) — recipe like/pass deck */}
+        {/* Step 6: App orientation (MiniTutorialPlanner) — was step 7 pre-KALMIO-450 */}
         {currentStep === 6 && (
           <>
-            <PreferenceSwipeStep onContinue={goNext} />
+            {/* MiniTutorialPlanner: onSkip advances to the next step */}
+            <MiniTutorialPlanner onSkip={goNext} />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"
@@ -686,25 +626,8 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 7: App orientation (MiniTutorialPlanner) */}
+        {/* Step 7: Plan generation loading — was step 8 pre-KALMIO-450 */}
         {currentStep === 7 && (
-          <>
-            {/* MiniTutorialPlanner: onSkip advances to the next step */}
-            <MiniTutorialPlanner onSkip={goNext} />
-            <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
-              <button
-                type="button"
-                onClick={() => goToStep(6)}
-                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
-              >
-                {t('common.back')}
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Step 8: Plan generation loading */}
-        {currentStep === 8 && (
           <>
             <PlanGenerationStep />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
@@ -717,7 +640,7 @@ export function OnboardingShell() {
               </button>
               <button
                 type="button"
-                onClick={() => goToStep(7)}
+                onClick={() => goToStep(6)}
                 className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
               >
                 {t('common.back')}
