@@ -25,7 +25,10 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Heart, X } from 'lucide-react'
-import { PreferenceCard, type PreferenceCardData } from './PreferenceCard'
+// KALMIO-454: swap inner card to the enriched RecipePreferenceCard.
+// Deck logic (shuffle, index, submit, keyboard) is unchanged.
+import { RecipePreferenceCard } from './RecipePreferenceCard'
+import type { PreferenceCardData } from './PreferenceCard'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import { capture } from '@/lib/analytics'
 
@@ -197,7 +200,7 @@ export function PreferenceSwipe({ cards: rawCards, onComplete }: PreferenceSwipe
         {next2 && <GhostCard key={`g2-${next2.id}`} card={next2} depth={2} />}
         {next1 && <GhostCard key={`g1-${next1.id}`} card={next1} depth={1} />}
         <AnimatePresence mode="wait">
-          <PreferenceCard
+          <RecipePreferenceCard
             key={`pref-${cardKey}-${current.id}`}
             card={current}
             disabled={submitting}

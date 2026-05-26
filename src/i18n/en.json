@@ -1943,6 +1943,9 @@
         "MOIST": "moist",
         "SATURATED": "saturated"
       }
+    },
+    "sprout": {
+      "ariaAnnouncement": "The walnut tree appears."
     }
   },
   "foundingMember": {
@@ -2146,13 +2149,15 @@
     "preferences": {
       "title": "Which recipes appeal to you?",
       "body": "Swipe right for dishes you would happily cook, left for ones you would rather skip.",
-      "likeLabel": "Yes",
+      "likeLabel": "Like",
       "passLabel": "No",
       "progressLabel": "{{current}} of {{total}} recipes",
       "actionsLabel": "Action buttons",
       "swipeHint": "Swipe left or right, or use the buttons.",
       "skipAll": "Skip this step",
-      "emptyDeck": "No recipes to show right now — continuing to the next step."
+      "emptyDeck": "No recipes to show right now — continuing to the next step.",
+      "macroLegendAriaLabel": "Macros per serving",
+      "cardAriaDesc": "{{name}} — {{kcal}} kcal, {{protein}}g protein, {{fat}}g fat, {{carbs}}g carbs per serving"
     },
     "preferencesStep": {
       "title": "Let us get to know each other.",
@@ -2213,7 +2218,9 @@
     },
     "handoff": {
       "preparing": "Putting your week together.",
-      "preparingBody": "Your weekly plan is being assembled — this takes a few seconds, based on your habits and preferences."
+      "preparingBody": "Your weekly plan is being assembled — this takes a few seconds, based on your habits and preferences.",
+      "scheduleDialogTitle": "When should your week start?",
+      "scheduleDialogBody": "Your plan is ready but not yet on the calendar — pick a start date and Kalmio will take care of the rest."
     },
     "graduation": {
       "ariaLabel": "Congratulations — you have reached the Termőfa stage",
@@ -2294,11 +2301,14 @@
     },
     "tdeeStep": {
       "title": "Personalised calorie target",
-      "body": "Based on your body data, I have calculated your Total Daily Energy Expenditure (TDEE). You can accept the suggestion or skip this step.",
+      "body": "Based on your body data, I have calculated your Total Daily Energy Expenditure (TDEE). Accept the suggestion or adjust the value before confirming.",
       "proteinUnit": "g protein / day",
       "bodyDataMissing": "Add your body data and I can suggest a personalised target. You can skip this for now.",
       "skip": "Skip for now",
       "accepted": "Calorie target set.",
+      "kcalEditLabel": "Daily calorie target (kcal)",
+      "kcalEditHint": "Calculated from your TDEE. Adjust if needed.",
+      "kcalEditError": "Value must be between {{min}} and {{max}} kcal.",
       "noBodyData": {
         "title": "Refine your calorie target?",
         "description": "Adding your body data lets me make a more accurate suggestion. Skip for now and your current calorie target stays as-is.",

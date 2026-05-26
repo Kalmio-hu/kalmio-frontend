@@ -6,11 +6,16 @@
  * Shows recipe image when available, warm gradient fallback otherwise.
  *
  * Overlay labels fade in as the user drags:
- *   → right: "Megvan"  (green)
+ *   → right: "Tetszik"  (green)   [KALMIO-454: was "Megvan"]
  *   ← left:  "Inkább nem"  (red)
  *
  * Keyboard: → / l = like, ← / j = pass.
  * (Parent wires the keydown listener — this component handles only drag.)
+ *
+ * KALMIO-454: PreferenceCardData extended with optional macros, ingredients,
+ * prepSummary fields. The visual card rendering is delegated to
+ * RecipePreferenceCard which replaces the inner card body. The drag/swipe
+ * logic in this file is unchanged.
  */
 
 import {
@@ -30,6 +35,15 @@ export interface PreferenceCardData {
   /** Short 1-line description e.g. "30 perc · 420 kcal" */
   subtitle?: string | null
   imageUrl?: string | null
+  // ── KALMIO-454: enriched fields ──────────────────────────────────────────
+  /** Macros per serving. Present when the recipe has macro data. */
+  macros?: { kcal: number; proteinG: number; fatG: number; carbsG: number } | null
+  /** Up to 5 ingredient names in Hungarian for the ingredients blurb. */
+  ingredientNames?: string[] | null
+  /** First step of the recipe, used as a prep preview line. */
+  prepSummary?: string | null
+  /** Total prep + cook minutes. */
+  totalMinutes?: number | null
 }
 
 export interface PreferenceCardProps {

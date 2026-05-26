@@ -1943,6 +1943,9 @@
         "MOIST": "nedves",
         "SATURATED": "telített"
       }
+    },
+    "sprout": {
+      "ariaAnnouncement": "A diófa megjelenik."
     }
   },
   "foundingMember": {
@@ -2146,13 +2149,15 @@
     "preferences": {
       "title": "Melyik receptek jönnek be?",
       "body": "Húzd jobbra, amit szívesen főznél, balra, amit inkább kihagynál.",
-      "likeLabel": "Megvan",
+      "likeLabel": "Tetszik",
       "passLabel": "Inkább nem",
       "progressLabel": "{{current}} / {{total}} recept",
       "actionsLabel": "Reakciógombok",
       "swipeHint": "Húzd jobbra vagy balra, vagy használd a gombokat.",
       "skipAll": "Átugrom ezt a lépést",
-      "emptyDeck": "Most nincs megjeleníthető recept — folytatom a következő lépéssel."
+      "emptyDeck": "Most nincs megjeleníthető recept — folytatom a következő lépéssel.",
+      "macroLegendAriaLabel": "Makrók adagonként",
+      "cardAriaDesc": "{{name}} — {{kcal}} kcal, {{protein}}g fehérje, {{fat}}g zsír, {{carbs}}g szénhidrát adagonként"
     },
     "preferencesStep": {
       "title": "Ismerjük meg egymást.",
@@ -2213,7 +2218,9 @@
     },
     "handoff": {
       "preparing": "Összerakom a hetedet.",
-      "preparingBody": "A heti terv összeállítása néhány másodpercet vesz igénybe — étkezési szokásaid és preferenciáid alapján dolgozunk."
+      "preparingBody": "A heti terv összeállítása néhány másodpercet vesz igénybe — étkezési szokásaid és preferenciáid alapján dolgozunk.",
+      "scheduleDialogTitle": "Mikor induljon a heted?",
+      "scheduleDialogBody": "A terv most ütemezés nélkül áll — adj meg egy kezdőnapot, és a Kalmio elvégzi a többit."
     },
     "graduation": {
       "ariaLabel": "Gratulálunk — elérted a Termőfa szintet",
@@ -2294,11 +2301,14 @@
     },
     "tdeeStep": {
       "title": "Személyre szabott kalóriacél",
-      "body": "A testadataid alapján kiszámoltam a napi energiaszükségleted (TDEE). Elfogadhatod javaslatként, vagy kihagyod ezt a lépést.",
+      "body": "A testadataid alapján kiszámoltam a napi energiaszükségleted (TDEE). Elfogadhatod javaslatként, vagy módosítsd az értéket, majd fogadd el.",
       "proteinUnit": "g fehérje / nap",
       "bodyDataMissing": "Testadatok megadásával személyre szabott javaslatot adok. Ha most nem akarod, kihagyhatod.",
       "skip": "Inkább kihagyom",
       "accepted": "Kalóriacél beállítva.",
+      "kcalEditLabel": "Napi kalóriacél (kcal)",
+      "kcalEditHint": "A TDEE alapján számítottam. Szükség esetén módosíthatod.",
+      "kcalEditError": "Az értéknek {{min}} és {{max}} kcal között kell lennie.",
       "noBodyData": {
         "title": "Finomítsuk a kalóriacélt?",
         "description": "Ha megadod a testadataidat, pontosabb javaslatot tudok adni. Ha most kihagyod, a megadott kalóriacélod megmarad.",
