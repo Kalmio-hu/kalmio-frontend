@@ -1365,6 +1365,8 @@
       "empty": "No plans yet.",
       "retry": "Retry",
       "defaultBadge": "Default",
+      "solveErrorTitle": "I couldn't build your week just yet",
+      "solveErrorBody": "Your current preferences don't quite fit together. Try loosening one — dietary restrictions, calorie target, or budget — then tap \"Fill with planner\".",
       "filter": {
         "label": "Filter",
         "all": "All",

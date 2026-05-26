@@ -92,7 +92,19 @@ export function Plans() {
       pendingAutoOpenRef.current = true
     },
     onError: () => {
-      // Fail silently — the user can still see the empty plan and fill it manually.
+      // Surface the failure to the user instead of dropping the request silently.
+      // The most common cause is solver infeasibility (HTTP 422) — typically
+      // a dietary + calorie + slot-count combination the catalog can't satisfy.
+      // The user is in the post-onboarding fresh=1 landing and would otherwise
+      // see an empty draft plan with no explanation. The Hungarian copy tells
+      // them what to do next; they can then change a preference and tap
+      // "Feltöltés tervezővel" to retry.
+      toast({
+        title: t('plan.list.solveErrorTitle'),
+        description: t('plan.list.solveErrorBody'),
+        variant: 'destructive',
+        duration: 8000,
+      })
       navigate('/app/plans', { replace: true })
     },
   })

@@ -1365,6 +1365,8 @@
       "empty": "Még nincs terv.",
       "retry": "Újra",
       "defaultBadge": "Alapértelmezett",
+      "solveErrorTitle": "A tervet most nem tudtam összerakni",
+      "solveErrorBody": "A beállításaid most nem férnek össze. Próbáld lazítani egyet — étrend, kalória vagy költségkeret — aztán nyomd meg a „Feltöltés tervezővel” gombot.",
       "filter": {
         "label": "Szűrő",
         "all": "Mind",
