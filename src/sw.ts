@@ -352,27 +352,8 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
         body,
         icon: '/icons/icon-192.png',
         tag: 'kalmio-timer',
-        renotify: true,
       }),
     )
   }
 })
 
-/**
- * showTimerNotification — helper callable from the main thread via postMessage.
- * Posts { type: 'SHOW_TIMER_NOTIFICATION', title, body } to the active SW.
- *
- * Exported as a named function so unit tests and the Vite build can tree-shake it;
- * the actual posting is done from cookTimers.ts in the main thread context, not
- * from within this SW file.
- *
- * @param label  Short timer label (e.g. "Lépés 2 — 10 perc")
- * @param body   Alert body copy (HU/EN string from i18n)
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function showTimerNotification(label: string, body: string): void {
-  if (!('serviceWorker' in navigator)) return
-  navigator.serviceWorker.ready.then(reg => {
-    reg.active?.postMessage({ type: 'SHOW_TIMER_NOTIFICATION', title: label, body })
-  }).catch(() => undefined)
-}
