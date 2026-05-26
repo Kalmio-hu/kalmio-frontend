@@ -737,8 +737,10 @@ export function Profile() {
       />
 
       {/* ── Tab bar ──────────────────────────────────────────────────────── */}
-      <div className="max-w-lg border-b border-gray-200 mb-6">
-        <nav className="flex gap-1" role="tablist" aria-label={t('profile.title')}>
+      {/* sticky + bg so the bar stays visible as the user scrolls the   */}
+      {/* page; overflow-x-auto prevents label wrap on narrow viewports. */}
+      <div className="sticky top-0 z-10 bg-[#F9F7F2] -mx-4 px-4 md:mx-0 md:px-0 max-w-lg overflow-x-auto border-b border-gray-200 mb-6">
+        <nav className="flex gap-1 min-w-max" role="tablist" aria-label={t('profile.title')}>
           {TAB_KEYS.map((tab) => {
             const active = activeTab === tab
             return (
@@ -749,7 +751,7 @@ export function Profile() {
                 aria-selected={active}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors',
+                  'px-4 py-2.5 text-sm font-medium border-b-2 -mb-px transition-colors whitespace-nowrap',
                   active
                     ? 'border-[#E8956D] text-[#1A1A1A]'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
