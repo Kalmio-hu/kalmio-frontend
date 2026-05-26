@@ -150,7 +150,12 @@ export function PrepHoldViolationBanner({
   // Render nothing when still loading or no violation exists for this meal
   if (isLoading || !violation) return null
 
-  const { dayGap, fridgeWindow } = violation
+  const { dayGap: rawDayGap, fridgeWindow } = violation
+  // dayGap from the API is the raw calendar gap (meal_day - prep_day).
+  // The banner message says "X days more than the fridge window" — that excess
+  // is rawDayGap - fridgeWindow, not rawDayGap itself.
+  // Example: rawDayGap=4, fridgeWindow=3 → overBy=1 ("1 nappal több").
+  const dayGap = rawDayGap - fridgeWindow
 
   return (
     <div
