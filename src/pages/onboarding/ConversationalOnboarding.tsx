@@ -1,5 +1,5 @@
 /**
- * ConversationalOnboarding — KALMIO-186
+ * ConversationalOnboarding — KALMIO-186 / KALMIO-442
  *
  * Full-screen chat alternative to the 10-step onboarding form.
  * Route: /app/onboarding/conversational  (ProtectedRoute, no AppShell chrome)
@@ -11,8 +11,11 @@
  *     service and appends the assistant response.
  *  4. When the backend sets `ready=true`, a confirmation card renders with the
  *     extracted `PreferencesDraft`.  User can edit fields before confirming.
- *  5. On confirm, `finalizeOnboarding` is called; on success → navigate('/app').
- *  6. "Vissza az űrlaphoz" link returns to /app/onboarding at any point.
+ *  5. On confirm, `finalizeOnboarding` is called; on success the component hands
+ *     the user into the same BodyData → TDEE → MealDistribution cascade that the
+ *     click-through onboarding uses (KALMIO-442).
+ *  6. After the cascade completes (or is skipped), redirect to /app/plans?fresh=1.
+ *  7. "Vissza az űrlaphoz" link returns to /app/onboarding at any point.
  *
  * Premium guard: the service returns 402 when the user is not premium. The UI
  * catches this and shows a dedicated "premium only" message with a link to the
@@ -22,12 +25,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/store/auth'
-import { USERS_ME_QUERY_KEY } from '@/services/users'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { writeOnboardingDone, clearOnboardingStep } from '@/hooks/useOnboardingProgress'
 import type { DietaryRestrictionKey } from '@/types'
+import { BodyDataStep, type BodyDataStepValues } from '@/components/onboarding/BodyDataStep'
+import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
+import { MealDistributionStep, type MealDistributionValues } from '@/components/onboarding/MealDistributionStep'
+import { toast } from '@/components/ui/toast'
 import {
   Dialog,
   DialogContent,
@@ -429,6 +436,13 @@ function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProp
   )
 }
 
+// ── Post-chat cascade step type (KALMIO-442) ─────────────────────────────
+// After finalize succeeds the user is handed into the same
+// BodyData → TDEE → MealDistribution cascade the click-through uses.
+// null = still in chat phase.
+
+type PostChatStep = 'body-data' | 'tdee' | 'meal-dist'
+
 // ── ConversationalOnboarding ───────────────────────────────────────────────
 
 export function ConversationalOnboarding() {
@@ -448,6 +462,81 @@ export function ConversationalOnboarding() {
   // The backend only returns extracted when ready=true; we keep the last seen
   // non-null draft so the pill doesn't reset if the card is interacted with.
   const [latestExtracted, setLatestExtracted] = useState<PreferencesDraft | null>(null)
+
+  // KALMIO-442: post-chat cascade state.
+  // null = chat phase; non-null = in the body-data → tdee → meal-dist cascade.
+  const [postChatStep, setPostChatStep] = useState<PostChatStep | null>(null)
+
+  // ── User settings — needed for body data pre-fill and TDEE reading ───────
+  // Fetched lazily; enabled once we are in the post-chat cascade so we don't
+  // add an extra network call while the user is still chatting.
+  const { data: user } = useQuery({
+    queryKey: USERS_ME_QUERY_KEY,
+    queryFn: usersService.getMe,
+    staleTime: 30_000,
+    enabled: !!userId && postChatStep !== null,
+  })
+
+  // ── Body-data mutation (KALMIO-442) ───────────────────────────────────────
+  const bodyDataMutation = useMutation({
+    mutationFn: (values: BodyDataStepValues) =>
+      usersService.patchBodyData({
+        weightKg: values.weightKg,
+        heightCm: values.heightCm,
+        ageYears: values.ageYears,
+        biologicalSex: values.biologicalSex,
+        activityLevel: values.activityLevel,
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(USERS_ME_QUERY_KEY, updated)
+      setPostChatStep('tdee')
+    },
+    onError: () => {
+      toast({ title: t('onboarding.bodyDataStep.saveError'), variant: 'destructive' })
+    },
+  })
+
+  // ── TDEE acceptance mutation (KALMIO-442) ────────────────────────────────
+  const tdeeMutation = useMutation({
+    mutationFn: (kcalTarget: number) =>
+      usersService.updateSettings({
+        mealPlanPreferences: {
+          ...user?.mealPlanPreferences,
+          kcalTarget,
+        },
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(USERS_ME_QUERY_KEY, updated)
+      toast({ title: t('onboarding.tdeeStep.accepted'), variant: 'success' })
+      setPostChatStep('meal-dist')
+    },
+  })
+
+  // ── Meal distribution mutation (KALMIO-442) ───────────────────────────────
+  const mealDistributionMutation = useMutation({
+    mutationFn: (values: MealDistributionValues) =>
+      usersService.updateSettings({
+        mealPlanPreferences: {
+          ...user?.mealPlanPreferences,
+          mealCalorieTargets: values.mealCalorieTargets,
+          selectedMealTypes: Object.keys(values.mealCalorieTargets),
+        },
+      }),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(USERS_ME_QUERY_KEY, updated)
+      handlePostChatComplete()
+    },
+  })
+
+  // Called once the cascade is done (or any step is skipped past meal-dist).
+  const handlePostChatComplete = useCallback(() => {
+    if (userId) {
+      writeOnboardingDone(userId)
+      clearOnboardingStep(userId)
+    }
+    void queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
+    navigate('/app/plans?fresh=1', { replace: true })
+  }, [navigate, queryClient, userId])
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -490,6 +579,8 @@ export function ConversationalOnboarding() {
   })
 
   // ── Finalize mutation ──────────────────────────────────────────────────
+  // KALMIO-442: on success, enter the body-data → tdee → meal-dist cascade
+  // instead of navigating directly to /app/plans?fresh=1.
 
   const finalizeMutation = useMutation<void, Error, PreferencesDraft>({
     mutationFn: async (confirmedDraft) => {
@@ -500,19 +591,13 @@ export function ConversationalOnboarding() {
       })
     },
     onSuccess: () => {
-      // Mark onboarding done locally so OnboardingGate does not bounce the user
-      // back to /app/onboarding while users/me is still in its 30s stale window.
-      if (userId) {
-        writeOnboardingDone(userId)
-        clearOnboardingStep(userId)
-      }
-      // Invalidate users/me so any caller (gate, plans page) re-fetches the
-      // freshly persisted mealPlanPreferences.
+      // Invalidate users/me so body data and TDEE values are fresh for the
+      // cascade steps — the query is enabled as soon as postChatStep goes non-null.
       void queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
-      // ?fresh=1 triggers Plans.tsx auto-solver so the user actually lands on
-      // a generated week rather than an empty plan-template list (parity with
-      // the click-through onboarding handoff).
-      navigate('/app/plans?fresh=1', { replace: true })
+      // Hand the user into the body-data cascade (KALMIO-442).
+      // We do NOT write onboardingDone here — that happens after the cascade
+      // completes (or is fully skipped) in handlePostChatComplete.
+      setPostChatStep('body-data')
     },
     onError: () => {
       setErrorKey('onboarding.conversational.errorFinalize')
@@ -586,6 +671,136 @@ export function ConversationalOnboarding() {
   }, [navigate])
 
   // ── Render ─────────────────────────────────────────────────────────────
+
+  // ── Post-chat cascade: BodyData → TDEE → MealDistribution ─────────────
+  // Rendered as a full-screen overlay so the chat is fully replaced.
+  // The layout mirrors OnboardingShell's content column — single column,
+  // max-w-lg centred, same button styles.
+  if (postChatStep !== null) {
+    return (
+      <div
+        className="min-h-screen flex flex-col bg-[#F9F7F2]"
+        data-testid="conversational-onboarding-cascade"
+      >
+        <div className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full justify-center">
+
+          {/* Body data step */}
+          {postChatStep === 'body-data' && (
+            <>
+              <div className="text-center px-2 py-6">
+                <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                  {t('onboarding.conversational.postChat.bodyDataTitle')}
+                </h2>
+                <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                  {t('onboarding.conversational.postChat.bodyDataBody')}
+                </p>
+              </div>
+              <BodyDataStep
+                initialValues={{
+                  weightKg: user?.weightKg ?? null,
+                  heightCm: user?.heightCm ?? null,
+                  ageYears: user?.ageYears ?? null,
+                  biologicalSex: user?.biologicalSex ?? null,
+                  activityLevel: user?.activityLevel ?? null,
+                }}
+                onAdvance={(values) => {
+                  bodyDataMutation.mutate(values)
+                }}
+                onSkip={() => setPostChatStep('tdee')}
+                onBack={() => {
+                  // Re-show the chat confirm card. The chat state is still intact.
+                  setPostChatStep(null)
+                }}
+                isSubmitting={bodyDataMutation.isPending}
+              />
+            </>
+          )}
+
+          {/* TDEE step */}
+          {postChatStep === 'tdee' && (
+            <div className="flex flex-col gap-4 py-6">
+              {user?.suggestedKcalTarget == null ? (
+                /* Body data missing (user skipped) — offer to go back or skip ahead */
+                <>
+                  <div className="text-center px-2">
+                    <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                      {t('onboarding.tdeeStep.noBodyData.title')}
+                    </h2>
+                    <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                      {t('onboarding.tdeeStep.noBodyData.description')}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-[#E8E4DC] bg-white p-5 flex flex-col gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setPostChatStep('body-data')}
+                      className="flex h-12 w-full items-center justify-center rounded-[12px] bg-[#F28C28] px-6 text-base font-semibold text-white transition-colors hover:bg-[#d97a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+                    >
+                      {t('onboarding.tdeeStep.noBodyData.cta')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPostChatStep('meal-dist')}
+                      className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+                    >
+                      {t('onboarding.tdeeStep.noBodyData.skip')}
+                    </button>
+                  </div>
+                </>
+              ) : (
+                /* Normal path: body data present, show TDEE suggestion banner */
+                <>
+                  <div className="text-center px-2">
+                    <h2 className="font-headline text-xl font-bold text-[#1A1A1A] leading-snug mb-2">
+                      {t('onboarding.conversational.postChat.tdeeTitle')}
+                    </h2>
+                    <p className="text-sm text-[#6B6460] max-w-xs mx-auto leading-relaxed">
+                      {t('onboarding.conversational.postChat.tdeeBody')}
+                    </p>
+                  </div>
+                  <TdeeSuggestionBanner
+                    suggestedKcal={user.suggestedKcalTarget}
+                    suggestedProtein={user?.suggestedProteinTarget ?? null}
+                    accepting={tdeeMutation.isPending}
+                    onAccept={({ kcalTarget }) => {
+                      if (kcalTarget != null) {
+                        tdeeMutation.mutate(kcalTarget)
+                      } else {
+                        setPostChatStep('meal-dist')
+                      }
+                    }}
+                    onSkip={() => setPostChatStep('meal-dist')}
+                  />
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => setPostChatStep('body-data')}
+                className="h-10 w-full rounded-[12px] text-sm text-[#6B6460] hover:bg-[#F28C28]/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2"
+              >
+                {t('common.back')}
+              </button>
+            </div>
+          )}
+
+          {/* Meal distribution step */}
+          {postChatStep === 'meal-dist' && (
+            <MealDistributionStep
+              dailyKcal={user?.mealPlanPreferences?.kcalTarget ?? user?.suggestedKcalTarget ?? null}
+              initialTargets={user?.mealPlanPreferences?.mealCalorieTargets as Record<string, number> | null | undefined}
+              onAdvance={(values) => {
+                mealDistributionMutation.mutate(values)
+              }}
+              onSkip={handlePostChatComplete}
+              onBack={() => setPostChatStep('tdee')}
+              isSubmitting={mealDistributionMutation.isPending}
+            />
+          )}
+
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

@@ -2309,6 +2309,14 @@
         "body": "What you have shared so far will be lost. The form starts from scratch.",
         "confirm": "Yes, take me to the form",
         "cancel": "Stay here"
+      },
+      "postChat": {
+        "bodyDataTitle": "Just a few more numbers.",
+        "bodyDataBody": "I will use your body data to calculate your daily energy needs — so the plan is genuinely about you.",
+        "tdeeTitle": "Your number.",
+        "tdeeBody": "Based on your body data, I have calculated your daily energy requirement. Accept it or adjust it.",
+        "mealDistTitle": "How do you distribute your calories?",
+        "mealDistBody": "Tell me which meals carry the most weight. The planner will match recipes to this split."
       }
     },
     "bodyDataHint": {

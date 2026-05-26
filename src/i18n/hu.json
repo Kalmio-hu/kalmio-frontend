@@ -2309,6 +2309,14 @@
         "body": "Amit eddig elmondtál, elveszik. Az űrlapon nulláról kezded.",
         "confirm": "Igen, az űrlapot választom",
         "cancel": "Maradok"
+      },
+      "postChat": {
+        "bodyDataTitle": "Pár szám még hátra van.",
+        "bodyDataBody": "A testadataidból kiszámolom a napi energiaszükségleted — hogy a terv valóban rólad szóljon.",
+        "tdeeTitle": "Ez a te számod.",
+        "tdeeBody": "A testadataid alapján kiszámoltam a napi energiaszükségletedet. Elfogadhatod, vagy módosíthatod.",
+        "mealDistTitle": "Hogyan osztod el a kalóriákat?",
+        "mealDistBody": "Add meg, melyik étkezés mennyibe számít. A tervező ehhez igazítja a recepteket."
       }
     },
     "bodyDataHint": {
