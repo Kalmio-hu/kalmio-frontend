@@ -62,6 +62,22 @@ export const useAuthStore = create<AuthState>((set) => ({
     if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
       navigator.serviceWorker.controller?.postMessage({ type: 'CLEAR_API_CACHE' })
     }
+    // Wipe the `kalmio:*` UI-flag namespace (firstPlanReveal, csemeteWelcome,
+    // founderFarewell, graduationReveal, premiumTaster). These flags suppress
+    // first-time overlays/dialogs but were never user-scoped, so leaving them
+    // behind silently breaks the next user's first-run experience (e.g. they
+    // never see the "Mikor induljon a heted?" auto-solve dialog after
+    // onboarding). User-scoped keys use the `kalmio_<feature>_<userId>`
+    // pattern with an underscore and are left untouched, as is
+    // `kalmio-analytics-consent` which is a device-level GDPR setting.
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key && key.startsWith('kalmio:')) localStorage.removeItem(key)
+      }
+    } catch {
+      // localStorage unavailable (private browsing) — best-effort sweep.
+    }
   },
   startImpersonation: (token, email, context = 'admin') =>
     set({ impersonationToken: token, impersonatedEmail: email, impersonationContext: context }),
