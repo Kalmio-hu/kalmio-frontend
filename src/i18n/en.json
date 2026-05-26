@@ -2138,9 +2138,10 @@
         "2": "Your eating habits",
         "3": "Body data",
         "4": "Calorie target",
-        "5": "Your taste",
-        "6": "How the planner works",
-        "7": "Building your plan…",
+        "5": "Meal distribution",
+        "6": "Your taste",
+        "7": "How the planner works",
+        "8": "Building your plan…",
         "9": "Your first week is ready",
         "10": "Csemete — your first action"
       }
@@ -2340,6 +2341,27 @@
       "saving": "Saving…",
       "skip": "Skip for now",
       "saveError": "Couldn't save your body data. Please try again."
+    },
+    "mealDistribution": {
+      "title": "How do you distribute your calories?",
+      "body": "Tell me which meals carry the most weight. The planner will match recipes to this split.",
+      "meals": {
+        "BREAKFAST": "Breakfast",
+        "MORNING_SNACK": "Morning snack",
+        "LUNCH": "Lunch",
+        "AFTERNOON_SNACK": "Afternoon snack",
+        "DINNER": "Dinner",
+        "EVENING_SNACK": "Evening snack"
+      },
+      "kcalUnit": "kcal",
+      "totalLabel": "Total: {{total}} kcal (daily target: {{budget}} kcal)",
+      "disabledLabel": "skipped",
+      "toggleAriaLabel": "Toggle {{meal}} on or off",
+      "incrementAriaLabel": "Increase {{meal}} — new value: {{value}} kcal",
+      "decrementAriaLabel": "Decrease {{meal}} — new value: {{value}} kcal",
+      "save": "Save and continue",
+      "saving": "Saving…",
+      "skip": "Skip for now"
     }
   },
   "family": {

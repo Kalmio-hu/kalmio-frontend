@@ -2138,9 +2138,10 @@
         "2": "Az étkezési szokásaid",
         "3": "Testadatok",
         "4": "Kalóriacél",
-        "5": "Az ízlésed",
-        "6": "Így működik a tervező",
-        "7": "Étrend összerakása…",
+        "5": "Étkezések elosztása",
+        "6": "Az ízlésed",
+        "7": "Így működik a tervező",
+        "8": "Étrend összerakása…",
         "9": "Az első heted kész",
         "10": "Csemete — az első cselekvés"
       }
@@ -2340,6 +2341,27 @@
       "saving": "Mentés…",
       "skip": "Most kihagyom",
       "saveError": "Nem sikerült menteni a testadatokat. Próbáld újra."
+    },
+    "mealDistribution": {
+      "title": "Hogyan osztod el a kalóriákat?",
+      "body": "Add meg, melyik étkezés mennyibe számít. A tervező pontosan ehhez igazítja a recepteket.",
+      "meals": {
+        "BREAKFAST": "Reggeli",
+        "MORNING_SNACK": "Tízórai",
+        "LUNCH": "Ebéd",
+        "AFTERNOON_SNACK": "Uzsonna",
+        "DINNER": "Vacsora",
+        "EVENING_SNACK": "Esti snack"
+      },
+      "kcalUnit": "kcal",
+      "totalLabel": "Összesen: {{total}} kcal (napi cél: {{budget}} kcal)",
+      "disabledLabel": "kihagyva",
+      "toggleAriaLabel": "{{meal}} be- vagy kikapcsolása",
+      "incrementAriaLabel": "{{meal}} növelése — új érték: {{value}} kcal",
+      "decrementAriaLabel": "{{meal}} csökkentése — új érték: {{value}} kcal",
+      "save": "Mentés és tovább",
+      "saving": "Mentés…",
+      "skip": "Most kihagyom"
     }
   },
   "family": {
