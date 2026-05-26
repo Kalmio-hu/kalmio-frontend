@@ -2215,6 +2215,22 @@
       "sproutCaption": "Csemete — a diófa ébredez.",
       "cta": "Értem"
     },
+    "founderFarewell": {
+      "ariaLabel": "Alapítói üzenet — visszajelzés kérése",
+      "founderRole": "Kalmio alapítója",
+      "title": "Ha van egy perced — örülnék, ha megírnád.",
+      "founderLine": "Az első felhasználók visszajelzése formálja azt, amivé a Kalmio válhat. Ha valami nem stimmel, ha hiányzik valami, vagy ha egyszerűen csak működik — írj. Kíváncsi vagyok.",
+      "founderName": "Zoltán",
+      "cta": "Válaszolj erre az üzenetre",
+      "skip": "Talán később",
+      "formHeading": "Visszajelzés",
+      "formPlaceholder": "Mi működik? Mi hiányzik? Bármi, ami eszedbe jut.",
+      "thankyou": "Köszönöm — megkaptam.",
+      "thankyouBody": "Valóban elolvasom, és visszaírok.",
+      "closeAfterSend": "Bezárom",
+      "viewAllFeedback": "Összes visszajelzésem megtekintése",
+      "feedbackCoachmarkAria": "Visszajelzés küldése — alapítói üzenet vár"
+    },
     "handoff": {
       "preparing": "Összerakom a hetedet.",
       "preparingBody": "A heti terv összeállítása néhány másodpercet vesz igénybe — étkezési szokásaid és preferenciáid alapján dolgozunk.",

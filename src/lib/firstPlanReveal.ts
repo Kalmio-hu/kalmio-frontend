@@ -70,6 +70,28 @@ export function markCsemeteWelcomeShown(): void {
   }
 }
 
+// ─── Founder farewell modal (KALMIO-456) ─────────────────────────────────────
+
+const FOUNDER_FAREWELL_LOCAL_STORAGE_KEY = 'kalmio:founderFarewellShown'
+
+/** Returns true if the founder farewell modal has already been shown to this user. */
+export function hasFounderFarewellBeenShown(): boolean {
+  try {
+    return localStorage.getItem(FOUNDER_FAREWELL_LOCAL_STORAGE_KEY) === 'true'
+  } catch {
+    return false
+  }
+}
+
+/** Marks the founder farewell modal as shown so it is never displayed again. */
+export function markFounderFarewellShown(): void {
+  try {
+    localStorage.setItem(FOUNDER_FAREWELL_LOCAL_STORAGE_KEY, 'true')
+  } catch {
+    // localStorage unavailable (private browsing, storage quota) — fail silently.
+  }
+}
+
 // ─── Premium taster reveal (KALMIO-173) ──────────────────────────────────────
 
 /**

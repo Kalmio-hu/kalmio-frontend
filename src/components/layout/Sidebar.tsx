@@ -12,12 +12,17 @@ import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/servi
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usePoints } from '@/hooks/usePoints'
 import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
+import { hasFounderFarewellBeenShown } from '@/lib/firstPlanReveal'
 
 export function Sidebar() {
   const { t } = useTranslation()
   const signOut = useAuthStore((s) => s.signOut)
   const isAdmin = useAuthStore((s) => s.isAdmin)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+  // KALMIO-456 — tutorial coachmark: pulse the feedback icon until the founder
+  // farewell modal has been shown (i.e. until the user has visited the plan view
+  // and navigated away for the first time).
+  const showFeedbackCoachmark = !hasFounderFarewellBeenShown()
   const { data: points } = usePoints()
 
   const { data: unreadCount = 0 } = useQuery({
@@ -158,10 +163,17 @@ export function Sidebar() {
           <div className="flex items-center gap-1 shrink-0">
             {/* Admin popup — only visible to admins (KALMIO-304) */}
             <AdminPopupMenu variant="sidebar" />
+            {/* KALMIO-456: coachmark pulse ring until founder farewell has fired */}
             <button
               onClick={() => setFeedbackOpen(true)}
               title={t('feedback.buttonTitle')}
-              className="relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              aria-label={showFeedbackCoachmark
+                ? t('onboarding.founderFarewell.feedbackCoachmarkAria', { defaultValue: t('feedback.buttonTitle') })
+                : t('feedback.buttonTitle')}
+              className={cn(
+                'relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors',
+                showFeedbackCoachmark && 'ring-2 ring-[#4F7942]/60 ring-offset-1 ring-offset-[#1A1A1A] animate-pulse'
+              )}
             >
               <MessageSquarePlus className="h-4 w-4" />
               {unreadCount > 0 && (

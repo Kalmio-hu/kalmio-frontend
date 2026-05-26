@@ -14,7 +14,9 @@
  * - useMutation → planTemplateService.copy / archive / refreshSnapshot
  */
 import { useState, useRef, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate, Link, useBlocker } from 'react-router-dom'
+import { FounderFarewellModal } from '@/components/onboarding/FounderFarewellModal'
+import { hasFounderFarewellBeenShown, markFounderFarewellShown } from '@/lib/firstPlanReveal'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { ChevronLeft, MoreHorizontal, Check, Plus, Pause, Play, Square, Pencil, Zap, CalendarPlus } from 'lucide-react'
@@ -129,6 +131,12 @@ export function PlanDetail() {
   // True while a prep-slot chip is being dragged (drives PrepLaneRow styling).
   const [isPrepSlotDragging, setIsPrepSlotDragging] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // KALMIO-456 — Founder farewell modal: shown once when navigating away from
+  // the plan view after the plan has been loaded (first plan viewed).
+  // farewellDismissed is a session guard so the blocker cannot re-trigger
+  // after the user closes the modal.
+  const [farewellDismissed, setFarewellDismissed] = useState(false)
 
   // ── Data fetching ────────────────────────────────────────────────────────
 
@@ -733,6 +741,21 @@ export function PlanDetail() {
     }
     clearMutation.mutate(activeCell.existing.id)
   }
+
+  // KALMIO-456 — Founder farewell departure trigger.
+  // useBlocker fires when navigation is attempted away from this page while
+  // the plan has been loaded and the modal hasn't yet been shown/dismissed.
+  const blocker = useBlocker(({ currentLocation, nextLocation }) => {
+    return (
+      currentLocation.pathname !== nextLocation.pathname &&
+      !farewellDismissed &&
+      !hasFounderFarewellBeenShown() &&
+      !!plan
+    )
+  })
+
+  // farewellVisible is derived from blocker state — no separate state needed.
+  const farewellVisible = blocker.state === 'blocked'
 
   // KALMIO-354 — focus the input when entering edit mode
   useEffect(() => {
@@ -1556,6 +1579,19 @@ export function PlanDetail() {
         </DialogContent>
       </Dialog>
         </div>
+      )}
+
+      {/* KALMIO-456 — Founder farewell modal: shown when blocker intercepts a
+          navigation-away event. blocker.proceed() resumes the blocked navigation
+          once the user dismisses (or submits feedback and closes). */}
+      {farewellVisible && (
+        <FounderFarewellModal
+          onDismiss={() => {
+            markFounderFarewellShown()
+            setFarewellDismissed(true)
+            blocker.proceed()
+          }}
+        />
       )}
     </div>
   )

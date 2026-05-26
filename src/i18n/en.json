@@ -2215,6 +2215,22 @@
       "sproutCaption": "Csemete — the walnut tree stirs.",
       "cta": "Got it"
     },
+    "founderFarewell": {
+      "ariaLabel": "Founder's message — requesting your feedback",
+      "founderRole": "Kalmio founder",
+      "title": "If you have a moment — I would love to hear from you.",
+      "founderLine": "Early users shape what Kalmio can become. If something is off, something is missing, or something simply works — write to me. I am genuinely curious.",
+      "founderName": "Zoltán",
+      "cta": "Reply to this message",
+      "skip": "Maybe later",
+      "formHeading": "Feedback",
+      "formPlaceholder": "What works? What is missing? Anything that comes to mind.",
+      "thankyou": "Thank you — received.",
+      "thankyouBody": "I read every message and I will reply.",
+      "closeAfterSend": "Close",
+      "viewAllFeedback": "View all my feedback",
+      "feedbackCoachmarkAria": "Send feedback — founder's message waiting"
+    },
     "handoff": {
       "preparing": "Putting your week together.",
       "preparingBody": "Your weekly plan is being assembled — this takes a few seconds, based on your habits and preferences.",
