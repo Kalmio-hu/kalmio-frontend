@@ -499,11 +499,22 @@ export function OnboardingShell() {
 
       {/* ---- Content column ---- */}
       <div className="flex-1 flex flex-col min-h-screen md:min-h-0">
-        {/* ---- Header row: progress bar + skip link ---- */}
+        {/* ---- Header row: progress bar + chat toggle + skip link ---- */}
         <header className="flex items-center justify-between px-4 pt-4 md:px-8 md:pt-6">
           <div className="flex-1">
             <OnboardingProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
           </div>
+
+          {/* Chat toggle: visible through steps 1–3 so a user partway through
+              the form can still switch modes before investing real effort. */}
+          {currentStep <= 3 && (
+            <Link
+              to="/app/onboarding/conversational"
+              className="ml-4 shrink-0 text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
+            >
+              {t('onboarding.shell.welcome.chatToggle')}
+            </Link>
+          )}
 
           {/* Skip link: visible from step 2 onward */}
           {currentStep >= 2 && (

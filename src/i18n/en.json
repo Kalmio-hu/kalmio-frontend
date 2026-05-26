@@ -2088,10 +2088,10 @@
       "progressAriaLabel": "Step {{current}} of {{total}}",
       "progressSrText": "Step {{current}} of {{total}}",
       "skip": "Skip for now",
-      "skipAriaLabel": "Skip the guided setup — you can complete it any time from your Profile",
+      "skipAriaLabel": "Skip the guided setup — we will start from defaults",
       "skipConfirm": {
         "title": "Are you sure you want to skip?",
-        "body": "You can finish this in your Profile any time. We will start building your plan with what we have so far.",
+        "body": "We will start from defaults. You can fine-tune your preferences any time from Profile — I will ask again for anything that is still missing the next time you plan.",
         "confirm": "Yes, skip it",
         "cancel": "Continue setup"
       },
@@ -2271,9 +2271,6 @@
       "confirmTitle": "Check your details",
       "confirmCta": "These look right",
       "confirming": "Saving…",
-      "premiumOnly": "The conversational set-up is a premium feature. Founding Members have immediate access.",
-      "premiumLearnMore": "About Founding Membership",
-      "rateLimited": "You have reached your conversational set-up limit for this month. Try again next month or use the form instead.",
       "errorTurn": "Could not process your message. Please try again.",
       "errorFinalize": "Could not save your preferences. Please try again.",
       "confirm": {
@@ -2282,6 +2279,12 @@
         "shoppingCadence": "Shopping frequency (days)",
         "shoppingDay": "Usual shopping day",
         "dietaryRestrictions": "Dietary restrictions"
+      },
+      "exitConfirm": {
+        "title": "Leave the conversation?",
+        "body": "What you have shared so far will be lost. The form starts from scratch.",
+        "confirm": "Yes, take me to the form",
+        "cancel": "Stay here"
       }
     },
     "bodyDataHint": {

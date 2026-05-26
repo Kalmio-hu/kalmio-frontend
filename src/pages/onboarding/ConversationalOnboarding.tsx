@@ -22,8 +22,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import { useAuthStore } from '@/store/auth'
+import { USERS_ME_QUERY_KEY } from '@/services/users'
+import { writeOnboardingDone, clearOnboardingStep } from '@/hooks/useOnboardingProgress'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 // ── Inline conversational onboarding service (KALMIO-394: backends restored, USE_STUB flipped to false)
 // Backend endpoints: POST /api/onboarding/conversational/turn + /finalize (free for all users).
@@ -246,6 +258,8 @@ function ConfirmCard({ draft, onChange, onConfirm, confirming }: ConfirmCardProp
 export function ConversationalOnboarding() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const userId = useAuthStore((s) => s.user?.id ?? '')
 
   const [messages, setMessages] = useState<ChatTurn[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -253,8 +267,7 @@ export function ConversationalOnboarding() {
   const [draft, setDraft] = useState<PreferencesDraft | null>(null)
   const [ready, setReady] = useState(false)
   const [errorKey, setErrorKey] = useState<string | null>(null)
-  const [isPremiumBlocked, setIsPremiumBlocked] = useState(false)
-  const [isRateLimited, setIsRateLimited] = useState(false)
+  const [exitConfirmOpen, setExitConfirmOpen] = useState(false)
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -285,11 +298,6 @@ export function ConversationalOnboarding() {
       if (status === 409) {
         // Already completed — redirect to the plans list (D-FE07 qa-2026-05-26)
         navigate('/app/plans', { replace: true })
-      } else if (status === 402) {
-        // Legacy: backend no longer sends 402, but handle gracefully
-        setIsPremiumBlocked(true)
-      } else if (status === 429) {
-        setIsRateLimited(true)
       } else {
         setErrorKey('onboarding.conversational.errorTurn')
       }
@@ -307,8 +315,19 @@ export function ConversationalOnboarding() {
       })
     },
     onSuccess: () => {
-      // D-FE07 (qa-2026-05-26): route to plans list, not /app (dashboard index)
-      navigate('/app/plans', { replace: true })
+      // Mark onboarding done locally so OnboardingGate does not bounce the user
+      // back to /app/onboarding while users/me is still in its 30s stale window.
+      if (userId) {
+        writeOnboardingDone(userId)
+        clearOnboardingStep(userId)
+      }
+      // Invalidate users/me so any caller (gate, plans page) re-fetches the
+      // freshly persisted mealPlanPreferences.
+      void queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
+      // ?fresh=1 triggers Plans.tsx auto-solver so the user actually lands on
+      // a generated week rather than an empty plan-template list (parity with
+      // the click-through onboarding handoff).
+      navigate('/app/plans?fresh=1', { replace: true })
     },
     onError: () => {
       setErrorKey('onboarding.conversational.errorFinalize')
@@ -352,47 +371,27 @@ export function ConversationalOnboarding() {
     if (draft) finalizeMutation.mutate(draft)
   }, [draft, finalizeMutation])
 
+  // ── Switch-back handler with confirmation guard ────────────────────────
+  // Tapping "Vissza az űrlaphoz" once the user has actually said something
+  // would throw the whole conversation away with no warning. Guard it with
+  // a confirm dialog from the second turn onward; first turn (assistant
+  // greeting only) needs no confirmation.
+  const hasUserContent = messages.some((m) => m.role === 'user')
+
+  const handleSwitchBackRequest = useCallback(() => {
+    if (hasUserContent && !ready) {
+      setExitConfirmOpen(true)
+    } else {
+      navigate('/app/onboarding')
+    }
+  }, [hasUserContent, ready, navigate])
+
+  const handleSwitchBackConfirm = useCallback(() => {
+    setExitConfirmOpen(false)
+    navigate('/app/onboarding')
+  }, [navigate])
+
   // ── Render ─────────────────────────────────────────────────────────────
-
-  if (isPremiumBlocked) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F9F7F2] px-6 text-center gap-4">
-        <p className="text-base text-[#1A1A1A] max-w-xs leading-relaxed">
-          {t('onboarding.conversational.premiumOnly')}
-        </p>
-        <a
-          href="/app/founding-member"
-          className="text-sm text-[#F28C28] underline underline-offset-2 hover:text-[#d97a20]"
-        >
-          {t('onboarding.conversational.premiumLearnMore')}
-        </a>
-        <button
-          type="button"
-          onClick={() => navigate('/app/onboarding')}
-          className="text-sm text-[#6B6460] underline underline-offset-2 hover:text-[#1A1A1A]"
-        >
-          {t('onboarding.conversational.switchBack')}
-        </button>
-      </div>
-    )
-  }
-
-  if (isRateLimited) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-[#F9F7F2] px-6 text-center gap-4">
-        <p className="text-base text-[#1A1A1A] max-w-xs leading-relaxed">
-          {t('onboarding.conversational.rateLimited')}
-        </p>
-        <button
-          type="button"
-          onClick={() => navigate('/app/onboarding')}
-          className="text-sm text-[#6B6460] underline underline-offset-2 hover:text-[#1A1A1A]"
-        >
-          {t('onboarding.conversational.switchBack')}
-        </button>
-      </div>
-    )
-  }
 
   return (
     <div
@@ -407,7 +406,7 @@ export function ConversationalOnboarding() {
           </h1>
           <button
             type="button"
-            onClick={() => navigate('/app/onboarding')}
+            onClick={handleSwitchBackRequest}
             className="text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
           >
             {t('onboarding.conversational.switchBack')}
@@ -491,6 +490,36 @@ export function ConversationalOnboarding() {
           </div>
         </div>
       )}
+
+      {/* ---- Exit-confirm dialog: avoid throwing away the conversation ---- */}
+      <Dialog open={exitConfirmOpen} onOpenChange={setExitConfirmOpen}>
+        <DialogContent className="max-w-sm" aria-describedby="conv-exit-desc">
+          <DialogHeader>
+            <DialogTitle>
+              {t('onboarding.conversational.exitConfirm.title')}
+            </DialogTitle>
+            <DialogDescription id="conv-exit-desc">
+              {t('onboarding.conversational.exitConfirm.body')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-3 mt-4">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleSwitchBackConfirm}
+              className="w-full"
+            >
+              {t('onboarding.conversational.exitConfirm.confirm')}
+            </Button>
+            <DialogClose asChild>
+              <Button variant="ghost" size="md" className="w-full">
+                {t('onboarding.conversational.exitConfirm.cancel')}
+              </Button>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

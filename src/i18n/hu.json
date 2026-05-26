@@ -2088,10 +2088,10 @@
       "progressAriaLabel": "{{current}}. lépés a {{total}}-ből",
       "progressSrText": "{{current}}. lépés, összesen {{total}} lépésből",
       "skip": "Kihagyom most",
-      "skipAriaLabel": "Az ismerkedés kihagyása — a Profilban bármikor folytathatod",
+      "skipAriaLabel": "Az ismerkedés kihagyása — az alapbeállításokkal indítunk",
       "skipConfirm": {
         "title": "Biztos kihagyod?",
-        "body": "Pár perc múlva itt is befejezheted a Profilban. Addig is elindítjuk az étrendedet azzal, amit már megkaptunk.",
+        "body": "Az alapbeállításokkal indítunk. A részletes preferenciákat bármikor finomíthatod a Profil oldalon — a hiányzó mezőket a következő tervezésnél újra megkérdezem.",
         "confirm": "Igen, kihagyom",
         "cancel": "Inkább folytatom"
       },
@@ -2271,9 +2271,6 @@
       "confirmTitle": "Ellenőrizd az adataidat",
       "confirmCta": "Ezekkel dolgozzunk",
       "confirming": "Mentés…",
-      "premiumOnly": "A csevegéses beállítás prémium funkció. Az Alapító Tagok azonnal hozzáférnek.",
-      "premiumLearnMore": "Bővebben az Alapító Tagságról",
-      "rateLimited": "Erre a hónapra elérted a csevegéses beállítások korlátját. Próbáld újra jövő hónapban, vagy használd az űrlapos beállítást.",
       "errorTurn": "Nem sikerült feldolgozni az üzenetet. Próbáld újra.",
       "errorFinalize": "Nem sikerült menteni a beállításokat. Próbáld újra.",
       "confirm": {
@@ -2282,6 +2279,12 @@
         "shoppingCadence": "Bevásárlás gyakorisága (nap)",
         "shoppingDay": "Szokásos bevásárlónap",
         "dietaryRestrictions": "Étrendi megszorítások"
+      },
+      "exitConfirm": {
+        "title": "Elhagyod a beszélgetést?",
+        "body": "Amit eddig elmondtál, elveszik. Az űrlapon nulláról kezded.",
+        "confirm": "Igen, az űrlapot választom",
+        "cancel": "Maradok"
       }
     },
     "bodyDataHint": {
