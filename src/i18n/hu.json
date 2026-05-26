@@ -1700,7 +1700,7 @@
         "splitSuccess": "Új előkészítés hozzáadva",
         "freezeSuggestion": {
           "title": "Fagyaszd be",
-          "body": "{{dayGap}} nappal több, mint a hűtő tárolja, de fagyasztva {{freezerWindow}} napig eláll."
+          "body": "{{dayGap}} nappal több a hűtős eltarthatóságnál — fagyasztva {{freezerWindow}} napig eláll."
         }
       }
     },
@@ -2761,7 +2761,7 @@
         "splitSuccess": "Új előkészítés hozzáadva",
         "freezeSuggestion": {
           "title": "Fagyaszd be",
-          "body": "{{dayGap}} nappal több, mint a hűtő tárolja, de fagyasztva {{freezerWindow}} napig eláll."
+          "body": "{{dayGap}} nappal több a hűtős eltarthatóságnál — fagyasztva {{freezerWindow}} napig eláll."
         }
       }
     }

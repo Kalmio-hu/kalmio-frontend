@@ -32,7 +32,7 @@ import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { todayIsoLocal } from '@/lib/utils'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
-import type { DashboardDto, MaterializedPlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
+import type { DashboardDto, MaterializedPlannedMeal, PlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -1096,6 +1096,12 @@ interface DailyTimelineProps {
    * rendered alongside for backward compatibility until KALMIO-249 is fully live.
    */
   plannedMeals?: MaterializedPlannedMeal[]
+  /**
+   * All meals across the full active plan (every day, not just today).
+   * Used to build human-readable day · meal-type labels for batch-prep
+   * portion breakdown when feedsPlannedMealIds references meals outside today.
+   */
+  allPlanMeals?: PlannedMeal[]
 }
 
 interface PendingFeedback {
@@ -1110,7 +1116,7 @@ interface PendingFeedback {
   label: string
 }
 
-export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals }: DailyTimelineProps) {
+export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals, allPlanMeals }: DailyTimelineProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -1449,8 +1455,6 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
 
   const mealDayLabels = useMemo((): Record<string, string> => {
     // Build a map from mealId → short day+slot label.
-    // For today's meals we use the meal type label; cross-day meals would need
-    // enrichment from the plan endpoint. This is a best-effort display.
     const labels: Record<string, string> = {}
     const meals = (plannedMeals && plannedMeals.length > 0) ? plannedMeals : []
     const legacy = dashboard?.todaysMeals ?? []
@@ -1461,8 +1465,20 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     legacy.forEach(m => {
       if (m.mealId) labels[m.mealId] = m.mealType ?? m.mealId
     })
+
+    // Cross-day meals from the full plan — covers the case where
+    // feedsPlannedMealIds references meals from days other than today
+    // (batch-prep portion breakdown). We don't overwrite today's labels since
+    // those are already set above and may carry richer context.
+    allPlanMeals?.forEach(pm => {
+      if (!pm.id || labels[pm.id]) return
+      const dayName = new Date(pm.date).toLocaleDateString(i18n.language, { weekday: 'short' })
+      const mealTypeName = t(`plan.mealTypes.${pm.mealType}`, { defaultValue: pm.mealType })
+      labels[pm.id] = `${dayName} · ${mealTypeName}`
+    })
+
     return labels
-  }, [plannedMeals, dashboard])
+  }, [plannedMeals, dashboard, allPlanMeals, t, i18n.language])
 
   const { portionBreakdownByMealId, leftoverSourceMealIdByMealId } = useMemo(() => {
     const breakdown: Record<string, PortionBreakdownData> = {}

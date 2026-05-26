@@ -364,6 +364,7 @@ export function Dashboard() {
             hasShoppingDay={selectedDayData?.hasShoppingDay ?? false}
             activePlanId={activePlan?.id ?? null}
             plannedMeals={selectedDate === today ? todayPlannedMeals : undefined}
+            allPlanMeals={activePlan?.meals}
           />
 
           {/* Supplementary modules below the timeline */}
