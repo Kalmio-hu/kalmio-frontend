@@ -1,5 +1,5 @@
 /**
- * OnboardingShell — KALMIO-167 / KALMIO-241 / KALMIO-393
+ * OnboardingShell — KALMIO-167 / KALMIO-241 / KALMIO-393 / KALMIO-436
  *
  * Multi-step onboarding container.  Owns:
  *   1. A 7-step progress indicator (OnboardingProgressBar, top of screen).
@@ -12,26 +12,31 @@
  * between Welcome (step 1) and TDEE (now step 3).  Full flow:
  *   1. Welcome
  *   2. Preferences (household, kcal, dietary, shopping cadence/day, forbidden)
- *   3. TDEE suggestion
- *   4. App orientation (MiniTutorialPlanner)
- *   5. Plan generation loading
- *   6. First plan reveal
- *   7. Csemete moment
+ *   3. Body data
+ *   4. TDEE suggestion
+ *   5. TasteSwipe
+ *   6. App orientation (MiniTutorialPlanner)
+ *   7. Plan generation loading → redirect to /app/plans?fresh=1
+ *
+ * KALMIO-436: Steps 8 (FirstPlanReveal) and 9 (CsemeteWelcomeMoment) removed
+ * from the shell flow. On completion of step 7, the user is redirected directly
+ * to /app/plans?fresh=1, which auto-triggers plan generation. The Csemete
+ * welcome moment is shown later by AppShell's useCsemeteWelcomeMoment hook
+ * once the MAG → CSEMETE stage transition has occurred.
  *
  * Post-completion redirect:
- *   - Body data incomplete (weightKg or heightCm null) → /app/profile?section=body-data
- *   - Otherwise → /app/dashboard
+ *   - Always → /app/plans?fresh=1
  *
  * Route: /app/onboarding  (ProtectedRoute, no AppShell chrome — full-screen)
  *
  * Step → PlantingScene mapping (shell is 1-indexed; PlantingScene is 0-indexed):
  *   Shell step 1  → PlantingScene 0  — Welcome (hand above soil)
  *   Shell step 2  → PlantingScene 2  — Preferences (walnut in the hole — we have the data)
- *   Shell step 3  → PlantingScene 0  — TDEE (no scene change — informational)
- *   Shell step 4  → PlantingScene 6  — Orientation (scene fast-forwards: hole, walnut, cover, mound, stake, swipe details)
- *   Shell step 5  → PlantingScene 7  — Plan generation (watering can)
- *   Shell step 6  → PlantingScene 8  — First plan reveal (moist soil)
- *   Shell step 7  → PlantingScene 10 — Csemete (sprout)
+ *   Shell step 3  → PlantingScene 3  — Body data
+ *   Shell step 4  → PlantingScene 4  — TDEE suggestion
+ *   Shell step 5  → PlantingScene 5  — TasteSwipe
+ *   Shell step 6  → PlantingScene 6  — Orientation
+ *   Shell step 7  → PlantingScene 7  — Plan generation (watering can)
  */
 
 import { useCallback, useEffect, useState } from 'react'
@@ -43,8 +48,6 @@ import { OnboardingProgressBar } from '@/components/onboarding/OnboardingProgres
 import { SkipConfirmModal } from '@/components/onboarding/SkipConfirmModal'
 import { PlantingScene, type PlantingStep } from '@/components/onboarding/PlantingScene'
 import { MiniTutorialPlanner } from '@/components/onboarding/MiniTutorialPlanner'
-import { FirstPlanReveal } from '@/components/onboarding/FirstPlanReveal'
-import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMoment'
 import { TdeeSuggestionBanner } from '@/components/shared/TdeeSuggestionBanner'
 import { PreferencesStep, type PreferencesStepValues } from '@/components/onboarding/PreferencesStep'
 import { BodyDataStep, type BodyDataStepValues } from '@/components/onboarding/BodyDataStep'
@@ -72,11 +75,13 @@ import {
  * Step 4 — TDEE suggestion (reads suggestedKcalTarget from user settings)
  * Step 5 — TasteSwipe (Tinder-style swipe over 20 ingredient/recipe cards)
  * Step 6 — App orientation (MiniTutorialPlanner)
- * Step 7 — Plan generation loading
- * Step 8 — First plan reveal
- * Step 9 — Csemete moment
+ * Step 7 — Plan generation loading → redirect to /app/plans?fresh=1
+ *
+ * KALMIO-436: Steps 8 (FirstPlanReveal) and 9 (CsemeteWelcomeMoment) are
+ * no longer part of the shell flow. Plan generation and the welcome moment
+ * happen on the Plans page after redirect.
  */
-const TOTAL_STEPS = 9
+const TOTAL_STEPS = 7
 
 /**
  * Maps the 1-indexed shell step to the PlantingScene 0-indexed step (0..10).
@@ -91,8 +96,6 @@ const SHELL_TO_PLANTING: Record<number, PlantingStep> = {
   5: 5,
   6: 6,
   7: 7,
-  8: 8,
-  9: 10,
 }
 
 /**
@@ -108,8 +111,6 @@ const SHELL_TO_NARRATIVE: Record<number, number | null> = {
   5: 4,
   6: 5,
   7: 6,
-  8: null,
-  9: null,
 }
 
 // ---------------------------------------------------------------------------
@@ -382,13 +383,10 @@ export function OnboardingShell() {
         writeOnboardingDone(userId)
         clearOnboardingStep(userId)
       }
-      // Body data is now captured in-flow at step 3 (with a skip path), so we
-      // always land the user on the plans list. The old KALMIO-241 fallback
-      // bounced skippers to /app/profile, but that broke the "your week is
-      // ready" moment for users who legitimately chose not to share.
-      // D-FE07 (qa-2026-05-26): /app/dashboard does not exist as a route; the
-      // catch-all was silently redirecting users back to "/" (marketing page).
-      navigate('/app/plans', { replace: true })
+      // KALMIO-436: redirect directly to /app/plans?fresh=1 so the Plans page
+      // can auto-trigger plan generation. The post-induction "kicsírázott" /
+      // founder screens are no longer shown inside the onboarding shell.
+      navigate('/app/plans?fresh=1', { replace: true })
       return
     }
     goToStep(currentStep + 1)
@@ -412,18 +410,14 @@ export function OnboardingShell() {
       data-testid="onboarding-shell"
     >
       {/* ---- Desktop-only illustration column (md+) ---- */}
-      {/* Hidden on steps 8–9 where FirstPlanReveal / CsemeteWelcomeMoment
-          have their own full-bleed visuals. */}
       <aside
         className="hidden md:flex md:w-[45%] lg:w-[40%] md:flex-col md:items-center md:justify-center bg-[#F5EDD8] p-8 lg:p-12"
-        aria-hidden={currentStep > 7}
+        aria-hidden="false"
       >
-        {currentStep <= 7 && (
-          <div className="flex flex-col items-center gap-10 w-full max-w-xl">
-            <NarrativeBlock step={currentStep} />
-            <PlantingScene step={plantingStep} className="w-full" />
-          </div>
-        )}
+        <div className="flex flex-col items-center gap-10 w-full max-w-xl">
+          <NarrativeBlock step={currentStep} />
+          <PlantingScene step={plantingStep} className="w-full" />
+        </div>
       </aside>
 
       {/* ---- Content column ---- */}
@@ -448,11 +442,9 @@ export function OnboardingShell() {
         </header>
 
         {/* ---- Mobile-only planting scene (hidden on md+) ---- */}
-        {currentStep <= 7 && (
-          <div className="md:hidden px-4 pt-4">
-            <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
-          </div>
-        )}
+        <div className="md:hidden px-4 pt-4">
+          <PlantingScene step={plantingStep} className="max-w-xs mx-auto" />
+        </div>
 
         {/* ---- Step content area ---- */}
         <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full md:justify-center">
@@ -630,15 +622,6 @@ export function OnboardingShell() {
           </>
         )}
 
-        {/* Step 8: First plan reveal */}
-        {currentStep === 8 && (
-          <FirstPlanReveal onDismiss={goNext} />
-        )}
-
-        {/* Step 9: Csemete moment */}
-        {currentStep === 9 && (
-          <CsemeteWelcomeMoment onDismiss={goNext} />
-        )}
         </main>
       </div>
 

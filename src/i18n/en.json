@@ -2195,6 +2195,10 @@
       "sproutCaption": "Csemete — the walnut tree stirs.",
       "cta": "Got it"
     },
+    "handoff": {
+      "preparing": "Putting your week together.",
+      "preparingBody": "Your weekly plan is being assembled — this takes a few seconds, based on your habits and preferences."
+    },
     "graduation": {
       "ariaLabel": "Congratulations — you have reached the Termőfa stage",
       "title": "Your tree has come to fruit.",

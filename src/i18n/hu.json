@@ -2195,6 +2195,10 @@
       "sproutCaption": "Csemete — a diófa ébredez.",
       "cta": "Értem"
     },
+    "handoff": {
+      "preparing": "Összerakom a hetedet.",
+      "preparingBody": "A heti terv összeállítása néhány másodpercet vesz igénybe — étkezési szokásaid és preferenciáid alapján dolgozunk."
+    },
     "graduation": {
       "ariaLabel": "Gratulálunk — elérted a Termőfa szintet",
       "title": "Termőre fordult.",

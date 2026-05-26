@@ -11,13 +11,18 @@
  * Updated for KALMIO-309: cards expose a primary "Run this plan" CTA that opens
  * RunPlanDialog. Empty templates show "Fill with planner" instead.
  *
+ * KALMIO-436: When the page receives ?fresh=1 (redirected from the onboarding
+ * shell completion path), the default plan is auto-solved if it has no
+ * template meals yet. A "Készítem a tervet…" banner is shown during the solve.
+ * The query param is cleared from the URL once the solve completes.
+ *
  * Query: ['plan-templates'] → planTemplateService.list()
  * Mutations: copy → invalidate list, archive → invalidate list.
  */
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/button'
@@ -35,6 +40,7 @@ export function Plans() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [searchParams] = useSearchParams()
 
   const [filter, setFilter] = useState<ListFilter>('all')
   const [runPlanTarget, setRunPlanTarget] = useState<PlanTemplate | null>(null)
@@ -52,6 +58,52 @@ export function Plans() {
     staleTime: 30_000,
     retry: 1,
   })
+
+  // ── KALMIO-436: Auto-solve on fresh=1 landing ──────────────────────────────
+  // When the user arrives from the onboarding shell with ?fresh=1, find the
+  // default plan and trigger the solver if it has no template meals yet.
+  // We guard with a ref so the mutation fires at most once per page visit even
+  // if the component re-renders while the solve is in flight.
+
+  const autoSolveTriggered = useRef(false)
+
+  const solveMutation = useMutation({
+    mutationFn: (planId: string) => planTemplateService.solve(planId, 'ALL'),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['plan-templates'] })
+      // Remove the ?fresh=1 param so a hard refresh doesn't re-trigger the solve.
+      navigate('/app/plans', { replace: true })
+    },
+    onError: () => {
+      // Fail silently — the user can still see the empty plan and fill it manually.
+      navigate('/app/plans', { replace: true })
+    },
+  })
+
+  const isFreshLanding = searchParams.get('fresh') === '1'
+
+  useEffect(() => {
+    if (
+      !isFreshLanding ||
+      autoSolveTriggered.current ||
+      isLoading ||
+      solveMutation.isPending
+    ) return
+
+    // Find the default plan with no meals assigned yet.
+    const defaultPlan = plans.find(p => p.isDefault)
+    if (!defaultPlan) return
+
+    const isEmpty = defaultPlan.templateMeals.length === 0
+    if (!isEmpty) {
+      // Plan already has meals — redirect without solving.
+      navigate('/app/plans', { replace: true })
+      return
+    }
+
+    autoSolveTriggered.current = true
+    solveMutation.mutate(defaultPlan.id)
+  }, [isFreshLanding, isLoading, plans, solveMutation, navigate])
 
   const { data: me } = useQuery({
     queryKey: USERS_ME_QUERY_KEY,
@@ -163,15 +215,33 @@ export function Plans() {
         ))}
       </div>
 
+      {/* KALMIO-436: Auto-generation banner — shown while the solver runs post-induction */}
+      {solveMutation.isPending && (
+        <div
+          className="flex flex-col items-center gap-3 py-10 text-center"
+          aria-live="polite"
+          aria-busy="true"
+          data-testid="auto-solve-banner"
+        >
+          <div className="w-9 h-9 rounded-full border-2 border-[#F28C28] border-t-transparent animate-spin" aria-hidden="true" />
+          <p className="text-sm font-semibold text-[#1A1A1A]">
+            {t('onboarding.handoff.preparing')}
+          </p>
+          <p className="text-xs text-[#6B6460] max-w-xs leading-relaxed">
+            {t('onboarding.handoff.preparingBody')}
+          </p>
+        </div>
+      )}
+
       {/* Skeleton / loading */}
-      {isLoading && (
+      {isLoading && !solveMutation.isPending && (
         <div className="flex justify-center py-10" aria-live="polite" aria-busy="true">
           <Spinner />
         </div>
       )}
 
       {/* Error state */}
-      {isError && (
+      {isError && !solveMutation.isPending && (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
           <p className="text-sm text-red-600">{t('common.errorGeneric')}</p>
           <button
@@ -185,7 +255,7 @@ export function Plans() {
       )}
 
       {/* Empty state — should never appear (A7 seeds the default plan) */}
-      {!isLoading && !isError && filtered.length === 0 && (
+      {!isLoading && !isError && !solveMutation.isPending && filtered.length === 0 && (
         <div className="flex flex-col items-center gap-4 py-12 text-center">
           <p className="text-[#6b7280] text-sm">{t('plan.list.empty')}</p>
           <Button onClick={() => navigate('/app/plans/new')} size="sm">
@@ -195,7 +265,7 @@ export function Plans() {
       )}
 
       {/* Plan list */}
-      {!isLoading && !isError && filtered.length > 0 && (
+      {!isLoading && !isError && !solveMutation.isPending && filtered.length > 0 && (
         <div className="flex flex-col gap-3">
           {filtered.map(plan => (
             <PlanTemplateCard
