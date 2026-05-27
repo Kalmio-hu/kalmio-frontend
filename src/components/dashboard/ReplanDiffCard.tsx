@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/card'
 import { toast } from '@/components/ui/toast'
 import { planService } from '@/services/plans'
+import { recipesService } from '@/services/recipes'
 import { capture } from '@/lib/analytics'
 import { todayIsoLocal } from '@/lib/utils'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 
 interface Props {
   planId: string
@@ -25,6 +27,15 @@ export function ReplanDiffCard({ planId, onAccept, onDecline }: Props) {
     queryFn: () => planService.getReplanDiff(planId),
     staleTime: 60_000,
   })
+
+  // Recipes catalogue for family lookup on each change row.
+  const { data: allRecipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: recipesService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: !!diff && (diff.changes?.length ?? 0) > 0,
+  })
+  const recipesById = new Map(allRecipes.map(r => [r.id, r]))
 
   const acceptMutation = useMutation({
     mutationFn: () => planService.acceptReplan(planId, diff!.diffId),
@@ -78,13 +89,45 @@ export function ReplanDiffCard({ planId, onAccept, onDecline }: Props) {
             </button>
 
             {showDetails && (
-              <ul className="mt-2 space-y-1">
-                {diff.changes.map((change) => (
-                  <li key={change.mealId} className="text-xs text-gray-600">
-                    {change.date} {change.mealType}: {change.oldRecipeName}{' '}
-                    &rarr; {change.newRecipeName}
-                  </li>
-                ))}
+              <ul className="mt-2 space-y-2">
+                {diff.changes.map((change) => {
+                  const oldRecipe = recipesById.get(change.oldRecipeId)
+                  const newRecipe = recipesById.get(change.newRecipeId)
+                  const sameFamily =
+                    oldRecipe?.familyId && newRecipe?.familyId
+                      && oldRecipe.familyId === newRecipe.familyId
+                  return (
+                    <li key={change.mealId} className="text-xs text-gray-600">
+                      <div>{change.date} {change.mealType}:</div>
+                      <div className="flex items-center gap-1.5 flex-wrap mt-0.5">
+                        <span>{change.oldRecipeName}</span>
+                        {oldRecipe?.familyId && (
+                          <RecipeFamilyHint
+                            familyId={oldRecipe.familyId}
+                            variantLabel={oldRecipe.variantLabel}
+                            dietTier={oldRecipe.dietTier}
+                            noTierBadge
+                          />
+                        )}
+                        <span aria-hidden>&rarr;</span>
+                        <span>{change.newRecipeName}</span>
+                        {newRecipe?.familyId && (
+                          <RecipeFamilyHint
+                            familyId={newRecipe.familyId}
+                            variantLabel={newRecipe.variantLabel}
+                            dietTier={newRecipe.dietTier}
+                            noTierBadge
+                          />
+                        )}
+                        {sameFamily && (
+                          <span className="text-[10px] font-semibold text-[#4F7942] bg-[#4F7942]/10 px-1.5 py-0.5 rounded-full">
+                            {t('dashboard.replan.sameFamily')}
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </div>

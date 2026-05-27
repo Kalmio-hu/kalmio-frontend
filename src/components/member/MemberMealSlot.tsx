@@ -10,8 +10,11 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
 import { CheckCircle, MoreHorizontal, Sparkles, Utensils } from 'lucide-react'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
+import { recipesService } from '@/services/recipes'
 import type { MealType, PlannedMealStatus } from '@/types'
 
 export interface MemberMealSlotProps {
@@ -69,6 +72,16 @@ export function MemberMealSlot({
   const [menuOpen, setMenuOpen] = useState(false)
   const [rationaleOpen, setRationaleOpen] = useState(false)
 
+  // Family info for the recipe — important for diet-restricted members to
+  // see what variant is on their plate without opening the recipe detail.
+  const { data: allRecipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: recipesService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: !!recipeId,
+  })
+  const recipe = recipeId ? allRecipes.find(r => r.id === recipeId) : undefined
+
   const mealLabel = t(`plan.mealTypes.${mealType}`, mealType)
   const isSettled = status === 'EATEN' || status === 'SKIPPED'
 
@@ -91,6 +104,15 @@ export function MemberMealSlot({
         <p className="text-sm font-semibold text-[#1a1a1a] truncate">
           {recipeName ?? t('member.slot.noRecipe')}
         </p>
+        {recipe?.familyId && (
+          <div className="mt-0.5">
+            <RecipeFamilyHint
+              familyId={recipe.familyId}
+              variantLabel={recipe.variantLabel}
+              dietTier={recipe.dietTier}
+            />
+          </div>
+        )}
         <div className="flex items-center gap-2 mt-0.5 text-xs text-[#6b7280]">
           {portionKcal != null && (
             <span>{portionKcal.toFixed(0)} kcal</span>

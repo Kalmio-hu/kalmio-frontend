@@ -37,6 +37,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { cookModeService } from '@/services/cookMode'
 import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { parseTimerWindow } from '@/lib/parseTimerWindow'
 import { CookTimer } from '@/components/cook/CookTimer'
 import { CookTimerStrip } from '@/components/cook/CookTimerStrip'
@@ -288,6 +289,18 @@ export function CookMode() {
           <p className="text-sm font-semibold text-[#1A1A1A] truncate leading-tight">
             {recipeName}
           </p>
+          {/* Family/variant hint — so the user can verify they're cooking
+              the right variant. Detail dialog handles full variant navigation;
+              here we just show the variant label + tier badge. */}
+          {recipe?.familyId && (
+            <div className="mt-0.5">
+              <RecipeFamilyHint
+                familyId={recipe.familyId}
+                variantLabel={recipe.variantLabel}
+                dietTier={recipe.dietTier}
+              />
+            </div>
+          )}
           <p className="text-[11px] text-[#6b7280] tabular-nums">{stepLabel}</p>
         </div>
         <ChefHat className="h-5 w-5 text-[#F28C28]" aria-hidden />

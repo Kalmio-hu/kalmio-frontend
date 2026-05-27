@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Check } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { prepTaskService } from '@/services/dashboard'
+import { recipesService } from '@/services/recipes'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import type { PrepTaskCard, PrepType, PrepWindow, DashboardDto } from '@/types'
 
 interface TodaysPrepModuleProps {
@@ -34,6 +36,15 @@ function PrepTaskRow({ task, dashboardDate }: PrepTaskRowProps) {
   const { t, i18n } = useTranslation()
   const lang = (i18n.language?.startsWith('hu') ? 'hu' : 'en') as 'hu' | 'en'
   const queryClient = useQueryClient()
+  // Look up family info from the recipes cache — same key the picker dialogs
+  // use, so this is a free read when other surfaces have already loaded.
+  const { data: allRecipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: recipesService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: !!task.recipeId,
+  })
+  const recipe = task.recipeId ? allRecipes.find(r => r.id === task.recipeId) : undefined
 
   const markDone = useMutation({
     mutationFn: () => {
@@ -86,6 +97,15 @@ function PrepTaskRow({ task, dashboardDate }: PrepTaskRowProps) {
         <p className={['text-sm font-semibold leading-tight', isDone ? 'line-through text-gray-400' : 'text-[#1A1A1A]'].join(' ')}>
           {getRecipeNameFromTranslations(task.recipeTranslations ?? null, task.recipeName, lang)}
         </p>
+        {recipe?.familyId && (
+          <div className="mt-0.5">
+            <RecipeFamilyHint
+              familyId={recipe.familyId}
+              variantLabel={recipe.variantLabel}
+              dietTier={recipe.dietTier}
+            />
+          </div>
+        )}
         <p className="text-xs text-gray-400">{typeLabel}</p>
         {task.servingsToMake != null && task.servingsToMake > 0 && (
           <p className="text-xs text-gray-500 mt-0.5">

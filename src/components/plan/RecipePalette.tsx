@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import { useDraggable } from '@dnd-kit/core'
 import { Sparkles } from 'lucide-react'
 import { getRecipeName } from '@/lib/i18nRecipe'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { paletteDragId } from './templateDnd'
 import type { PlanTemplate, Recipe } from '@/types'
 
@@ -106,6 +107,16 @@ function PaletteItem({ recipe, lang, assignedCount }: { recipe: Recipe; lang: 'h
           <span className="block text-xs font-medium text-[#1A1A1A] truncate">
             {getRecipeName(recipe, lang)}
           </span>
+          {recipe.familyId && (
+            <span className="block mt-0.5">
+              <RecipeFamilyHint
+                familyId={recipe.familyId}
+                variantLabel={recipe.variantLabel}
+                dietTier={recipe.dietTier}
+                noTierBadge
+              />
+            </span>
+          )}
           {kcalPerServing > 0 && (
             <span className="block text-[10.5px] text-[#6b7280] tabular-nums">
               {Math.round(kcalPerServing)} kcal · 1 adag

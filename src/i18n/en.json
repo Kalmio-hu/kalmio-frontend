@@ -309,7 +309,8 @@
       "hideDetails": "Hide",
       "noChanges": "Everything is on track.",
       "acceptError": "The suggestion has expired — refreshed.",
-      "wasted": "{{name}} cannot be saved{{cost}} — it will go to waste."
+      "wasted": "{{name}} cannot be saved{{cost}} — it will go to waste.",
+      "sameFamily": "same family"
     }
   },
   "mealPlan": {

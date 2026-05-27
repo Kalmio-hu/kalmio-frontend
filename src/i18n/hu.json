@@ -309,7 +309,8 @@
       "hideDetails": "Elrejtés",
       "noChanges": "Minden a terv szerint halad.",
       "acceptError": "A javaslat lejárt — frissítve.",
-      "wasted": "{{name}} már nem menthető{{cost}} — ki kell dobni."
+      "wasted": "{{name}} már nem menthető{{cost}} — ki kell dobni.",
+      "sameFamily": "azonos család"
     }
   },
   "mealPlan": {

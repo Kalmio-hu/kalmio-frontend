@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { getRecipeName } from '@/lib/i18nRecipe'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import type { Recipe } from '@/types'
 
 export interface PrepSlotPickerResult {
@@ -114,6 +115,15 @@ export function PrepSlotPicker({ open, onConfirm, onClose, isSaving }: PrepSlotP
                     <p className="font-semibold text-sm text-[#1A1A1A] leading-snug">
                       {getRecipeName(recipe, lang)}
                     </p>
+                    {recipe.familyId && (
+                      <div className="mt-0.5">
+                        <RecipeFamilyHint
+                          familyId={recipe.familyId}
+                          variantLabel={recipe.variantLabel}
+                          dietTier={recipe.dietTier}
+                        />
+                      </div>
+                    )}
                     {recipe.macros && (
                       <p className="text-xs text-[#6b7280] mt-0.5 flex items-center gap-1.5">
                         <Clock className="h-3 w-3" aria-hidden />

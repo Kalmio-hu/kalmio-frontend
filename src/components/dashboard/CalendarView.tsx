@@ -22,7 +22,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { toast } from '@/components/ui/toast'
 import { RecipePickerDialog, type RecipePickerSelection } from '@/components/plan/RecipePickerDialog'
 import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
+import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { plannedMealsService } from '@/services/plannedMeals'
+import { recipesService } from '@/services/recipes'
 import type { MaterializedPlannedMeal, MaterializedPlannedMealStatus, MealType, Recipe } from '@/types'
 import { cn } from '@/lib/utils'
 
@@ -88,6 +90,28 @@ interface MealDetailPanelProps {
   isPending: boolean
 }
 
+/**
+ * Hook: look up family/variant metadata for a planned meal's recipe from the
+ * recipes cache (shared TanStack Query key — no extra round-trip when the
+ * Receptek list, pickers, or DailyTimeline have already loaded). Returns the
+ * fields needed by RecipeFamilyHint; all null when the recipe isn't in a
+ * family or hasn't loaded yet.
+ */
+function useRecipeFamilyForMeal(recipeId: string | null | undefined) {
+  const { data: recipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: recipesService.list,
+    staleTime: 5 * 60 * 1000,
+    enabled: !!recipeId,
+  })
+  const recipe = recipeId ? recipes.find(r => r.id === recipeId) : undefined
+  return {
+    familyId: recipe?.familyId ?? null,
+    variantLabel: recipe?.variantLabel ?? null,
+    dietTier: recipe?.dietTier ?? null,
+  }
+}
+
 function MealDetailPanel({
   meal,
   open,
@@ -98,6 +122,7 @@ function MealDetailPanel({
   isPending,
 }: MealDetailPanelProps) {
   const { t } = useTranslation()
+  const family = useRecipeFamilyForMeal(meal?.recipeId)
   if (!meal) return null
 
   return (
@@ -107,6 +132,15 @@ function MealDetailPanel({
           <DialogTitle className="text-base">
             {meal.recipeName ?? t('calendar.noRecipe')}
           </DialogTitle>
+          {family.familyId && (
+            <div className="mt-1">
+              <RecipeFamilyHint
+                familyId={family.familyId}
+                variantLabel={family.variantLabel}
+                dietTier={family.dietTier}
+              />
+            </div>
+          )}
         </DialogHeader>
 
         <div className="space-y-4">
@@ -202,6 +236,7 @@ interface MealCellProps {
 
 function MealCell({ meal, onClick }: MealCellProps) {
   const { t } = useTranslation()
+  const family = useRecipeFamilyForMeal(meal.recipeId)
 
   return (
     <button
@@ -233,6 +268,17 @@ function MealCell({ meal, onClick }: MealCellProps) {
         <p className="text-xs font-medium leading-tight line-clamp-2 text-zinc-800 dark:text-zinc-100">
           {meal.recipeName ?? <span className="italic text-zinc-400">{t('calendar.noRecipe')}</span>}
         </p>
+
+        {/* Family/variant hint — compact, just the diet-tier badge to keep
+            the cell small. The full variant label is on the detail panel. */}
+        {family.familyId && (
+          <RecipeFamilyHint
+            familyId={family.familyId}
+            variantLabel={family.variantLabel}
+            dietTier={family.dietTier}
+            compact
+          />
+        )}
 
         {/* Status badge (only when not PLANNED) */}
         {meal.status !== 'PLANNED' && (
