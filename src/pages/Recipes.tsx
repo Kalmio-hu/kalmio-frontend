@@ -820,6 +820,8 @@ export function Recipes() {
         open={detailTarget !== null}
         recipe={detailTarget ?? undefined}
         ingredientMap={ingredientMap}
+        allRecipes={recipes}
+        onSelectVariant={(r) => setDetailTarget(r)}
         onOpenChange={open => { if (!open) setDetailTarget(null) }}
       />
 
@@ -1006,11 +1008,15 @@ function ImportPreviewHeader({
 // ── Recipe detail dialog ──────────────────────────────────────────────────
 
 function RecipeDetailDialog({
-  open, recipe, ingredientMap, onOpenChange,
+  open, recipe, ingredientMap, allRecipes, onSelectVariant, onOpenChange,
 }: {
   open: boolean
   recipe?: Recipe
   ingredientMap: Map<string, string>
+  /** Full recipes catalogue — used to compute family siblings client-side. */
+  allRecipes?: Recipe[]
+  /** Called when the user clicks a sibling row; parent replaces the dialog target. */
+  onSelectVariant?: (recipe: Recipe) => void
   onOpenChange: (o: boolean) => void
 }) {
   const { t, i18n } = useTranslation()
@@ -1109,6 +1115,75 @@ function RecipeDetailDialog({
               ))}
             </div>
           )}
+
+          {/* Változatok / Variants — shown when the recipe is part of a family.
+              Siblings are computed client-side from the recipes catalogue (the
+              dialog opens from the Receptek list which already has the data,
+              so no extra fetch). Clicking a sibling swaps the dialog content
+              to that variant via onSelectVariant — the dialog stays open and
+              the user can navigate variants without losing context. */}
+          {recipe.familyId && allRecipes && (() => {
+            const siblings = allRecipes
+              .filter(r => r.familyId === recipe.familyId && r.id !== recipe.id)
+              .sort((a, b) => {
+                const orderA = a.dietTier ? DIET_TIER_ORDER[a.dietTier] : 99
+                const orderB = b.dietTier ? DIET_TIER_ORDER[b.dietTier] : 99
+                if (orderA !== orderB) return orderA - orderB
+                return (a.variantLabel ?? '').localeCompare(b.variantLabel ?? '')
+              })
+            if (siblings.length === 0) return null
+            return (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                  {recipe.familyName ? t('recipeFamily.sameFamilyHeader', { family: recipe.familyName }) : t('recipeFamily.variants')}
+                </p>
+                <div className="space-y-2">
+                  {siblings.map(sibling => {
+                    const sName = sibling.translations?.[lang]?.name ?? sibling.name
+                    const divisor = sibling.servings > 0 ? sibling.servings : 1
+                    const kcalPer = sibling.macros ? Number(sibling.macros.kcal) / divisor : null
+                    const proteinPer = sibling.macros ? Number(sibling.macros.protein) / divisor : null
+                    return (
+                      <div
+                        key={sibling.id}
+                        className="flex items-center gap-3 p-3 bg-[#F9F7F2] rounded-[12px]"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-[#1A1A1A] leading-tight truncate">
+                            {sibling.variantLabel ?? sName}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {sibling.dietTier && <DietTierBadge tier={sibling.dietTier} />}
+                            {kcalPer !== null && (
+                              <span className="text-xs text-gray-400 tabular-nums">
+                                {Math.round(kcalPer)} kcal
+                              </span>
+                            )}
+                            {proteinPer !== null && (
+                              <span className="text-xs text-gray-400 tabular-nums">
+                                {proteinPer.toFixed(1)}g P
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => onSelectVariant?.(sibling)}
+                          className="
+                            shrink-0 text-xs font-semibold text-[#F28C28]
+                            hover:text-[#c06917] transition-colors
+                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] rounded
+                          "
+                        >
+                          {t('recipeFamily.viewVariant')}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )
+          })()}
 
           {/* Ingredients */}
           {recipe.ingredients.length > 0 && (
