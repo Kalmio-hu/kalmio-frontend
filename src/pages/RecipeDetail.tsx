@@ -179,21 +179,26 @@ export function RecipeDetail() {
                       : t('recipes.detail.piece')
                     let ingKcal: number | null = null
                     let ingProtein: number | null = null
+                    let ingFat: number | null = null
+                    let ingCarbs: number | null = null
                     if (ingredient?.macros) {
                       const gramsEquiv =
                         ing.unit === 'PIECE'
                           ? ing.amount * (ingredient.gramsPerPiece ?? 100)
                           : ing.amount
-                      ingKcal = (gramsEquiv / 100) * ingredient.macros.kcal
-                      ingProtein = (gramsEquiv / 100) * ingredient.macros.protein
+                      const scale = gramsEquiv / 100
+                      ingKcal = scale * ingredient.macros.kcal
+                      ingProtein = scale * ingredient.macros.protein
+                      ingFat = scale * ingredient.macros.fat
+                      ingCarbs = scale * ingredient.macros.carbs
                     }
                     return (
                       <li key={ing.id} className="flex items-start justify-between gap-3 text-sm">
                         <div className="flex-1 min-w-0">
                           <span className="text-[#1A1A1A] leading-snug">{name}</span>
-                          {ingKcal !== null && ingProtein !== null && (
+                          {ingKcal !== null && ingProtein !== null && ingFat !== null && ingCarbs !== null && (
                             <p className="text-[11px] text-gray-400 mt-0.5 tabular-nums">
-                              {ingKcal.toFixed(0)} kcal · {ingProtein.toFixed(1)}g {t('recipes.detail.protein')}
+                              {ingKcal.toFixed(0)} kcal · {ingProtein.toFixed(1)}g {t('recipes.detail.protein')} · {ingFat.toFixed(1)}g {t('recipes.detail.fat')} · {ingCarbs.toFixed(1)}g {t('recipes.detail.carbs')}
                             </p>
                           )}
                         </div>
