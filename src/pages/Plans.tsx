@@ -372,10 +372,13 @@ export function Plans() {
           onSuccess={() => {
             // KALMIO-445: after auto-schedule, land the user on today's view
             // so they immediately see their first day's meals.
+            // Dashboard lives at /app (index route); /app/today doesn't
+            // exist and would fall through to the catch-all that redirects
+            // to the marketing landing — Eszter B1 / Adam M4 / KALMIO-469.
             if (isAutoSchedule) {
               setIsAutoSchedule(false)
               setRunPlanTarget(null)
-              navigate('/app/today')
+              navigate('/app')
             } else {
               setRunPlanTarget(null)
             }
