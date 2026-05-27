@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authenticateWithPasskeyDiscoverable, authenticateWithPasskey, cancelPasskeyCeremony } from '@/services/passkey'
 import { GoogleLogo } from '@/assets/GoogleLogo'
+import { AppleLogo } from '@/assets/AppleLogo'
 import { ProviderButton } from '@/components/auth/ProviderButton'
 import { useAuthStore } from '@/store/auth'
 import { capture, identify, alias } from '@/lib/analytics'
@@ -56,6 +57,7 @@ export function Auth() {
   const [step, setStep] = useState<Step>({ mode: 'home' })
   const [passkeyLoading, setPasskeyLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [appleLoading, setAppleLoading] = useState(false)
   const [emailLoading, setEmailLoading] = useState(false)
   const [showEmailFallback, setShowEmailFallback] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -203,6 +205,25 @@ export function Auth() {
     }
   }
 
+  // ── Apple OAuth ───────────────────────────────────────────────────────────
+
+  const signInWithApple = async () => {
+    setAppleLoading(true)
+    setError(null)
+    capture('signup_started', { method: 'apple' })
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
+    // Same as Google: on success the browser redirects to Apple before this
+    // line runs. We only reach the error branch if Supabase rejects the call
+    // outright (provider disabled, bad client ID).
+    if (error) {
+      setError(t(mapAuthError(error)))
+      setAppleLoading(false)
+    }
+  }
+
   // ── Magic link ────────────────────────────────────────────────────────────
 
   const sendMagicLink = async ({ email }: EmailForm) => {
@@ -333,7 +354,7 @@ export function Auth() {
                 <Button
                   type="button"
                   onClick={signInWithPasskeyDiscoverable}
-                  disabled={passkeyLoading || googleLoading || emailLoading}
+                  disabled={passkeyLoading || googleLoading || appleLoading || emailLoading}
                   className="w-full h-12 rounded-2xl bg-midnight-black hover:bg-midnight-black/90 text-white gap-3 text-base font-semibold"
                 >
                   {passkeyLoading
@@ -359,11 +380,21 @@ export function Auth() {
                 {/* Google OAuth */}
                 <ProviderButton
                   onClick={signInWithGoogle}
-                  disabled={passkeyLoading || emailLoading}
+                  disabled={passkeyLoading || appleLoading || emailLoading}
                   loading={googleLoading}
                   loadingLabel={t('auth.googleLoading')}
                   label={t('auth.continueWithGoogle')}
                   icon={<GoogleLogo size={18} />}
+                />
+
+                {/* Apple OAuth */}
+                <ProviderButton
+                  onClick={signInWithApple}
+                  disabled={passkeyLoading || googleLoading || emailLoading}
+                  loading={appleLoading}
+                  loadingLabel={t('auth.appleLoading')}
+                  label={t('auth.continueWithApple')}
+                  icon={<AppleLogo size={18} />}
                 />
 
                 {/* "Use email instead" — subtle link, expands the email fallback */}
@@ -375,7 +406,7 @@ export function Auth() {
                       exit={{ opacity: 0, height: 0 }}
                       type="button"
                       onClick={() => setShowEmailFallback(true)}
-                      disabled={passkeyLoading || googleLoading || emailLoading}
+                      disabled={passkeyLoading || googleLoading || appleLoading || emailLoading}
                       className="w-full flex items-center justify-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition-colors py-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <Mail size={13} />
@@ -425,7 +456,7 @@ export function Auth() {
                           {/* Passkey for this specific email */}
                           <Button
                             type="button"
-                            disabled={passkeyLoading || googleLoading || emailLoading}
+                            disabled={passkeyLoading || googleLoading || appleLoading || emailLoading}
                             onClick={() => {
                               const email = form.getValues('email')
                               if (email && !form.formState.errors.email) {
@@ -445,7 +476,7 @@ export function Auth() {
                           {/* Magic link */}
                           <Button
                             type="submit"
-                            disabled={emailLoading || passkeyLoading || googleLoading}
+                            disabled={emailLoading || passkeyLoading || googleLoading || appleLoading}
                             className="flex-1 h-11 rounded-xl bg-energy-orange hover:bg-energy-orange/90 text-white gap-2 text-sm font-medium"
                           >
                             {emailLoading

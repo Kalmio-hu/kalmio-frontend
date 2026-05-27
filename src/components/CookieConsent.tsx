@@ -60,7 +60,7 @@ export function CookieConsent() {
         className="pointer-events-auto w-full max-w-lg bg-white rounded-t-2xl shadow-xl px-6 py-5"
       >
         <p className="text-sm text-[#1A1A1A]/80 leading-relaxed">
-          {'🍪 '}{t('consent.body')}
+          {t('consent.body')}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <button

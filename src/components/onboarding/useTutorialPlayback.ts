@@ -49,6 +49,7 @@ export function useTutorialPlayback({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const lastIndex = totalFrames - 1
+  const prevFrameRef = useRef<number>(0)
 
   const clearTimer = () => {
     if (timerRef.current) {
@@ -59,13 +60,10 @@ export function useTutorialPlayback({
 
   const next = useCallback(() => {
     setFrame(prev => {
-      if (prev >= lastIndex) {
-        onComplete()
-        return prev
-      }
+      if (prev >= lastIndex) return prev
       return prev + 1
     })
-  }, [lastIndex, onComplete])
+  }, [lastIndex])
 
   const prev = useCallback(() => {
     setIsPlaying(false)
@@ -86,18 +84,23 @@ export function useTutorialPlayback({
   // Next button also pauses playback (manual stepping behavior).
   const advanceFromTimer = useCallback(() => {
     setFrame(prev => {
-      if (prev >= lastIndex) {
-        onComplete()
-        return prev
-      }
+      if (prev >= lastIndex) return prev
       return prev + 1
     })
-  }, [lastIndex, onComplete])
+  }, [lastIndex])
 
   const manualNext = useCallback(() => {
     setIsPlaying(false)
     next()
   }, [next])
+
+  // Fire onComplete when frame crosses from < lastIndex to lastIndex (after render).
+  useEffect(() => {
+    if (frame >= lastIndex && prevFrameRef.current < lastIndex) {
+      onComplete()
+    }
+    prevFrameRef.current = frame
+  }, [frame, lastIndex, onComplete])
 
   useEffect(() => {
     clearTimer()

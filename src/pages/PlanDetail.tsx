@@ -746,7 +746,7 @@ export function PlanDetail() {
   // router), so we trigger on plan load with a brief delay instead.
   useEffect(() => {
     if (!plan?.id || hasFounderFarewellBeenShown(currentUserId || null)) return
-    const id = window.setTimeout(() => setFarewellVisible(true), 1200)
+    const id = window.setTimeout(() => setFarewellVisible(true), 30_000)
     return () => window.clearTimeout(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan?.id])
@@ -919,7 +919,7 @@ export function PlanDetail() {
                 setFillConfirmOpen(true)
               }}
               disabled={solveMutation.isPending}
-              title={fillCtaTooltip}
+              title={fillCtaTooltip ?? fillCtaLabel}
               aria-label={fillCtaLabel}
               className="
                 inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px]
@@ -935,7 +935,7 @@ export function PlanDetail() {
               ) : (
                 <Zap className="w-3.5 h-3.5 text-[#F28C28]" aria-hidden />
               )}
-              {fillCtaLabel}
+              <span className="hidden sm:inline">{fillCtaLabel}</span>
             </button>
           )}
 
@@ -946,6 +946,7 @@ export function PlanDetail() {
           {!isArchived && (
             <Link
               to={`/app/schedules/new?planId=${id}`}
+              title={t('planDetail.scheduleCta.tooltip')}
               aria-label={t('planDetail.scheduleCta.tooltip')}
               className="
                 inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px]
@@ -956,18 +957,19 @@ export function PlanDetail() {
               "
             >
               <CalendarPlus className="w-3.5 h-3.5" aria-hidden />
-              {t('planDetail.scheduleCta.button')}
+              <span className="hidden sm:inline">{t('planDetail.scheduleCta.button')}</span>
             </Link>
           )}
 
           <button
             type="button"
             onClick={() => navigate('/app/plans')}
+            title={t('common.back')}
             className="text-sm text-[#6b7280] hover:text-[#1A1A1A] flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
             aria-label={t('common.back')}
           >
             <ChevronLeft className="w-4 h-4" aria-hidden />
-            {t('common.back')}
+            <span className="hidden sm:inline">{t('common.back')}</span>
           </button>
 
           {/* "..." action menu — fill is no longer here (KALMIO-355) */}

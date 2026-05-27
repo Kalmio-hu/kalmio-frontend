@@ -19,6 +19,7 @@
  */
 
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { foundingMemberService } from '@/services/foundingMember'
@@ -171,10 +172,24 @@ export function FoundingMember() {
   return (
     <PremiumFeatureGate
       fallback={
-        <main className="min-h-screen flex items-center justify-center px-6 bg-[#111]">
-          <p className="text-white/60 text-base text-center">
-            {t('foundingMember.comingSoon')}
-          </p>
+        <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 bg-[#111]">
+          <section className="max-w-md w-full text-center">
+            <p className="text-[#F28C28] font-semibold text-xs uppercase tracking-widest mb-4">
+              {t('foundingMember.buy.label')}
+            </p>
+            <h1 className="text-3xl font-semibold text-white mb-4 leading-snug">
+              {t('foundingMember.comingSoonHeadline')}
+            </h1>
+            <p className="text-white/60 text-base leading-relaxed mb-10">
+              {t('foundingMember.comingSoonSub')}
+            </p>
+            <Link
+              to="/app"
+              className="inline-flex items-center justify-center text-sm font-medium text-white/50 hover:text-white/80 transition-colors underline underline-offset-4"
+            >
+              {t('foundingMember.comingSoonBack')}
+            </Link>
+          </section>
         </main>
       }
     >
