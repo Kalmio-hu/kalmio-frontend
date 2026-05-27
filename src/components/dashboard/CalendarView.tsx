@@ -425,7 +425,13 @@ export function CalendarView() {
     mutationFn: ({ id, recipeId }: { id: string; recipeId: string }) =>
       plannedMealsService.replaceRecipe(id, { recipeId }),
     onSuccess: (updated) => {
+      // Invalidate every surface that may render this meal: the calendar's planned-meals
+      // list, today's dashboard (chip + macros), and the active plan view if it's open.
+      // Without the dashboard invalidations, swapping from the calendar leaves a stale
+      // chip on the dashboard until staleTime (30s) expires.
       void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      void qc.invalidateQueries({ queryKey: ['dashboard', TODAY_ISO] })
+      void qc.invalidateQueries({ queryKey: ['macros', TODAY_ISO] })
       setSelectedMeal(updated)
       setRecipePickerMeal(null)
       toast({ title: t('calendar.recipeReplaced') })
@@ -444,6 +450,8 @@ export function CalendarView() {
       plannedMealsService.swapVariant(id, targetRecipeId),
     onSuccess: (updated) => {
       void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      void qc.invalidateQueries({ queryKey: ['dashboard', TODAY_ISO] })
+      void qc.invalidateQueries({ queryKey: ['macros', TODAY_ISO] })
       setSelectedMeal(updated)
       setRecipePickerMeal(null)
       toast({ title: t('recipeFamily.swapped') })

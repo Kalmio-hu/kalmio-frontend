@@ -194,6 +194,10 @@ function MealCard({ meal, planId, today, effectiveDietTier }: MealCardProps) {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
       void queryClient.invalidateQueries({ queryKey: ['macros', today] })
+      // Also invalidate the calendar view's planned-meals cache so the user
+      // sees the swap reflected if they navigate over there. Symmetric with
+      // CalendarView, which invalidates the dashboard cache after its own swaps.
+      void queryClient.invalidateQueries({ queryKey: ['planned-meals'] })
       toast({ title: t('recipeFamily.swapped'), variant: 'success' })
     },
     onError: (err: unknown, _vars, context) => {
