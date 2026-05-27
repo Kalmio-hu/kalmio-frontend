@@ -38,20 +38,20 @@ export const ipVaultService = {
   listAll: () => api.get<IpDocument[]>('/api/admin/ip-vault/documents').then(r => r.data),
   getById: (id: string) => api.get<IpDocument>(`/api/admin/ip-vault/documents/${id}`).then(r => r.data),
   create: (data: { slug: string; title: string; category: string; summary: string; content: string; tags: string[] }) =>
-    api.post<IpDocument>('/api/admin/ip-vault/documents', data).then(r => r.data),
+    api.post<IpDocument>('/api/admin/ip-vault/documents', data, { requestIdempotencyKey: true }).then(r => r.data),
   update: (id: string, data: { title: string; summary: string; content: string; tags: string[]; changeNote?: string }) =>
-    api.put<IpDocument>(`/api/admin/ip-vault/documents/${id}`, data).then(r => r.data),
+    api.put<IpDocument>(`/api/admin/ip-vault/documents/${id}`, data, { requestIdempotencyKey: true }).then(r => r.data),
   togglePublish: (id: string) =>
-    api.patch<IpDocument>(`/api/admin/ip-vault/documents/${id}/publish`).then(r => r.data),
-  delete: (id: string) => api.delete(`/api/admin/ip-vault/documents/${id}`),
+    api.patch<IpDocument>(`/api/admin/ip-vault/documents/${id}/publish`, null, { requestIdempotencyKey: true }).then(r => r.data),
+  delete: (id: string) => api.delete(`/api/admin/ip-vault/documents/${id}`, { requestIdempotencyKey: true }),
   getVersions: (id: string) =>
     api.get<IpDocumentVersion[]>(`/api/admin/ip-vault/documents/${id}/versions`).then(r => r.data),
 
   // Tokens
   listTokens: () => api.get<InvestorToken[]>('/api/admin/ip-vault/tokens').then(r => r.data),
   createToken: (data: { label: string; expiresAt?: string }) =>
-    api.post<InvestorToken>('/api/admin/ip-vault/tokens', data).then(r => r.data),
-  revokeToken: (id: string) => api.delete(`/api/admin/ip-vault/tokens/${id}`),
+    api.post<InvestorToken>('/api/admin/ip-vault/tokens', data, { requestIdempotencyKey: true }).then(r => r.data),
+  revokeToken: (id: string) => api.delete(`/api/admin/ip-vault/tokens/${id}`, { requestIdempotencyKey: true }),
 
   // Public investor view (no auth, token param)
   listPublished: (token: string) =>

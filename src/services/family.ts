@@ -16,7 +16,7 @@ import type {
 export const familyService = {
   /** POST /api/families — create a new family (caller becomes PLANNER). */
   createFamily: (): Promise<FamilyResponse> =>
-    api.post<FamilyResponse>('/api/families').then((r) => r.data),
+    api.post<FamilyResponse>('/api/families', null, { requestIdempotencyKey: true }).then((r) => r.data),
 
   /** GET /api/families/{id} — fetch family with member list. */
   getFamily: (id: string): Promise<FamilyResponse> =>
@@ -28,7 +28,7 @@ export const familyService = {
     body: AddManagedProfileRequest,
   ): Promise<AddManagedProfileResponse> =>
     api
-      .post<AddManagedProfileResponse>(`/api/families/${familyId}/managed-profiles`, body)
+      .post<AddManagedProfileResponse>(`/api/families/${familyId}/managed-profiles`, body, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** PATCH /api/families/{id}/managed-profiles/{profileId} — edit preferences. */
@@ -38,13 +38,13 @@ export const familyService = {
     body: AddManagedProfileRequest,
   ): Promise<void> =>
     api
-      .patch(`/api/families/${familyId}/managed-profiles/${profileId}`, body)
+      .patch(`/api/families/${familyId}/managed-profiles/${profileId}`, body, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /** DELETE /api/families/{id}/managed-profiles/{profileId} — remove a managed profile. */
   removeManagedProfile: (familyId: string, profileId: string): Promise<void> =>
     api
-      .delete(`/api/families/${familyId}/managed-profiles/${profileId}`)
+      .delete(`/api/families/${familyId}/managed-profiles/${profileId}`, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /**
@@ -54,7 +54,7 @@ export const familyService = {
    */
   removeMember: (familyId: string, userId: string): Promise<void> =>
     api
-      .delete(`/api/families/${familyId}/members/${userId}`)
+      .delete(`/api/families/${familyId}/members/${userId}`, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /** POST /api/families/{id}/invites — generate a claim code. */
@@ -63,17 +63,17 @@ export const familyService = {
     body: SendInviteRequest,
   ): Promise<SendInviteResponse> =>
     api
-      .post<SendInviteResponse>(`/api/families/${familyId}/invites`, body)
+      .post<SendInviteResponse>(`/api/families/${familyId}/invites`, body, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** POST /api/invites/{code}/accept — accept an invite (claim or join-only). */
   acceptInvite: (code: string, body: AcceptInviteRequest): Promise<void> =>
-    api.post(`/api/invites/${code}/accept`, body).then(() => undefined),
+    api.post(`/api/invites/${code}/accept`, body, { requestIdempotencyKey: true }).then(() => undefined),
 
   /** POST /api/invites/{code}/merge-preview — get the merge diff before accepting. */
   mergePreview: (code: string): Promise<MergePreviewResponse> =>
     api
-      .post<MergePreviewResponse>(`/api/invites/${code}/merge-preview`)
+      .post<MergePreviewResponse>(`/api/invites/${code}/merge-preview`, null, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** PATCH /api/families/{id}/members/{userId}/role — change a member's role. */
@@ -83,9 +83,14 @@ export const familyService = {
     role: 'PLANNER' | 'MEMBER',
   ): Promise<void> =>
     api
-      .patch(`/api/families/${familyId}/members/${userId}/role`, { role })
+      .patch(`/api/families/${familyId}/members/${userId}/role`, { role }, { requestIdempotencyKey: true })
       .then(() => undefined),
 
+  // No idempotency key: impersonation issues a new short-lived JWT each call.
+  // Re-sending with the same key would deduplicate and re-issue the same token,
+  // which is correct behaviour but the session management depends on each call
+  // producing a fresh token with its own expiry. The risk of a stale deduped
+  // impersonation token is worse than a double-fire.
   /** POST /api/families/{id}/impersonate/{userId} — start an impersonation session. */
   impersonate: (familyId: string, userId: string): Promise<ImpersonateResponse> =>
     api
@@ -98,13 +103,13 @@ export const familyService = {
     userId: string,
   ): Promise<ImpersonationPermissionDto> =>
     api
-      .post<ImpersonationPermissionDto>(`/api/families/${familyId}/impersonate/${userId}/request-permission`)
+      .post<ImpersonationPermissionDto>(`/api/families/${familyId}/impersonate/${userId}/request-permission`, null, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** DELETE /api/families/{id}/impersonate/{userId}/permission — planner revokes a previously-granted permission. */
   revokeImpersonationPermission: (familyId: string, userId: string): Promise<void> =>
     api
-      .delete(`/api/families/${familyId}/impersonate/${userId}/permission`)
+      .delete(`/api/families/${familyId}/impersonate/${userId}/permission`, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /** GET /api/me/impersonation-permission-requests/pending — pending requests the CALLER must respond to (as target). */
@@ -116,13 +121,13 @@ export const familyService = {
   /** POST /api/impersonation-permissions/{permissionId}/grant — target grants a pending request. */
   grantImpersonationPermission: (permissionId: string): Promise<ImpersonationPermissionDto> =>
     api
-      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/grant`)
+      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/grant`, null, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** POST /api/impersonation-permissions/{permissionId}/deny — target denies a pending request. */
   denyImpersonationPermission: (permissionId: string): Promise<ImpersonationPermissionDto> =>
     api
-      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/deny`)
+      .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/deny`, null, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
   /** [PENDING_BE] GET /api/families/{id}/invites — list sent invites (planner only). */
@@ -131,7 +136,7 @@ export const familyService = {
 
   /** [PENDING_BE] DELETE /api/families/{id}/invites/{inviteId} — revoke a pending invite. */
   revokeInvite: (familyId: string, inviteId: string): Promise<void> =>
-    api.delete(`/api/families/${familyId}/invites/${inviteId}`).then(() => undefined),
+    api.delete(`/api/families/${familyId}/invites/${inviteId}`, { requestIdempotencyKey: true }).then(() => undefined),
 }
 
 /** Blank preferences template for the managed-profile editor. */

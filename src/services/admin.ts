@@ -26,9 +26,12 @@ export interface AdminStatsResponse {
 export const adminService = {
   listUsers: () => api.get<AdminUser[]>('/api/admin/users').then(r => r.data),
   updateRole: (userId: string, role: 'USER' | 'ADMIN') =>
-    api.put<AdminUser>(`/api/admin/users/${userId}/role`, { role }).then(r => r.data),
+    api.put<AdminUser>(`/api/admin/users/${userId}/role`, { role }, { requestIdempotencyKey: true }).then(r => r.data),
   togglePremium: (userId: string, enabled: boolean) =>
-    api.patch<AdminUser>(`/api/admin/users/${userId}/premium-enabled`, { enabled }).then(r => r.data),
+    api.patch<AdminUser>(`/api/admin/users/${userId}/premium-enabled`, { enabled }, { requestIdempotencyKey: true }).then(r => r.data),
+  // No idempotency key: admin impersonation issues a new short-lived JWT each call.
+  // Same reasoning as familyService.impersonate — a deduplicated stale token
+  // is a worse outcome than a double-fire producing a fresh one.
   impersonate: (userId: string) =>
     api.post<ImpersonateResponse>(`/api/admin/impersonate/${userId}`).then(r => r.data),
   /** GET /api/admin/stats — DB-row-count metrics not available in PostHog event stream. */

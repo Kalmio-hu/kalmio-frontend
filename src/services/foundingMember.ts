@@ -29,6 +29,10 @@ async function getAvailability(): Promise<FoundingMemberAvailability> {
  *                     Must be an absolute URL reachable by Barion's servers.
  * @returns `{ paymentId, gatewayUrl }` — redirect the user to `gatewayUrl` immediately.
  * @throws HTTP 409 when all founding-member slots are already taken (cap reached).
+ *
+ * No idempotency key: payment/checkout initiation must always create a fresh Barion
+ * session. A deduplicated response could return a stale gatewayUrl from a prior
+ * abandoned session, which Barion would reject or associate with the wrong attempt.
  */
 async function checkout(redirectUrl: string): Promise<FoundingMemberCheckoutResponse> {
   const body: FoundingMemberCheckoutRequest = { redirectUrl }

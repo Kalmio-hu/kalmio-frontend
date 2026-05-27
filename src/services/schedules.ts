@@ -19,30 +19,30 @@ export const schedulesService = {
 
   /** POST /api/schedules — create a new schedule. */
   create: (req: CreateScheduleRequest): Promise<Schedule> =>
-    api.post<Schedule>('/api/schedules', req).then(r => r.data),
+    api.post<Schedule>('/api/schedules', req, { requestIdempotencyKey: true }).then(r => r.data),
 
   /** PATCH /api/schedules/{id} — partial update. */
   update: (id: string, req: UpdateScheduleRequest): Promise<Schedule> =>
-    api.patch<Schedule>(`/api/schedules/${id}`, req).then(r => r.data),
+    api.patch<Schedule>(`/api/schedules/${id}`, req, { requestIdempotencyKey: true }).then(r => r.data),
 
   /** DELETE /api/schedules/{id} — soft-end the schedule. */
   delete: (id: string): Promise<void> =>
-    api.delete(`/api/schedules/${id}`).then(() => undefined),
+    api.delete(`/api/schedules/${id}`, { requestIdempotencyKey: true }).then(() => undefined),
 
   /** POST /api/schedules/{id}/pause */
   pause: (id: string): Promise<Schedule> =>
-    api.post<Schedule>(`/api/schedules/${id}/pause`).then(r => r.data),
+    api.post<Schedule>(`/api/schedules/${id}/pause`, null, { requestIdempotencyKey: true }).then(r => r.data),
 
   /** POST /api/schedules/{id}/resume */
   resume: (id: string): Promise<Schedule> =>
-    api.post<Schedule>(`/api/schedules/${id}/resume`).then(r => r.data),
+    api.post<Schedule>(`/api/schedules/${id}/resume`, null, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * POST /api/schedules/{id}/materialize
    * Triggers immediate materialization through the given date.
    */
   materialize: (id: string, throughDate: string): Promise<void> =>
-    api.post(`/api/schedules/${id}/materialize`, { throughDate }).then(() => undefined),
+    api.post(`/api/schedules/${id}/materialize`, { throughDate }, { requestIdempotencyKey: true }).then(() => undefined),
 
   // ── Template drift detection + re-run (KALMIO-323) ────────────────────────
 
@@ -60,7 +60,7 @@ export const schedulesService = {
    * template. Implements the "Re-run" CTA on the TemplateDriftBanner.
    */
   reRun: (id: string): Promise<ReRunScheduleResponse> =>
-    api.post<ReRunScheduleResponse>(`/api/schedules/${id}/re-run`).then(r => r.data),
+    api.post<ReRunScheduleResponse>(`/api/schedules/${id}/re-run`, null, { requestIdempotencyKey: true }).then(r => r.data),
 }
 
 // ── Drift detection types (KALMIO-323) ────────────────────────────────────

@@ -137,12 +137,15 @@ export const USERS_STAGE_QUERY_KEY = ['users', 'stage'] as const
 export const usersService = {
   getMe: () => api.get<UserSettings>('/api/users/me').then(r => r.data),
   updateSettings: (body: UpdateSettingsRequest) =>
-    api.put<UserSettings>('/api/users/me/settings', body).then(r => r.data),
+    api.put<UserSettings>('/api/users/me/settings', body, { requestIdempotencyKey: true }).then(r => r.data),
   updateProfile: (body: UpdateProfileRequest) =>
-    api.put<UserSettings>('/api/users/me/profile', body).then(r => r.data),
+    api.put<UserSettings>('/api/users/me/profile', body, { requestIdempotencyKey: true }).then(r => r.data),
   uploadAvatar: (file: File) => {
     const form = new FormData()
     form.append('file', file)
+    // No idempotency key: multipart/form-data binary upload is not replayable by
+    // BackgroundSync (blobs cannot be serialised to IndexedDB). The SW excludes
+    // binary uploads from the offline queue by design.
     return api.post<UserSettings>('/api/users/me/avatar', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }).then(r => r.data)
@@ -150,11 +153,11 @@ export const usersService = {
   getTimePreferences: (): Promise<TimePreferencesDto> =>
     api.get<TimePreferencesDto>('/api/users/me/time-preferences').then(r => r.data),
   patchTimePreferences: (req: Partial<TimePreferencesDto>): Promise<TimePreferencesDto> =>
-    api.patch<TimePreferencesDto>('/api/users/me/time-preferences', req).then(r => r.data),
+    api.patch<TimePreferencesDto>('/api/users/me/time-preferences', req, { requestIdempotencyKey: true }).then(r => r.data),
   patchBodyData: (body: BodyDataRequest): Promise<UserSettings> =>
-    api.patch<UserSettings>('/api/users/me/body-data', body).then(r => r.data),
+    api.patch<UserSettings>('/api/users/me/body-data', body, { requestIdempotencyKey: true }).then(r => r.data),
   deleteBodyData: (): Promise<UserSettings> =>
-    api.delete<UserSettings>('/api/users/me/body-data').then(r => r.data),
+    api.delete<UserSettings>('/api/users/me/body-data', { requestIdempotencyKey: true }).then(r => r.data),
   /** GET /api/users/me/stage — returns current growth stage + transition history. */
   getMyStage: (): Promise<UserStageResponse> =>
     api.get<UserStageResponse>('/api/users/me/stage').then(r => r.data),
@@ -163,7 +166,7 @@ export const usersService = {
     api.get<DashboardStateResponse>('/api/users/me/dashboard-state').then(r => r.data),
   /** PUT /api/users/me/diofa-name — set or update the user's diófa tree name (FIATAL+ only). */
   updateDiofaName: (name: string): Promise<void> =>
-    api.put('/api/users/me/diofa-name', { name }).then(() => undefined),
+    api.put('/api/users/me/diofa-name', { name }, { requestIdempotencyKey: true }).then(() => undefined),
   /**
    * GET /api/users/me/targets — returns computed TDEE + macro targets.
    * Returns null (204) when body data is incomplete or goal is not set.
@@ -194,7 +197,7 @@ export const usersService = {
    * This call will silently succeed once the backend accepts the `goal` field.
    */
   updateGoal: (req: UpdateGoalRequest): Promise<UserSettings> =>
-    api.patch<UserSettings>('/api/users/me/body-data', req).then(r => r.data),
+    api.patch<UserSettings>('/api/users/me/body-data', req, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * POST /api/users/me/coachmarks/{name} — record that the user has dismissed a named
@@ -203,5 +206,5 @@ export const usersService = {
    * KALMIO-326.
    */
   markCoachmarkSeen: (name: string): Promise<UserSettings> =>
-    api.post<UserSettings>(`/api/users/me/coachmarks/${encodeURIComponent(name)}`).then(r => r.data),
+    api.post<UserSettings>(`/api/users/me/coachmarks/${encodeURIComponent(name)}`, null, { requestIdempotencyKey: true }).then(r => r.data),
 }

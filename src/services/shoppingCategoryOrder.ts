@@ -35,6 +35,7 @@ const shoppingCategoryOrderService = {
     const { data } = await api.put<ShoppingCategoryOrderResponse>(
       '/api/users/me/shopping-category-order',
       request,
+      { requestIdempotencyKey: true },
     )
     return data
   },

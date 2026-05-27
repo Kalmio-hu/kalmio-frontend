@@ -15,7 +15,7 @@ export interface UpsertTemplateMealRequest {
 
 export const planService = {
   create: (req: CreatePlanRequest): Promise<Plan> =>
-    api.post<Plan>('/api/plans/calendar', req).then(r => r.data),
+    api.post<Plan>('/api/plans/calendar', req, { requestIdempotencyKey: true }).then(r => r.data),
 
   // KALMIO-387: typed via openapi-fetch — URL is checked at compile time against
   // the generated OpenAPI spec, so a backend route rename surfaces here as a TS
@@ -39,6 +39,8 @@ export const planService = {
   delete: (id: string): Promise<void> =>
     api.delete(`/api/plans/calendar/${id}`, { requestIdempotencyKey: true }).then(() => undefined),
 
+  // SW BackgroundSync excludes /replan paths (sw.ts:233). No idempotency key needed;
+  // replan-evaluate is a read-like analysis call and the SW will never queue-replay it.
   evaluateReplan: (planId: string, fromDate?: string): Promise<ReplanDiff | null> =>
     api.post<ReplanDiff>(
       `/api/plans/calendar/${planId}/replan-evaluate`,
@@ -53,7 +55,7 @@ export const planService = {
     ).then(r => r.status === 204 ? null : r.data),
 
   acceptReplan: (planId: string, diffId: string): Promise<Plan> =>
-    api.post<Plan>(`/api/plans/calendar/${planId}/replan-accept`, { diffId }).then(r => r.data),
+    api.post<Plan>(`/api/plans/calendar/${planId}/replan-accept`, { diffId }, { requestIdempotencyKey: true }).then(r => r.data),
 
   getShoppingList: (planId: string): Promise<ShoppingList> =>
     api.get<ShoppingList>(`/api/plans/calendar/${planId}/shopping-list`).then(r => r.data),
@@ -69,7 +71,7 @@ export const planService = {
 export const planTemplateService = {
   /** POST /api/plans — create a new plan template. Returns 201. */
   create: (req: CreatePlanTemplateRequest): Promise<PlanTemplate> =>
-    api.post<PlanTemplate>('/api/plans', req).then(r => r.data),
+    api.post<PlanTemplate>('/api/plans', req, { requestIdempotencyKey: true }).then(r => r.data),
 
   /** GET /api/plans — list all plans visible to the current user. */
   list: (): Promise<PlanTemplate[]> =>
@@ -87,7 +89,7 @@ export const planTemplateService = {
    * solver run (C13).
    */
   refreshSnapshot: (id: string): Promise<PlanTemplate> =>
-    api.post<PlanTemplate>(`/api/plans/${id}/snapshot/refresh`).then(r => r.data),
+    api.post<PlanTemplate>(`/api/plans/${id}/snapshot/refresh`, null, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * POST /api/plans/{id}/solve — runs the Timefold solver and writes
@@ -96,16 +98,20 @@ export const planTemplateService = {
    * mode='EMPTY' (default) preserves existing cells; mode='ALL' wipes them
    * and replaces the whole grid.
    */
+  // SW BackgroundSync excludes /generate paths (sw.ts:233). solve is not a /generate
+  // or /replan path, but it kicks off the Timefold solver which is heavyweight and
+  // non-idempotent in intent (each solve pass may produce different assignments).
+  // No idempotency key: re-solving after a network failure should produce a fresh result.
   solve: (id: string, mode: 'EMPTY' | 'ALL' = 'EMPTY'): Promise<PlanTemplate> =>
     api.post<PlanTemplate>(`/api/plans/${id}/solve`, null, { params: { mode } }).then(r => r.data),
 
   /** DELETE /api/plans/{id} — soft-archive the plan. */
   archive: (id: string): Promise<void> =>
-    api.delete(`/api/plans/${id}`).then(() => undefined),
+    api.delete(`/api/plans/${id}`, { requestIdempotencyKey: true }).then(() => undefined),
 
   /** POST /api/plans/{id}/copy — duplicate plan. */
   copy: (id: string, name?: string | null): Promise<PlanTemplate> =>
-    api.post<PlanTemplate>(`/api/plans/${id}/copy`, name ? { name } : {}).then(r => r.data),
+    api.post<PlanTemplate>(`/api/plans/${id}/copy`, name ? { name } : {}, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * POST /api/plans/{id}/template-meals — create or upsert a template meal cell.
@@ -119,11 +125,11 @@ export const planTemplateService = {
   ): Promise<TemplateMeal> => {
     if (templateMealId) {
       return api
-        .put<TemplateMeal>(`/api/plans/${planId}/template-meals/${templateMealId}`, body)
+        .put<TemplateMeal>(`/api/plans/${planId}/template-meals/${templateMealId}`, body, { requestIdempotencyKey: true })
         .then(r => r.data)
     }
     return api
-      .post<TemplateMeal>(`/api/plans/${planId}/template-meals`, body)
+      .post<TemplateMeal>(`/api/plans/${planId}/template-meals`, body, { requestIdempotencyKey: true })
       .then(r => r.data)
   },
 
@@ -131,7 +137,7 @@ export const planTemplateService = {
    * DELETE /api/plans/{id}/template-meals/{templateMealId} — clear a cell.
    */
   clearTemplateMeal: (planId: string, templateMealId: string): Promise<void> =>
-    api.delete(`/api/plans/${planId}/template-meals/${templateMealId}`).then(() => undefined),
+    api.delete(`/api/plans/${planId}/template-meals/${templateMealId}`, { requestIdempotencyKey: true }).then(() => undefined),
 
   /**
    * DELETE /api/plans/{id}/template-meals — wipe every template_meal row on
@@ -139,7 +145,7 @@ export const planTemplateService = {
    * stays intact.
    */
   clearAllTemplateMeals: (planId: string): Promise<void> =>
-    api.delete(`/api/plans/${planId}/template-meals`).then(() => undefined),
+    api.delete(`/api/plans/${planId}/template-meals`, { requestIdempotencyKey: true }).then(() => undefined),
 
   /**
    * POST /api/plans/{id}/run — one-click "Run this plan".
@@ -151,7 +157,7 @@ export const planTemplateService = {
    * (KALMIO-307 / KALMIO-320)
    */
   runPlan: (planId: string, body: RunPlanBody): Promise<RunPlanResponse> =>
-    api.post<RunPlanResponse>(`/api/plans/${planId}/run`, body).then(r => r.data),
+    api.post<RunPlanResponse>(`/api/plans/${planId}/run`, body, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * POST /api/plans/{id}/template-meals/swap — atomically swap the
@@ -161,7 +167,7 @@ export const planTemplateService = {
    * meal. Returns 204.
    */
   swapTemplateMeals: (planId: string, firstId: string, secondId: string): Promise<void> =>
-    api.post(`/api/plans/${planId}/template-meals/swap`, { firstId, secondId })
+    api.post(`/api/plans/${planId}/template-meals/swap`, { firstId, secondId }, { requestIdempotencyKey: true })
       .then(() => undefined),
 
   /**
@@ -173,7 +179,7 @@ export const planTemplateService = {
    * (KALMIO-354)
    */
   updatePlanName: (planId: string, name: string): Promise<PlanTemplate> =>
-    api.patch<PlanTemplate>(`/api/plans/${planId}`, { name }).then(r => r.data),
+    api.patch<PlanTemplate>(`/api/plans/${planId}`, { name }, { requestIdempotencyKey: true }).then(r => r.data),
 
   /**
    * PATCH /api/plans/{id} — update only the recipe filter.
@@ -184,5 +190,5 @@ export const planTemplateService = {
    * (KALMIO-353)
    */
   patchRecipeFilter: (planId: string, recipeFilter: RecipeFilter | null): Promise<PlanTemplate> =>
-    api.patch<PlanTemplate>(`/api/plans/${planId}`, { recipeFilter }).then(r => r.data),
+    api.patch<PlanTemplate>(`/api/plans/${planId}`, { recipeFilter }, { requestIdempotencyKey: true }).then(r => r.data),
 }

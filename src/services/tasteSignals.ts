@@ -25,7 +25,7 @@ export async function submitTasteSignal(
   body: TasteSignalRequest,
 ): Promise<void> {
   try {
-    await api.post('/api/users/me/taste-signals', body)
+    await api.post('/api/users/me/taste-signals', body, { requestIdempotencyKey: true })
   } catch (err: unknown) {
     // 404 = backend endpoint not yet deployed (E9.1).  Swallow gracefully.
     const status = (err as { response?: { status?: number } })?.response?.status

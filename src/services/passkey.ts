@@ -48,7 +48,10 @@ interface AuthenticateFinishResponse {
  * 3. Send attestation to backend to store
  */
 export async function registerPasskey(friendlyName: string): Promise<PasskeyInfo> {
-  // Step 1: get challenge from backend
+  // Step 1: get challenge from backend.
+  // No idempotency key: /register/start issues a fresh WebAuthn challenge each time.
+  // A deduplicated stale challenge would cause the browser ceremony to fail with
+  // an "invalid challenge" error. Auth challenges must always be fresh.
   const { data: startData } = await api.post<RegisterStartResponse>(
     '/api/passkey/register/start',
     { friendlyName },
@@ -78,7 +81,9 @@ export async function registerPasskey(friendlyName: string): Promise<PasskeyInfo
 
   const registrationResponse = await startRegistration({ optionsJSON: creationOptions })
 
-  // Step 3: send attestation to backend
+  // Step 3: send attestation to backend.
+  // requestIdempotencyKey: true — the browser will not re-run the biometric ceremony
+  // on retry; this finish call must be safely replayable (same attestation bytes).
   const { data: passkeyInfo } = await api.post<PasskeyInfo>(
     '/api/passkey/register/finish',
     {
@@ -87,6 +92,7 @@ export async function registerPasskey(friendlyName: string): Promise<PasskeyInfo
       credentialId: registrationResponse.id,
       friendlyName,
     },
+    { requestIdempotencyKey: true },
   )
 
   return passkeyInfo
@@ -101,7 +107,9 @@ export async function registerPasskey(friendlyName: string): Promise<PasskeyInfo
  * 3. Send assertion to backend — receives JWT on success
  */
 export async function authenticateWithPasskey(email: string): Promise<AuthenticateFinishResponse> {
-  // Step 1: get challenge
+  // Step 1: get challenge.
+  // No idempotency key: /authenticate/start issues a fresh WebAuthn challenge each time.
+  // Same reasoning as /register/start — a deduplicated challenge causes the ceremony to fail.
   const { data: startData } = await api.post<AuthenticateStartResponse>(
     '/api/passkey/authenticate/start',
     { email },
@@ -121,7 +129,10 @@ export async function authenticateWithPasskey(email: string): Promise<Authentica
 
   const authenticationResponse = await startAuthentication({ optionsJSON: requestOptions })
 
-  // Step 3: verify assertion
+  // Step 3: verify assertion.
+  // No idempotency key: the WebAuthn signature is a one-time-use assertion bound to
+  // the challenge nonce. The backend rejects replay by design (signature re-use = attack).
+  // Adding an idempotency key here would mask a genuine replay-attack detection.
   const { data: finishData } = await api.post<AuthenticateFinishResponse>(
     '/api/passkey/authenticate/finish',
     {
@@ -142,6 +153,7 @@ export async function authenticateWithPasskey(email: string): Promise<Authentica
  * The browser presents all passkeys registered for this RP.
  */
 export async function authenticateWithPasskeyDiscoverable(): Promise<AuthenticateFinishResponse> {
+  // No idempotency key: fresh WebAuthn challenge needed each time (same as /authenticate/start).
   const { data: startData } = await api.post<AuthenticateStartResponse>(
     '/api/passkey/authenticate/discoverable/start',
     {},
@@ -157,6 +169,7 @@ export async function authenticateWithPasskeyDiscoverable(): Promise<Authenticat
 
   const authenticationResponse = await startAuthentication({ optionsJSON: requestOptions })
 
+  // No idempotency key: one-time-use WebAuthn assertion; same reasoning as /authenticate/finish.
   const { data: finishData } = await api.post<AuthenticateFinishResponse>(
     '/api/passkey/authenticate/discoverable/finish',
     {
@@ -189,5 +202,5 @@ export async function listPasskeys(): Promise<PasskeyInfo[]> {
 }
 
 export async function deletePasskey(id: string): Promise<void> {
-  await api.delete(`/api/passkey/${id}`)
+  await api.delete(`/api/passkey/${id}`, { requestIdempotencyKey: true })
 }

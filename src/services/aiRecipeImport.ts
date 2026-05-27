@@ -20,6 +20,9 @@ export const aiRecipeImportService = {
   /**
    * Paste-text: send the raw recipe text and an optional source URL, get back a preview.
    * The preview is in-memory only — call `confirmImport` to persist.
+   *
+   * No idempotency key: this is a stateless AI parse — the result is ephemeral (not
+   * persisted) and the user may intentionally re-submit to get a fresh AI interpretation.
    */
   importFromText: (text: string, sourceUrl?: string | null): Promise<RecipeImportPreview> =>
     api
@@ -33,6 +36,9 @@ export const aiRecipeImportService = {
    * Handwriting digitiser: upload a photo of a handwritten recipe (max 8 MB; JPEG, PNG,
    * HEIC, HEIF, WEBP). Returns a preview with `culturalTags = [FAMILY_RECIPE, HANDWRITING]`
    * pre-populated.
+   *
+   * No idempotency key: multipart/form-data binary upload is not replayable by BackgroundSync
+   * (blobs cannot be serialised to IndexedDB). Also a stateless AI parse — not persisted.
    */
   digitizeHandwriting: (image: File): Promise<RecipeImportPreview> => {
     const form = new FormData()
@@ -47,5 +53,5 @@ export const aiRecipeImportService = {
    * macros, cost, and machine translations. Fires the `RECIPE_IMPORTED` domain event.
    */
   confirmImport: (req: RecipeImportConfirmRequest): Promise<Recipe> =>
-    api.post<Recipe>('/api/recipes/from-text/confirm', req).then(r => r.data),
+    api.post<Recipe>('/api/recipes/from-text/confirm', req, { requestIdempotencyKey: true }).then(r => r.data),
 }

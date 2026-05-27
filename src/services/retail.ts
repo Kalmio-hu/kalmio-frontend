@@ -15,10 +15,10 @@ export const retailService = {
       .then(r => r.data),
 
   create: (body: CreateRetailProductRequest) =>
-    api.post<RetailProduct>('/api/retail/products', body).then(r => r.data),
+    api.post<RetailProduct>('/api/retail/products', body, { requestIdempotencyKey: true }).then(r => r.data),
 
   update: (id: string, body: UpdateRetailProductRequest) =>
-    api.put<RetailProduct>(`/api/retail/products/${id}`, body).then(r => r.data),
+    api.put<RetailProduct>(`/api/retail/products/${id}`, body, { requestIdempotencyKey: true }).then(r => r.data),
 
-  delete: (id: string) => api.delete(`/api/retail/products/${id}`),
+  delete: (id: string) => api.delete(`/api/retail/products/${id}`, { requestIdempotencyKey: true }),
 }
