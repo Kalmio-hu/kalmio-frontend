@@ -211,12 +211,20 @@ export function WeeklySummaryModule() {
                     <div>
                       <span className="text-gray-400">{t('dashboard.weeklySummary.fat')}</span>{' '}
                       {Math.round(data!.averageActual.fat)}{' '}
-                      <span className="text-gray-400">/ {Math.round(data!.averageTarget.fat)} g</span>
+                      <span className="text-gray-400">
+                        {(data!.averageTarget.fat ?? 0) > 0
+                          ? `/ ${Math.round(data!.averageTarget.fat)} g`
+                          : 'g'}
+                      </span>
                     </div>
                     <div>
                       <span className="text-gray-400">{t('dashboard.weeklySummary.carbs')}</span>{' '}
                       {Math.round(data!.averageActual.carbs)}{' '}
-                      <span className="text-gray-400">/ {Math.round(data!.averageTarget.carbs)} g</span>
+                      <span className="text-gray-400">
+                        {(data!.averageTarget.carbs ?? 0) > 0
+                          ? `/ ${Math.round(data!.averageTarget.carbs)} g`
+                          : 'g'}
+                      </span>
                     </div>
                   </div>
                 </div>

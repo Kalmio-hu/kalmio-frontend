@@ -184,6 +184,8 @@ export default function App() {
                   <Route path="grooming" element={<Grooming />} />
                   {/* retail-products legacy path — redirect to admin route (KALMIO-305) */}
                   <Route path="retail-products" element={<Navigate to="/app/admin/retail/products" replace />} />
+                  {/* /app/shopping → canonical /app/shopping-list */}
+                  <Route path="shopping" element={<Navigate to="/app/shopping-list" replace />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="profile" element={<Profile />} />
                   {/* Preferences page folded into Profile tabs (KALMIO).

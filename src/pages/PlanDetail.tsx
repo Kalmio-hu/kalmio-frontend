@@ -746,7 +746,7 @@ export function PlanDetail() {
   // router), so we trigger on plan load with a brief delay instead.
   useEffect(() => {
     if (!plan?.id || hasFounderFarewellBeenShown(currentUserId || null)) return
-    const id = window.setTimeout(() => setFarewellVisible(true), 30_000)
+    const id = window.setTimeout(() => setFarewellVisible(true), 1_500)
     return () => window.clearTimeout(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [plan?.id])
