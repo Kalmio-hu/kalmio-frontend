@@ -114,6 +114,21 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
   ]
   const RECIPE_NAMES = ['lecsó', 'csirkepörkölt', 'gyors zöldségleves']
 
+  /**
+   * Defensive fallback for when `translations.hu.name` is null (KALMIO-474).
+   * Strips trailing English parenthetical qualifiers like "(firm)", "(cooked)",
+   * "(0% fat)" so "Tofu (firm)" renders as "Tofu" rather than leaking the
+   * English technical qualifier into the Hungarian-language UI.
+   * Only applied to the raw English `name` field — proper HU translations are
+   * returned as-is.
+   */
+  const resolveIngredientName = (ingredient: Ingredient): string => {
+    const huName = ingredient.translations?.hu?.name
+    if (huName) return huName
+    // Strip trailing " (anything)" from the English fallback name.
+    return ingredient.name.replace(/\s*\([^)]+\)\s*$/, '').trim()
+  }
+
   const byName = (names: string[], pool: Ingredient[]): TasteCard[] => {
     const result: TasteCard[] = []
     for (const n of names) {
@@ -126,7 +141,7 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
         result.push({
           id: match.id,
           targetType: 'INGREDIENT',
-          name: match.translations?.hu?.name ?? match.name,
+          name: resolveIngredientName(match),
           subtitle: match.category ?? undefined,
         })
       }
@@ -167,7 +182,7 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
       (i): TasteCard => ({
         id: i.id,
         targetType: 'INGREDIENT',
-        name: i.translations?.hu?.name ?? i.name,
+        name: resolveIngredientName(i),
         subtitle: i.category ?? undefined,
       }),
     )
