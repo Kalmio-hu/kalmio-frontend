@@ -20,6 +20,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { usersService, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { hasPremiumTasterBeenShown, markPremiumTasterShown } from '@/lib/firstPlanReveal'
+import { useAuthStore } from '@/store/auth'
 import type { UserStageValue } from '@/types'
 
 /** The three stage values that trigger a premium taster grant (KALMIO-170). */
@@ -39,6 +40,7 @@ export interface UsePremiumTasterReturn {
 
 export function usePremiumTaster(): UsePremiumTasterReturn {
   const [dismissed, setDismissed] = useState(false)
+  const userId = useAuthStore((s) => s.user?.id ?? null)
 
   const { data: stageData } = useQuery({
     queryKey: USERS_STAGE_QUERY_KEY,
@@ -51,7 +53,7 @@ export function usePremiumTaster(): UsePremiumTasterReturn {
 
   // Determine if the current stage qualifies for a taster and has not been shown.
   const isTasterStage = currentStage != null && (TASTER_STAGES as UserStageValue[]).includes(currentStage)
-  const alreadyShown = currentStage != null ? hasPremiumTasterBeenShown(currentStage) : true
+  const alreadyShown = currentStage != null ? hasPremiumTasterBeenShown(currentStage, userId) : true
 
   const shouldShow = isTasterStage && !alreadyShown && !dismissed
 
@@ -61,7 +63,7 @@ export function usePremiumTaster(): UsePremiumTasterReturn {
 
   function dismiss() {
     if (currentStage) {
-      markPremiumTasterShown(currentStage)
+      markPremiumTasterShown(currentStage, userId)
     }
     setDismissed(true)
   }

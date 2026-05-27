@@ -18,11 +18,12 @@ export function Sidebar() {
   const { t } = useTranslation()
   const signOut = useAuthStore((s) => s.signOut)
   const isAdmin = useAuthStore((s) => s.isAdmin)
+  const userId = useAuthStore((s) => s.user?.id ?? null)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   // KALMIO-456 — tutorial coachmark: pulse the feedback icon until the founder
   // farewell modal has been shown (i.e. until the user has visited the plan view
   // and navigated away for the first time).
-  const showFeedbackCoachmark = !hasFounderFarewellBeenShown()
+  const showFeedbackCoachmark = !hasFounderFarewellBeenShown(userId)
   const { data: points } = usePoints()
 
   const { data: unreadCount = 0 } = useQuery({

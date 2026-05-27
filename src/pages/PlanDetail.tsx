@@ -745,7 +745,7 @@ export function PlanDetail() {
   // loads. useBlocker is not available with BrowserRouter (it requires a data
   // router), so we trigger on plan load with a brief delay instead.
   useEffect(() => {
-    if (!plan?.id || hasFounderFarewellBeenShown()) return
+    if (!plan?.id || hasFounderFarewellBeenShown(currentUserId || null)) return
     const id = window.setTimeout(() => setFarewellVisible(true), 1200)
     return () => window.clearTimeout(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1581,7 +1581,7 @@ export function PlanDetail() {
       {farewellVisible && (
         <FounderFarewellModal
           onDismiss={() => {
-            markFounderFarewellShown()
+            markFounderFarewellShown(currentUserId || null)
             setFarewellVisible(false)
           }}
         />

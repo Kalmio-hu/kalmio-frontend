@@ -26,6 +26,7 @@ import {
   markCsemeteWelcomeShown,
   hasRevealBeenShown,
 } from '@/lib/firstPlanReveal'
+import { useAuthStore } from '@/store/auth'
 
 interface UseCsemeteWelcomeMomentReturn {
   /** True when the overlay should be rendered. */
@@ -36,6 +37,7 @@ interface UseCsemeteWelcomeMomentReturn {
 
 export function useCsemeteWelcomeMoment(): UseCsemeteWelcomeMomentReturn {
   const [dismissed, setDismissed] = useState(false)
+  const userId = useAuthStore((s) => s.user?.id ?? null)
 
   const { data: stageData } = useQuery({
     queryKey: USERS_STAGE_QUERY_KEY,
@@ -51,12 +53,12 @@ export function useCsemeteWelcomeMoment(): UseCsemeteWelcomeMomentReturn {
   //   4. Not dismissed in this session.
   const shouldShow =
     stageData?.currentStage === 'CSEMETE' &&
-    !hasCsemeteWelcomeBeenShown() &&
-    hasRevealBeenShown() &&
+    !hasCsemeteWelcomeBeenShown(userId) &&
+    hasRevealBeenShown(userId) &&
     !dismissed
 
   function dismiss() {
-    markCsemeteWelcomeShown()
+    markCsemeteWelcomeShown(userId)
     setDismissed(true)
   }
 

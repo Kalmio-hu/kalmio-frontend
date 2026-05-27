@@ -28,6 +28,7 @@ import { useNavigate } from 'react-router-dom'
 import { Download, TreePine, X } from 'lucide-react'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { markGraduationRevealShown } from '@/lib/firstPlanReveal'
+import { useAuthStore } from '@/store/auth'
 import { api } from '@/lib/api'
 import { toast } from '@/components/ui/toast'
 
@@ -70,13 +71,14 @@ const TREE_BLOOM_DELAY_MS = 750
 export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const userId = useAuthStore((s) => s.user?.id ?? null)
   const dismissRef = useRef<HTMLButtonElement>(null)
   const [isDownloading, setIsDownloading] = useState(false)
 
   const handleDismiss = useCallback(() => {
-    markGraduationRevealShown()
+    markGraduationRevealShown(userId)
     onDismiss()
-  }, [onDismiss])
+  }, [onDismiss, userId])
 
   // Delay TERMO widget render so the entrance animation plays first.
   const [treeReady, setTreeReady] = useState(false)
@@ -241,7 +243,7 @@ export function GraduationReveal({ onDismiss }: GraduationRevealProps) {
             {/* Secondary: View grove — KALMIO-144 */}
             <button
               type="button"
-              onClick={() => { markGraduationRevealShown(); navigate('/app/grove') }}
+              onClick={() => { markGraduationRevealShown(userId); navigate('/app/grove') }}
               className="
                 w-full flex items-center justify-center gap-2
                 rounded-xl bg-transparent border border-[#4F7942]/50 text-[#3d2008]

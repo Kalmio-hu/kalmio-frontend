@@ -22,6 +22,7 @@ import { useTranslation } from 'react-i18next'
 import { PlantingScene } from '@/components/onboarding/PlantingScene'
 import { usersService, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { markRevealShown } from '@/lib/firstPlanReveal'
+import { useAuthStore } from '@/store/auth'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -57,6 +58,7 @@ const panelVariants: Variants = {
 
 export function FirstPlanReveal({ onDismiss }: FirstPlanRevealProps) {
   const { t } = useTranslation()
+  const userId = useAuthStore((s) => s.user?.id ?? null)
   const dismissRef = useRef<HTMLButtonElement>(null)
 
   // Focus the dismiss button once the panel is visible.
@@ -84,7 +86,7 @@ export function FirstPlanReveal({ onDismiss }: FirstPlanRevealProps) {
   })
 
   function handleDismiss() {
-    markRevealShown()
+    markRevealShown(userId)
     onDismiss()
   }
 
