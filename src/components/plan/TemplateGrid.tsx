@@ -12,7 +12,7 @@
  */
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Plus, GripVertical, Minus } from 'lucide-react'
+import { Plus, GripVertical, Minus, Layers } from 'lucide-react'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { MEMBER_COLORS } from './memberColors'
 import { DayMacroStrip } from './DayMacroStrip'
@@ -577,6 +577,22 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
         />
         <span className="truncate">{displayLabel}</span>
       </div>
+
+      {/* Family indicator — surfaces the variant on plan-template cells so the
+          user can identify family members at a glance even before opening the
+          picker. The picker (TemplateCellPicker) does the actual sibling grouping;
+          this is the read-only at-a-glance affordance on the grid itself. */}
+      {effectiveRecipe?.familyId && (
+        <p
+          className="text-[10px] text-[#4F7942] font-semibold leading-tight flex items-center gap-1 min-w-0"
+          title={effectiveRecipe.variantLabel ?? undefined}
+        >
+          <Layers className="h-2.5 w-2.5 shrink-0" aria-hidden />
+          <span className="truncate">
+            {effectiveRecipe.variantLabel ?? t('recipeFamily.variants')}
+          </span>
+        </p>
+      )}
 
       {hasMacros && (
         <>
