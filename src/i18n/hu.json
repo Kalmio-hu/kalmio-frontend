@@ -2183,7 +2183,7 @@
       "budgetHint": "Nem kötelező. Ha megadod, a tervező a megadott összeg alatt próbálja tartani a heti bevásárlást.",
       "budgetPlaceholder": "pl. 25000",
       "budgetSuffix": "Ft / hét",
-      "budgetError": "Az értéknek 1 000 és 500 000 Ft között kell lennie.",
+      "budgetError": "Hagyd üresen, ha nem akarsz keretet megadni — vagy adj meg legalább 1 000 Ft-ot.",
       "cta": "Tovább",
       "saving": "Mentés…",
       "householdError": "Kérlek válassz 1 és 6 közötti értéket.",

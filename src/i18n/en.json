@@ -2183,7 +2183,7 @@
       "budgetHint": "Optional. If you set one, the planner will try to keep the weekly shop under this amount.",
       "budgetPlaceholder": "e.g. 25000",
       "budgetSuffix": "HUF / week",
-      "budgetError": "The value must be between 1,000 and 500,000 HUF.",
+      "budgetError": "Leave empty to skip the budget — or enter at least 1,000 HUF.",
       "cta": "Next",
       "saving": "Saving…",
       "householdError": "Please choose a value between 1 and 6.",

@@ -296,15 +296,18 @@ export function PreferencesStep({
   // KALMIO-430: budget is optional. Empty input = no cap. Any value must be
   // a positive integer at or above 1 000 Ft/week (lower is unrealistic for
   // even a single person) and at or below 500 000 Ft/week (sanity ceiling).
+  // KALMIO-465: treat "0" as "no budget" — typing 0 signals the same intent
+  // as leaving the field empty. This prevents a confusing dead-end where the
+  // field is labeled "Nem kötelező" but 0 triggers a validation error.
   const resolvedBudget: number | null = (() => {
     const trimmed = budgetMax.trim()
-    if (trimmed === '') return null
+    if (trimmed === '' || trimmed === '0') return null
     const n = parseInt(trimmed, 10)
     return isNaN(n) ? null : n
   })()
   const budgetError: string | null = (() => {
     const trimmed = budgetMax.trim()
-    if (trimmed === '') return null
+    if (trimmed === '' || trimmed === '0') return null
     const n = parseInt(trimmed, 10)
     if (isNaN(n) || n < 1000 || n > 500000) return t('onboarding.preferencesStep.budgetError')
     return null
