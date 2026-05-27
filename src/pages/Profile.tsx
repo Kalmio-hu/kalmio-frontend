@@ -1014,7 +1014,7 @@ export function Profile() {
                     <Spinner className="h-4 w-4 text-gray-400" />
                   ) : displayTdee != null ? (
                     <p className="text-lg font-semibold text-[#1A1A1A]">
-                      {displayTdee.toLocaleString()} {t('profile.targets.unit_kcal')}
+                      {displayTdee.toLocaleString(i18n.language === 'hu' ? 'hu-HU' : 'en-US')} {t('profile.targets.unit_kcal')}
                     </p>
                   ) : (
                     <p className="text-sm text-gray-400">{t('profile.bodyData.tdeeIncomplete')}</p>
@@ -1130,7 +1130,7 @@ export function Profile() {
                         {t(`profile.targets.${key}`)}
                       </p>
                       <p className="text-base font-semibold text-[#1A1A1A] mt-0.5">
-                        {value.toLocaleString()} <span className="text-xs font-normal text-gray-500">{unit}</span>
+                        {value.toLocaleString(i18n.language === 'hu' ? 'hu-HU' : 'en-US')} <span className="text-xs font-normal text-gray-500">{unit}</span>
                       </p>
                     </div>
                   ))}

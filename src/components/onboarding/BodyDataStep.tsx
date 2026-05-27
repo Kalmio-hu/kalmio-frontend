@@ -41,7 +41,7 @@ export function BodyDataStep({
   onBack,
   isSubmitting = false,
 }: BodyDataStepProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const [weightKg, setWeightKg] = useState<string>(
     initialValues?.weightKg != null ? String(initialValues.weightKg) : ''
@@ -198,7 +198,7 @@ export function BodyDataStep({
           </p>
           {previewTdee != null ? (
             <p className="text-lg font-semibold text-[#1A1A1A]">
-              {previewTdee.toLocaleString()} {t('profile.targets.unit_kcal')}
+              {previewTdee.toLocaleString(i18n.language === 'hu' ? 'hu-HU' : 'en-US')} {t('profile.targets.unit_kcal')}
             </p>
           ) : (
             <p className="text-sm text-gray-400">
