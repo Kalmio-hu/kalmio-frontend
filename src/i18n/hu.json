@@ -129,7 +129,7 @@
         "saved": "Mentve."
       },
       "autoTick": {
-        "presumedEaten": "Megettnek számít — koppints, ha nem így volt.",
+        "presumedEaten": "Megevettnek jelöltem — koppints, ha mégsem.",
         "undo": "Mégsem ettem meg",
         "markSkipped": "Kihagytam",
         "markReplaced": "Mást ettem helyette"
@@ -162,7 +162,7 @@
         "hint": "jpeg, png vagy webp — max 5 MB",
         "useCamera": "Fotó készítése",
         "cameraStarting": "Kamera indul…",
-        "capture": "Kattintás",
+        "capture": "Fotózás",
         "retake": "Új fotó",
         "replaceUpload": "Másik fájl",
         "remove": "Eltávolítás"
@@ -172,7 +172,7 @@
       "parse": "Feldolgozás",
       "parsing": "Feldolgozás…",
       "confidence": "{{value}}% biztos",
-      "persistedHint": "Már rögzítettem. Ha mégsem stimmel, vond vissza.",
+      "persistedHint": "Már rögzítettem. Ha valami nem pontos, vond vissza.",
       "undo": "Mégse",
       "done": "Rendben",
       "undone": "Visszavontam.",
@@ -187,7 +187,7 @@
         "premiumTitle": "Ez egy prémium funkció",
         "premiumDescription": "Az AI-asszisztens naplózás az Alapító Tag csomag része.",
         "premiumCta": "Alapító Tag információk",
-        "rateLimitText": "Túl gyorsan kérdezed — várj egy percet, és próbáld újra.",
+        "rateLimitText": "Túl gyors a tempó — várj egy percet, és próbáld újra.",
         "rateLimitPhoto": "Túl sok fotó az elmúlt órában — várj egy órát, és próbáld újra.",
         "tooLarge": "A fájl túl nagy. Hang: max 25 MB, kép: max 5 MB.",
         "unsupportedType": "Nem támogatott fájlformátum.",
@@ -236,7 +236,7 @@
         "doneAriaLabel": "Minden előkészítés kész"
       },
       "portion": {
-        "breakdown": "{{total}} adag · 1 friss most, {{laterCount}} a {{laterLabels}}"
+        "breakdown": "{{total}} adag · most 1 adag frissen, {{laterCount}} adag később: {{laterLabels}}"
       },
       "leftover": {
         "badge": "maradék",
@@ -258,7 +258,7 @@
       },
       "tick": {
         "doneAriaLabel": "Megjelölés készként",
-        "undoAriaLabel": "Visszavonás — megjelölés függőbenként"
+        "undoAriaLabel": "Visszavonás — jelölés függőként"
       }
     },
     "coachmark": {
@@ -302,14 +302,14 @@
       "chartAriaLabel": "Napi kalória grafikon — tényleges vs. cél"
     },
     "replan": {
-      "title": "Terv módosítás elérhető",
+      "title": "Tervmódosítás érkezett",
       "accept": "Elfogadom",
       "decline": "Nem kérem",
       "seeDetails": "Részletek",
-      "hideDetails": "Elrejt",
+      "hideDetails": "Elrejtés",
       "noChanges": "Minden a terv szerint halad.",
       "acceptError": "A javaslat lejárt — frissítve.",
-      "wasted": "{{name}} már nem menthető meg{{cost}} — el kell dobni."
+      "wasted": "{{name}} már nem menthető{{cost}} — ki kell dobni."
     }
   },
   "mealPlan": {
@@ -330,13 +330,13 @@
       "daysHint": "(1–14)",
       "selectMeals": "Étkezések kiválasztása",
       "mealCalories": "Kalória-elosztás étkezésenként",
-      "mealCaloriesHint": "Húzd fel/le a gombokat — az értékek mindig a napi kalóriacélt adják ki",
+      "mealCaloriesHint": "Húzd fel/le a gombokat — összegük mindig a napi kalóriacélt adja ki",
       "kcalTarget": "Kalória cél (kcal) *",
       "proteinTarget": "Fehérjecél (g)",
       "budgetMax": "Max. napi keret (Ft)",
       "prepTimeMax": "Max. elkészítési idő (perc)",
       "maxRepeats": "Hány napon jelenhet meg ugyanaz a recept",
-      "maxRepeatsHint": "Ajánlott: 2–3. Alacsonyabb értéknél változatosabb az étrend, de kevesebb receptből is el kell készülnie.",
+      "maxRepeatsHint": "Ajánlott: 2–3. Alacsonyabb érték változatosabb étrendet ad, de nagyobb receptkönyvtárat igényel.",
       "optional": "opcionális",
       "weightsTitle": "Mire fókuszáljon a tervező?",
       "weightsHint": "Húzd a csúszkákat — a tervező ennek arányában súlyozza a szempontokat. Az összeg mindig 100%.",
@@ -351,12 +351,12 @@
       "queuePending": "Sorban, {{position}}. helyen",
       "queueRunning": "Most állítom össze az étrendedet…",
       "queueEta": "Kb. {{seconds}} mp",
-      "error": "A generálás sikertelen. Győződj meg róla, hogy vannak receptjeid.",
+      "error": "A generálás sikertelen. Ellenőrizd, hogy vannak-e receptjeid.",
       "existingPlanWarning": "Már van elmentett étrendterved. Mégis generálsz és mentesz egy újat?",
       "generateAnyway": "Mégis generálás",
       "dietaryActive": "Aktív étrendi korlátozások",
       "infeasibleTitle": "Nem található érvényes étrend",
-      "infeasibleDesc": "A megadott beállításokkal nem sikerült érvényes étrendet létrehozni. Próbáld lazítani az étrendi korlátozásokat, a kalória célt vagy a kerett — vagy adj hozzá több receptet a katalógushoz."
+      "infeasibleDesc": "A megadott beállításokkal nem sikerült érvényes étrendet létrehozni. Próbáld lazítani az étrendi korlátozásokat, a kalóriacélt vagy a keretet — vagy adj hozzá több receptet a katalógushoz."
     },
     "savedConfirmation": "A terv mentve a fiókodba",
     "summary": {
@@ -394,7 +394,7 @@
       "prepTime": "{{min}} perc"
     },
     "planSyncError": "Az étrend elmentve, de az irányítópulton nem jelenik meg. Generáld újra a tervet.",
-    "batchCookLeftover": "Korábbi fogás maradéka",
+    "batchCookLeftover": "Korábbi főzésből maradt",
     "macroSummary": {
       "target": "cél: {{target}}g"
     }
@@ -443,7 +443,7 @@
       "askSubmit": "Kérdés küldése",
       "thinking": "Gondolkodom…",
       "errors": {
-        "premium": "A főzési asszisztens prémium funkció. Aktiválás után minden recept mellett ott áll a háttérben.",
+        "premium": "A főzési asszisztens az Alapító Tagság része. Aktiválás után minden recept mellett kéznél van.",
         "premiumCta": "Alapító tagság",
         "rateLimit": "Pillanat — túl gyorsan érkeznek a kérdések. Próbáld újra egy perc múlva.",
         "configuration": "A főzési asszisztens átmenetileg nem érhető el. Próbáld újra később.",
@@ -484,7 +484,7 @@
       "servings": "Adagok *",
       "steps": "Lépések",
       "stepsHint": "(soronként egy)",
-      "stepsPlaceholder": "Várd fel a zöldségeket\nMelegítsd fel a serpenyőt…",
+      "stepsPlaceholder": "Vágd fel a zöldségeket\nMelegítsd fel a serpenyőt…",
       "tags": "Címkék",
       "ingredients": "Hozzávalók *",
       "noIngredients": "Még nincsenek hozzávalók — kattints a Hozzáadásra",
@@ -498,10 +498,10 @@
         "holdDaysRefrigerated": "Hűtőben eltartható (nap)",
         "holdDaysRefrigeratedHint": "0 = frissen kell elkészíteni.",
         "prepLeadTimeHours": "Várakozási idő (óra)",
-        "prepLeadTimeHoursHint": "Passzív idő mielőtt kész lesz (overnight zabkása ≈ 8 óra).",
+        "prepLeadTimeHoursHint": "Passzív idő, mielőtt kész lesz (másnapra áztatott zabkása ≈ 8 óra).",
         "freezableAfterPrep": "Készítés után lefagyasztható",
         "holdDaysFrozen": "Mélyhűtőben eltartható (nap)",
-        "holdDaysFrozenHint": "Akkor használjuk, ha engedélyezed a fagyasztásos batch előkészítést."
+        "holdDaysFrozenHint": "Akkor használjuk, ha engedélyezed a fagyasztott adagok előkészítését."
       }
     },
     "dietaryFilter": "Étrendi szűrők",
@@ -756,7 +756,7 @@
     "feedback": {
       "bmiBelow18Loss": "A súlyod már most az egészséges tartomány alatt van. Kérj szakemberi véleményt, mielőtt fogyni kezdesz.",
       "lowBmiAggressiveLoss": "Ezzel a testtömeggel az enyhe fogyás tartósabb és biztonságosabb. Fontold meg az enyhe fogyás lehetőségét.",
-      "highBmiDirtyBulk": "Az agresszív tömegnövelés mostanában valószínűleg nem a legmegfelelőbb választás. A Testösszetétel-javítás jobb kiindulópont lehet.",
+      "highBmiDirtyBulk": "Az agresszív tömegnövelés jelenleg valószínűleg nem a legjobb választás. A Testösszetétel-javítás jobb kiindulópont lehet.",
       "midHighBmiDirtyBulk": "Ennél a súlynál a Tiszta tömegnövelés jobb választás lehet az agresszív változat helyett.",
       "seniorAggressiveLoss": "65 év felett az erőteljes fogyás izomvesztéssel járhat. Az enyhe fogyás kíméletesebb megközelítés."
     }
@@ -855,7 +855,7 @@
       "createdOn": "Létrehozva: {{date}}",
       "lastUsed": "Utoljára használva: {{date}}",
       "neverUsed": "Soha nem használták",
-      "revoke": "Visszavon",
+      "revoke": "Visszavonás",
       "revokeError": "Nem sikerült visszavonni a kulcsot.",
       "revokeAll": "Összes visszavonása",
       "revokeAllConfirm": "Visszavonod a(z) {{count}} kulcsot?",
@@ -902,7 +902,7 @@
       "prefersFreezing": "Szívesen lefagyasztok előkészített ételt",
       "prefersFreezingHint": "Ha engedélyezed, a hűtős eltarthatóságon túli ismétléseket egyetlen főzésbe fogjuk össze és néhány adagot fagyasztásra ajánlunk.",
       "preferredPrepDayOfWeek": "Preferált előkészítési nap",
-      "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra tesszük a batch főzéseket.",
+      "preferredPrepDayOfWeekHint": "Ha a recept eltarthatósága megengedi, erre a napra ütemezzük a több adagos főzéseket.",
       "noPreference": "Nincs preferencia",
       "preferLocallySourced": "Inkább helyi alapanyag",
       "preferLocallySourcedHint": "Ha bekapcsolod, a terv elsősorban magyarországi alapanyagokra épülő recepteket javasol."
@@ -942,7 +942,7 @@
     },
     "stats": {
       "totalRealUsers": "Valódi felhasználók",
-      "foundingMembers": "Founding Member",
+      "foundingMembers": "Alapító tagok",
       "totalFridgeItems": "Hűtőtételek",
       "stageDistribution": "Diófa megoszlás"
     },
@@ -954,7 +954,7 @@
       "demote": "Admin visszavonása",
       "impersonate": "Megszemélyesítés",
       "premiumBadge": "Prémium",
-      "grantPremium": "Prémium megnyitása",
+      "grantPremium": "Prémium megadása",
       "revokePremium": "Prémium visszavétele"
     },
     "contentReview": {
@@ -1009,13 +1009,13 @@
       "saveError": "Nem sikerült menteni az importált receptet.",
       "unmatchedTitle_one": "{{count}} hozzávaló nincs még megfeleltetve",
       "unmatchedTitle_other": "{{count}} hozzávaló nincs még megfeleltetve",
-      "unmatchedDescription": "Kattints egy hozzávalóra, hogy hozzáadd a katalógusból, vagy kérd az MI-t, hogy hozza létre. A mentés csak akkor engedélyezett, ha minden tétel feloldódott vagy elvetve lett.",
+      "unmatchedDescription": "Kattints egy hozzávalóra, hogy hozzáadd a katalógusból, vagy kérd az MI-t, hogy hozza létre. Csak akkor lehet menteni, ha minden tételt megoldottál vagy elvetettél.",
       "unmatchedDismiss": "Elvetés",
       "unmatchedEnrich": "Új hozzávaló létrehozása MI-vel",
       "unmatchedEnrichShort": "MI-vel létrehozom",
       "enrichSuccess": "{{name}} hozzáadva a hozzávalóidhoz.",
       "enrichError": "Nem sikerült létrehozni a hozzávalót. Próbáld újra.",
-      "enrichErrorPremium": "Az MI-alapú hozzávaló-létrehozás Founding Member funkció.",
+      "enrichErrorPremium": "Az MI-alapú hozzávaló-létrehozás Alapító Tag funkció.",
       "enrichErrorRateLimit": "Túl sok kérés rövid idő alatt. Várj egy percet, és próbáld újra.",
       "enrichErrorMonthly": "Elérted a havi MI-keretedet. A keret jövő hónapban megújul.",
       "enrichErrorUnavailable": "Az MI-szolgáltatás jelenleg nem elérhető. Próbáld meg később.",
@@ -1026,8 +1026,8 @@
     },
     "errors": {
       "premiumTitle": "Ez prémium funkció",
-      "premiumDescription": "Az AI-receptimport a Founding Member csomag része.",
-      "premiumCta": "Founding Member lettem",
+      "premiumDescription": "Az AI-receptimport az Alapító Tag csomag része.",
+      "premiumCta": "Alapító Tag leszek",
       "rateLimitText": "Túl sok importálási kérés. Próbáld újra egy perc múlva.",
       "rateLimitPhoto": "Túl sok digitalizálási kérés. Próbáld újra egy perc múlva.",
       "monthlyQuota": "Elérted a havi receptimportálási kereted. A keret jövő hónapban megújul.",
@@ -1119,7 +1119,7 @@
       "title": "Három lépés, és kész",
       "step1": {
         "title": "Add meg a célod",
-        "desc": "Kalória, fehérje, keret – te döntesz, Kalmio optimalizál."
+        "desc": "Kalória, fehérje, keret – te döntesz, a Kalmio optimalizál."
       },
       "step2": {
         "title": "Állítsd be a kereted",
@@ -1156,7 +1156,7 @@
     "passkeyVerifying": "Azonosítás…",
     "passkeyForEmail": "Jelszókulcs",
     "useEmailInstead": "Inkább e-maillel",
-    "passkeyError": "A jelszókulcsos bejelentkezés nem sikerült. Győződj meg róla, hogy van regisztrált jelszókulcsod ehhez a fiókhoz.",
+    "passkeyError": "A jelszókulcsos bejelentkezés nem sikerült. Ellenőrizd, hogy van-e regisztrált jelszókulcsod ehhez a fiókhoz.",
     "passkeyAbandon": "Inkább másképp lépek be",
     "passkeyTimeout": "Az azonosítás túl sokáig tartott. Próbáld e-maillel vagy Google-fiókkal.",
     "continueWithEmail": "Folytatás e-maillel",
@@ -1262,7 +1262,7 @@
     "changeStatus": "Státusz módosítása",
     "admin": "Támogatás",
     "you": "Te",
-    "deleteConfirm": "Véglegesen törli ezt a visszajelzést? Ez nem vonható vissza.",
+    "deleteConfirm": "Véglegesen törlöd ezt a visszajelzést? Ez nem vonható vissza.",
     "deleteSuccess": "Visszajelzés törölve.",
     "types": {
       "BUG": "Hiba",
@@ -1506,8 +1506,8 @@
       "loading": "Egy pillanat — összegyűjtöm az indoklást.",
       "startCooking": "Főzés indítása",
       "errors": {
-        "premium": "A „Miért ezt?\" indoklás az alapító tagság része. Aktiválás után minden étkezésnél elérhető.",
-        "premiumCta": "Alapító tagság",
+        "premium": "A „Miért ezt?\" indoklás az Alapító Tag csomag része. Aktiválás után minden étkezésnél elérhető.",
+        "premiumCta": "Alapító Tag",
         "rateLimit": "Most kicsit sok kérdés érkezett — próbáld újra egy perc múlva.",
         "notFound": "Ez az étkezés már nem érhető el.",
         "generic": "Most nem tudtam előkészíteni az indoklást.",
@@ -1546,17 +1546,17 @@
         "fill": "Tervező feltöltése",
         "clearAll": "Terv ürítése",
         "clearAllConfirmTitle": "Biztosan üríted a tervet?",
-        "clearAllConfirmBody_one": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a slotok ürülnek ki.",
-        "clearAllConfirmBody_other": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a slotok ürülnek ki.",
+        "clearAllConfirmBody_one": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a sávok ürülnek ki.",
+        "clearAllConfirmBody_other": "Eltávolítok minden étkezést a tervből ({{count}} db). A sablon megmarad, csak a sávok ürülnek ki.",
         "clearAllConfirmOk": "Igen, üríts mindent",
-        "fillConfirmTitle": "Milyen slotokat töltsük fel?",
-        "fillConfirmEmpty": "Csak az üres slotok",
+        "fillConfirmTitle": "Mely sávokat töltsük fel?",
+        "fillConfirmEmpty": "Csak az üres sávok",
         "fillConfirmAll": "Mindent felülír",
         "fillConfirmOk": "Feltöltés",
         "fillProgress": "A tervező összeállítja a hetet — kérlek, várj egy fél percet."
       },
       "cell": {
-        "emptyAria": "Üres slot — kattints a receptválasztáshoz",
+        "emptyAria": "Üres sáv — kattints a receptválasztáshoz",
         "emptyLabel": "Recept kiválasztása",
         "pickerTitle": "Étkezés szerkesztése",
         "tabRecipe": "Recept",
@@ -1574,7 +1574,7 @@
         "dragHandleAria": "{{meal}} áthúzása másik időpontra",
         "swapBadge": "Csere",
         "nonPreferredBadge": "Nem preferált",
-        "nonPreferredAria": "Ez a slot nincs a tag preferenciái között.",
+        "nonPreferredAria": "Ez a sáv nincs a tag preferenciái között.",
         "nonPreferredTitle": "Ez az étkezés nincs a tag preferenciái között — kézzel kerülhet ide.",
         "filters": {
           "tagsLabel": "Címkék",
@@ -1599,7 +1599,7 @@
         "usageCountAria_one": "{{count}} étkezésre van betervezve",
         "usageCountAria_other": "{{count}} étkezésre van betervezve",
         "replaceTitle": "Lecseréljem?",
-        "replaceBody": "Ebben a slotban most {{target}} van. Cseréljem le {{source}}-re?",
+        "replaceBody": "Ebben a sávban most {{target}} van. Cseréljem le {{source}}-re?",
         "replaceOk": "Igen, cseréld le"
       },
       "trash": {
@@ -1761,7 +1761,7 @@
     "title": "Heti terv összeállítása",
     "subtitle": "Pár kérdés, és összerakom.",
     "householdSize": "Háztartás mérete",
-    "calorieTarget": "Kalória szint",
+    "calorieTarget": "Kalóriaszint",
     "caloriePresets": {
       "low": "Kevesebb",
       "lowSub": "1600 kcal · fogyás",
@@ -1801,7 +1801,7 @@
     "prepTimeMax": "Max. elkészítési idő",
     "prepTimeUnit": "perc/étkezés",
     "maxRepetitions": "Hány napon jelenhet meg ugyanaz a recept",
-    "maxRepetitionsHint": "Ajánlott: 2–3. Alacsonyabb értéknél változatosabb az étrend, de kevesebb receptből is el kell készülnie.",
+    "maxRepetitionsHint": "Ajánlott: 2–3. Alacsonyabb érték változatosabb étrendet ad, de nagyobb receptkönyvtárat igényel.",
     "weightsTitle": "Mire fókuszáljon a tervező?",
     "weightsHint": "Húzd a csúszkákat — a tervező ennek arányában súlyozza a szempontokat. Az összeg mindig 100.",
     "weightLeftovers": "Maradékfelhasználás",
@@ -1927,7 +1927,7 @@
     "stages": {
       "MAG": "Mag",
       "CSEMETE": "Csemete",
-      "SUHANG": "Suhang",
+      "SUHANG": "Suháng",
       "FIATAL": "Fiatal fa",
       "TERMO": "Termőfa"
     },
@@ -2290,7 +2290,7 @@
       }
     },
     "conversational": {
-      "title": "Kalmio — beállítás chattel",
+      "title": "Kalmio — beállítás csevegéssel",
       "switchBack": "Vissza az űrlaphoz",
       "inputPlaceholder": "Írj egy üzenetet…",
       "send": "Küldés",
@@ -2323,7 +2323,7 @@
     },
     "bodyDataHint": {
       "title": "Személyre szabott célok",
-      "body": "A testsúlyod, testmagasságod és aktivitási szinted megadásával Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
+      "body": "A testsúlyod, testmagasságod és aktivitási szinted megadásával a Kalmio személyre szabott kalória- és fehérjecélt tud javasolni.",
       "cta": "Adatok megadása"
     },
     "tdeeStep": {
@@ -2503,17 +2503,17 @@
       "macroTargets": "Makrócélok",
       "kcalTarget": "Kalóriacél (kcal)",
       "proteinTarget": "Fehérjecél (g)",
-      "carbsTarget": "Szénhidrát cél (g)",
-      "fatTarget": "Zsír cél (g)",
+      "carbsTarget": "Szénhidrátcél (g)",
+      "fatTarget": "Zsírcél (g)",
       "prepTolerance": "Konyhai tolerancia (perc)",
       "portionSize": "Adag szorzó",
       "vegetarian": "Vegetáriánus",
       "vegan": "Vegán",
-      "pescatarian": "Pescatariánus",
+      "pescatarian": "Pescetáriánus",
       "glutenFree": "Gluténmentes",
       "dairyFree": "Tejtermékmentes",
       "lactoseFree": "Laktózmentes",
-      "milkProteinFree": "Tejfehérjementes",
+      "milkProteinFree": "Tejfehérje-mentes",
       "eggFree": "Tojásmentes",
       "nutFree": "Héjasgyümölcs-mentes",
       "peanutFree": "Földimogyoró-mentes",
@@ -2551,7 +2551,7 @@
     "actions": {
       "ateIt": "Megettem",
       "somethingElse": "Mást ettem",
-      "markEaten": "Megettnek jelöl",
+      "markEaten": "Megevettnek jelölés",
       "moreOptions": "Több lehetőség"
     }
   },
@@ -2634,7 +2634,7 @@
       "pickHint": "JPEG, PNG — max. 10 MB",
       "scanning": "Megnézem a blokkot — egy pillanat…",
       "fileTooLarge": "A kép túl nagy. 10 MB-nál kisebb fájlt tölts fel.",
-      "premiumRequired": "Blokk-beolvasás Kalmio Prémium előfizetéssel érhető el.",
+      "premiumRequired": "A blokk-beolvasás csak Kalmio Prémium előfizetéssel érhető el.",
       "rateLimited": "Egy percet kell várni a következő beolvasásig.",
       "ocrUnavailable": "A blokk-beolvasás most nem elérhető — próbálj meg később visszatérni.",
       "scanError": "Nem sikerült olvasni a blokkot. Élesebb, jobb megvilágítású fotó segíthet.",
@@ -2707,7 +2707,7 @@
       "endDate": "Befejező dátum (opcionális)",
       "endDateHint": "Ha üresen hagyod, az ütemezés határozatlan ideig fut.",
       "cadenceDays": "Ismétlődési ciklus (nap)",
-      "cadenceHint": "Hány naponta kerül sor a következő terv elhelyezésére?",
+      "cadenceHint": "Hány naponta induljon a következő terv?",
       "cadenceAutoHint": "Automatikusan a tervek hosszaiból számítva: {{days}} nap.",
       "recurrence": "Ismétlődés típusa",
       "recurrenceOnce": "Csak egyszer",
@@ -2811,7 +2811,7 @@
   },
   "oauthConsent": {
     "invalidRequest": "Érvénytelen hitelesítési kérés.",
-    "authFailed": "A hitelesítés nem sikerült. Indítsd újra a folyamatot Claude Desktop alkalmazásból.",
+    "authFailed": "A hitelesítés nem sikerült. Indítsd újra a folyamatot a Claude Desktop alkalmazásból.",
     "title": "Claude Desktop csatlakoztatása",
     "description": "A Claude Desktop hozzáférést kér a Kalmio-fiókodhoz — megtekintheti az étrendterveidet és a hűtőtartalmadat, és új terveket hozhat létre a nevedben.",
     "signedInAs": "Bejelentkezve:",
@@ -3000,7 +3000,7 @@
       "readyZone": "Kész — most veheted le",
       "pastZone": "{{time}} óta túl van",
       "softAlertTitle": "Kalmio — időzítő",
-      "softAlertBody": "{{min}} perc megvolt. Most már a tied — ha tovább pirítanád, {{max}} percig megteheted.",
+      "softAlertBody": "{{min}} perc megvolt. Most már a tied — ha tovább szeretnéd, {{max}} percig még mehet.",
       "hardAlertTitle": "Kalmio — időzítő",
       "hardAlertBody": "{{max}} perc — vedd le."
     }
