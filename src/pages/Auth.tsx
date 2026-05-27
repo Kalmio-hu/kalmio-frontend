@@ -11,7 +11,7 @@ import { buildSessionFromAccessToken, persistPasskeyToken } from '@/lib/passkeyS
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { authenticateWithPasskeyDiscoverable, authenticateWithPasskey } from '@/services/passkey'
+import { authenticateWithPasskeyDiscoverable, authenticateWithPasskey, cancelPasskeyCeremony } from '@/services/passkey'
 import { GoogleLogo } from '@/assets/GoogleLogo'
 import { ProviderButton } from '@/components/auth/ProviderButton'
 import { useAuthStore } from '@/store/auth'
@@ -132,9 +132,16 @@ export function Auth() {
       storeSessionFromToken(result.accessToken)
       navigate(nextPath, { replace: true })
     } catch (err: unknown) {
+      const name = err instanceof Error ? err.name : ''
       const msg = err instanceof Error ? err.message : ''
-      // User cancelled or no passkey available — reveal the email fallback quietly
-      if (msg.includes('NotAllowedError') || msg.includes('cancelled') || msg.includes('timed out')) {
+      // User cancelled, no passkey available, or we deliberately aborted via abandonPasskey()
+      // — reveal the email fallback quietly without showing an error.
+      if (
+        name === 'AbortError' ||
+        msg.includes('NotAllowedError') ||
+        msg.includes('cancelled') ||
+        msg.includes('timed out')
+      ) {
         setShowEmailFallback(true)
       } else {
         setError(t('auth.passkeyError'))
@@ -165,13 +172,17 @@ export function Auth() {
 
   /**
    * Explicit "use another method" escape hatch from the passkey loading state.
-   * WebAuthn may keep running in the background (its result is discarded by the
-   * timeout), but the UI is unlocked so the user can try email or Google.
+   * KALMIO-463: cancelPasskeyCeremony() aborts the in-flight navigator.credentials.get()
+   * call so the native OS-level WebAuthn sheet is dismissed. Without this, the OS modal
+   * blocks all UI interaction even after passkeyLoading is set to false — the user is
+   * effectively frozen until they perform a full page refresh.
    */
   function abandonPasskey() {
     clearPasskeyTimeout()
+    cancelPasskeyCeremony()
     setPasskeyLoading(false)
     setShowEmailFallback(true)
+    setError(null)
   }
 
   // ── Google OAuth ──────────────────────────────────────────────────────────

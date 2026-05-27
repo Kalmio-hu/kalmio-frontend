@@ -1,6 +1,7 @@
 import {
   startRegistration,
   startAuthentication,
+  WebAuthnAbortService,
 } from '@simplewebauthn/browser'
 import type {
   PublicKeyCredentialCreationOptionsJSON,
@@ -167,6 +168,17 @@ export async function authenticateWithPasskeyDiscoverable(): Promise<Authenticat
   )
 
   return finishData
+}
+
+// ── Ceremony abort ────────────────────────────────────────────────────────
+
+/**
+ * Cancel any in-flight navigator.credentials.get() or .create() call.
+ * Call this when the user explicitly dismisses the passkey UI so the native
+ * OS-level WebAuthn sheet is closed and other auth buttons become interactive.
+ */
+export function cancelPasskeyCeremony(): void {
+  WebAuthnAbortService.cancelCeremony()
 }
 
 // ── Credential management ─────────────────────────────────────────────────
