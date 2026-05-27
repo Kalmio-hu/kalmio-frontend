@@ -35,7 +35,7 @@ import { todayIsoLocal } from '@/lib/utils'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
 import { VariantsChip } from '@/components/recipe/VariantsChip'
-import type { DashboardDto, DietTier, MaterializedPlannedMeal, PlannedMeal, PrepTaskCard, Recipe, RecipeSibling, TimePreferencesDto } from '@/types'
+import { DIET_TIER_ORDER, type DashboardDto, type DietTier, type MaterializedPlannedMeal, type PlannedMeal, type PrepTaskCard, type Recipe, type RecipeSibling, type TimePreferencesDto } from '@/types'
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -1364,6 +1364,28 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       // payload itself doesn't carry it (would require a join per row), so we
       // hydrate client-side from the already-cached /api/recipes response.
       const recipe = meal.recipeId ? recipesById.get(meal.recipeId) : undefined
+      // Compute siblings client-side from the recipes list. The list endpoint
+      // intentionally leaves `siblings` null (it's only populated on the detail
+      // endpoint to avoid the extra JOIN cost), so we derive it here from the
+      // already-loaded full catalogue. Excludes the current recipe; sorted by
+      // diet-tier strictness (VEGAN first) then variant label.
+      const siblings = recipe?.familyId
+        ? allRecipes
+            .filter(r => r.familyId === recipe.familyId && r.id !== recipe.id)
+            .map(r => ({
+              id: r.id,
+              variantLabel: r.variantLabel,
+              dietTier: r.dietTier,
+              kcal: r.macros?.kcal ?? null,
+              protein: r.macros?.protein ?? null,
+            }))
+            .sort((a, b) => {
+              const orderA = a.dietTier ? DIET_TIER_ORDER[a.dietTier] : 99
+              const orderB = b.dietTier ? DIET_TIER_ORDER[b.dietTier] : 99
+              if (orderA !== orderB) return orderA - orderB
+              return (a.variantLabel ?? '').localeCompare(b.variantLabel ?? '')
+            })
+        : null
       result.push({
         id: `meal-${meal.mealId}`,
         type: meal.mealType,
@@ -1379,7 +1401,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         familyName: recipe?.familyName ?? null,
         variantLabel: recipe?.variantLabel ?? null,
         dietTier: recipe?.dietTier ?? null,
-        siblings: recipe?.siblings ?? null,
+        siblings,
       })
     })
 
@@ -1447,7 +1469,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
 
     return result
-  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes, recipesById])
+  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes, recipesById, allRecipes])
 
   // ── auto-tick set (KALMIO-310) ────────────────────────────────────────────
   // A meal is auto-ticked when:
