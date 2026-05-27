@@ -26,7 +26,7 @@
  * Backend dependency: POST /api/users/me/taste-signals (KALMIO-153).
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   motion,
@@ -390,7 +390,7 @@ export function TasteSwipe({
   const [index, setIndex] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const cardKeyRef = useRef(0) // bumps when we advance so Framer remounts the active card
+  const [advanceCounter, setAdvanceCounter] = useState(0) // bumps when we advance so Framer remounts the active card
 
   const current = cards[index] ?? null
   const total = cards.length
@@ -417,7 +417,7 @@ export function TasteSwipe({
           deckPosition: index,
         })
         onSignal?.(current.id, signal)
-        cardKeyRef.current += 1
+        setAdvanceCounter((n) => n + 1)
         setIndex((i) => i + 1)
       } catch {
         setError(t('taste.errorSubmit'))
@@ -435,7 +435,7 @@ export function TasteSwipe({
       targetId: current.id,
       deckPosition: index,
     })
-    cardKeyRef.current += 1
+    setAdvanceCounter((n) => n + 1)
     setIndex((i) => i + 1)
   }, [current, submitting, index])
 
@@ -532,7 +532,7 @@ export function TasteSwipe({
         {next1 && <GhostCard key={`g1-${next1.id}`} card={next1} depth={1} />}
         <AnimatePresence mode="wait">
           <ActiveCard
-            key={`active-${cardKeyRef.current}-${current.id}`}
+            key={`active-${advanceCounter}-${current.id}`}
             card={current}
             onCommit={commitDirection}
             disabled={submitting}
