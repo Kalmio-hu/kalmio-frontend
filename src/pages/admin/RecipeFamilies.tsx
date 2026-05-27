@@ -210,12 +210,9 @@ export function RecipeFamilies() {
   const [deleteFamily, setDeleteFamily] = useState<RecipeFamily | null>(null)
 
   // ── Data ──────────────────────────────────────────────────────────────────
-  // NOTE: GET /api/recipe-families (list) does not exist yet — it ships with W4.
-  // Until then, the page shows an empty list and lets the admin create families.
-  // Once the list endpoint ships, replace the queryFn with the real call.
   const { data: families = [] as RecipeFamily[], isLoading } = useQuery<RecipeFamily[]>({
     queryKey: FAMILIES_QUERY_KEY,
-    queryFn: (): Promise<RecipeFamily[]> => Promise.resolve([]),
+    queryFn: () => recipeFamiliesService.list(),
     staleTime: 30_000,
   })
 

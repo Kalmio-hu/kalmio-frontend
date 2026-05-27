@@ -18,6 +18,13 @@ import type {
 
 export const recipeFamiliesService = {
   /**
+   * GET /api/recipe-families
+   * Returns all recipe families with member counts. Used by the admin family-management page.
+   */
+  list: (): Promise<RecipeFamily[]> =>
+    api.get<RecipeFamily[]>('/api/recipe-families').then(r => r.data),
+
+  /**
    * GET /api/recipe-families/{id}
    * Returns the family with its full member list.
    */
