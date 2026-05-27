@@ -972,6 +972,44 @@
       "approveError": "Nem sikerült jóváhagyni.",
       "rejectSuccess": "Elutasítva.",
       "rejectError": "Nem sikerült elutasítani."
+    },
+    "recipeFamilies": {
+      "title": "Receptcsaládok",
+      "subtitle": "Rokon receptek csoportosítása",
+      "createTitle": "Új receptcsalád",
+      "editTitle": "Receptcsalád szerkesztése",
+      "create": "Új",
+      "nameHu": "Név (HU)",
+      "nameEn": "Név (EN)",
+      "descHu": "Leírás (HU)",
+      "descEn": "Leírás (EN)",
+      "searchPlaceholder": "Keresés név alapján...",
+      "noResults": "Nincs találat.",
+      "empty": "Még nincs receptcsalád.",
+      "memberCount_one": "{{count}} recept",
+      "memberCount_other": "{{count}} recept",
+      "deleteDisabledTooltip": "Először távolítsa el a tagokat.",
+      "deleteConfirmTitle": "Töröljük a receptcsaládot?",
+      "deleteConfirmDesc": "A(z) \"{{name}}\" receptcsalád véglegesen törlődik.",
+      "createSuccess": "Receptcsalád létrehozva.",
+      "createError": "Nem sikerült létrehozni a receptcsaládot.",
+      "updateSuccess": "Receptcsalád frissítve.",
+      "updateError": "Nem sikerült frissíteni a receptcsaládot.",
+      "deleteSuccess": "Receptcsalád törölve.",
+      "deleteError": "Nem sikerült törölni a receptcsaládot."
+    },
+    "recipes": {
+      "familyPicker": {
+        "label": "Receptcsalád",
+        "placeholder": "Nem tartozik receptcsaládhoz",
+        "variantLabelHu": "Verzió neve (HU)",
+        "variantLabelEn": "Verzió neve (EN)",
+        "unassign": "Eltávolítás a receptcsaládból",
+        "assignSuccess": "Receptcsaládhoz rendelve.",
+        "assignError": "Nem sikerült hozzárendelni.",
+        "unassignSuccess": "Eltávolítva a receptcsaládból.",
+        "unassignError": "Nem sikerült eltávolítani."
+      }
     }
   },
   "aiImport": {
@@ -3004,5 +3042,20 @@
       "hardAlertTitle": "Kalmio — időzítő",
       "hardAlertBody": "{{recipe}}: {{max}} perc — vedd le."
     }
+  },
+  "recipeFamily": {
+    "variants": "Verziók",
+    "variantCount_one": "{{count}} verzió",
+    "variantCount_other": "{{count}} verzió",
+    "swapTo": "Csere erre a verzióra",
+    "swapped": "Verzió cserélve",
+    "noCompatibleVariants": "Nincs elérhető verzió az ön étrendjéhez",
+    "viewVariant": "Megnézem"
+  },
+  "dietTier": {
+    "vegan": "Vegán",
+    "vegetarian": "Vegetáriánus",
+    "pescatarian": "Pescetáriánus",
+    "omnivore": "Mindenevő"
   }
 }

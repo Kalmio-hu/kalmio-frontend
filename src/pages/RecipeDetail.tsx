@@ -18,7 +18,7 @@
  * detail view.
  */
 import { useMemo } from 'react'
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, ChefHat } from 'lucide-react'
@@ -26,7 +26,9 @@ import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { ingredientsService } from '@/services/ingredients'
 import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
-import type { Ingredient } from '@/types'
+import { DietTierBadge } from '@/components/recipe/DietTierBadge'
+import { DIET_TIER_ORDER } from '@/types'
+import type { Ingredient, RecipeSibling } from '@/types'
 
 export function RecipeDetail() {
   const { id } = useParams<{ id: string }>()
@@ -156,6 +158,63 @@ export function RecipeDetail() {
                 <p className="text-base font-bold text-[#1A1A1A]">{fullRecipe.cookTimeMinutes} min</p>
               </div>
             </div>
+          )}
+
+          {/* Verziók / Variants — shown only when the recipe is part of a family (W9) */}
+          {fullRecipe?.familyId && fullRecipe.siblings && fullRecipe.siblings.length > 0 && (
+            <section>
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+                {t('recipeFamily.variants')}
+              </h2>
+              <div className="space-y-2">
+                {[...fullRecipe.siblings]
+                  .sort((a: RecipeSibling, b: RecipeSibling) => {
+                    // VEGAN first (strictest), then alphabetical by variantLabel
+                    const tierA = a.dietTier ? DIET_TIER_ORDER[a.dietTier] : 99
+                    const tierB = b.dietTier ? DIET_TIER_ORDER[b.dietTier] : 99
+                    if (tierA !== tierB) return tierA - tierB
+                    return (a.variantLabel ?? '').localeCompare(b.variantLabel ?? '')
+                  })
+                  .map((sibling: RecipeSibling) => (
+                    <div
+                      key={sibling.id}
+                      className="flex items-center gap-3 p-3 bg-[#F9F7F2] rounded-[12px]"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[#1A1A1A] leading-tight truncate">
+                          {sibling.variantLabel ?? t('recipeFamily.variants')}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          {sibling.dietTier && (
+                            <DietTierBadge tier={sibling.dietTier} />
+                          )}
+                          {sibling.kcal !== null && sibling.kcal !== undefined && (
+                            <span className="text-xs text-gray-400 tabular-nums">
+                              {Math.round(sibling.kcal)} kcal
+                            </span>
+                          )}
+                          {sibling.protein !== null && sibling.protein !== undefined && (
+                            <span className="text-xs text-gray-400 tabular-nums">
+                              {sibling.protein.toFixed(1)}g P
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <Link
+                        to={`/app/recipes/${sibling.id}`}
+                        className="
+                          shrink-0 text-xs font-semibold text-[#F28C28]
+                          hover:text-[#c06917] transition-colors
+                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] rounded
+                        "
+                      >
+                        {t('recipeFamily.viewVariant')}
+                      </Link>
+                    </div>
+                  ))
+                }
+              </div>
+            </section>
           )}
 
           {/* Ingredients */}

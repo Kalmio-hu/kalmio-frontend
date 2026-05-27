@@ -85,6 +85,29 @@ export const plannedMealsService = {
       .then(r => r.data),
 
   /**
+   * POST /api/planned-meals/{plannedMealId}/swap-variant
+   *
+   * Swaps the recipe on a planned meal to a sibling in the same family.
+   * The backend enforces:
+   *   - target must be in the same family as the current recipe
+   *   - target's diet_tier must be compatible with the caller's effectiveDietTier
+   *
+   * Returns the updated MaterializedPlannedMeal on success.
+   * Throws 422 with { code: "CROSS_FAMILY_SWAP" | "DIET_TIER_INCOMPATIBLE" } on violation.
+   */
+  swapVariant: (
+    plannedMealId: string,
+    targetRecipeId: string,
+  ): Promise<MaterializedPlannedMeal> =>
+    api
+      .post<MaterializedPlannedMeal>(
+        `/api/planned-meals/${plannedMealId}/swap-variant`,
+        { targetRecipeId },
+        { requestIdempotencyKey: true },
+      )
+      .then(r => r.data),
+
+  /**
    * GET /api/planned-meals/shopping-list?from=YYYY-MM-DD&to=YYYY-MM-DD
    *
    * Aggregates ingredients from all planned_meal rows in the date range

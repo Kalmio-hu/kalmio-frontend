@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Check, MoreHorizontal, Pencil, Sparkles, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -8,12 +8,15 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { planService } from '@/services/plans'
 import { dashboardService } from '@/services/dashboard'
+import { plannedMealsService } from '@/services/plannedMeals'
+import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
+import { VariantsChip } from '@/components/recipe/VariantsChip'
 import { LogOffPlanMealModal } from './LogOffPlanMealModal'
 import { todayIsoLocal } from '@/lib/utils'
 import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
-import type { TodaysMealCard, OffPlanMealCard, Plan, DashboardDto, PlannedMealStatusExtended } from '@/types'
+import type { TodaysMealCard, OffPlanMealCard, Plan, DashboardDto, PlannedMealStatusExtended, DietTier } from '@/types'
 
 interface TodaysMealsModuleProps {
   meals: TodaysMealCard[]
@@ -26,6 +29,7 @@ interface MealCardProps {
   meal: TodaysMealCard
   planId: string
   today: string
+  effectiveDietTier: DietTier
 }
 
 function MealTypeLabel({ mealType }: { mealType: string }) {
@@ -65,7 +69,7 @@ function MacroPill({ kcal, protein }: { kcal: number; protein: number }) {
   )
 }
 
-function MealCard({ meal, planId, today }: MealCardProps) {
+function MealCard({ meal, planId, today, effectiveDietTier }: MealCardProps) {
   const { t, i18n } = useTranslation()
   const lang = (i18n.language?.startsWith('hu') ? 'hu' : 'en') as 'hu' | 'en'
   const queryClient = useQueryClient()
@@ -158,6 +162,57 @@ function MealCard({ meal, planId, today }: MealCardProps) {
     },
   })
 
+  // ── Variant swap mutation (W8) ──────────────────────────────────────────
+  const swapVariant = useMutation({
+    mutationFn: (targetRecipeId: string) =>
+      plannedMealsService.swapVariant(meal.mealId, targetRecipeId),
+    onMutate: async (targetRecipeId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['dashboard', today] })
+      const snapshot = queryClient.getQueryData<DashboardDto>(['dashboard', today])
+      // Optimistically update the recipe name to the sibling's variant label
+      const sibling = meal.siblings?.find(s => s.id === targetRecipeId)
+      queryClient.setQueryData<DashboardDto>(['dashboard', today], (prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          todaysMeals: prev.todaysMeals.map((m) =>
+            m.mealId === meal.mealId
+              ? {
+                  ...m,
+                  recipeId: targetRecipeId,
+                  recipeName: sibling?.variantLabel ?? m.recipeName,
+                  familyId: m.familyId,
+                  siblings: m.siblings,
+                  dietTier: sibling?.dietTier ?? m.dietTier,
+                }
+              : m,
+          ),
+        }
+      })
+      return { snapshot }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['dashboard', today] })
+      void queryClient.invalidateQueries({ queryKey: ['macros', today] })
+      toast({ title: t('recipeFamily.swapped'), variant: 'success' })
+    },
+    onError: (err: unknown, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['dashboard', today], context.snapshot)
+      }
+      // Typed 422 error codes from the backend
+      const status = (err as { response?: { status?: number; data?: { code?: string } } })?.response
+      if (status?.status === 422) {
+        const code = status?.data?.code
+        if (code === 'CROSS_FAMILY_SWAP' || code === 'DIET_TIER_INCOMPATIBLE') {
+          toast({ title: t('recipeFamily.noCompatibleVariants'), variant: 'destructive' })
+          return
+        }
+      }
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    },
+  })
+
   const isEaten = meal.status === 'EATEN'
   const isSkipped = meal.status === 'SKIPPED'
   const isFinal = isEaten || isSkipped || meal.status === 'REPLACED'
@@ -202,6 +257,20 @@ function MealCard({ meal, planId, today }: MealCardProps) {
             </p>
             {meal.macros && (
               <MacroPill kcal={meal.macros.kcal} protein={meal.macros.protein} />
+            )}
+            {/* Variant swap chip — only when the recipe belongs to a family (W8) */}
+            {meal.familyId && meal.siblings && meal.siblings.length > 0 && (
+              <div className="mt-1">
+                <VariantsChip
+                  familyId={meal.familyId}
+                  siblings={meal.siblings}
+                  currentRecipeId={meal.recipeId}
+                  currentDietTier={meal.dietTier ?? null}
+                  effectiveDietTier={effectiveDietTier}
+                  onSwap={(targetRecipeId) => swapVariant.mutate(targetRecipeId)}
+                  isSwapping={swapVariant.isPending}
+                />
+              </div>
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0">
@@ -391,6 +460,14 @@ export function TodaysMealsModule({ meals, offPlanMeals, activePlan, isLoading }
   // Re-align with server state after background-sync drains (KALMIO-378).
   useSyncInvalidation([['dashboard', today], ['macros', today]])
 
+  // Fetch the user's effective diet tier for variant filtering (W8).
+  const { data: userMe } = useQuery({
+    queryKey: USERS_ME_QUERY_KEY,
+    queryFn: usersService.getMe,
+    staleTime: 30_000,
+  })
+  const effectiveDietTier: DietTier = userMe?.effectiveDietTier ?? 'OMNIVORE'
+
   if (isLoading) {
     return (
       <Card>
@@ -426,6 +503,7 @@ export function TodaysMealsModule({ meals, offPlanMeals, activePlan, isLoading }
               meal={meal}
               planId={activePlan.id}
               today={today}
+              effectiveDietTier={effectiveDietTier}
             />
           ))
         )}

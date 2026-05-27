@@ -23,6 +23,7 @@ import { AiRecipeImportModal } from '@/components/recipes/AiRecipeImportModal'
 import { recipesService } from '@/services/recipes'
 import { ingredientsService } from '@/services/ingredients'
 import { aiRecipeImportService } from '@/services/aiRecipeImport'
+import { recipeFamiliesService } from '@/services/recipeFamilies'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { formatCurrency, recipePhotoUrl } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -39,6 +40,7 @@ import type {
   Unit,
   DietaryRestrictionKey,
   MealType,
+  RecipeFamily,
 } from '@/types'
 
 /** Meal-type filter chip order — matches the wizard's MEAL_TYPES constant. */
@@ -1174,6 +1176,145 @@ function RecipeTranslationDialog({
   )
 }
 
+// ── Recipe family picker (W10) ────────────────────────────────────────────
+// Shown inside RecipeFormDialog (edit mode only) so admins can assign/unassign
+// a recipe to a family and set the variant label.
+
+function RecipeFamilyPicker({ recipe }: { recipe: Recipe }) {
+  const { t } = useTranslation()
+  const qc = useQueryClient()
+  const [variantHu, setVariantHu] = useState(recipe.variantLabel ?? '')
+  const [variantEn, setVariantEn] = useState('')
+  const [selectedFamilyId, setSelectedFamilyId] = useState(recipe.familyId ?? '')
+
+  // Fetching a list of families — uses the known family IDs from a broader list.
+  // Placeholder: in production, wire to GET /api/recipe-families once a list
+  // endpoint exists. For now we just show the current assignment.
+  const { data: currentFamily } = useQuery<RecipeFamily | null>({
+    queryKey: ['recipe-family', recipe.familyId],
+    queryFn: () => recipe.familyId ? recipeFamiliesService.get(recipe.familyId) : Promise.resolve(null),
+    enabled: !!recipe.familyId,
+    staleTime: 30_000,
+  })
+
+  const assignMutation = useMutation({
+    mutationFn: () =>
+      recipeFamiliesService.assign(recipe.id, {
+        familyId: selectedFamilyId,
+        variantLabel: variantHu || null,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['recipes'] })
+      void qc.invalidateQueries({ queryKey: ['recipe', recipe.id] })
+      toast({ title: t('admin.recipes.familyPicker.assignSuccess'), variant: 'success' })
+    },
+    onError: () => {
+      toast({ title: t('admin.recipes.familyPicker.assignError'), variant: 'destructive' })
+    },
+  })
+
+  const unassignMutation = useMutation({
+    mutationFn: () => recipeFamiliesService.unassign(recipe.id),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['recipes'] })
+      void qc.invalidateQueries({ queryKey: ['recipe', recipe.id] })
+      setSelectedFamilyId('')
+      setVariantHu('')
+      setVariantEn('')
+      toast({ title: t('admin.recipes.familyPicker.unassignSuccess'), variant: 'success' })
+    },
+    onError: () => {
+      toast({ title: t('admin.recipes.familyPicker.unassignError'), variant: 'destructive' })
+    },
+  })
+
+  return (
+    <div className="border border-dashed border-gray-200 rounded-[12px] p-4 space-y-3">
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+        {t('admin.recipes.familyPicker.label')}
+      </p>
+
+      {/* Current assignment status */}
+      {recipe.familyId && currentFamily ? (
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-sm font-semibold text-[#1A1A1A]">{currentFamily.name}</p>
+            {recipe.variantLabel && (
+              <p className="text-xs text-gray-400 mt-0.5">{recipe.variantLabel}</p>
+            )}
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            disabled={unassignMutation.isPending}
+            onClick={() => unassignMutation.mutate()}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 shrink-0"
+          >
+            {unassignMutation.isPending ? <Spinner className="h-3.5 w-3.5" /> : null}
+            {t('admin.recipes.familyPicker.unassign')}
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {/* Family ID input — until the list endpoint ships, accept a raw UUID */}
+          <div>
+            <Label htmlFor="family-id-input" className="text-xs">
+              {t('admin.recipes.familyPicker.label')} (UUID)
+            </Label>
+            <Input
+              id="family-id-input"
+              value={selectedFamilyId}
+              onChange={e => setSelectedFamilyId(e.target.value)}
+              placeholder={t('admin.recipes.familyPicker.placeholder')}
+              className="text-sm"
+            />
+          </div>
+
+          {/* Variant label inputs */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="variant-hu" className="text-xs">
+                {t('admin.recipes.familyPicker.variantLabelHu')}
+              </Label>
+              <Input
+                id="variant-hu"
+                value={variantHu}
+                onChange={e => setVariantHu(e.target.value)}
+                placeholder="pl. tofuval"
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="variant-en" className="text-xs">
+                {t('admin.recipes.familyPicker.variantLabelEn')}
+              </Label>
+              <Input
+                id="variant-en"
+                value={variantEn}
+                onChange={e => setVariantEn(e.target.value)}
+                placeholder="e.g. with tofu"
+                className="text-sm"
+              />
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            size="sm"
+            disabled={!selectedFamilyId.trim() || assignMutation.isPending}
+            onClick={() => assignMutation.mutate()}
+          >
+            {assignMutation.isPending ? <Spinner className="h-3.5 w-3.5" /> : null}
+            {t('common.save')}
+          </Button>
+        </div>
+      )}
+
+    </div>
+  )
+}
+
 // ── Recipe form dialog ─────────────────────────────────────────────────────
 
 export function RecipeFormDialog({
@@ -1407,6 +1548,11 @@ export function RecipeFormDialog({
               </div>
             )}
           </div>
+
+          {/* Recipe family assignment (W10 — admin only) */}
+          {recipe && (
+            <RecipeFamilyPicker recipe={recipe} />
+          )}
 
           {/* Image upload */}
           <div>

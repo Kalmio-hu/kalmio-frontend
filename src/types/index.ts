@@ -1,6 +1,99 @@
 // ── Enums ─────────────────────────────────────────────────────────────────
 
 export type BiologicalSex = 'MALE' | 'FEMALE' | 'PREFER_NOT_TO_SAY'
+
+// ── Recipe Families (W7) ──────────────────────────────────────────────────
+
+/**
+ * The "strictness" tier of a recipe's dietary profile — derived server-side
+ * from ingredient flags. VEGAN is strictest, OMNIVORE is least strict.
+ *
+ * Compatibility table for the swap UI:
+ *   VEGAN user     → VEGAN only
+ *   VEGETARIAN     → VEGAN + VEGETARIAN
+ *   PESCATARIAN    → VEGAN + VEGETARIAN + PESCATARIAN
+ *   OMNIVORE       → all four
+ */
+export type DietTier = 'VEGAN' | 'VEGETARIAN' | 'PESCATARIAN' | 'OMNIVORE'
+
+/**
+ * Per-tier compatibility: returns the set of tiers a user of the given
+ * effectiveDietTier can eat. Defense-in-depth; the server also enforces this.
+ */
+export function compatibleDietTiers(userTier: DietTier): DietTier[] {
+  switch (userTier) {
+    case 'VEGAN':        return ['VEGAN']
+    case 'VEGETARIAN':   return ['VEGAN', 'VEGETARIAN']
+    case 'PESCATARIAN':  return ['VEGAN', 'VEGETARIAN', 'PESCATARIAN']
+    case 'OMNIVORE':     return ['VEGAN', 'VEGETARIAN', 'PESCATARIAN', 'OMNIVORE']
+  }
+}
+
+/** Sort order for diet tiers — VEGAN first (strictest). */
+export const DIET_TIER_ORDER: Record<DietTier, number> = {
+  VEGAN: 0,
+  VEGETARIAN: 1,
+  PESCATARIAN: 2,
+  OMNIVORE: 3,
+}
+
+/**
+ * A sibling variant within a recipe family.
+ * Returned as part of GET /api/recipes/{id} siblings array.
+ */
+export interface RecipeSibling {
+  id: string
+  variantLabel: string | null
+  dietTier: DietTier | null
+  kcal: number | null
+  protein: number | null
+}
+
+/**
+ * A recipe family grouping. Returned from GET /api/recipe-families/{id}.
+ * Translations follow the same JSONB pattern as RecipeTranslations.
+ */
+export interface RecipeFamilyLocaleTranslation {
+  name: string
+  description?: string | null
+}
+
+export interface RecipeFamilyTranslations {
+  en: RecipeFamilyLocaleTranslation | null
+  hu: RecipeFamilyLocaleTranslation | null
+}
+
+export interface RecipeFamilyMember {
+  id: string
+  name: string
+  variantLabel: string | null
+  dietTier: DietTier | null
+  kcal: number | null
+  protein: number | null
+}
+
+export interface RecipeFamily {
+  id: string
+  name: string
+  description: string | null
+  translations: RecipeFamilyTranslations | null
+  members?: RecipeFamilyMember[]
+}
+
+/** Request bodies for admin family CRUD */
+export interface CreateRecipeFamilyRequest {
+  name: string
+  description?: string | null
+  translations?: RecipeFamilyTranslations | null
+}
+
+export type UpdateRecipeFamilyRequest = Partial<CreateRecipeFamilyRequest>
+
+/** Request body for POST /api/recipes/{recipeId}/family */
+export interface AssignRecipeFamilyRequest {
+  familyId: string
+  variantLabel: string | null
+}
 export type ActivityLevel = 'SEDENTARY' | 'LIGHT' | 'MODERATE' | 'ACTIVE' | 'VERY_ACTIVE'
 
 /** User fitness/nutrition goal — drives TDEE-based macro targets. KALMIO-223. */
@@ -188,6 +281,20 @@ export interface Recipe {
   createdByUserId: string | null
   createdByUsername: string | null
   imageUrl: string | null
+  // ── Recipe family fields (W7) ─────────────────────────────────────────────
+  /** UUID of the recipe family this recipe belongs to. Null = standalone. */
+  familyId: string | null
+  /** Localised family name (e.g. "Zöldborsófőzelék"). Null when no family. */
+  familyName: string | null
+  /** Localised variant label (e.g. "tofuval", "tükörtojással"). Null when no family. */
+  variantLabel: string | null
+  /** Dietary tier derived from ingredient flags. Always present once W3 runner runs. */
+  dietTier: DietTier | null
+  /**
+   * All family siblings (unfiltered by diet) — present when familyId is set.
+   * Null when this is a standalone recipe.
+   */
+  siblings: RecipeSibling[] | null
 }
 
 export interface CreateRecipeRequest {
@@ -528,6 +635,13 @@ export interface TodaysMealCard {
   macros: { kcal: number; protein: number; fat: number; carbs: number } | null
   status: PlannedMealStatusExtended
   scheduledTime?: string | null
+  // ── Recipe family fields (W8) — present once W4 backend ships ─────────────
+  /** UUID of the recipe family. Null = standalone recipe. */
+  familyId?: string | null
+  /** All siblings in the family (unfiltered). Null when no family. */
+  siblings?: RecipeSibling[] | null
+  /** Dietary tier of this recipe. */
+  dietTier?: DietTier | null
 }
 
 export interface OffPlanMealCard {

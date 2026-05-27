@@ -20,6 +20,7 @@ import { Profile } from '@/pages/Profile'
 import { UserManagement } from '@/pages/admin/UserManagement'
 import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
+import { RecipeFamilies } from '@/pages/admin/RecipeFamilies'
 import { InvestorVault } from '@/pages/InvestorVault'
 import { Valuation } from '@/pages/Valuation'
 import { CaptainsBridge } from '@/pages/CaptainsBridge'
@@ -215,6 +216,8 @@ export default function App() {
                     <Route path="admin/users" element={<UserManagement />} />
                     <Route path="admin/ip-vault" element={<IpVault />} />
                     <Route path="admin/content-review" element={<ContentReview />} />
+                    {/* Recipe families admin (W10 / recipe-families epic) */}
+                    <Route path="admin/recipe-families" element={<RecipeFamilies />} />
                     {/* Retail routes moved under admin (KALMIO-305) */}
                     <Route path="admin/retail/products" element={<RetailProducts />} />
                     <Route path="admin/retail/providers" element={<RetailProviders />} />

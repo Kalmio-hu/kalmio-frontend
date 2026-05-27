@@ -48,6 +48,14 @@ jobs:
           git diff --exit-code src/types/api.d.ts || (echo "ERROR: Run npm run gen:api locally and commit the updated src/types/api.d.ts — backend OpenAPI routes have drifted." && exit 1)
         working-directory: kalmio-frontend
 
+      # Static gates: lint + unit tests must pass before we burn a build slot.
+      # `pnpm build` already runs `tsc -b`, so type-checking is covered there.
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
       - name: Build
         run: pnpm build
         env:
@@ -56,6 +64,15 @@ jobs:
           VITE_API_URL: https://api.kalmio.hu
           VITE_POSTHOG_KEY: ${{ secrets.VITE_POSTHOG_KEY }}
           VITE_POSTHOG_HOST: https://eu.i.posthog.com
+
+      # Headless smoke: boots `vite preview` against the built bundle and verifies
+      # React mounts without uncaught errors. Catches the white-screen-on-boot
+      # failure class that static checks can't.
+      - name: Install Playwright browser
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Smoke test built bundle
+        run: pnpm smoke
 
       - name: Deploy
         uses: Azure/static-web-apps-deploy@v1

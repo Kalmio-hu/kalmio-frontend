@@ -972,6 +972,44 @@
       "approveError": "Failed to approve.",
       "rejectSuccess": "Rejected.",
       "rejectError": "Failed to reject."
+    },
+    "recipeFamilies": {
+      "title": "Recipe Families",
+      "subtitle": "Group related recipe variants",
+      "createTitle": "New Recipe Family",
+      "editTitle": "Edit Recipe Family",
+      "create": "New",
+      "nameHu": "Name (HU)",
+      "nameEn": "Name (EN)",
+      "descHu": "Description (HU)",
+      "descEn": "Description (EN)",
+      "searchPlaceholder": "Search by name...",
+      "noResults": "No results.",
+      "empty": "No recipe families yet.",
+      "memberCount_one": "{{count}} recipe",
+      "memberCount_other": "{{count}} recipes",
+      "deleteDisabledTooltip": "Remove all members first.",
+      "deleteConfirmTitle": "Delete recipe family?",
+      "deleteConfirmDesc": "The \"{{name}}\" family will be permanently deleted.",
+      "createSuccess": "Recipe family created.",
+      "createError": "Failed to create recipe family.",
+      "updateSuccess": "Recipe family updated.",
+      "updateError": "Failed to update recipe family.",
+      "deleteSuccess": "Recipe family deleted.",
+      "deleteError": "Failed to delete recipe family."
+    },
+    "recipes": {
+      "familyPicker": {
+        "label": "Recipe Family",
+        "placeholder": "Not part of a family",
+        "variantLabelHu": "Variant label (HU)",
+        "variantLabelEn": "Variant label (EN)",
+        "unassign": "Remove from family",
+        "assignSuccess": "Assigned to family.",
+        "assignError": "Failed to assign to family.",
+        "unassignSuccess": "Removed from family.",
+        "unassignError": "Failed to remove from family."
+      }
     }
   },
   "aiImport": {
@@ -3004,5 +3042,20 @@
       "hardAlertTitle": "Kalmio — timer",
       "hardAlertBody": "{{recipe}}: {{max}} minutes — take it off."
     }
+  },
+  "recipeFamily": {
+    "variants": "Variants",
+    "variantCount_one": "{{count}} variant",
+    "variantCount_other": "{{count}} variants",
+    "swapTo": "Swap to this version",
+    "swapped": "Variant swapped",
+    "noCompatibleVariants": "No variants match your dietary preference",
+    "viewVariant": "View"
+  },
+  "dietTier": {
+    "vegan": "Vegan",
+    "vegetarian": "Vegetarian",
+    "pescatarian": "Pescatarian",
+    "omnivore": "Omnivore"
   }
 }

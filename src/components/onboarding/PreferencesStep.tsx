@@ -260,7 +260,7 @@ export function PreferencesStep({
 
   const toggleDietary = useCallback((key: DietaryRestrictionKey) => {
     setDietary(prev => ({ ...prev, [key]: !prev[key] }))
-  }, [])
+  }, [setDietary])
 
   // ── Validation & derived values ────────────────────────────────────────────
 

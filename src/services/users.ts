@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { BiologicalSex, ActivityLevel, DietaryConstraints, Goal, HealthFeedbackItem, TargetSetResponse, TdeeResponse, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
+import type { BiologicalSex, ActivityLevel, DietaryConstraints, DietTier, Goal, HealthFeedbackItem, TargetSetResponse, TdeeResponse, TimePreferencesDto, UserStageResponse, DashboardStateResponse } from '@/types'
 
 export interface UserMealPreferences {
   days?: number
@@ -83,6 +83,13 @@ export interface UserSettings {
    * Cleared on finalize (chat path) or on click-through preference advance.
    */
   onboardingChatDraft: OnboardingChatDraft | null
+  /**
+   * Single dietary tier derived server-side from the user's boolean flags
+   * (vegan > vegetarian > pescatarian > omnivore — strictest wins).
+   * Always present (never null) — defaults to OMNIVORE when no flag is set.
+   * Used by the meal-card swap UI (W8) and variant filtering.
+   */
+  effectiveDietTier: DietTier
 }
 
 /** KALMIO-449: draft extracted from the conversational onboarding chat. */
