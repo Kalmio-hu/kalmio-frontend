@@ -655,8 +655,22 @@ export function OnboardingShell() {
         {/* Step 7: App orientation (MiniTutorialPlanner) */}
         {currentStep === 7 && (
           <>
-            {/* MiniTutorialPlanner: onSkip advances to the next step */}
-            <MiniTutorialPlanner onSkip={goNext} />
+            {/* MiniTutorialPlanner: onSkip advances to the next step.
+                Pick a recipe pair the user can identify with — vegetarians
+                seeing chicken in the very tutorial that's meant to teach
+                them the planner concluded "this app didn't listen to me". */}
+            <MiniTutorialPlanner
+              onSkip={goNext}
+              dietaryTier={
+                user?.dietaryPreferences?.vegan
+                  ? 'vegan'
+                  : user?.dietaryPreferences?.vegetarian
+                    ? 'vegetarian'
+                    : user?.dietaryPreferences?.pescatarian
+                      ? 'pescatarian'
+                      : 'omnivore'
+              }
+            />
             <div className="mt-auto md:mt-0 flex flex-col gap-3 pt-4">
               <button
                 type="button"

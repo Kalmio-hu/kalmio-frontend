@@ -29,9 +29,19 @@ import { TutorialControls } from './TutorialControls'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+/**
+ * Dietary tier of the user, used to pick a demo recipe pair the user can
+ * actually identify with. A vegetarian who sees "Zöldbabos csirkemell" in
+ * the very tutorial that's supposed to teach them how the planner works
+ * concludes the app didn't listen — multiple persona reports caught this.
+ */
+export type DietaryTier = 'omnivore' | 'pescatarian' | 'vegetarian' | 'vegan'
+
 export interface MiniTutorialPlannerProps {
   /** Called when the user presses "Értem" or the sequence finishes. */
   onSkip: () => void
+  /** Drives the demo recipe pair so vegetarians don't see chicken. */
+  dietaryTier?: DietaryTier
   className?: string
 }
 
@@ -85,8 +95,32 @@ const glowPulse: Variants = {
 // ─── Frozen example data ──────────────────────────────────────────────────────
 
 const DAYS = ['H', 'K', 'Sze', 'Cs', 'P'] as const   // Hétfő…Péntek
-const OLD_RECIPE = 'Zöldbabos csirkemell'
-const NEW_RECIPE = 'Serpenyős lazac'
+
+/**
+ * Demo recipe pairs per dietary tier — the OLD recipe is what was originally
+ * planned for Wednesday lunch; the NEW recipe is the replan suggestion.
+ * Hand-picked HU recipe names that scan as familiar to each tier; not pulled
+ * from the live catalogue so the tutorial never depends on backend state.
+ */
+const RECIPE_PAIRS: Record<DietaryTier, { old: string; new: string }> = {
+  omnivore: {
+    old: 'Zöldbabos csirkemell',
+    new: 'Serpenyős lazac',
+  },
+  pescatarian: {
+    old: 'Tonhalas saláta',
+    new: 'Serpenyős lazac',
+  },
+  vegetarian: {
+    old: 'Spenótos-fetás rakott burgonya',
+    new: 'Brokkolis-sajtos quiche',
+  },
+  vegan: {
+    old: 'Lencsefőzelék',
+    new: 'Csicseriborsós tészta',
+  },
+}
+
 const REPLACE_DAY_IDX = 2  // Wednesday slot is replaced
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -95,10 +129,12 @@ const REPLACE_DAY_IDX = 2  // Wednesday slot is replaced
 function WeekGrid({
   highlightDay,
   replacedDay,
+  oldRecipeName,
   newRecipeName,
 }: {
   highlightDay: number | null
   replacedDay: number | null
+  oldRecipeName: string
   newRecipeName: string | null
 }) {
   return (
@@ -153,7 +189,7 @@ function WeekGrid({
                       fontWeight: isHighlighted ? 600 : 400,
                     }}
                   >
-                    {i === REPLACE_DAY_IDX ? OLD_RECIPE : `Reggeli ${i + 1}`}
+                    {i === REPLACE_DAY_IDX ? oldRecipeName : `Reggeli ${i + 1}`}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -166,7 +202,7 @@ function WeekGrid({
 }
 
 /** Diff row shown in frame 3 */
-function DiffRow() {
+function DiffRow({ oldRecipeName, newRecipeName }: { oldRecipeName: string; newRecipeName: string }) {
   return (
     <motion.div
       className="flex items-center gap-2 rounded-lg px-3 py-2 text-[11px]"
@@ -176,11 +212,11 @@ function DiffRow() {
       aria-hidden="true"
     >
       <span style={{ color: C.replaced, textDecoration: 'line-through', flexShrink: 0 }}>
-        {OLD_RECIPE}
+        {oldRecipeName}
       </span>
       <span style={{ color: C.labelFaint, flexShrink: 0 }}>→</span>
       <span style={{ color: C.added, fontWeight: 600 }}>
-        {NEW_RECIPE}
+        {newRecipeName}
       </span>
     </motion.div>
   )
@@ -188,7 +224,7 @@ function DiffRow() {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function MiniTutorialPlanner({ onSkip, className = '' }: MiniTutorialPlannerProps) {
+export function MiniTutorialPlanner({ onSkip, dietaryTier = 'omnivore', className = '' }: MiniTutorialPlannerProps) {
   const { t } = useTranslation()
   const playback = useTutorialPlayback({
     totalFrames: TOTAL_FRAMES,
@@ -197,9 +233,10 @@ export function MiniTutorialPlanner({ onSkip, className = '' }: MiniTutorialPlan
   })
   const { frame } = playback
 
+  const recipes = RECIPE_PAIRS[dietaryTier]
   const highlightDay = frame === 1 ? REPLACE_DAY_IDX : null
   const replacedDay  = frame >= 2 ? REPLACE_DAY_IDX : null
-  const newRecipe    = frame >= 2 ? NEW_RECIPE : null
+  const newRecipe    = frame >= 2 ? recipes.new : null
 
   return (
     <div
@@ -220,11 +257,14 @@ export function MiniTutorialPlanner({ onSkip, className = '' }: MiniTutorialPlan
         <WeekGrid
           highlightDay={highlightDay}
           replacedDay={replacedDay}
+          oldRecipeName={recipes.old}
           newRecipeName={newRecipe}
         />
 
         <AnimatePresence>
-          {frame === 3 && <DiffRow key="diff-row" />}
+          {frame === 3 && (
+            <DiffRow key="diff-row" oldRecipeName={recipes.old} newRecipeName={recipes.new} />
+          )}
         </AnimatePresence>
       </motion.div>
 
