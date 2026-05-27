@@ -28,11 +28,14 @@ import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { planService } from '@/services/plans'
 import { prepTasksService } from '@/services/prepTasks'
 import { offPlanMealsService } from '@/services/offPlanMeals'
+import { recipesService } from '@/services/recipes'
+import { plannedMealsService } from '@/services/plannedMeals'
 import { getRecipeNameFromTranslations } from '@/lib/i18nRecipe'
 import { todayIsoLocal } from '@/lib/utils'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
-import type { DashboardDto, MaterializedPlannedMeal, PlannedMeal, PrepTaskCard, Recipe, TimePreferencesDto } from '@/types'
+import { VariantsChip } from '@/components/recipe/VariantsChip'
+import type { DashboardDto, DietTier, MaterializedPlannedMeal, PlannedMeal, PrepTaskCard, Recipe, RecipeSibling, TimePreferencesDto } from '@/types'
 import { isMealSlotPast } from '@/lib/time'
 import { OffPlanMealLogModal } from './OffPlanMealLogModal'
 import { AiOffPlanLogModal } from './AiOffPlanLogModal'
@@ -136,6 +139,17 @@ interface TimelineCardData {
    * AttachMealPicker option list. KALMIO-335.
    */
   feedsPlannedMealIds?: string[]
+  // ── Recipe families (W8 — wires the VariantsChip on the DailyTimeline) ──
+  /** Family this recipe belongs to. Null = standalone, no chip. */
+  familyId?: string | null
+  /** Family display name (for tooltips / picker headers). */
+  familyName?: string | null
+  /** Variant label within the family (e.g. "banánnal és áfonyával"). */
+  variantLabel?: string | null
+  /** Derived diet tier — VEGAN, VEGETARIAN, PESCATARIAN, OMNIVORE. */
+  dietTier?: DietTier | null
+  /** Siblings in the family — populated for meal cards only, used by VariantsChip. */
+  siblings?: RecipeSibling[] | null
 }
 
 // ── time-from-log helper ──────────────────────────────────────────────────
@@ -259,6 +273,16 @@ interface DraggableRowProps {
   onPrepTickToggle?: () => void
   /** Long-press (600 ms) on the prep-ball — opens the step-by-step modal. KALMIO-311. */
   onPrepLongPress?: () => void
+  // ── Recipe-family variant swap ────────────────────────────────────────
+  /** User's effective diet tier — drives client-side sibling filtering. */
+  effectiveDietTier?: DietTier | null
+  /**
+   * Called when the user picks a sibling in the VariantsChip popover. The
+   * caller mutates POST /api/planned-meals/{mealId}/swap-variant.
+   */
+  onSwapVariant?: (targetRecipeId: string) => void
+  /** Pending state for the swap mutation — disables the chip's siblings. */
+  isSwappingVariant?: boolean
 }
 
 function DraggableRow({
@@ -289,6 +313,9 @@ function DraggableRow({
   prepStatus,
   onPrepTickToggle,
   onPrepLongPress,
+  effectiveDietTier,
+  onSwapVariant,
+  isSwappingVariant,
 }: DraggableRowProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -555,6 +582,22 @@ function DraggableRow({
                 <p className="text-[13px] font-semibold text-gray-800 leading-tight truncate">{card.label}</p>
                 {card.subtitle && (
                   <p className="text-[11px] text-gray-400 mt-0.5 leading-tight truncate">{card.subtitle}</p>
+                )}
+                {/* Recipe-family swap chip — renders on meal cards when the recipe
+                    belongs to a family (W8 on the DailyTimeline surface). The chip
+                    handles its own popover; the swap mutation lives in the parent. */}
+                {isMeal && card.familyId && card.siblings && card.mealId && onSwapVariant && (
+                  <div className="mt-1 inline-block">
+                    <VariantsChip
+                      familyId={card.familyId}
+                      siblings={card.siblings}
+                      currentRecipeId={card.recipeId ?? ''}
+                      currentDietTier={card.dietTier ?? null}
+                      effectiveDietTier={effectiveDietTier ?? 'OMNIVORE'}
+                      onSwap={onSwapVariant}
+                      isSwapping={!!isSwappingVariant}
+                    />
+                  </div>
                 )}
               </div>
 
@@ -1212,6 +1255,37 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     },
   })
 
+  // Recipe-family variant swap — hits POST /api/planned-meals/{id}/swap-variant
+  // when the user picks a sibling of the current recipe in the VariantsChip
+  // popover on a meal card. Distinct from updateMeal/replaceRecipe: this
+  // emits MEAL_VARIANT_SWAPPED for analytics, and the backend re-validates
+  // family + diet-tier compatibility (defense in depth).
+  const swapMealVariant = useMutation({
+    mutationFn: ({ plannedMealId, targetRecipeId }: { plannedMealId: string; targetRecipeId: string }) =>
+      plannedMealsService.swapVariant(plannedMealId, targetRecipeId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['dashboard', date] })
+      void queryClient.invalidateQueries({ queryKey: ['planned-meals'] })
+      void queryClient.invalidateQueries({ queryKey: ['plan', 'active'] })
+    },
+  })
+
+  // Recipes catalogue — supplies family / variant / diet-tier metadata for the
+  // VariantsChip on each meal card. Shares the ['recipes'] cache with the picker
+  // dialogs so navigating between them is free. The new fields landed in W4
+  // (RecipeResponse extension); legacy recipes that haven't been classified yet
+  // simply carry null familyId and the chip won't render.
+  const { data: allRecipes = [] } = useQuery({
+    queryKey: ['recipes'],
+    queryFn: recipesService.list,
+    staleTime: 5 * 60 * 1000,
+  })
+  const recipesById = useMemo(() => {
+    const m = new Map<string, Recipe>()
+    for (const r of allRecipes) m.set(r.id, r)
+    return m
+  }, [allRecipes])
+
   const deleteOffPlanMeal = useMutation({
     mutationFn: (id: string) => offPlanMealsService.delete(id),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
@@ -1286,6 +1360,10 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
       const defaultTime = mealTimePrefs[meal.mealType] ?? MEAL_DEFAULTS[meal.mealType] ?? '12:00'
       const scheduledTime = cardTimeOverrides[`meal-${meal.mealId}`] ?? meal.scheduledTime ?? defaultTime
       const recipeName = getRecipeNameFromTranslations(meal.recipeTranslations ?? null, meal.recipeName, lang)
+      // Look up family metadata from the recipes cache — the planned-meal
+      // payload itself doesn't carry it (would require a join per row), so we
+      // hydrate client-side from the already-cached /api/recipes response.
+      const recipe = meal.recipeId ? recipesById.get(meal.recipeId) : undefined
       result.push({
         id: `meal-${meal.mealId}`,
         type: meal.mealType,
@@ -1297,6 +1375,11 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
         mealId: meal.mealId,
         recipeId: meal.recipeId,
         macros: meal.macros,
+        familyId: recipe?.familyId ?? null,
+        familyName: recipe?.familyName ?? null,
+        variantLabel: recipe?.variantLabel ?? null,
+        dietTier: recipe?.dietTier ?? null,
+        siblings: recipe?.siblings ?? null,
       })
     })
 
@@ -1364,7 +1447,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     }
 
     return result
-  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes])
+  }, [dashboard, plannedMeals, timePref, cardTimeOverrides, hasShoppingDay, t, lang, wakeMinutes, sleepMinutes, recipesById])
 
   // ── auto-tick set (KALMIO-310) ────────────────────────────────────────────
   // A meal is auto-ticked when:
@@ -1934,6 +2017,13 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
                       updateMeal.mutate({ planId: activePlanId, mealId: cardData.mealId, req: { status: 'SKIPPED' } })
                     }
                   }}
+                  effectiveDietTier={me?.effectiveDietTier ?? 'OMNIVORE'}
+                  onSwapVariant={(targetRecipeId) => {
+                    if (cardData.mealId) {
+                      swapMealVariant.mutate({ plannedMealId: cardData.mealId, targetRecipeId })
+                    }
+                  }}
+                  isSwappingVariant={swapMealVariant.isPending}
                   onDetachEmbeddedPrep={handleDetachPrepTask}
                   attachMealOptions={
                     // KALMIO-335: build picker options from feedsPlannedMealIds.

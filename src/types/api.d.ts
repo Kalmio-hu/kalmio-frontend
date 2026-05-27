@@ -6060,6 +6060,12 @@ export interface components {
             status?: string;
             scheduledTime?: string;
             recipeTranslations?: components["schemas"]["TranslationsResponse"];
+            /** Format: uuid */
+            familyId?: string;
+            familyName?: string;
+            variantLabel?: string;
+            dietTier?: string;
+            siblings?: components["schemas"]["SiblingResponse"][];
         };
         DayEntry: {
             /** Format: date */

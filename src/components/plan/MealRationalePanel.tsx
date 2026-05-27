@@ -2,7 +2,7 @@
  * MealRationalePanel — inline expandable "Why this meal?" rationale.
  *
  * Lives directly under a planned-meal row (PlannerMealRow, MemberMealSlot,
- * TodaysMealsModule's MealCard). Parent owns the open/close state and renders
+ * DailyTimeline's meal card). Parent owns the open/close state and renders
  * the sparkle trigger; this component renders the panel body when open.
  *
  * The backend caches the rationale per planned meal — so re-opening a panel
