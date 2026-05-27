@@ -55,6 +55,32 @@ export function VariantsChip({
   )
   const hasCompatible = compatible.length > 0
 
+  // Build the chip label. Hungarian-first wording rules (from voice review):
+  //   1 distinct tier   → "Vegán változat is elérhető" (lowercase tier in a sentence)
+  //   2 distinct tiers  → "Vegán és vegetáriánus változatok is elérhetők"
+  //   3+ distinct tiers → "{count} változat is elérhető" (count fallback)
+  //   any with null-tier siblings → fall back to count form (avoid mixed-tier ambiguity)
+  // Same wording rule in English via the corresponding i18n keys.
+  const chipLabel = (() => {
+    const tiers = Array.from(new Set(compatible.map(s => s.dietTier).filter((t): t is DietTier => t != null)))
+    const hasNullTier = compatible.some(s => s.dietTier == null)
+    if (!hasNullTier && tiers.length === 1) {
+      return t('recipeFamily.chipSingleTier', { tier: t(`dietTier.${tiers[0].toLowerCase()}`) })
+    }
+    if (!hasNullTier && tiers.length === 2) {
+      // Order by strictness (VEGAN first) so the phrase reads consistently.
+      const sorted = tiers.sort((a, b) =>
+        (a === 'VEGAN' ? 0 : a === 'VEGETARIAN' ? 1 : a === 'PESCATARIAN' ? 2 : 3) -
+        (b === 'VEGAN' ? 0 : b === 'VEGETARIAN' ? 1 : b === 'PESCATARIAN' ? 2 : 3),
+      )
+      return t('recipeFamily.chipTwoTiers', {
+        tier1: t(`dietTier.${sorted[0].toLowerCase()}`),
+        tier2: t(`dietTier.${sorted[1].toLowerCase()}`),
+      })
+    }
+    return t('recipeFamily.chipCount', { count: compatible.length })
+  })()
+
   // Close popover on outside click
   useEffect(() => {
     if (!open) return
@@ -124,7 +150,7 @@ export function VariantsChip({
         ) : (
           <Layers className="h-2.5 w-2.5" aria-hidden />
         )}
-        {t('recipeFamily.variantCount', { count: compatible.length })}
+        {chipLabel}
       </button>
 
       {open && (

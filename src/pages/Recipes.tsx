@@ -29,6 +29,7 @@ import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { formatCurrency, recipePhotoUrl } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
 import { capture } from '@/lib/analytics'
+import { DIET_TIER_ORDER, type DietTier } from '@/types'
 import type {
   HealthifySuggestion,
   Ingredient,
@@ -378,6 +379,38 @@ export function Recipes() {
     return true
   })
 
+  // Group filtered recipes by family. Each item in `displayItems` is either a
+  // standalone recipe or a family-summary card aggregating all its members.
+  // Order is preserved from the filtered list — a family appears where its
+  // FIRST member would have appeared, and subsequent members are folded into
+  // that family card. The chip on the family card shows the variant count;
+  // clicking opens the detail dialog of the representative member (the one
+  // whose dietTier is least strict — most likely the "anchor" variant the
+  // user thinks of when they search for the dish).
+  type DisplayItem =
+    | { kind: 'recipe'; recipe: Recipe }
+    | { kind: 'family'; familyId: string; familyName: string; members: Recipe[]; representative: Recipe }
+  const displayItems: DisplayItem[] = []
+  const seenFamilies = new Set<string>()
+  for (const r of filtered) {
+    if (r.familyId && r.familyName) {
+      if (seenFamilies.has(r.familyId)) continue
+      seenFamilies.add(r.familyId)
+      const members = filtered.filter(x => x.familyId === r.familyId)
+      // Representative = the most permissive tier (highest ordinal), so that
+      // searching for "zabkása" doesn't surface a niche variant. Fall back to
+      // the first member when tiers are missing.
+      const representative = [...members].sort((a, b) => {
+        const oa = a.dietTier ? ({ VEGAN: 0, VEGETARIAN: 1, PESCATARIAN: 2, OMNIVORE: 3 }[a.dietTier]) : 99
+        const ob = b.dietTier ? ({ VEGAN: 0, VEGETARIAN: 1, PESCATARIAN: 2, OMNIVORE: 3 }[b.dietTier]) : 99
+        return ob - oa
+      })[0] ?? members[0]
+      displayItems.push({ kind: 'family', familyId: r.familyId, familyName: r.familyName, members, representative })
+    } else {
+      displayItems.push({ kind: 'recipe', recipe: r })
+    }
+  }
+
   return (
     <div>
       <Header
@@ -506,11 +539,70 @@ export function Recipes() {
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
-      ) : filtered.length === 0 ? (
+      ) : displayItems.length === 0 ? (
         <Card><CardContent className="py-10 text-center text-sm text-gray-400">{t('recipes.noResults')}</CardContent></Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map(r => {
+          {displayItems.map(item => {
+            // Family-summary card — one per family, replacing N individual cards.
+            // Click opens the representative member's detail dialog (the most
+            // permissive tier, e.g. Omnivore over Vegan), where the "Változatok"
+            // section lists every sibling for navigation.
+            if (item.kind === 'family') {
+              const rep = item.representative
+              const photoUrl = recipePhotoUrl(rep)
+              // Unique diet tiers across the family — for the badge row. Sorted
+              // by strictness (VEGAN first) so reading order is consistent with
+              // the "Változatok" section everywhere else.
+              const tiers = Array.from(new Set(item.members.map(m => m.dietTier).filter((t): t is DietTier => t != null)))
+                .sort((a, b) => DIET_TIER_ORDER[a] - DIET_TIER_ORDER[b])
+              return (
+                <Card
+                  key={`family-${item.familyId}`}
+                  className="relative hover:shadow-md transition-shadow overflow-hidden cursor-pointer border-[#4F7942]/30"
+                  onClick={() => {
+                    setDetailTarget(rep)
+                    capture('recipe_family_viewed', { family_id: item.familyId, recipe_id: rep.id })
+                  }}
+                >
+                  <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${photoUrl}')` }} />
+                  <div className="absolute inset-0 bg-white/70" />
+                  <CardContent className="pt-4 relative">
+                    {/* Title row: family name + variant-count chip */}
+                    <div className="flex items-start gap-1.5 mb-1">
+                      <p className="font-semibold text-sm text-[#1A1A1A] leading-snug flex-1 min-w-0 pr-1">
+                        {item.familyName}
+                      </p>
+                      <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#4F7942]/15 text-[#4F7942]">
+                        <Layers className="h-3 w-3" aria-hidden />
+                        {t('recipeFamily.familyCardCount', { count: item.members.length })}
+                      </span>
+                    </div>
+                    {/* Tier badges — one per unique diet tier in the family */}
+                    {tiers.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {tiers.map(tier => <DietTierBadge key={tier} tier={tier} />)}
+                      </div>
+                    )}
+                    {/* Family-level macro snapshot: representative's per-serving line —
+                        intentionally indicative, not aggregated. The detail dialog shows
+                        the full per-variant breakdown when the user clicks through. */}
+                    {rep.macros && (() => {
+                      const divisor = rep.servings > 0 ? rep.servings : 1
+                      const kcal = Number(rep.macros.kcal) / divisor
+                      const protein = Number(rep.macros.protein) / divisor
+                      return (
+                        <div className="flex gap-3 text-xs text-gray-500 mb-2">
+                          <span>{t('mealPlan.recipePicker.kcal', { kcal: kcal.toFixed(0) })}</span>
+                          <span>{t('mealPlan.recipePicker.protein', { protein: protein.toFixed(0) })}</span>
+                        </div>
+                      )
+                    })()}
+                  </CardContent>
+                </Card>
+              )
+            }
+            const r = item.recipe
             const displayName = r.translations?.[lang]?.name ?? r.name
             const photoUrl = recipePhotoUrl(r)
             const isOwner = !!user?.id && r.createdByUserId === user.id

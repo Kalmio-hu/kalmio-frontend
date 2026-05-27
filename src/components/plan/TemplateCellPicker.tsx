@@ -187,9 +187,9 @@ export function TemplateCellPicker({
               {siblings.length > 0 && (
                 <>
                   <h3 className="text-[10px] font-semibold tracking-wide text-[#4F7942] uppercase pt-1 pb-0.5">
-                    {t('recipeFamily.sameFamilyHeader', {
-                      family: familyName ?? t('recipeFamily.variants'),
-                    })}
+                    {familyName
+                      ? t('recipeFamily.sameFamilyHeader', { family: familyName })
+                      : t('recipeFamily.variants')}
                   </h3>
                   {siblings.map(recipe => (
                     <TemplateRecipeRow
