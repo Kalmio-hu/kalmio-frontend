@@ -135,20 +135,22 @@ export function CookMode() {
   useEffect(() => {
     registerAlertCallbacks(
       (timer: CookTimerType) => {
-        // Soft alert: min reached
+        // Soft alert: min reached. Recipe name in the body so the user can
+        // tell which dish the timer belongs to when several recipes cook
+        // simultaneously.
         const minMin = Math.round(timer.window.minSeconds / 60)
         const maxMin = Math.round(timer.window.maxSeconds / 60)
         maybeNotify(
           t('cook.timer.softAlertTitle'),
-          t('cook.timer.softAlertBody', { min: minMin, max: maxMin }),
+          t('cook.timer.softAlertBody', { min: minMin, max: maxMin, recipe: timer.recipeName }),
         )
       },
       (timer: CookTimerType) => {
-        // Hard alert: max reached
+        // Hard alert: max reached.
         const maxMin = Math.round(timer.window.maxSeconds / 60)
         maybeNotify(
           t('cook.timer.hardAlertTitle'),
-          t('cook.timer.hardAlertBody', { max: maxMin }),
+          t('cook.timer.hardAlertBody', { max: maxMin, recipe: timer.recipeName }),
         )
       },
     )
@@ -164,12 +166,13 @@ export function CookMode() {
     startTimer({
       id,
       recipeId,
+      recipeName,
       stepIdx: idx,
       stepLabel: t('cook.timer.stepLabel', { step: idx + 1, min: minMin, max: maxMin }),
       window: win,
     })
     setActiveTimerId(id)
-  }, [recipeId, startTimer, t])
+  }, [recipeId, recipeName, startTimer, t])
 
   useWakeLock(!!recipeId)
 

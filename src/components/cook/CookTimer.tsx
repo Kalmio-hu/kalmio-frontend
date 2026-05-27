@@ -140,10 +140,11 @@ export function CookTimer({ timerId, onClose }: Props) {
 
   return (
     <div className="w-full bg-white border-b border-[#EDEAE2] px-4 py-4">
-      {/* Title row */}
+      {/* Title row — recipe name precedes the step label so simultaneously
+          running timers from different dishes are unambiguous at a glance. */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm font-semibold text-[#1A1A1A] truncate">
-          {timer.stepLabel}
+          {timer.recipeName ? `${timer.recipeName} – ${timer.stepLabel}` : timer.stepLabel}
         </p>
         <button
           type="button"

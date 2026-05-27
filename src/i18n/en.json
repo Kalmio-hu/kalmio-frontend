@@ -3000,9 +3000,9 @@
       "readyZone": "Ready — you can take it off now",
       "pastZone": "{{time}} past",
       "softAlertTitle": "Kalmio — timer",
-      "softAlertBody": "{{min}} minutes done. It is ready when you are — you have until {{max}} minutes.",
+      "softAlertBody": "{{recipe}}: {{min}} minutes done. It is ready when you are — you have until {{max}} minutes.",
       "hardAlertTitle": "Kalmio — timer",
-      "hardAlertBody": "{{max}} minutes — take it off."
+      "hardAlertBody": "{{recipe}}: {{max}} minutes — take it off."
     }
   }
 }

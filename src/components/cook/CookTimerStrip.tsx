@@ -69,7 +69,9 @@ export function CookTimerStrip({ selectedTimerId, onSelect }: Props) {
                 aria-hidden
               />
             )}
-            <span className="truncate max-w-[120px]">{timer.stepLabel}</span>
+            <span className="truncate max-w-[200px]">
+              {timer.recipeName ? `${timer.recipeName} – ${timer.stepLabel}` : timer.stepLabel}
+            </span>
             <span className="tabular-nums opacity-80">{fmtElapsed(timer.elapsedSeconds)}</span>
           </button>
         )

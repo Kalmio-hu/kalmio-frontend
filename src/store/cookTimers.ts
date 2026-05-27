@@ -78,6 +78,13 @@ export type TimerPhase = 'cooking' | 'ready' | 'past'
 export interface CookTimer {
   id: string
   recipeId: string
+  /**
+   * Human-readable recipe name (already localised by the caller). Surfaced in
+   * the clock title, the strip pill, and the soft/hard alert notification so
+   * a user cooking multiple recipes simultaneously can tell which timer
+   * belongs to which dish at a glance.
+   */
+  recipeName: string
   stepIdx: number
   stepLabel: string          // Short label for the strip header
   window: TimerWindow

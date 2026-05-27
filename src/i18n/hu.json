@@ -3000,9 +3000,9 @@
       "readyZone": "Kész — most veheted le",
       "pastZone": "{{time}} óta túl van",
       "softAlertTitle": "Kalmio — időzítő",
-      "softAlertBody": "{{min}} perc megvolt. Most már a tied — ha tovább szeretnéd, {{max}} percig még mehet.",
+      "softAlertBody": "{{recipe}}: {{min}} perc megvolt. Most már a tied — ha tovább szeretnéd, {{max}} percig még mehet.",
       "hardAlertTitle": "Kalmio — időzítő",
-      "hardAlertBody": "{{max}} perc — vedd le."
+      "hardAlertBody": "{{recipe}}: {{max}} perc — vedd le."
     }
   }
 }
