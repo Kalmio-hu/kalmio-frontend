@@ -3050,7 +3050,9 @@
     "swapTo": "Csere erre a verzióra",
     "swapped": "Verzió cserélve",
     "noCompatibleVariants": "Nincs elérhető verzió az ön étrendjéhez",
-    "viewVariant": "Megnézem"
+    "viewVariant": "Megnézem",
+    "sameFamilyHeader": "{{family}} verziók",
+    "otherRecipesHeader": "Egyéb receptek"
   },
   "dietTier": {
     "vegan": "Vegán",

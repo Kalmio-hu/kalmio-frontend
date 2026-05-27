@@ -3050,7 +3050,9 @@
     "swapTo": "Swap to this version",
     "swapped": "Variant swapped",
     "noCompatibleVariants": "No variants match your dietary preference",
-    "viewVariant": "View"
+    "viewVariant": "View",
+    "sameFamilyHeader": "{{family}} variants",
+    "otherRecipesHeader": "Other recipes"
   },
   "dietTier": {
     "vegan": "Vegan",

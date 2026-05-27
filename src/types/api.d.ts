@@ -672,6 +672,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/recipes/{id}/family": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign a recipe to a family (admin)
+         * @description Sets family_id + variant_label on the recipe. The family must already exist. Recipe must exist. Returns 404 if either is missing.
+         */
+        post: operations["assignFamily"];
+        /** Unassign a recipe from its family (admin) */
+        delete: operations["unassignFamily"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/recipes/{id}/approve-translation": {
         parameters: {
             query?: never;
@@ -749,6 +770,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/recipe-families": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all recipe families with their member counts */
+        get: operations["list_3"];
+        put?: never;
+        /** Create a recipe family (admin) */
+        post: operations["create_2"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/push/subscribe": {
         parameters: {
             query?: never;
@@ -794,13 +833,13 @@ export interface paths {
          * List plans visible to the current user
          * @description Returns all plans owned by the caller or associated with a family where the caller is a member. Includes template meals.
          */
-        get: operations["list_3"];
+        get: operations["list_4"];
         put?: never;
         /**
          * Create a plan template
          * @description Creates a new named plan template and freezes the preferences snapshot from current member prefs. Returns 201 with the created plan.
          */
-        post: operations["create_2"];
+        post: operations["create_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1091,7 +1130,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create a multi-member meal plan */
-        post: operations["create_3"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1107,7 +1146,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["create_4"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1176,6 +1215,26 @@ export interface paths {
          * @description Returns the cached rationale for the planned meal, or generates a new one via gpt-4o-mini if none exists. Cache is invalidated when the planned meal status or recipe changes. Returns HTTP 402 for non-premium users, HTTP 429 when per-minute rate limit (5/min) or monthly cap (default 100) is exceeded.
          */
         post: operations["explain"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/planned-meals/{id}/swap-variant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Swap a planned meal to a sibling variant in the same family
+         * @description Stricter version of PATCH /{id}/recipe. The target recipe MUST be in the same recipe_family as the current recipe, AND its derived diet_tier must be compatible with the caller's effectiveDietTier. Fires the MEAL_VARIANT_SWAPPED domain event on success.
+         */
+        post: operations["swapVariant"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1512,10 +1571,10 @@ export interface paths {
             cookie?: never;
         };
         /** List ingredients (PUBLIC for unauthenticated, PUBLIC + own for users, all for admins) */
-        get: operations["list_4"];
+        get: operations["list_5"];
         put?: never;
         /** Create ingredient (admin: PUBLIC; user: PRIVATE) */
-        post: operations["create_5"];
+        post: operations["create_6"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1664,7 +1723,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["list_5"];
+        get: operations["list_6"];
         put?: never;
         post: operations["add"];
         delete?: never;
@@ -1779,7 +1838,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Submit a bug report or feedback */
-        post: operations["create_6"];
+        post: operations["create_7"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2018,7 +2077,7 @@ export interface paths {
         get: operations["listAll"];
         put?: never;
         /** Create IP document (admin) */
-        post: operations["create_7"];
+        post: operations["create_8"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2238,6 +2297,28 @@ export interface paths {
         patch: operations["update_3"];
         trace?: never;
     };
+    "/api/recipe-families/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a recipe family with its members */
+        get: operations["get_2"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete a recipe family (admin)
+         * @description Returns 409 Conflict when the family still has members. Unassign every member first via DELETE /api/recipes/{recipeId}/family.
+         */
+        delete: operations["delete_3"];
+        options?: never;
+        head?: never;
+        /** Update a recipe family (admin) */
+        patch: operations["update_4"];
+        trace?: never;
+    };
     "/api/prep-tasks/{id}/status": {
         parameters: {
             query?: never;
@@ -2327,7 +2408,7 @@ export interface paths {
          * Update plan template metadata
          * @description Patches name, lengthDays, shoppingCadenceDays, mealSlotsCovered, or memberIds. Only non-null fields are applied. Does NOT refresh snapshot.
          */
-        patch: operations["update_4"];
+        patch: operations["update_5"];
         trace?: never;
     };
     "/api/plans/{id}/members": {
@@ -2446,7 +2527,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_3"];
+        delete: operations["delete_4"];
         options?: never;
         head?: never;
         patch: operations["patch"];
@@ -2905,6 +2986,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/recipe-families/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List a family's members, optionally filtered by diet tier
+         * @description Returns members whose diet_tier is compatible with the requested maxTier. Compatibility: VEGAN → only VEGAN; VEGETARIAN → VEGAN + VEGETARIAN; PESCATARIAN → VEGAN + VEGETARIAN + PESCATARIAN; OMNIVORE (or null) → all. Used by the meal-plan swap UI to show only siblings the user can eat.
+         */
+        get: operations["listMembers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/prep-tasks": {
         parameters: {
             query?: never;
@@ -3052,7 +3153,7 @@ export interface paths {
             cookie?: never;
         };
         /** List plans visible to the caller */
-        get: operations["list_6"];
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3071,7 +3172,7 @@ export interface paths {
         get: operations["getById_3"];
         put?: never;
         post?: never;
-        delete: operations["delete_4"];
+        delete: operations["delete_5"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3136,7 +3237,7 @@ export interface paths {
          * List planned meals in a date range
          * @description Returns all planned_meal rows visible to the authenticated user within the inclusive date range. Supply 'memberId' to filter to a single family member (requires schedule ownership or PLANNER role).
          */
-        get: operations["list_7"];
+        get: operations["list_8"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3173,7 +3274,7 @@ export interface paths {
             cookie?: never;
         };
         /** List registered passkeys for the current user */
-        get: operations["list_8"];
+        get: operations["list_9"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3340,7 +3441,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["get_2"];
+        get: operations["get_3"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3702,7 +3803,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a registered passkey */
-        delete: operations["delete_5"];
+        delete: operations["delete_6"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3887,6 +3988,8 @@ export interface components {
             goalTargetPct?: number;
             coachmarksSeen?: string[];
             onboardingChatDraft?: components["schemas"]["OnboardingChatDraftDto"];
+            /** @enum {string} */
+            effectiveDietTier?: "VEGAN" | "VEGETARIAN" | "PESCATARIAN" | "OMNIVORE";
         };
         UpdateProfileRequest: {
             firstName?: string;
@@ -4026,6 +4129,20 @@ export interface components {
             createdByUserId?: string;
             createdByUsername?: string;
             imageUrl?: string;
+            /** Format: uuid */
+            familyId?: string;
+            familyName?: string;
+            variantLabel?: string;
+            dietTier?: string;
+            siblings?: components["schemas"]["SiblingResponse"][];
+        };
+        SiblingResponse: {
+            /** Format: uuid */
+            id?: string;
+            variantLabel?: string;
+            dietTier?: string;
+            kcal?: number;
+            protein?: number;
         };
         TranslationsResponse: {
             en?: components["schemas"]["LocaleTranslation"];
@@ -4391,6 +4508,11 @@ export interface components {
         AiCookModeResponse: {
             answer?: string;
         };
+        AssignRecipeFamilyRequest: {
+            /** Format: uuid */
+            familyId: string;
+            variantLabel?: string;
+        };
         AiRecipeImportRequest: {
             text: string;
             sourceUrl?: string;
@@ -4444,6 +4566,11 @@ export interface components {
             createdByUsername?: string;
             imageUrl?: string;
             userImported?: boolean;
+            /** Format: uuid */
+            familyId?: string;
+            variantLabel?: string;
+            /** @enum {string} */
+            dietTier?: "VEGAN" | "VEGETARIAN" | "PESCATARIAN" | "OMNIVORE";
         };
         RecipeImportPreview: {
             recipe?: components["schemas"]["Recipe"];
@@ -4482,6 +4609,41 @@ export interface components {
             sourceUrl?: string;
             /** Format: int32 */
             appliedHealthifyCount?: number;
+        };
+        CreateRecipeFamilyRequest: {
+            name: string;
+            description?: string;
+            translations?: components["schemas"]["TranslationsRequest"];
+        };
+        LocaleRequest: {
+            name?: string;
+            description?: string;
+        };
+        TranslationsRequest: {
+            en?: components["schemas"]["LocaleRequest"];
+            hu?: components["schemas"]["LocaleRequest"];
+        };
+        MemberSummary: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            variantLabel?: string;
+            dietTier?: string;
+            kcal?: number;
+            protein?: number;
+        };
+        RecipeFamilyResponse: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            description?: string;
+            translations?: components["schemas"]["TranslationsResponse"];
+            machineTranslated?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
+            members?: components["schemas"]["MemberSummary"][];
         };
         PushSubscribeRequest: {
             endpoint: string;
@@ -4961,6 +5123,34 @@ export interface components {
             /** Format: date-time */
             generatedAt?: string;
         };
+        SwapVariantRequest: {
+            /** Format: uuid */
+            targetRecipeId: string;
+        };
+        NewPlannedMealResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            scheduleId?: string;
+            /** Format: uuid */
+            originPlanId?: string;
+            /** Format: uuid */
+            memberId?: string;
+            /** Format: date */
+            date?: string;
+            mealType?: string;
+            /** Format: uuid */
+            recipeId?: string;
+            recipeName?: string;
+            recipeImageUrl?: string;
+            status?: string;
+            source?: string;
+            /** Format: date-time */
+            generatedAt?: string;
+            /** Format: date-time */
+            eatenAt?: string;
+            servings?: number;
+        };
         RegisterStartRequest: {
             friendlyName?: string;
         };
@@ -5435,6 +5625,11 @@ export interface components {
             /** Format: date */
             endDate?: string;
         };
+        UpdateRecipeFamilyRequest: {
+            name?: string;
+            description?: string;
+            translations?: components["schemas"]["TranslationsRequest"];
+        };
         UpdatePrepTaskStatusRequest: {
             status: string;
         };
@@ -5474,30 +5669,6 @@ export interface components {
         };
         UpdatePlannedMealStatusRequest: {
             status: string;
-        };
-        NewPlannedMealResponse: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            scheduleId?: string;
-            /** Format: uuid */
-            originPlanId?: string;
-            /** Format: uuid */
-            memberId?: string;
-            /** Format: date */
-            date?: string;
-            mealType?: string;
-            /** Format: uuid */
-            recipeId?: string;
-            recipeName?: string;
-            recipeImageUrl?: string;
-            status?: string;
-            source?: string;
-            /** Format: date-time */
-            generatedAt?: string;
-            /** Format: date-time */
-            eatenAt?: string;
-            servings?: number;
         };
         ReplaceRecipeRequest: {
             /** Format: uuid */
@@ -7475,6 +7646,64 @@ export interface operations {
             };
         };
     };
+    assignFamily: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignRecipeFamilyRequest"];
+            };
+        };
+        responses: {
+            /** @description Assigned */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Recipe or family not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    unassignFamily: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Unassigned */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Recipe not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     approveTranslation: {
         parameters: {
             query?: never;
@@ -7579,6 +7808,50 @@ export interface operations {
             };
         };
     };
+    list_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecipeFamilyResponse"];
+                };
+            };
+        };
+    };
+    create_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRecipeFamilyRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecipeFamilyResponse"];
+                };
+            };
+        };
+    };
     subscribe: {
         parameters: {
             query?: never;
@@ -7643,7 +7916,7 @@ export interface operations {
             };
         };
     };
-    list_3: {
+    list_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -7663,7 +7936,7 @@ export interface operations {
             };
         };
     };
-    create_2: {
+    create_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -8289,7 +8562,7 @@ export interface operations {
             };
         };
     };
-    create_3: {
+    create_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -8313,7 +8586,7 @@ export interface operations {
             };
         };
     };
-    create_4: {
+    create_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -8429,6 +8702,60 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MealRationaleResponse"];
+                };
+            };
+        };
+    };
+    swapVariant: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Planned meal UUID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwapVariantRequest"];
+            };
+        };
+        responses: {
+            /** @description Swap complete; updated planned meal returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+            /** @description Not authorized to update this row */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+            /** @description Planned meal not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+            /** @description Validation failure — error message is prefixed with a typed code: NOT_IN_FAMILY | CROSS_FAMILY_SWAP | DIET_TIER_INCOMPATIBLE | TARGET_NOT_FOUND. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
                 };
             };
         };
@@ -8892,7 +9219,7 @@ export interface operations {
             };
         };
     };
-    list_4: {
+    list_5: {
         parameters: {
             query: {
                 securityContext: components["schemas"]["SecurityContext"];
@@ -8914,7 +9241,7 @@ export interface operations {
             };
         };
     };
-    create_5: {
+    create_6: {
         parameters: {
             query: {
                 securityContext: components["schemas"]["SecurityContext"];
@@ -9162,7 +9489,7 @@ export interface operations {
             };
         };
     };
-    list_5: {
+    list_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -9334,7 +9661,7 @@ export interface operations {
             };
         };
     };
-    create_6: {
+    create_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -9748,7 +10075,7 @@ export interface operations {
             };
         };
     };
-    create_7: {
+    create_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -10217,6 +10544,81 @@ export interface operations {
             };
         };
     };
+    get_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecipeFamilyResponse"];
+                };
+            };
+            /** @description Not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_3: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    update_4: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRecipeFamilyRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RecipeFamilyResponse"];
+                };
+            };
+        };
+    };
     updateStatus: {
         parameters: {
             query?: never;
@@ -10380,7 +10782,7 @@ export interface operations {
             };
         };
     };
-    update_4: {
+    update_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -10631,7 +11033,7 @@ export interface operations {
             };
         };
     };
-    delete_3: {
+    delete_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -11324,6 +11726,30 @@ export interface operations {
             };
         };
     };
+    listMembers: {
+        parameters: {
+            query?: {
+                dietTier?: "VEGAN" | "VEGETARIAN" | "PESCATARIAN" | "OMNIVORE";
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MemberSummary"][];
+                };
+            };
+        };
+    };
     listInRange: {
         parameters: {
             query: {
@@ -11518,7 +11944,7 @@ export interface operations {
             };
         };
     };
-    list_6: {
+    list_7: {
         parameters: {
             query?: {
                 status?: string;
@@ -11562,7 +11988,7 @@ export interface operations {
             };
         };
     };
-    delete_4: {
+    delete_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -11646,7 +12072,7 @@ export interface operations {
             };
         };
     };
-    list_7: {
+    list_8: {
         parameters: {
             query: {
                 /** @description Start of date range (inclusive), YYYY-MM-DD */
@@ -11711,7 +12137,7 @@ export interface operations {
             };
         };
     };
-    list_8: {
+    list_9: {
         parameters: {
             query?: never;
             header?: never;
@@ -11927,7 +12353,7 @@ export interface operations {
             };
         };
     };
-    get_2: {
+    get_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -12387,7 +12813,7 @@ export interface operations {
             };
         };
     };
-    delete_5: {
+    delete_6: {
         parameters: {
             query?: never;
             header?: never;

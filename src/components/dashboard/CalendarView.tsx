@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { toast } from '@/components/ui/toast'
-import { RecipePickerDialog } from '@/components/plan/RecipePickerDialog'
+import { RecipePickerDialog, type RecipePickerSelection } from '@/components/plan/RecipePickerDialog'
 import { RecipeDetailDialog } from '@/components/plan/RecipeDetailDialog'
 import { plannedMealsService } from '@/services/plannedMeals'
 import type { MaterializedPlannedMeal, MaterializedPlannedMealStatus, MealType, Recipe } from '@/types'
@@ -435,6 +435,26 @@ export function CalendarView() {
     },
   })
 
+  // Family-aware swap — used when the user picks a sibling of the current recipe.
+  // Goes through POST /api/planned-meals/{id}/swap-variant so MEAL_VARIANT_SWAPPED
+  // fires (PostHog counts it as a variant swap, not a generic replacement). The
+  // server re-validates the family + diet-tier match — defense in depth.
+  const { mutate: swapVariant, isPending: isSwappingVariant } = useMutation({
+    mutationFn: ({ id, targetRecipeId }: { id: string; targetRecipeId: string }) =>
+      plannedMealsService.swapVariant(id, targetRecipeId),
+    onSuccess: (updated) => {
+      void qc.invalidateQueries({ queryKey: ['planned-meals'] })
+      setSelectedMeal(updated)
+      setRecipePickerMeal(null)
+      toast({ title: t('recipeFamily.swapped') })
+    },
+    onError: () => {
+      // Fall back to a generic replace message — the typed 422 code is in the body
+      // for the chip-popover path; the picker UX doesn't need a separate message.
+      toast({ title: t('calendar.recipeReplaceError'), variant: 'destructive' })
+    },
+  })
+
   function handleStatusChange(id: string, status: MaterializedPlannedMealStatus) {
     patchStatus({ id, status })
   }
@@ -448,9 +468,18 @@ export function CalendarView() {
     setRecipeDetailMeal(meal)
   }
 
-  function handleRecipeSelected(recipe: Recipe) {
+  function handleRecipeSelected(recipe: Recipe, ctx: RecipePickerSelection) {
     if (!recipePickerMeal) return
-    patchRecipe({ id: recipePickerMeal.id, recipeId: recipe.id })
+    // The picker already computed whether this is a sibling swap (it has the
+    // full recipe list loaded with familyId). Route same-family swaps through
+    // the family-aware endpoint so MEAL_VARIANT_SWAPPED fires; cross-family
+    // swaps — and swaps from a standalone recipe to anything — still go
+    // through the generic PATCH /recipe path.
+    if (ctx.isSiblingSwap && recipe.id !== recipePickerMeal.recipeId) {
+      swapVariant({ id: recipePickerMeal.id, targetRecipeId: recipe.id })
+    } else {
+      patchRecipe({ id: recipePickerMeal.id, recipeId: recipe.id })
+    }
   }
 
   function handleMealClick(meal: MaterializedPlannedMeal) {
@@ -608,7 +637,7 @@ export function CalendarView() {
         onStatusChange={handleStatusChange}
         onReplaceRecipe={handleReplaceRecipe}
         onViewRecipe={handleViewRecipe}
-        isPending={isPatching || isReplacingRecipe}
+        isPending={isPatching || isReplacingRecipe || isSwappingVariant}
       />
 
       {/* Recipe picker — opens when the user taps "Replace recipe" */}

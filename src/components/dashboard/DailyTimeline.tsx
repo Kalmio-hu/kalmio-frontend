@@ -2001,6 +2001,12 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
           open
           currentRecipeId={swapCard.recipeId}
           onSelect={(recipe: Recipe) => {
+            // DailyTimeline runs against the in-memory legacy plan model
+            // (PATCH /api/plans/calendar/{planId}/meals/{mealId}), which doesn't
+            // have a swap-variant counterpart yet. We still benefit from the
+            // family-aware picker UX (diet filter + sibling group + badges) here;
+            // analytics-grade MEAL_VARIANT_SWAPPED events will follow when the
+            // legacy plan path is migrated to the planned_meal model.
             if (activePlanId && swapCard.mealId) {
               updateMeal.mutate({
                 planId: activePlanId,
