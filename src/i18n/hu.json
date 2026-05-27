@@ -3044,20 +3044,20 @@
     }
   },
   "recipeFamily": {
-    "variants": "Verziók",
-    "variantCount_one": "{{count}} verzió",
-    "variantCount_other": "{{count}} verzió",
-    "swapTo": "Csere erre a verzióra",
-    "swapped": "Verzió cserélve",
-    "noCompatibleVariants": "Nincs elérhető verzió az ön étrendjéhez",
-    "viewVariant": "Megnézem",
-    "sameFamilyHeader": "{{family}} verziók",
+    "variants": "Változatok",
+    "variantCount_one": "{{count}} változat",
+    "variantCount_other": "{{count}} változat",
+    "swapTo": "Váltás erre a változatra",
+    "swapped": "Váltás kész.",
+    "noCompatibleVariants": "Az étrendedhez nincs megfelelő változat.",
+    "viewVariant": "Megtekintés",
+    "sameFamilyHeader": "{{family}} változatok",
     "otherRecipesHeader": "Egyéb receptek"
   },
   "dietTier": {
     "vegan": "Vegán",
     "vegetarian": "Vegetáriánus",
-    "pescatarian": "Pescetáriánus",
+    "pescatarian": "Pescatariánus",
     "omnivore": "Mindenevő"
   }
 }

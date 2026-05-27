@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ChefHat, ChevronDown, Plus, Pencil, Trash2, Search, Clock, X, CheckCircle, SlidersHorizontal, Sparkles, SendHorizonal, Undo2, Upload, Wand2 } from 'lucide-react'
+import { ChefHat, ChevronDown, Plus, Pencil, Trash2, Search, Clock, X, CheckCircle, SlidersHorizontal, Sparkles, SendHorizonal, Undo2, Upload, Wand2, Layers } from 'lucide-react'
+import { DietTierBadge } from '@/components/recipe/DietTierBadge'
 import { useForm, useFieldArray, useWatch, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -585,6 +586,22 @@ export function Recipes() {
                       </span>
                     )}
                   </div>
+
+                  {/* Recipe-family indicator — visible on every card whose recipe belongs to
+                      a family. Surfaces the variant label (e.g. "tofuval") + diet-tier badge so
+                      the user can identify family members at a glance without opening the detail
+                      view. The family name is intentionally not shown here because list endpoints
+                      don't carry it (would require an extra JOIN per row); the variant label and
+                      tier badge are enough for identification on the catalogue. */}
+                  {r.familyId && (
+                    <div className="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#4F7942]">
+                        <Layers className="h-3 w-3" aria-hidden />
+                        {r.variantLabel ?? t('recipeFamily.variants')}
+                      </span>
+                      {r.dietTier && <DietTierBadge tier={r.dietTier} />}
+                    </div>
+                  )}
 
                   {/* Creator attribution */}
                   {r.createdByUsername && (

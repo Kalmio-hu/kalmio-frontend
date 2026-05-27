@@ -41,7 +41,7 @@ export interface FamilyGroupedRecipes {
  * Partition a recipe list into (siblings of the current recipe, everything else).
  *
  * Siblings are ordered by diet-tier strictness ascending (VEGAN first), then by
- * variantLabel alphabetical — same ordering rule as the recipe-detail "Verziók"
+ * variantLabel alphabetical — same ordering rule as the recipe-detail "Változatok"
  * section so the UX is consistent.
  *
  * When the current recipe has no familyId, returns `{ siblings: [], others: recipes }`.

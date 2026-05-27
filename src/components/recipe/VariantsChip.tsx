@@ -2,7 +2,7 @@
  * VariantsChip — meal-card chip for recipe variant swapping (W8).
  *
  * When compatible sibling count ≥ 1:
- *   Renders an active chip: "N verzió" / "N variants"
+ *   Renders an active chip: "N változat" / "N variants"
  *   Click → popover listing compatible siblings with Δkcal/Δprotein.
  *
  * When compatible count = 0:

@@ -160,7 +160,7 @@ export function RecipeDetail() {
             </div>
           )}
 
-          {/* Verziók / Variants — shown only when the recipe is part of a family (W9) */}
+          {/* Változatok / Variants — shown only when the recipe is part of a family (W9) */}
           {fullRecipe?.familyId && fullRecipe.siblings && fullRecipe.siblings.length > 0 && (
             <section>
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
