@@ -577,6 +577,7 @@ export interface FeedbackDetail extends FeedbackSummary {
   description: string
   page: string | null
   messages: FeedbackMessage[]
+  screenshotUrl: string | null
 }
 
 export interface CreateFeedbackRequest {

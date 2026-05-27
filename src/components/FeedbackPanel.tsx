@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
-import { X, ArrowLeft, Send, MessageSquare, ChevronRight, Trash2 } from 'lucide-react'
+import { X, ArrowLeft, Send, MessageSquare, ChevronRight, Trash2, ImageIcon, ExternalLink } from 'lucide-react'
 import { feedbackService } from '@/services/feedback'
 import { useAuthStore } from '@/store/auth'
 import { toast } from '@/components/ui/toast'
@@ -207,6 +207,9 @@ function FeedbackListItem({
 
 // ── Create view ──────────────────────────────────────────────────────────────
 
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
+const MAX_SIZE = 10 * 1024 * 1024
+
 function CreateView({ onBack, onClose }: { onBack: () => void; onClose: () => void }) {
   const { t } = useTranslation()
   const location = useLocation()
@@ -214,14 +217,60 @@ function CreateView({ onBack, onClose }: { onBack: () => void; onClose: () => vo
   const [type, setType] = useState<FeedbackType>('BUG')
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [screenshot, setScreenshot] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    return () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }
+  }, [previewUrl])
+
+  useEffect(() => {
+    function handlePaste(e: ClipboardEvent) {
+      const item = Array.from(e.clipboardData?.items ?? []).find(i => i.type.startsWith('image/'))
+      if (item) {
+        const file = item.getAsFile()
+        if (file) attachFile(file)
+      }
+    }
+    document.addEventListener('paste', handlePaste)
+    return () => document.removeEventListener('paste', handlePaste)
+  }, [previewUrl]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  function attachFile(file: File) {
+    if (file.size > MAX_SIZE) {
+      toast({ title: t('feedback.screenshot.sizeError'), variant: 'destructive' })
+      return
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast({ title: t('feedback.screenshot.typeError'), variant: 'destructive' })
+      return
+    }
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setScreenshot(file)
+    setPreviewUrl(URL.createObjectURL(file))
+  }
+
+  function removeScreenshot() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl)
+    setScreenshot(null)
+    setPreviewUrl(null)
+  }
 
   const mutation = useMutation({
-    mutationFn: () => feedbackService.create({
-      type,
-      title: title.trim(),
-      description: description.trim(),
-      page: location.pathname,
-    }),
+    mutationFn: async () => {
+      const detail = await feedbackService.create({
+        type,
+        title: title.trim(),
+        description: description.trim(),
+        page: location.pathname,
+      })
+      if (screenshot) {
+        await feedbackService.attachScreenshot(detail.id, screenshot)
+      }
+      return detail
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feedback'] })
       capture('feedback_submitted', { feedback_type: type, page: location.pathname })
@@ -291,6 +340,62 @@ function CreateView({ onBack, onClose }: { onBack: () => void; onClose: () => vo
             rows={5}
             className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-[#F28C28] transition-colors resize-none"
           />
+        </div>
+
+        <div>
+          <label className="text-xs text-white/50 uppercase tracking-wide mb-1.5 block">
+            {t('feedback.screenshot.label')}
+          </label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="hidden"
+            onChange={e => { const f = e.target.files?.[0]; if (f) attachFile(f) }}
+          />
+          {previewUrl && screenshot ? (
+            <div className="relative rounded-lg overflow-hidden border border-white/10 group">
+              <img
+                src={previewUrl}
+                alt={t('feedback.screenshot.attached')}
+                className="w-full h-36 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
+              <button
+                onClick={removeScreenshot}
+                className="absolute top-2 right-2 p-1 rounded-full bg-black/60 text-white/80 hover:text-white hover:bg-black/80 transition-colors"
+                title={t('feedback.screenshot.remove')}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+              <div className="absolute bottom-0 left-0 right-0 px-2.5 py-1.5 bg-gradient-to-t from-black/60 to-transparent">
+                <p className="text-[10px] text-white/60 truncate">{screenshot.name}</p>
+              </div>
+            </div>
+          ) : (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); setIsDragging(true) }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={e => {
+                e.preventDefault()
+                setIsDragging(false)
+                const f = e.dataTransfer.files[0]
+                if (f) attachFile(f)
+              }}
+              className={cn(
+                'border-2 border-dashed rounded-lg p-5 flex flex-col items-center gap-2 cursor-pointer transition-colors select-none',
+                isDragging
+                  ? 'border-[#F28C28] bg-[#F28C28]/10'
+                  : 'border-white/10 hover:border-white/20 hover:bg-white/[0.03]'
+              )}
+            >
+              <ImageIcon className={cn('h-5 w-5 transition-colors', isDragging ? 'text-[#F28C28]' : 'text-white/25')} />
+              <p className={cn('text-xs text-center transition-colors', isDragging ? 'text-[#F28C28]/80' : 'text-white/35')}>
+                {t('feedback.screenshot.dropzone')}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -422,6 +527,28 @@ function DetailView({
         <p className="text-sm text-white/70 leading-relaxed">{detail.description}</p>
         {detail.page && (
           <p className="text-[10px] text-white/30 font-mono">{detail.page}</p>
+        )}
+        {detail.screenshotUrl && (
+          <div className="mt-1">
+            <a
+              href={detail.screenshotUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block rounded-lg overflow-hidden border border-white/10 hover:border-white/20 transition-colors"
+            >
+              <img
+                src={detail.screenshotUrl}
+                alt={t('feedback.screenshot.attached')}
+                className="w-full max-h-48 object-cover"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                <ExternalLink className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 px-2.5 py-1 bg-gradient-to-t from-black/50 to-transparent">
+                <p className="text-[10px] text-white/50">{t('feedback.screenshot.viewFull')}</p>
+              </div>
+            </a>
+          </div>
         )}
       </div>
 

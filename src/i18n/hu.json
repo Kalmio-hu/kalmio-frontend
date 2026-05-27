@@ -1315,6 +1315,15 @@
       "OPEN": "Nyitott",
       "FIXED": "Megoldva",
       "REJECTED": "Elutasítva"
+    },
+    "screenshot": {
+      "label": "Képernyőkép",
+      "dropzone": "Húzz ide egy képet, kattints, vagy illessz be (Ctrl+V)",
+      "remove": "Eltávolítás",
+      "attached": "Csatolt kép",
+      "viewFull": "Teljes méret",
+      "sizeError": "A fájl mérete nem haladhatja meg a 10 MB-ot.",
+      "typeError": "Csak PNG, JPEG vagy WebP képek fogadhatók el."
     }
   },
   "fridge": {

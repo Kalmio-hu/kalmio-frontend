@@ -42,6 +42,12 @@ export const feedbackService = {
   updateStatus: (id: string, status: string, replyNote?: string) =>
     api.patch<FeedbackDetail>(`/api/admin/feedback/${id}/status`, { status, replyNote }, { requestIdempotencyKey: true }).then(r => r.data),
 
+  attachScreenshot: (id: string, file: File) => {
+    const form = new FormData()
+    form.append('screenshot', file)
+    return api.post<FeedbackDetail>(`/api/feedback/${id}/screenshot`, form).then(r => r.data)
+  },
+
   // No idempotency key: each addAdminMessage creates a new message row; same
   // reasoning as addMessage above.
   addAdminMessage: (id: string, body: string) =>

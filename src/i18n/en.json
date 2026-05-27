@@ -1262,6 +1262,15 @@
       "OPEN": "Open",
       "FIXED": "Fixed",
       "REJECTED": "Rejected"
+    },
+    "screenshot": {
+      "label": "Screenshot",
+      "dropzone": "Drop an image here, click, or paste (Ctrl+V)",
+      "remove": "Remove",
+      "attached": "Attached screenshot",
+      "viewFull": "View full size",
+      "sizeError": "File size must not exceed 10 MB.",
+      "typeError": "Only PNG, JPEG, or WebP images are accepted."
     }
   },
   "shoppingList": {
