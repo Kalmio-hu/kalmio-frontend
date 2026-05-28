@@ -292,6 +292,16 @@ export function RecipeDetail() {
               </ol>
             )}
           </section>
+
+          {/* Garnish */}
+          {fullRecipe?.garnish && (
+            <section className="border-t border-gray-100 pt-4">
+              <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                {t('recipes.detail.garnish')}
+              </h2>
+              <p className="text-sm text-[#1A1A1A] leading-relaxed">{fullRecipe.garnish}</p>
+            </section>
+          )}
         </div>
       )}
     </div>

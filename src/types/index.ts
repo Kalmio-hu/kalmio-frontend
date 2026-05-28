@@ -281,6 +281,8 @@ export interface Recipe {
   createdByUserId: string | null
   createdByUsername: string | null
   imageUrl: string | null
+  /** Optional finishing/plating note shown after steps. Not in macros or shopping list. */
+  garnish: string | null
   // ── Recipe family fields (W7) ─────────────────────────────────────────────
   /** UUID of the recipe family this recipe belongs to. Null = standalone. */
   familyId: string | null

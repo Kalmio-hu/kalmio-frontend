@@ -350,6 +350,13 @@ export function CookMode() {
               {currentStep}
             </p>
 
+            {/* Garnish note — shown only on the final step */}
+            {recipe?.garnish && stepIdx === totalSteps - 1 && (
+              <p className="mt-4 text-sm text-[#6b7280] italic leading-relaxed">
+                {recipe.garnish}
+              </p>
+            )}
+
             {/* Timer affordance — shown when the step body contains a parseable time window */}
             {currentStep && (() => {
               const win = parseTimerWindow(currentStep)

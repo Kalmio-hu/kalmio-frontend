@@ -92,6 +92,7 @@ const schema = z.object({
   freezableAfterPrep: z.boolean(),
   holdDaysFrozen: z.coerce.number().int().min(0).max(365).nullable(),
   prepLeadTimeHours: z.coerce.number().int().min(0).max(72),
+  garnish: z.string().max(500).optional(),
 })
 export type FormValues = z.infer<typeof schema>
 
@@ -114,6 +115,7 @@ export function toRequest(v: FormValues) {
     // When the recipe isn't freezable the frozen hold days are meaningless — send null.
     holdDaysFrozen: v.freezableAfterPrep ? v.holdDaysFrozen : null,
     prepLeadTimeHours: v.prepLeadTimeHours,
+    garnish: v.garnish?.trim() || null,
   }
 }
 
@@ -135,6 +137,7 @@ function defaultValues(recipe?: Recipe, ingredientMap?: Map<string, string>): Fo
     freezableAfterPrep: recipe?.freezableAfterPrep ?? false,
     holdDaysFrozen: recipe?.holdDaysFrozen ?? null,
     prepLeadTimeHours: recipe?.prepLeadTimeHours ?? 0,
+    garnish: recipe?.garnish ?? '',
   }
 }
 
@@ -1631,6 +1634,11 @@ export function RecipeFormDialog({
           <div className="space-y-1">
             <Label>{t('recipes.form.steps')} <span className="text-gray-400 font-normal text-xs">{t('recipes.form.stepsHint')}</span></Label>
             <Textarea {...register('steps')} rows={4} placeholder={t('recipes.form.stepsPlaceholder')} />
+          </div>
+
+          <div className="space-y-1">
+            <Label>{t('recipes.form.garnish')} <span className="text-gray-400 font-normal text-xs">{t('recipes.form.garnishHint')}</span></Label>
+            <Textarea {...register('garnish')} rows={2} placeholder={t('recipes.form.garnishPlaceholder')} />
           </div>
 
           <div>

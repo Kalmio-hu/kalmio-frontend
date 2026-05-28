@@ -219,6 +219,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ip-vault/documents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one IP document (admin) */
+        get: operations["getById"];
+        /** Update IP document — creates a new version (admin) */
+        put: operations["update_2"];
+        post?: never;
+        /** Delete IP document (admin) */
+        delete: operations["delete_2"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/oauth/token": {
         parameters: {
             query?: never;
@@ -1826,6 +1845,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/feedback/{id}/screenshot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attach a screenshot to a feedback entry */
+        post: operations["attachScreenshot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/feedback/{id}/read": {
         parameters: {
             query?: never;
@@ -2029,6 +2065,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ip-vault/tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List investor access tokens (admin) */
+        get: operations["listTokens"];
+        put?: never;
+        /** Issue a new investor access token (admin) */
+        post: operations["createToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ip-vault/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all IP documents (admin) */
+        get: operations["listAll"];
+        put?: never;
+        /** Create IP document (admin) */
+        post: operations["create_8"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/ingredients/{id}/reject": {
         parameters: {
             query?: never;
@@ -2225,7 +2297,7 @@ export interface paths {
          * Get a single schedule
          * @description Returns a schedule by ID. Caller must be the owner or a family member.
          */
-        get: operations["getById"];
+        get: operations["getById_1"];
         put?: never;
         post?: never;
         /**
@@ -2239,7 +2311,7 @@ export interface paths {
          * Update schedule metadata
          * @description Patches name, planIds, cadenceDays, startDate, or endDate. Only non-null fields are applied.
          */
-        patch: operations["update_2"];
+        patch: operations["update_3"];
         trace?: never;
     };
     "/api/recipe-families/{id}": {
@@ -2257,11 +2329,11 @@ export interface paths {
          * Delete a recipe family (admin)
          * @description Returns 409 Conflict when the family still has members. Unassign every member first via DELETE /api/recipes/{recipeId}/family.
          */
-        delete: operations["delete_2"];
+        delete: operations["delete_3"];
         options?: never;
         head?: never;
         /** Update a recipe family (admin) */
-        patch: operations["update_3"];
+        patch: operations["update_4"];
         trace?: never;
     };
     "/api/prep-tasks/{id}/status": {
@@ -2339,7 +2411,7 @@ export interface paths {
          * Get a single plan template
          * @description Returns a plan template with all embedded template_meal rows. Caller must be the owner, a family member, or listed in memberIds.
          */
-        get: operations["getById_1"];
+        get: operations["getById_2"];
         put?: never;
         post?: never;
         /**
@@ -2353,7 +2425,7 @@ export interface paths {
          * Update plan template metadata
          * @description Patches name, lengthDays, shoppingCadenceDays, mealSlotsCovered, or memberIds. Only non-null fields are applied. Does NOT refresh snapshot.
          */
-        patch: operations["update_4"];
+        patch: operations["update_5"];
         trace?: never;
     };
     "/api/plans/{id}/members": {
@@ -2472,7 +2544,7 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["delete_3"];
+        delete: operations["delete_4"];
         options?: never;
         head?: never;
         patch: operations["patch"];
@@ -2563,6 +2635,23 @@ export interface paths {
          * @description Sets app_users.premium_enabled to the supplied value and fires a PREMIUM_TOGGLED domain event. Use this to grant or revoke friends-and-family premium access. Returns the updated admin user record including the new premiumEnabled value. KALMIO-179 — E11.0.
          */
         patch: operations["togglePremiumEnabled"];
+        trace?: never;
+    };
+    "/api/admin/ip-vault/documents/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggle publish status of an IP document (admin) */
+        patch: operations["togglePublish"];
         trace?: never;
     };
     "/api/admin/feedback/{id}/status": {
@@ -3097,10 +3186,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["getById_2"];
+        get: operations["getById_3"];
         put?: never;
         post?: never;
-        delete: operations["delete_4"];
+        delete: operations["delete_5"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3252,6 +3341,91 @@ export interface paths {
             cookie?: never;
         };
         get: operations["daily"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ip-vault/public": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List published IP documents (investor token required) */
+        get: operations["listPublished"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ip-vault/public/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a published IP document by slug (investor token required) */
+        get: operations["getPublished"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ip-vault/public/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Verify an investor access token */
+        get: operations["verifyToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ip-vault/public/valuation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the buy-out valuation document (investor token required) */
+        get: operations["getValuation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ip-vault/public/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the captain's bridge / timeline document (investor token required) */
+        get: operations["getTimeline"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3498,6 +3672,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/ip-vault/documents/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get version history for an IP document (admin) */
+        get: operations["getVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/ingredients/pending": {
         parameters: {
             query?: never;
@@ -3523,7 +3714,7 @@ export interface paths {
             cookie?: never;
         };
         /** List all feedback (admin) */
-        get: operations["listAll"];
+        get: operations["listAll_1"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3629,7 +3820,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a registered passkey */
-        delete: operations["delete_5"];
+        delete: operations["delete_6"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3662,6 +3853,23 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["revokeImpersonationPermission"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/ip-vault/tokens/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Revoke an investor access token (admin) */
+        delete: operations["revokeToken"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4097,6 +4305,30 @@ export interface components {
             /** Format: date-time */
             createdAt?: string;
             premiumEnabled?: boolean;
+        };
+        UpdateIpDocumentRequest: {
+            title: string;
+            summary: string;
+            content: string;
+            tags?: string[];
+            changeNote?: string;
+        };
+        IpDocumentResponse: {
+            /** Format: uuid */
+            id?: string;
+            slug?: string;
+            title?: string;
+            category?: string;
+            summary?: string;
+            content?: string;
+            tags?: string[];
+            published?: boolean;
+            /** Format: int32 */
+            version?: number;
+            /** Format: date-time */
+            createdAt?: string;
+            /** Format: date-time */
+            updatedAt?: string;
         };
         TasteSignalRequest: {
             /** @enum {string} */
@@ -5241,6 +5473,7 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
             messages?: components["schemas"]["FeedbackMessageResponse"][];
+            screenshotUrl?: string;
         };
         FeedbackMessageResponse: {
             /** Format: uuid */
@@ -5334,6 +5567,31 @@ export interface components {
             observation?: string;
             observationEn?: string;
             proposedPlanEditIntent?: string;
+        };
+        CreateInvestorTokenRequest: {
+            label: string;
+            /** Format: date-time */
+            expiresAt?: string;
+        };
+        IpInvestorTokenResponse: {
+            /** Format: uuid */
+            id?: string;
+            token?: string;
+            label?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            /** Format: date-time */
+            lastUsedAt?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        CreateIpDocumentRequest: {
+            slug: string;
+            title: string;
+            category: string;
+            summary: string;
+            content: string;
+            tags?: string[];
         };
         ImpersonationTokenResponse: {
             accessToken?: string;
@@ -5865,6 +6123,18 @@ export interface components {
             stageDistribution?: {
                 [key: string]: number;
             };
+        };
+        IpDocumentVersionResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: int32 */
+            versionNumber?: number;
+            title?: string;
+            summary?: string;
+            content?: string;
+            changeNote?: string;
+            /** Format: date-time */
+            createdAt?: string;
         };
     };
     responses: never;
@@ -6512,6 +6782,74 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["AdminUserResponse"];
                 };
+            };
+        };
+    };
+    getById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"];
+                };
+            };
+        };
+    };
+    update_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateIpDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"];
+                };
+            };
+        };
+    };
+    delete_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -9371,6 +9709,35 @@ export interface operations {
             };
         };
     };
+    attachScreenshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    screenshot: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FeedbackDetailResponse"];
+                };
+            };
+        };
+    };
     markRead: {
         parameters: {
             query?: never;
@@ -9693,6 +10060,94 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    listTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpInvestorTokenResponse"][];
+                };
+            };
+        };
+    };
+    createToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInvestorTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpInvestorTokenResponse"];
+                };
+            };
+        };
+    };
+    listAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"][];
+                };
+            };
+        };
+    };
+    create_8: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateIpDocumentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"];
                 };
             };
         };
@@ -10057,7 +10512,7 @@ export interface operations {
             };
         };
     };
-    getById: {
+    getById_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -10116,7 +10571,7 @@ export interface operations {
             };
         };
     };
-    update_2: {
+    update_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -10171,7 +10626,7 @@ export interface operations {
             };
         };
     };
-    delete_2: {
+    delete_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -10191,7 +10646,7 @@ export interface operations {
             };
         };
     };
-    update_3: {
+    update_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -10321,7 +10776,7 @@ export interface operations {
             };
         };
     };
-    getById_1: {
+    getById_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -10380,7 +10835,7 @@ export interface operations {
             };
         };
     };
-    update_4: {
+    update_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -10631,7 +11086,7 @@ export interface operations {
             };
         };
     };
-    delete_3: {
+    delete_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -10842,6 +11297,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AdminUserResponse"];
+                };
+            };
+        };
+    };
+    togglePublish: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"];
                 };
             };
         };
@@ -11542,7 +12019,7 @@ export interface operations {
             };
         };
     };
-    getById_2: {
+    getById_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -11564,7 +12041,7 @@ export interface operations {
             };
         };
     };
-    delete_4: {
+    delete_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -11791,6 +12268,120 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["DailyMacroDto"];
+                };
+            };
+        };
+    };
+    listPublished: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"][];
+                };
+            };
+        };
+    };
+    getPublished: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentResponse"];
+                };
+            };
+        };
+    };
+    verifyToken: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: boolean;
+                    };
+                };
+            };
+        };
+    };
+    getValuation: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
+                };
+            };
+        };
+    };
+    getTimeline: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/html": string;
                 };
             };
         };
@@ -12089,6 +12680,28 @@ export interface operations {
             };
         };
     };
+    getVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IpDocumentVersionResponse"][];
+                };
+            };
+        };
+    };
     listPendingIngredients: {
         parameters: {
             query?: never;
@@ -12109,7 +12722,7 @@ export interface operations {
             };
         };
     };
-    listAll: {
+    listAll_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -12253,7 +12866,7 @@ export interface operations {
             };
         };
     };
-    delete_5: {
+    delete_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -12301,6 +12914,26 @@ export interface operations {
             path: {
                 id: string;
                 userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    revokeToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
             };
             cookie?: never;
         };

@@ -429,7 +429,8 @@
       "carbs": "Szénhidrát",
       "noIngredients": "Nincsenek hozzávalók.",
       "piece": "db",
-      "startCooking": "Főzés indítása"
+      "startCooking": "Főzés indítása",
+      "garnish": "Tálalási javaslat"
     },
     "cookMode": {
       "stepLabel": "Lépés",
@@ -503,7 +504,10 @@
         "freezableAfterPrep": "Készítés után lefagyasztható",
         "holdDaysFrozen": "Mélyhűtőben eltartható (nap)",
         "holdDaysFrozenHint": "Akkor használjuk, ha engedélyezed a fagyasztott adagok előkészítését."
-      }
+      },
+      "garnish": "Tálalási javaslat",
+      "garnishHint": "(opcionális)",
+      "garnishPlaceholder": "pl. Díszítsd friss bazsalikomlevelekkel és egy csepp olívaolajjal"
     },
     "dietaryFilter": "Étrendi szűrők",
     "mealTypeFilter": "Étkezés típusa",

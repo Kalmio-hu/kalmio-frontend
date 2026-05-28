@@ -429,7 +429,8 @@
       "carbs": "Carbs",
       "noIngredients": "No ingredients listed.",
       "piece": "pc",
-      "startCooking": "Start cooking"
+      "startCooking": "Start cooking",
+      "garnish": "Serving suggestion"
     },
     "cookMode": {
       "stepLabel": "Step",
@@ -503,7 +504,10 @@
         "freezableAfterPrep": "Can be frozen after cooking",
         "holdDaysFrozen": "Days it keeps (frozen)",
         "holdDaysFrozenHint": "Used when you opt into freezer batching."
-      }
+      },
+      "garnish": "Serving suggestion",
+      "garnishHint": "(optional)",
+      "garnishPlaceholder": "e.g. Garnish with fresh basil leaves and a drizzle of olive oil"
     },
     "dietaryFilter": "Dietary filters",
     "mealTypeFilter": "Meal type",
