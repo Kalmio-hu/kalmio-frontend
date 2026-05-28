@@ -31,6 +31,7 @@ import { RecipePreferenceCard } from './RecipePreferenceCard'
 import type { PreferenceCardData } from './PreferenceCard'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import { capture } from '@/lib/analytics'
+import { hapticLight, hapticSuccess, hapticMedium } from '@/lib/haptics'
 
 // ── Config ─────────────────────────────────────────────────────────────────
 
@@ -106,6 +107,7 @@ export function PreferenceSwipe({ cards: rawCards, onComplete }: PreferenceSwipe
   const submit = useCallback(
     async (signal: 'LOVE' | 'HATE') => {
       if (!current || submitting) return
+      signal === 'LOVE' ? hapticSuccess() : hapticMedium()
       setSubmitting(true)
       try {
         await tasteSignalsService.submitSignal({
@@ -246,7 +248,7 @@ export function PreferenceSwipe({ cards: rawCards, onComplete }: PreferenceSwipe
       {/* Skip all */}
       <button
         type="button"
-        onClick={onComplete}
+        onClick={() => { hapticLight(); onComplete() }}
         disabled={submitting}
         className="text-xs text-stone-400 underline underline-offset-2 hover:text-stone-600 transition disabled:opacity-40"
       >

@@ -1,4 +1,5 @@
 import { useRef, useCallback } from 'react'
+import { hapticLight, hapticSelection } from '@/lib/haptics'
 
 interface KnobProps {
   value: number
@@ -32,6 +33,8 @@ export function Knob({
   const startY = useRef(0)
   const startValue = useRef(0)
   const ref = useRef<SVGSVGElement>(null)
+  const valueRef = useRef(value)
+  valueRef.current = value
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v))
 
@@ -61,6 +64,7 @@ export function Knob({
     dragging.current = true
     startY.current = e.clientY
     startValue.current = value
+    hapticLight()
   }, [disabled, value])
 
   const onPointerMove = useCallback((e: React.PointerEvent) => {
@@ -68,7 +72,9 @@ export function Knob({
     const dy = startY.current - e.clientY  // up = increase
     const range = max - min
     const delta = (dy / 150) * range
-    onChange(clamp(Math.round(startValue.current + delta)))
+    const next = clamp(Math.round(startValue.current + delta))
+    if (next !== valueRef.current) hapticSelection()
+    onChange(next)
     // clamp closes over min/max, both of which are already in the dep array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min, max, onChange])
@@ -79,8 +85,8 @@ export function Knob({
   const step = Math.max(1, Math.round((max - min) / 100))
   const onKey = useCallback((e: React.KeyboardEvent) => {
     if (disabled) return
-    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') onChange(clamp(value + step))
-    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') onChange(clamp(value - step))
+    if (e.key === 'ArrowUp' || e.key === 'ArrowRight') { hapticSelection(); onChange(clamp(value + step)) }
+    else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') { hapticSelection(); onChange(clamp(value - step)) }
     // clamp closes over min/max, both of which are already in the dep array
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disabled, value, step, onChange])

@@ -43,6 +43,7 @@ import { PrepGooDragContext, usePrepGoo, type PrepGooApi } from './PrepGooDragCo
 import { AttachMealPicker } from './AttachMealPicker'
 import type { MealPickerOption } from './AttachMealPicker'
 import { PrepDragCoachmark, usePrepDragCoachmarkVisible } from '@/components/onboarding/PrepDragCoachmark'
+import { hapticMedium, hapticLight } from '@/lib/haptics'
 
 // ── time helpers ──────────────────────────────────────────────────────────
 
@@ -1627,6 +1628,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    hapticMedium()
     const id = String(event.active.id)
     if (id === 'dot-wake') {
       isDotDragRef.current = true
@@ -1741,6 +1743,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
 
     setLiveDragId(null)
     setLiveDragMinutes(null)
+    hapticLight()
 
     if (id === 'dot-wake') {
       setActiveDotKind(null)

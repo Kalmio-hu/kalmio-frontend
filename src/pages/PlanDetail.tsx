@@ -49,6 +49,7 @@ import {
   type DragStartEvent,
   type DragOverEvent,
 } from '@dnd-kit/core'
+import { hapticMedium, hapticLight } from '@/lib/haptics'
 import { PlanMacroSummary } from '@/components/plan/PlanMacroSummary'
 import { TemplateDriftBanner } from '@/components/plan/TemplateDriftBanner'
 import { RecipeFilterPanel } from '@/components/plan/RecipeFilterPanel'
@@ -473,6 +474,7 @@ export function PlanDetail() {
   })
 
   function handleDragStart(event: DragStartEvent) {
+    hapticMedium()
     const activeId = String(event.active.id)
     setDragSourceId(activeId)
     setDragOverId(null)
@@ -554,6 +556,7 @@ export function PlanDetail() {
     setIsPrepSlotDragging(false)
     if (!plan) return
     if (!event.over) return
+    hapticLight()
 
     const sourceId = String(event.active.id)
     const dropId = String(event.over.id)

@@ -29,6 +29,7 @@ import {
 } from 'framer-motion'
 import { Heart, X, Clock, ChefHat } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { hapticLight, hapticSuccess, hapticMedium } from '@/lib/haptics'
 import { MacroDonutChart } from './MacroDonutChart'
 import type { PreferenceCardData } from './PreferenceCard'
 
@@ -130,12 +131,14 @@ export function RecipePreferenceCard({
     const vx = info.velocity.x
 
     if (dx > COMMIT_PX || vx > 800) {
+      hapticSuccess()
       void controls.start({
         x: FLY_OFF_DISTANCE, y: info.offset.y, rotate: MAX_TILT, opacity: 0,
         transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
       })
       onLike()
     } else if (dx < -COMMIT_PX || vx < -800) {
+      hapticMedium()
       void controls.start({
         x: -FLY_OFF_DISTANCE, y: info.offset.y, rotate: -MAX_TILT, opacity: 0,
         transition: { duration: FLY_OFF_DURATION, ease: 'easeOut' },
@@ -168,6 +171,7 @@ export function RecipePreferenceCard({
       drag={disabled ? false : 'x'}
       dragElastic={0.55}
       dragMomentum={false}
+      onDragStart={() => hapticLight()}
       onDragEnd={handleDragEnd}
       animate={controls}
       style={{ x, y, rotate, touchAction: 'none' }}

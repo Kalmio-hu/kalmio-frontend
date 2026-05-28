@@ -38,6 +38,21 @@ const config: StorybookConfig = {
         .flatMap((p) => (Array.isArray(p) ? p : [p]))
         .filter(isNotPwaPlugin)
     }
+
+    // Supabase createClient throws at module-load time when VITE_SUPABASE_URL is
+    // undefined. CI doesn't set real credentials for Storybook — inject placeholders
+    // so the module initialises without crashing. Stories that touch auth/API paths
+    // must mock those services themselves; the Supabase client is never called here.
+    config.define = {
+      ...config.define,
+      'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(
+        process.env.VITE_SUPABASE_URL ?? 'https://placeholder.supabase.co',
+      ),
+      'import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY': JSON.stringify(
+        process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? 'placeholder-key',
+      ),
+    }
+
     return config
   },
 }

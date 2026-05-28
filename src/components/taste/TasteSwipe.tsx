@@ -42,6 +42,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { capture } from '@/lib/analytics'
+import { hapticLight, hapticMedium, hapticSuccess, hapticError } from '@/lib/haptics'
 import { tasteSignalsService } from '@/services/tasteSignals'
 import type { TasteCard, TasteSignalSource, TasteSignalValue } from '@/types'
 
@@ -242,6 +243,7 @@ function ActiveCard({ card, onCommit, disabled, labels, hint }: ActiveCardProps)
       drag={disabled ? false : true}
       dragElastic={0.6}
       dragMomentum={false}
+      onDragStart={() => hapticLight()}
       onDragEnd={handleDragEnd}
       animate={controls}
       style={{ x, y, rotate, touchAction: 'none' }}
@@ -443,10 +445,10 @@ export function TasteSwipe({
   const commitDirection = useCallback(
     (dir: Direction) => {
       switch (dir) {
-        case 'right': void submit('LOVE'); break
-        case 'left':  void submit('HATE'); break
-        case 'up':    void submit('OK');   break
-        case 'down':  skipCard(); break
+        case 'right': hapticSuccess(); void submit('LOVE'); break
+        case 'left':  hapticError();   void submit('HATE'); break
+        case 'up':    hapticMedium();  void submit('OK');   break
+        case 'down':  hapticLight();   skipCard(); break
       }
     },
     [submit, skipCard],
@@ -552,7 +554,7 @@ export function TasteSwipe({
       <div className="flex w-full items-center justify-between gap-2 px-2" role="group" aria-label={t('taste.actionsLabel')}>
         <button
           type="button"
-          onClick={() => void submit('HATE')}
+          onClick={() => { hapticError(); void submit('HATE') }}
           disabled={submitting}
           aria-label={t('taste.hate')}
           className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-red-200 text-red-600 shadow-sm hover:border-red-400 hover:bg-red-50 active:scale-95 transition disabled:opacity-40"
@@ -561,7 +563,7 @@ export function TasteSwipe({
         </button>
         <button
           type="button"
-          onClick={() => skipCard()}
+          onClick={() => { hapticLight(); skipCard() }}
           disabled={submitting}
           aria-label={t('taste.skipCard')}
           className="flex items-center justify-center w-12 h-12 rounded-full bg-white border-2 border-stone-200 text-stone-500 shadow-sm hover:border-stone-400 hover:bg-stone-50 active:scale-95 transition disabled:opacity-40"
@@ -570,7 +572,7 @@ export function TasteSwipe({
         </button>
         <button
           type="button"
-          onClick={() => void submit('OK')}
+          onClick={() => { hapticMedium(); void submit('OK') }}
           disabled={submitting}
           aria-label={t('taste.ok')}
           className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-[#F28C28]/40 text-[#F28C28] shadow-sm hover:border-[#F28C28] hover:bg-[#F28C28]/5 active:scale-95 transition disabled:opacity-40"
@@ -579,7 +581,7 @@ export function TasteSwipe({
         </button>
         <button
           type="button"
-          onClick={() => void submit('LOVE')}
+          onClick={() => { hapticSuccess(); void submit('LOVE') }}
           disabled={submitting}
           aria-label={t('taste.love')}
           className="flex items-center justify-center w-14 h-14 rounded-full bg-white border-2 border-[#4F7942]/40 text-[#4F7942] shadow-sm hover:border-[#4F7942] hover:bg-[#4F7942]/5 active:scale-95 transition disabled:opacity-40"
