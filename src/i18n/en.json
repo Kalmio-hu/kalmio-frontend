@@ -3069,5 +3069,8 @@
     "vegetarian": "Vegetarian",
     "pescatarian": "Pescatarian",
     "omnivore": "Omnivore"
+  },
+  "plans": {
+    "autoScheduleFailed": "Your plan is ready. Use the \"Schedule\" button to activate it."
   }
 }

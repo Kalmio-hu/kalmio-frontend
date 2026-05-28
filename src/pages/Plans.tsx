@@ -39,9 +39,6 @@ import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
 import type { PlanTemplate, PlanTemplateStatus } from '@/types'
 
-/** Server-side coachmark key for the first-plan-schedule auto-open flow. */
-const FIRST_PLAN_SCHEDULE_COACHMARK = 'firstPlanSchedule'
-
 type ListFilter = 'active' | 'draft' | 'archived' | 'all'
 
 export function Plans() {
@@ -52,12 +49,8 @@ export function Plans() {
 
   const [filter, setFilter] = useState<ListFilter>('all')
   const [runPlanTarget, setRunPlanTarget] = useState<PlanTemplate | null>(null)
-  // KALMIO-445: flag that we should auto-open RunPlanDialog after solve/fresh landing.
-  // Stored as a ref to avoid triggering an extra render cycle.
-  const pendingAutoOpenRef = useRef(false)
-  // When true, RunPlanDialog was opened automatically — governs context prop and
-  // post-success redirect. Stored as state because it drives JSX (the `context` prop).
-  const [isAutoSchedule, setIsAutoSchedule] = useState(false)
+  // Flag that we should auto-schedule after solve/fresh landing.
+  const pendingAutoScheduleRef = useRef(false)
 
   // ── Server state ──────────────────────────────────────────────────────────
 
@@ -87,9 +80,8 @@ export function Plans() {
       void queryClient.invalidateQueries({ queryKey: ['plan-templates'] })
       // Remove the ?fresh=1 param so a hard refresh doesn't re-trigger the solve.
       navigate('/app/plans', { replace: true })
-      // KALMIO-445: signal that we should auto-open RunPlanDialog once the
-      // refreshed plan list is available (coachmark guard checked in the effect).
-      pendingAutoOpenRef.current = true
+      // Signal that we should auto-schedule once the refreshed plan list is available.
+      pendingAutoScheduleRef.current = true
     },
     onError: () => {
       // Surface the failure to the user instead of dropping the request silently.
@@ -125,10 +117,9 @@ export function Plans() {
 
     const isEmpty = defaultPlan.templateMeals.length === 0
     if (!isEmpty) {
-      // Plan already has meals — redirect without solving.
+      // Plan already has meals — redirect without solving; still auto-schedule.
       navigate('/app/plans', { replace: true })
-      // KALMIO-445: still offer the schedule dialog if not seen before.
-      pendingAutoOpenRef.current = true
+      pendingAutoScheduleRef.current = true
       return
     }
 
@@ -142,50 +133,49 @@ export function Plans() {
     staleTime: 60_000,
   })
 
-  // ── KALMIO-445: Auto-open RunPlanDialog after first-plan solve ─────────────
-  // After the auto-solve completes, open RunPlanDialog for the default plan
-  // (startDate=today) so the user can schedule it in one step.
-  // Guard: only fires once per user (coachmark key `firstPlanSchedule`).
+  // ── Auto-schedule after first-plan solve ──────────────────────────────────
+  // After the auto-solve completes (fresh=1 landing), automatically call
+  // runPlan with startDate=today so the user lands on /app with their first
+  // day's meals already scheduled.
+  // On 422 (schedule already exists) or any other error: show a toast and
+  // stay on /app/plans so the user can manually schedule.
+  // Guard: fires at most once per page visit via pendingAutoScheduleRef.
 
-  const firstPlanScheduleCoachmarkMutation = useMutation({
-    mutationFn: () => usersService.markCoachmarkSeen(FIRST_PLAN_SCHEDULE_COACHMARK),
-    onSuccess: (updatedUser) => {
-      queryClient.setQueryData(USERS_ME_QUERY_KEY, updatedUser)
+  const autoScheduleMutation = useMutation({
+    mutationFn: (planId: string) =>
+      planTemplateService.runPlan(planId, {
+        startDate: new Date().toISOString().slice(0, 10),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['schedules'] })
+      void queryClient.invalidateQueries({ queryKey: ['plan-templates'] })
+      navigate('/app')
+    },
+    onError: () => {
+      toast({
+        title: t('plans.autoScheduleFailed'),
+        variant: 'destructive',
+        duration: 8000,
+      })
+      navigate('/app/plans', { replace: true })
     },
   })
 
   useEffect(() => {
-    if (!pendingAutoOpenRef.current) return
-    // Wait for both plan list and user settings to be ready.
+    if (!pendingAutoScheduleRef.current) return
     if (isLoading) return
-    if (me === undefined) return
-
-    const coachmarksSeen = me.coachmarksSeen ?? []
-    if (coachmarksSeen.includes(FIRST_PLAN_SCHEDULE_COACHMARK)) {
-      // Already shown once — clear the flag and do nothing.
-      pendingAutoOpenRef.current = false
-      return
-    }
+    if (autoScheduleMutation.isPending) return
 
     const defaultPlan = plans.find(p => p.isDefault)
     if (!defaultPlan) return
 
-    // Claim the pending flag synchronously so a quick re-render can't double-fire.
-    pendingAutoOpenRef.current = false
-    // Mark the coachmark seen on the server so the auto-open fires once per user.
-    firstPlanScheduleCoachmarkMutation.mutate()
-    // Defer state updates out of the effect body to satisfy React's rules around
-    // synchronous setState calls inside effects.
-    const captured = defaultPlan
-    const timer = setTimeout(() => {
-      setIsAutoSchedule(true)
-      setRunPlanTarget(captured)
-    }, 0)
-    return () => clearTimeout(timer)
-  // firstPlanScheduleCoachmarkMutation.mutate is stable (TanStack guarantee).
+    // Claim the pending flag synchronously so re-renders can't double-fire.
+    pendingAutoScheduleRef.current = false
+    autoScheduleMutation.mutate(defaultPlan.id)
+  // autoScheduleMutation.mutate is stable (TanStack guarantee).
   // Ref changes do not need to be in the dep array.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading, me, plans])
+  }, [isLoading, plans])
 
   // ── Mutations ─────────────────────────────────────────────────────────────
 
@@ -357,32 +347,15 @@ export function Plans() {
         </div>
       )}
 
-      {/* RunPlanDialog — opened from card primary CTA or KALMIO-445 auto-open */}
+      {/* RunPlanDialog — opened from card primary CTA (manual scheduling) */}
       {runPlanTarget != null && (
         <RunPlanDialog
           plan={runPlanTarget}
           open={runPlanTarget != null}
-          context={isAutoSchedule ? 'firstSchedule' : undefined}
           onOpenChange={open => {
-            if (!open) {
-              setIsAutoSchedule(false)
-              setRunPlanTarget(null)
-            }
+            if (!open) setRunPlanTarget(null)
           }}
-          onSuccess={() => {
-            // KALMIO-445: after auto-schedule, land the user on today's view
-            // so they immediately see their first day's meals.
-            // Dashboard lives at /app (index route); /app/today doesn't
-            // exist and would fall through to the catch-all that redirects
-            // to the marketing landing — Eszter B1 / Adam M4 / KALMIO-469.
-            if (isAutoSchedule) {
-              setIsAutoSchedule(false)
-              setRunPlanTarget(null)
-              navigate('/app')
-            } else {
-              setRunPlanTarget(null)
-            }
-          }}
+          onSuccess={() => setRunPlanTarget(null)}
         />
       )}
     </div>

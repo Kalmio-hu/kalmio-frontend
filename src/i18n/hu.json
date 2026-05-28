@@ -3068,5 +3068,8 @@
     "vegetarian": "Vegetáriánus",
     "pescatarian": "Pescatariánus",
     "omnivore": "Mindenevő"
+  },
+  "plans": {
+    "autoScheduleFailed": "A terved kész. Kézi ütemezéshez keresd a \"Futtassuk\" gombot."
   }
 }
