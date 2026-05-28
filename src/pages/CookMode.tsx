@@ -275,7 +275,8 @@ export function CookMode() {
     : t('recipes.cookMode.noSteps')
 
   return (
-    <div className="min-h-dvh bg-[#FAFAF6] flex flex-col">
+    <div className="min-h-dvh bg-[#FAFAF6] w-full">
+    <div className="min-h-dvh bg-[#FAFAF6] flex flex-col max-w-2xl mx-auto">
       {/* Header */}
       <header className="sticky top-0 z-10 flex items-center gap-2 bg-white border-b border-[#EDEAE2] px-3 py-2.5">
         <button
@@ -504,6 +505,7 @@ export function CookMode() {
           )}
         </div>
       </nav>
+    </div>
     </div>
   )
 }

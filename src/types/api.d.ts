@@ -4091,6 +4091,7 @@ export interface components {
             activePrepMinutes?: number;
             /** Format: int32 */
             passivePrepMinutes?: number;
+            garnish?: string;
         };
         IngredientRef: {
             /** Format: uuid */
@@ -4146,6 +4147,7 @@ export interface components {
             createdByUserId?: string;
             createdByUsername?: string;
             imageUrl?: string;
+            garnish?: string;
             /** Format: uuid */
             familyId?: string;
             familyName?: string;
@@ -4168,6 +4170,7 @@ export interface components {
         LocaleData: {
             name: string;
             steps?: string[];
+            garnish?: string;
         };
         UpdateRecipeTranslationRequest: {
             en: components["schemas"]["LocaleData"];
@@ -4515,6 +4518,7 @@ export interface components {
             servings: number;
             ingredients: components["schemas"]["RecipeIngredientRequest"][];
             tags?: ("QUICK" | "CHEAP" | "MEALPREP" | "HIGH_PROTEIN" | "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "HEALTHY" | "VEGETARIAN" | "VEGAN" | "COMFORT" | "KID_FRIENDLY")[];
+            garnish?: string;
         };
         AiCookModeRequest: {
             question: string;
@@ -4582,6 +4586,7 @@ export interface components {
             visibility?: "PUBLIC" | "PRIVATE" | "PENDING_REVIEW" | "PRIVATE_TO_IMPORTER";
             createdByUsername?: string;
             imageUrl?: string;
+            garnish?: string;
             userImported?: boolean;
             /** Format: uuid */
             familyId?: string;
