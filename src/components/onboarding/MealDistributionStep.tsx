@@ -9,12 +9,10 @@
  * - Six meal types: BREAKFAST, MORNING_SNACK, LUNCH, AFTERNOON_SNACK, DINNER, EVENING_SNACK
  * - Each meal can be toggled on/off; disabled meals contribute 0 kcal and
  *   their percentage is redistributed proportionally among active meals.
- * - A circular SVG donut chart (visual only, aria-hidden) shows the split.
- *   Style matches MacroDonutChart (same strokeLinecap="round", same palette approach).
- * - Per-meal kcal displayed as integer; + / − buttons adjust in 50-kcal increments
- *   subject to a minimum of 100 kcal for enabled meals and a maximum of
- *   dailyKcal − (activeCount − 1) × 100 so every other enabled meal gets at
- *   least 100 kcal.
+ * - A circular SVG donut chart shows the split with draggable spoke handles
+ *   at segment boundaries.
+ * - Per-meal kcal displayed as integer; +/− buttons adjust in 50-kcal increments
+ *   with proportional redistribution so the total always equals dailyKcal.
  * - "Mentés" calls onAdvance({ mealCalorieTargets: Record<string,number> }).
  *   "Kihagyom" calls onSkip without persisting anything.
  * - Mobile-first: 375px baseline; single-column layout on mobile, two-column
@@ -22,15 +20,16 @@
  *
  * Accessibility:
  * - Each toggle is a <button role="switch" aria-checked>.
- * - + / − buttons have aria-label with meal name and new value for screen readers.
- * - The donut SVG is aria-hidden; the aria-label on the container lists the distribution
- *   in text form for assistive technologies.
+ * - +/− buttons have aria-label with meal name and new value for screen readers.
+ * - The donut SVG is aria-hidden; the aria-label on the container lists the
+ *   distribution in text form for assistive technologies.
+ * - Drag handles are aria-hidden.
  *
  * The component is a controlled sub-step: the parent (OnboardingShell) owns the
  * persist call via onAdvance. All local state is ephemeral.
  */
 
-import { useId, useState, useCallback, useMemo } from 'react'
+import { useId, useState, useCallback, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 // ── Meal type ordering ──────────────────────────────────────────────────────
@@ -89,6 +88,85 @@ const MEAL_COLOURS: Record<MealTypeKey, string> = {
 const STEP_KCAL = 50
 const MIN_KCAL  = 100
 
+// ── Proportional redistribution helpers ─────────────────────────────────────
+
+/**
+ * Distribute `totalDelta` proportionally across `others` by their current kcal
+ * weight.  Each meal in `others` must stay ≥ MIN_KCAL.
+ *
+ * Returns a new partial map with the updated values for the `others` meals.
+ * The caller is responsible for applying the result to the full kcalMap.
+ *
+ * Algorithm:
+ *  1. Attempt proportional distribution.
+ *  2. Any meal that would drop below MIN_KCAL is clamped; its residual is
+ *     re-distributed to the remaining unclamped meals.
+ *  3. After one pass we stop (convergence is guaranteed because each clamping
+ *     step reduces the set of unclamped meals until all are ≥ MIN_KCAL or the
+ *     delta is exhausted).
+ *  4. Due to integer rounding the total may be off by ±1; the remainder is
+ *     added to / subtracted from the largest unclamped meal to stay exact.
+ */
+function distributeProportionally(
+  others: MealTypeKey[],
+  currentMap: Record<MealTypeKey, number>,
+  totalDelta: number,
+): Partial<Record<MealTypeKey, number>> {
+  if (others.length === 0 || totalDelta === 0) return {}
+
+  const result: Partial<Record<MealTypeKey, number>> = {}
+  let remaining = [...others]
+  let remainingDelta = totalDelta
+
+  // Iterate until all delta is distributed or every meal is clamped.
+  while (Math.abs(remainingDelta) > 0 && remaining.length > 0) {
+    const totalWeight = remaining.reduce((s, m) => s + (result[m] ?? currentMap[m]), 0)
+    if (totalWeight <= 0) break
+
+    let actualDistributed = 0
+    const clamped: MealTypeKey[] = []
+    const unclamped: MealTypeKey[] = []
+
+    for (const m of remaining) {
+      const cur = result[m] ?? currentMap[m]
+      const weight = cur / totalWeight
+      const proposed = Math.round(cur + remainingDelta * weight)
+      if (proposed < MIN_KCAL) {
+        result[m] = MIN_KCAL
+        actualDistributed += MIN_KCAL - cur
+        clamped.push(m)
+      } else {
+        result[m] = proposed
+        actualDistributed += proposed - cur
+        unclamped.push(m)
+      }
+    }
+
+    remainingDelta -= actualDistributed
+    remaining = unclamped
+
+    // If after clamping there's nothing left to distribute, stop.
+    if (remaining.length === 0) break
+  }
+
+  // Fix integer rounding drift: add residual to the largest unclamped meal.
+  const totalAfter = others.reduce((s, m) => s + (result[m] ?? currentMap[m]), 0)
+  const expectedAfter = others.reduce((s, m) => s + currentMap[m], 0) + totalDelta
+  const drift = expectedAfter - totalAfter
+  if (drift !== 0 && remaining.length > 0) {
+    const largest = remaining.reduce((a, b) =>
+      (result[a] ?? currentMap[a]) >= (result[b] ?? currentMap[b]) ? a : b
+    )
+    const cur = result[largest] ?? currentMap[largest]
+    const adjusted = cur + drift
+    if (adjusted >= MIN_KCAL) {
+      result[largest] = adjusted
+    }
+  }
+
+  return result
+}
+
 // ── SVG arc helper ─────────────────────────────────────────────────────────
 
 function describeArc(
@@ -107,7 +185,39 @@ function describeArc(
   return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`
 }
 
+// ── Pointer angle helper ────────────────────────────────────────────────────
+
+/** Returns the angle in degrees (0 = top, clockwise) for a pointer event relative to SVG centre. */
+function pointerAngleDeg(
+  e: React.PointerEvent<SVGSVGElement>,
+  svgRef: React.RefObject<SVGSVGElement | null>,
+): number {
+  const svg = svgRef.current
+  if (!svg) return 0
+  const rect = svg.getBoundingClientRect()
+  const cx = rect.left + rect.width / 2
+  const cy = rect.top + rect.height / 2
+  const dx = e.clientX - cx
+  const dy = e.clientY - cy
+  // atan2 returns angle from positive x-axis; we want 0 = top (negative y), clockwise.
+  const rad = Math.atan2(dy, dx) + Math.PI / 2
+  const deg = (rad * 180) / Math.PI
+  return ((deg % 360) + 360) % 360
+}
+
 // ── Sub-component: distribution donut ─────────────────────────────────────
+
+interface DragState {
+  /** Index into the `boundaries` array — the boundary between meals[index-1] and meals[index]. */
+  boundaryIndex: number
+  /** The two active meals on each side of the boundary. */
+  mealBefore: MealTypeKey
+  mealAfter: MealTypeKey
+  /** Angle in degrees at pointer-down. */
+  startAngleDeg: number
+  /** Cumulative kcal delta applied so far in this drag. */
+  appliedDeltaKcal: number
+}
 
 interface DistributionDonutProps {
   meals: MealTypeKey[]
@@ -116,6 +226,7 @@ interface DistributionDonutProps {
   totalKcal: number
   size?: number
   strokeWidth?: number
+  onDragAdjust: (mealBefore: MealTypeKey, mealAfter: MealTypeKey, deltaKcal: number) => void
 }
 
 function DistributionDonut({
@@ -125,16 +236,19 @@ function DistributionDonut({
   totalKcal,
   size = 160,
   strokeWidth = 18,
+  onDragAdjust,
 }: DistributionDonutProps) {
   const id = useId()
   const cx = size / 2
   const cy = size / 2
   const r  = (size - strokeWidth) / 2
   const GAP = 4
+  const svgRef = useRef<SVGSVGElement>(null)
+  const dragRef = useRef<DragState | null>(null)
 
   const safe = totalKcal > 0 ? totalKcal : 1
 
-  // Build segments for active meals only, using reduce to track cursor without mutation
+  // Build segments for active meals only.
   const segments = meals
     .filter((m) => enabledMap[m] && kcalMap[m] > 0)
     .reduce<{ meal: MealTypeKey; start: number; end: number; nextCursor: number }[]>((acc, m) => {
@@ -150,13 +264,76 @@ function DistributionDonut({
     }, [])
     .filter((s) => s.end - s.start > 1)
 
+  // Compute boundary points between adjacent segments (on the outer rim).
+  // A boundary at angle θ sits between segments[i] and segments[i+1].
+  const handleRadius = r + strokeWidth / 2
+  const boundaries = segments.map((seg, i) => {
+    const nextSeg = segments[(i + 1) % segments.length]
+    // The boundary angle is the midpoint between the end of this segment and
+    // start of next — i.e. the nextCursor angle of the current segment.
+    const angleDeg = seg.nextCursor
+    const toRad = (deg: number) => ((deg - 90) * Math.PI) / 180
+    return {
+      angleDeg,
+      x: cx + handleRadius * Math.cos(toRad(angleDeg)),
+      y: cy + handleRadius * Math.sin(toRad(angleDeg)),
+      mealBefore: seg.meal,
+      mealAfter: nextSeg.meal,
+    }
+  }).filter((_, i) => segments.length > 1 && i < segments.length - 1 + (segments.length > 1 ? 1 : 0))
+
+  // Only render boundaries between distinct adjacent segments.
+  const visibleBoundaries = boundaries.filter(b => b.mealBefore !== b.mealAfter)
+
+  function handlePointerDown(e: React.PointerEvent<SVGCircleElement>, idx: number) {
+    e.stopPropagation()
+    ;(e.currentTarget as SVGCircleElement).setPointerCapture(e.pointerId)
+    const b = visibleBoundaries[idx]
+    dragRef.current = {
+      boundaryIndex: idx,
+      mealBefore: b.mealBefore,
+      mealAfter: b.mealAfter,
+      startAngleDeg: pointerAngleDeg(e as unknown as React.PointerEvent<SVGSVGElement>, svgRef),
+      appliedDeltaKcal: 0,
+    }
+  }
+
+  function handleSvgPointerMove(e: React.PointerEvent<SVGSVGElement>) {
+    const drag = dragRef.current
+    if (!drag) return
+
+    const currentAngleDeg = pointerAngleDeg(e, svgRef)
+    let deltaDeg = currentAngleDeg - drag.startAngleDeg
+    // Normalise to [-180, 180] so we handle wrap-around at 360/0.
+    if (deltaDeg > 180) deltaDeg -= 360
+    if (deltaDeg < -180) deltaDeg += 360
+
+    const rawDeltaKcal = Math.round((deltaDeg / 360) * totalKcal)
+    const incrementalDelta = rawDeltaKcal - drag.appliedDeltaKcal
+
+    if (Math.abs(incrementalDelta) >= STEP_KCAL) {
+      const snapped = Math.sign(incrementalDelta) * Math.floor(Math.abs(incrementalDelta) / STEP_KCAL) * STEP_KCAL
+      onDragAdjust(drag.mealBefore, drag.mealAfter, snapped)
+      drag.appliedDeltaKcal += snapped
+    }
+  }
+
+  function handleSvgPointerUp() {
+    dragRef.current = null
+  }
+
   return (
     <svg
+      ref={svgRef}
       width={size}
       height={size}
       viewBox={`0 0 ${size} ${size}`}
       aria-hidden="true"
       role="presentation"
+      style={{ overflow: 'visible', touchAction: 'none' }}
+      onPointerMove={handleSvgPointerMove}
+      onPointerUp={handleSvgPointerUp}
+      onPointerCancel={handleSvgPointerUp}
     >
       <defs>
         <filter id={`${id}-shadow`} x="-20%" y="-20%" width="140%" height="140%">
@@ -209,6 +386,22 @@ function DistributionDonut({
       >
         kcal
       </text>
+
+      {/* Drag handles at segment boundaries */}
+      {visibleBoundaries.map((b, i) => (
+        <circle
+          key={i}
+          cx={b.x}
+          cy={b.y}
+          r={7}
+          fill="white"
+          stroke="rgba(0,0,0,0.15)"
+          strokeWidth={1.5}
+          aria-hidden="true"
+          style={{ cursor: 'grab', touchAction: 'none' }}
+          onPointerDown={(e) => handlePointerDown(e, i)}
+        />
+      ))}
     </svg>
   )
 }
@@ -290,33 +483,94 @@ export function MealDistributionStep({
     [activeMeals, kcalMap],
   )
 
-  // Toggle a meal on/off. When toggling off: set its kcal to 0.
-  // When toggling on: assign it a proportional share of the budget.
+  // ── Toggle a meal on/off with proportional redistribution ─────────────────
+  // When toggling off: redistribute the meal's kcal proportionally to the
+  // remaining enabled meals.
+  // When toggling on: give it dailyKcal / newActiveCount as a starting point,
+  // and scale the others down proportionally to compensate.
   const toggleMeal = useCallback((meal: MealTypeKey) => {
-    setEnabledMap((prev) => {
-      const nowEnabled = !prev[meal]
-      const next = { ...prev, [meal]: nowEnabled }
+    setEnabledMap((prevEnabled) => {
+      const isCurrentlyEnabled = prevEnabled[meal]
+      const nextEnabled = { ...prevEnabled, [meal]: !isCurrentlyEnabled }
 
-      if (!nowEnabled) {
-        // Disabled: set kcal to 0 so the donut reflects reality
-        setKcalMap((k) => ({ ...k, [meal]: 0 }))
-      } else {
-        // Re-enabling: give it its default percentage of the budget or MIN_KCAL
-        const defaultKcal = Math.max(MIN_KCAL, Math.round((DEFAULT_PERCENTAGES[meal] / 100) * budget))
-        setKcalMap((k) => ({ ...k, [meal]: defaultKcal }))
-      }
-      return next
+      setKcalMap((prevKcal) => {
+        const next = { ...prevKcal }
+
+        if (isCurrentlyEnabled) {
+          // Toggling OFF: redistribute this meal's kcal to the others.
+          const releasedKcal = prevKcal[meal]
+          const others = MEAL_TYPE_ORDER.filter((m) => m !== meal && nextEnabled[m])
+          if (others.length === 0) {
+            // Last active meal — can't disable it; revert.
+            return prevKcal
+          }
+          const redistribution = distributeProportionally(others, prevKcal, releasedKcal)
+          for (const [m, v] of Object.entries(redistribution)) {
+            next[m as MealTypeKey] = v
+          }
+          next[meal] = 0
+        } else {
+          // Toggling ON: assign this meal a share and scale others down.
+          const newActive = MEAL_TYPE_ORDER.filter((m) => nextEnabled[m])
+          const newShare = Math.max(MIN_KCAL, Math.round(budget / newActive.length))
+          const others = MEAL_TYPE_ORDER.filter((m) => m !== meal && nextEnabled[m])
+          // Others need to give up `newShare` total, proportionally.
+          const redistribution = distributeProportionally(others, prevKcal, -newShare)
+          for (const [m, v] of Object.entries(redistribution)) {
+            next[m as MealTypeKey] = v
+          }
+          next[meal] = newShare
+        }
+        return next
+      })
+
+      return nextEnabled
     })
   }, [budget])
 
-  // Adjust a meal's kcal by ±STEP_KCAL, clamped so every active meal gets
-  // at least MIN_KCAL and the total never exceeds the budget implicitly.
+  // ── Adjust a meal's kcal by ±STEP_KCAL with proportional redistribution ───
+  // When you increase one meal by delta kcal, subtract that delta
+  // proportionally from the other active enabled meals.
   const adjustKcal = useCallback((meal: MealTypeKey, delta: number) => {
     setKcalMap((prev) => {
       const current = prev[meal]
-      const proposed = current + delta
-      const clamped = Math.max(MIN_KCAL, proposed)
-      return { ...prev, [meal]: clamped }
+      const newKcal = Math.max(MIN_KCAL, current + delta)
+      const actualDelta = newKcal - current
+      if (actualDelta === 0) return prev
+
+      const others = MEAL_TYPE_ORDER.filter(
+        (m) => m !== meal && enabledMap[m]
+      )
+      if (others.length === 0) return prev
+
+      const redistribution = distributeProportionally(others, prev, -actualDelta)
+      const next = { ...prev, [meal]: newKcal }
+      for (const [m, v] of Object.entries(redistribution)) {
+        next[m as MealTypeKey] = v
+      }
+      return next
+    })
+  }, [enabledMap])
+
+  // ── Drag handle: adjust the boundary between two adjacent meals ───────────
+  const handleDragAdjust = useCallback((
+    mealBefore: MealTypeKey,
+    mealAfter: MealTypeKey,
+    deltaKcal: number,
+  ) => {
+    setKcalMap((prev) => {
+      // mealBefore gains deltaKcal; mealAfter loses it (or vice-versa).
+      const beforeNew = Math.max(MIN_KCAL, prev[mealBefore] + deltaKcal)
+      const afterNew  = Math.max(MIN_KCAL, prev[mealAfter]  - deltaKcal)
+
+      // Re-check: actual delta applied (clamping may have reduced it).
+      const actualBefore = beforeNew - prev[mealBefore]
+      const actualAfter  = afterNew  - prev[mealAfter]
+
+      // If both clamped to 0, nothing to do.
+      if (actualBefore === 0 && actualAfter === 0) return prev
+
+      return { ...prev, [mealBefore]: beforeNew, [mealAfter]: afterNew }
     })
   }, [])
 
@@ -366,6 +620,7 @@ export function MealDistributionStep({
             totalKcal={totalActive}
             size={160}
             strokeWidth={18}
+            onDragAdjust={handleDragAdjust}
           />
         </div>
 
