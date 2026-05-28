@@ -2372,6 +2372,12 @@
       "kcalEditLabel": "Napi kalóriacél (kcal)",
       "kcalEditHint": "A TDEE alapján számítottam. Szükség esetén módosíthatod.",
       "kcalEditError": "Az értéknek {{min}} és {{max}} kcal között kell lennie.",
+      "proteinEditLabel": "Fehérjecél",
+      "carbsEditLabel": "Szénhidrát cél",
+      "fatEditLabel": "Zsír cél",
+      "carbsUnit": "g szénhidrát",
+      "fatUnit": "g zsír",
+      "macroEditError": "Az értéknek {{min}} és {{max}} g között kell lennie.",
       "noBodyData": {
         "title": "Finomítsuk a kalóriacélt?",
         "description": "Ha megadod a testadataidat, pontosabb javaslatot tudok adni. Ha most kihagyod, a megadott kalóriacélod megmarad.",

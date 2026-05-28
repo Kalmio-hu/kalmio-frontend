@@ -349,12 +349,17 @@ export function OnboardingShell() {
   })
 
   // ── TDEE step: persist accepted suggestion to mealPlanPreferences ─────────
+  // Now persists kcal + protein + carbs + fat so the solver has all macro
+  // targets from the very first plan generation.
   const tdeeMutation = useMutation({
-    mutationFn: (kcalTarget: number) =>
+    mutationFn: (values: { kcalTarget: number; proteinTargetG?: number | null; carbsTargetG?: number | null; fatTargetG?: number | null }) =>
       usersService.updateSettings({
         mealPlanPreferences: {
           ...user?.mealPlanPreferences,
-          kcalTarget,
+          kcalTarget: values.kcalTarget,
+          ...(values.proteinTargetG != null ? { proteinTargetG: values.proteinTargetG } : {}),
+          ...(values.carbsTargetG != null ? { carbsTargetG: values.carbsTargetG } : {}),
+          ...(values.fatTargetG != null ? { fatTargetG: values.fatTargetG } : {}),
         },
       }),
     onSuccess: (updated) => {
@@ -588,14 +593,23 @@ export function OnboardingShell() {
                 <TdeeSuggestionBanner
                   suggestedKcal={user.suggestedKcalTarget}
                   suggestedProtein={user?.suggestedProteinTarget ?? null}
+                  suggestedCarbs={
+                    user.suggestedKcalTarget != null
+                      ? Math.round((user.suggestedKcalTarget * 0.40) / 4)
+                      : null
+                  }
+                  suggestedFat={
+                    user.suggestedKcalTarget != null
+                      ? Math.round((user.suggestedKcalTarget * 0.30) / 9)
+                      : null
+                  }
                   accepting={tdeeMutation.isPending}
-                  onAccept={({ kcalTarget }) => {
-                    // proteinTarget from TdeeSuggestionValues is intentionally not
-                    // persisted here. The AC for KALMIO-94 specifies kcalTarget only;
-                    // protein is shown as an informational reference in the banner but
-                    // is not written to mealPlanPreferences at this stage.
+                  onAccept={({ kcalTarget, proteinTarget, carbsTargetG, fatTargetG }) => {
                     if (kcalTarget != null) {
-                      tdeeMutation.mutate(kcalTarget, { onSettled: () => goNext() })
+                      tdeeMutation.mutate(
+                        { kcalTarget, proteinTargetG: proteinTarget, carbsTargetG, fatTargetG },
+                        { onSettled: () => goNext() },
+                      )
                     } else {
                       goNext()
                     }

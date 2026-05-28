@@ -2372,6 +2372,12 @@
       "kcalEditLabel": "Daily calorie target (kcal)",
       "kcalEditHint": "Calculated from your TDEE. Adjust if needed.",
       "kcalEditError": "Value must be between {{min}} and {{max}} kcal.",
+      "proteinEditLabel": "Protein target",
+      "carbsEditLabel": "Carbohydrate target",
+      "fatEditLabel": "Fat target",
+      "carbsUnit": "g carbs",
+      "fatUnit": "g fat",
+      "macroEditError": "Value must be between {{min}} and {{max}} g.",
       "noBodyData": {
         "title": "Refine your calorie target?",
         "description": "Adding your body data lets me make a more accurate suggestion. Skip for now and your current calorie target stays as-is.",
