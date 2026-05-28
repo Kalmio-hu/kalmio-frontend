@@ -18,7 +18,7 @@ import { ChefHat } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { recipesService } from '@/services/recipes'
 import { ingredientsService } from '@/services/ingredients'
-import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
+import { getRecipeName, getRecipeSteps, getRecipeGarnish } from '@/lib/i18nRecipe'
 import type { Ingredient } from '@/types'
 
 interface RecipeDetailDialogProps {
@@ -63,6 +63,7 @@ export function RecipeDetailDialog({
 
   const steps = getRecipeSteps(fullRecipe, lang)
   const title = getRecipeName(fullRecipe, lang) || displayName || ''
+  const garnish = getRecipeGarnish(fullRecipe, lang)
   const effectiveMacros = macros ?? fullRecipe?.macros ?? null
 
   return (
@@ -183,6 +184,14 @@ export function RecipeDetailDialog({
               </ol>
             )}
           </div>
+          {garnish && (
+            <div className="border-t border-gray-100 pt-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                {t('recipes.detail.garnish')}
+              </p>
+              <p className="text-sm text-[#1A1A1A] leading-relaxed">{garnish}</p>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

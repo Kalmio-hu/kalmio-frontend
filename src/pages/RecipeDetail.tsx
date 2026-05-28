@@ -25,7 +25,7 @@ import { ArrowLeft, ChefHat } from 'lucide-react'
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { ingredientsService } from '@/services/ingredients'
-import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
+import { getRecipeName, getRecipeSteps, getRecipeGarnish } from '@/lib/i18nRecipe'
 import { DietTierBadge } from '@/components/recipe/DietTierBadge'
 import { DIET_TIER_ORDER } from '@/types'
 import type { Ingredient, RecipeSibling } from '@/types'
@@ -59,6 +59,7 @@ export function RecipeDetail() {
 
   const steps = getRecipeSteps(fullRecipe, lang)
   const title = getRecipeName(fullRecipe, lang) || t('recipeDetail.untitled')
+  const garnish = getRecipeGarnish(fullRecipe, lang)
   const effectiveMacros = fullRecipe?.macros ?? null
 
   function handleBack() {
@@ -294,12 +295,12 @@ export function RecipeDetail() {
           </section>
 
           {/* Garnish */}
-          {fullRecipe?.garnish && (
+          {garnish && (
             <section className="border-t border-gray-100 pt-4">
               <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 {t('recipes.detail.garnish')}
               </h2>
-              <p className="text-sm text-[#1A1A1A] leading-relaxed">{fullRecipe.garnish}</p>
+              <p className="text-sm text-[#1A1A1A] leading-relaxed">{garnish}</p>
             </section>
           )}
         </div>

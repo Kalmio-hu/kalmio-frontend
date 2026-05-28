@@ -49,6 +49,26 @@ export function getRecipeSteps(
 }
 
 /**
+ * Returns the localised garnish/serving suggestion for the given locale.
+ * Falls back: translations[lang] → translations.hu → translations.en → recipe.garnish
+ * Returns null when the recipe has no garnish in any locale.
+ */
+export function getRecipeGarnish(
+  recipe: Pick<Recipe, 'garnish' | 'translations'> | null | undefined,
+  lang: SupportedLocale,
+): string | null {
+  if (!recipe) return null
+  const t = recipe.translations
+  return (
+    t?.[lang]?.garnish ||
+    t?.hu?.garnish ||
+    t?.en?.garnish ||
+    recipe.garnish ||
+    null
+  )
+}
+
+/**
  * Returns the localised recipe name from a RecipeTranslations object plus a
  * raw fallback name string — for use with `SavedMealSlot` which carries
  * `recipeTranslations` and `recipeName` separately (no full Recipe object).

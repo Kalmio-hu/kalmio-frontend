@@ -36,7 +36,7 @@ import {
 import { Spinner } from '@/components/ui/spinner'
 import { recipesService } from '@/services/recipes'
 import { cookModeService } from '@/services/cookMode'
-import { getRecipeName, getRecipeSteps } from '@/lib/i18nRecipe'
+import { getRecipeName, getRecipeSteps, getRecipeGarnish } from '@/lib/i18nRecipe'
 import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { parseTimerWindow } from '@/lib/parseTimerWindow'
 import { CookTimer } from '@/components/cook/CookTimer'
@@ -121,6 +121,7 @@ export function CookMode() {
 
   const steps = useMemo(() => getRecipeSteps(recipe ?? null, lang), [recipe, lang])
   const recipeName = recipe ? getRecipeName(recipe, lang) : ''
+  const garnishText = getRecipeGarnish(recipe ?? null, lang)
 
   const [stepIdx, setStepIdx] = useState(0)
   const [exchanges, setExchanges] = useState<Exchange[]>([])
@@ -351,9 +352,9 @@ export function CookMode() {
             </p>
 
             {/* Garnish note — shown only on the final step */}
-            {recipe?.garnish && stepIdx === totalSteps - 1 && (
+            {garnishText && stepIdx === totalSteps - 1 && (
               <p className="mt-4 text-sm text-[#6b7280] italic leading-relaxed">
-                {recipe.garnish}
+                {garnishText}
               </p>
             )}
 

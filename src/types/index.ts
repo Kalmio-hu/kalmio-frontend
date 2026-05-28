@@ -243,6 +243,8 @@ export interface RecipeIngredientRef {
 export interface RecipeLocaleTranslation {
   name: string
   steps: string[]
+  /** Localised garnish/serving suggestion. Null when the recipe has no garnish. */
+  garnish?: string | null
 }
 
 export interface RecipeTranslations {
