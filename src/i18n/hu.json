@@ -2206,11 +2206,6 @@
     "preferencesStep": {
       "title": "Ismerjük meg egymást.",
       "body": "Pár kérdés az étkezési szokásaidról — ezek alapján tervezem meg a heted. A Profilban bármikor módosíthatod.",
-      "householdLabel": "Hány főre főzöl?",
-      "kcalLabel": "Napi kalóriacél (kcal)",
-      "kcalCustom": "Egyedi szám",
-      "kcalCustomAriaLabel": "Egyedi kalóriacél megadása",
-      "kcalError": "Az értéknek 1000 és 5000 kcal között kell lennie.",
       "dietaryLabel": "Étrendi megszorítások",
       "cadenceLabel": "Milyen sűrűn vásárolsz be?",
       "cadenceDays_one": "{{count}} nap",
@@ -2228,7 +2223,6 @@
       "budgetError": "Hagyd üresen, ha nem akarsz keretet megadni — vagy adj meg legalább 1 000 Ft-ot.",
       "cta": "Tovább",
       "saving": "Mentés…",
-      "householdError": "Kérlek válassz 1 és 6 közötti értéket.",
       "chatDraftSignpost": "A csevegésünk alapján előre kitöltöttem a mezőket — ellenőrizd és módosítsd, ha szükséges."
     },
     "planting": {

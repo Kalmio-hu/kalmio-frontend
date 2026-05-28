@@ -1,18 +1,21 @@
 /**
  * PreferencesStep — KALMIO-393
  *
- * Onboarding step 2: captures six household/dietary preferences in a single
+ * Onboarding step 2: captures dietary/shopping preferences in a single
  * screen and persists them immediately via PATCH /api/users/me/settings on
  * advance.  The same data is editable on Profile/Preferences after onboarding;
  * the backend is the single source of truth.
  *
  * Fields:
- *  1. Household size (1–6 dropdown, default 1)
- *  2. Daily kcal target (preset chips + optional custom input)
- *  3. Dietary restrictions multi-select (20-flag UI, same as Profile/Diet tab)
- *  4. Shopping cadence: 7 days / 14 days / Custom
- *  5. Preferred shopping day (Mon–Sun, default Sunday)
- *  6. Forbidden ingredients typeahead (optional, skip-by-default)
+ *  1. Dietary restrictions multi-select (20-flag UI, same as Profile/Diet tab)
+ *  2. Shopping cadence: 3 days / 7 days / 14 days / Custom
+ *  3. Preferred shopping day (Mon–Sun, default Sunday)
+ *  4. Forbidden ingredients typeahead (optional, skip-by-default)
+ *  5. Weekly budget (optional)
+ *
+ * Removed in cleanup pass:
+ *  - householdSize (1–6 numbered circle buttons) — KALMIO-*
+ *  - kcalTarget (preset chips + custom input) — moved to TDEE step (step 4)
  */
 
 import { useCallback, useState } from 'react'
@@ -34,10 +37,6 @@ interface MarkerGroup {
   key: string
   items: DietaryItem[]
 }
-
-// ── Preset kcal chips ────────────────────────────────────────────────────────
-
-const KCAL_PRESETS = [1500, 1800, 2000, 2200, 2500] as const
 
 // ── Cadence options ──────────────────────────────────────────────────────────
 
@@ -73,8 +72,6 @@ const EMPTY_DIETARY: DietaryPreferences = {
 // ── PreferencesStepValues ────────────────────────────────────────────────────
 
 export interface PreferencesStepValues {
-  householdSize: number
-  kcalTarget: number
   dietary: DietaryPreferences
   cadenceDays: number
   shoppingDayOfWeek: number   // ISO 1–7
@@ -84,8 +81,6 @@ export interface PreferencesStepValues {
 }
 
 const DEFAULT_VALUES: PreferencesStepValues = {
-  householdSize: 1,
-  kcalTarget: 2000,
   dietary: EMPTY_DIETARY,
   cadenceDays: 7,
   shoppingDayOfWeek: 7,   // Sunday
@@ -158,9 +153,6 @@ function shoppingDayToIso(name: string | null): number | undefined {
  */
 function chatDraftToInitialValues(draft: OnboardingChatDraft): Partial<PreferencesStepValues> {
   const partial: Partial<PreferencesStepValues> = {}
-  if (draft.kcalTarget != null) {
-    partial.kcalTarget = draft.kcalTarget
-  }
   if (draft.dietaryRestrictions && draft.dietaryRestrictions.length > 0) {
     partial.dietary = draftDietaryToPreferences(draft.dietaryRestrictions)
   }
@@ -228,13 +220,6 @@ export function PreferencesStep({
   // True when any field was pre-filled from the chat draft and not already set via initialValues.
   const hasChatPrefill = chatDraft != null && Object.keys(chatDraftValues).length > 0
 
-  const [householdSize, setHouseholdSize] = useState(init.householdSize)
-  const [kcalPreset, setKcalPreset] = useState<number | 'custom'>(
-    KCAL_PRESETS.includes(init.kcalTarget as typeof KCAL_PRESETS[number]) ? init.kcalTarget : 'custom'
-  )
-  const [kcalCustom, setKcalCustom] = useState(
-    KCAL_PRESETS.includes(init.kcalTarget as typeof KCAL_PRESETS[number]) ? '' : String(init.kcalTarget)
-  )
   // Caller may pass `dietary: user?.dietaryPreferences ?? undefined` (a fresh
   // user has no preferences yet). Object spread propagates explicit-undefined
   // properties, so a `?? undefined` from upstream overwrites DEFAULT_VALUES.dietary.
@@ -264,23 +249,10 @@ export function PreferencesStep({
 
   // ── Validation & derived values ────────────────────────────────────────────
 
-  const resolvedKcal: number = (() => {
-    if (kcalPreset !== 'custom') return kcalPreset
-    const n = parseInt(kcalCustom, 10)
-    return isNaN(n) ? DEFAULT_VALUES.kcalTarget : n
-  })()
-
   const resolvedCadence: number = (() => {
     if (cadencePreset !== 'custom') return cadencePreset
     const n = parseInt(cadenceCustom, 10)
     return isNaN(n) ? 7 : n
-  })()
-
-  const kcalError: string | null = (() => {
-    if (kcalPreset !== 'custom') return null
-    const n = parseInt(kcalCustom, 10)
-    if (isNaN(n) || n < 1000 || n > 5000) return t('onboarding.preferencesStep.kcalError')
-    return null
   })()
 
   const cadenceError: string | null = (() => {
@@ -289,9 +261,6 @@ export function PreferencesStep({
     if (isNaN(n) || n < 1 || n > 14) return t('onboarding.preferencesStep.cadenceError')
     return null
   })()
-
-  const householdError: string | null =
-    householdSize < 1 || householdSize > 6 ? t('onboarding.preferencesStep.householdError') : null
 
   // KALMIO-430: budget is optional. Empty input = no cap. Any value must be
   // a positive integer at or above 1 000 Ft/week (lower is unrealistic for
@@ -313,22 +282,20 @@ export function PreferencesStep({
     return null
   })()
 
-  const canAdvance = !kcalError && !cadenceError && !householdError && !budgetError
+  const canAdvance = !cadenceError && !budgetError
 
   // ── Submit ─────────────────────────────────────────────────────────────────
 
   const handleAdvance = useCallback(() => {
     if (!canAdvance) return
     onAdvance({
-      householdSize,
-      kcalTarget: resolvedKcal,
       dietary,
       cadenceDays: resolvedCadence,
       shoppingDayOfWeek,
       forbiddenIngredientIds,
       budgetMax: resolvedBudget,
     })
-  }, [canAdvance, householdSize, resolvedKcal, dietary, resolvedCadence, shoppingDayOfWeek, forbiddenIngredientIds, resolvedBudget, onAdvance])
+  }, [canAdvance, dietary, resolvedCadence, shoppingDayOfWeek, forbiddenIngredientIds, resolvedBudget, onAdvance])
 
   // ── Dietary marker groups ──────────────────────────────────────────────────
 
@@ -416,84 +383,7 @@ export function PreferencesStep({
         </div>
       )}
 
-      {/* ── 1. Household size ─────────────────────────────────────────────── */}
-      <SectionLabel>{t('onboarding.preferencesStep.householdLabel')}</SectionLabel>
-      <div className="flex flex-wrap gap-2">
-        {[1, 2, 3, 4, 5, 6].map(n => (
-          <button
-            key={n}
-            type="button"
-            aria-pressed={householdSize === n}
-            onClick={() => setHouseholdSize(n)}
-            className={[
-              'h-10 w-10 rounded-full border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2',
-              householdSize === n
-                ? 'border-[#F28C28] bg-[#F28C28] text-white'
-                : 'border-gray-300 bg-white text-[#1A1A1A] hover:border-[#F28C28]',
-            ].join(' ')}
-          >
-            {n}
-          </button>
-        ))}
-        {householdError && (
-          <p className="w-full text-xs text-red-600 mt-1" role="alert">{householdError}</p>
-        )}
-      </div>
-
-      {/* ── 2. Daily kcal target ──────────────────────────────────────────── */}
-      <SectionLabel>{t('onboarding.preferencesStep.kcalLabel')}</SectionLabel>
-      <div className="flex flex-wrap gap-2">
-        {KCAL_PRESETS.map(val => (
-          <button
-            key={val}
-            type="button"
-            aria-pressed={kcalPreset === val}
-            onClick={() => setKcalPreset(val)}
-            className={[
-              'h-9 px-3 rounded-[10px] border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2',
-              kcalPreset === val
-                ? 'border-[#F28C28] bg-[#F28C28] text-white'
-                : 'border-gray-300 bg-white text-[#1A1A1A] hover:border-[#F28C28]',
-            ].join(' ')}
-          >
-            {val}
-          </button>
-        ))}
-        <button
-          type="button"
-          aria-pressed={kcalPreset === 'custom'}
-          onClick={() => setKcalPreset('custom')}
-          className={[
-            'h-9 px-3 rounded-[10px] border text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2',
-            kcalPreset === 'custom'
-              ? 'border-[#F28C28] bg-[#F28C28] text-white'
-              : 'border-gray-300 bg-white text-[#1A1A1A] hover:border-[#F28C28]',
-          ].join(' ')}
-        >
-          {t('onboarding.preferencesStep.kcalCustom')}
-        </button>
-      </div>
-      {kcalPreset === 'custom' && (
-        <div className="mt-1">
-          <input
-            type="number"
-            inputMode="numeric"
-            min={1000}
-            max={5000}
-            step={50}
-            value={kcalCustom}
-            onChange={e => setKcalCustom(e.target.value)}
-            placeholder="pl. 1700"
-            aria-label={t('onboarding.preferencesStep.kcalCustomAriaLabel')}
-            className="h-10 w-full max-w-[160px] rounded-[10px] border border-gray-300 px-3 text-sm text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#F28C28] focus:ring-offset-1 placeholder:text-gray-400"
-          />
-          {kcalError && (
-            <p className="mt-1 text-xs text-red-600" role="alert">{kcalError}</p>
-          )}
-        </div>
-      )}
-
-      {/* ── 3. Dietary restrictions ───────────────────────────────────────── */}
+      {/* ── 1. Dietary restrictions ───────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.dietaryLabel')}</SectionLabel>
       <div className="space-y-3">
         {markerGroups.map(group => (
@@ -527,7 +417,7 @@ export function PreferencesStep({
         ))}
       </div>
 
-      {/* ── 4. Shopping cadence ───────────────────────────────────────────── */}
+      {/* ── 2. Shopping cadence ───────────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.cadenceLabel')}</SectionLabel>
       <div className="flex flex-wrap gap-2">
         {CADENCE_PRESETS.map(val => (
@@ -579,7 +469,7 @@ export function PreferencesStep({
         </div>
       )}
 
-      {/* ── 5. Preferred shopping day ─────────────────────────────────────── */}
+      {/* ── 3. Preferred shopping day ─────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.shoppingDayLabel')}</SectionLabel>
       <div className="flex flex-wrap gap-1.5">
         {SHOPPING_DAYS.map(({ key, iso }) => (
@@ -600,7 +490,7 @@ export function PreferencesStep({
         ))}
       </div>
 
-      {/* ── 6. Weekly budget (optional) ──────────────────────────────────── */}
+      {/* ── 4. Weekly budget (optional) ──────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.budgetLabel')}</SectionLabel>
       <p className="text-xs text-[#6B6460] -mt-1 mb-1">
         {t('onboarding.preferencesStep.budgetHint')}
@@ -628,7 +518,7 @@ export function PreferencesStep({
         </p>
       )}
 
-      {/* ── 7. Forbidden ingredients ──────────────────────────────────────── */}
+      {/* ── 5. Forbidden ingredients ──────────────────────────────────────── */}
       <SectionLabel>{t('onboarding.preferencesStep.forbiddenLabel')}</SectionLabel>
       <p className="text-xs text-[#6B6460] -mt-1 mb-1">
         {t('onboarding.preferencesStep.forbiddenHint')}

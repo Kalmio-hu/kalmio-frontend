@@ -2206,11 +2206,6 @@
     "preferencesStep": {
       "title": "Let us get to know each other.",
       "body": "A few questions about your eating habits — these shape your first week. You can change them any time in your Profile.",
-      "householdLabel": "How many people are you cooking for?",
-      "kcalLabel": "Daily calorie target (kcal)",
-      "kcalCustom": "Custom",
-      "kcalCustomAriaLabel": "Enter a custom calorie target",
-      "kcalError": "The value must be between 1000 and 5000 kcal.",
       "dietaryLabel": "Dietary restrictions",
       "cadenceLabel": "How often do you shop?",
       "cadenceDays_one": "{{count}} day",
@@ -2228,7 +2223,6 @@
       "budgetError": "Leave empty to skip the budget — or enter at least 1,000 HUF.",
       "cta": "Next",
       "saving": "Saving…",
-      "householdError": "Please choose a value between 1 and 6.",
       "chatDraftSignpost": "I have pre-filled these fields from our conversation — check them over and adjust anything you need."
     },
     "planting": {

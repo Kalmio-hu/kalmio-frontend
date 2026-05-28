@@ -303,27 +303,21 @@ export function OnboardingShell() {
     enabled: !!userId,
   })
 
-  // ── Preferences step: persist all six fields on advance ──────────────────
+  // ── Preferences step: persist dietary/shopping fields on advance ─────────
   // KALMIO-430: the budget field is optional. `budgetMax === null` clears any
   // previously-set value; a positive integer constrains the solver's soft
   // cost penalty for the whole week.
+  // householdSize and kcalTarget removed — kcalTarget is now set in step 4
+  // (TDEE step) only.
   const preferencesMutation = useMutation({
     mutationFn: (values: PreferencesStepValues) => {
-      const { householdSize, kcalTarget, dietary, cadenceDays, shoppingDayOfWeek, forbiddenIngredientIds, budgetMax } = values
+      const { dietary, cadenceDays, shoppingDayOfWeek, forbiddenIngredientIds, budgetMax } = values
       return usersService.updateSettings({
         mealPlanPreferences: {
           ...user?.mealPlanPreferences,
-          kcalTarget,
           days: cadenceDays,
           forbiddenIngredientIds: forbiddenIngredientIds.length > 0 ? forbiddenIngredientIds : undefined,
           budgetMax: budgetMax ?? undefined,
-          // Map household size (1–6) to servingConfig.maxMultiplier so analytics
-          // can derive a household-size bucket from the existing pattern.
-          servingConfig: {
-            minMultiplier: 1,
-            maxMultiplier: householdSize,
-            step: 1,
-          },
         },
         dietaryPreferences: dietary,
         // preferredPrepDayOfWeek doubles as shopping day of week in this context.
@@ -512,7 +506,6 @@ export function OnboardingShell() {
         {currentStep === 2 && (
           <PreferencesStep
             initialValues={{
-              kcalTarget: user?.mealPlanPreferences?.kcalTarget ?? 2000,
               dietary: user?.dietaryPreferences ?? undefined,
               cadenceDays: user?.mealPlanPreferences?.days ?? 7,
               shoppingDayOfWeek: user?.preferredPrepDayOfWeek ?? 7,
