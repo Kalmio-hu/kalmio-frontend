@@ -56,4 +56,4 @@ export function hapticWarning() { void nativeNotify(NotificationType.Warning, [4
 export function hapticError() { void nativeNotify(NotificationType.Error, [60, 20, 60]) }
 
 /** Legacy compat — used by PrepGooDragContext (drag start) */
-export function triggerHaptic(_pattern?: number | number[]) { hapticMedium() }
+export function triggerHaptic() { hapticMedium() }

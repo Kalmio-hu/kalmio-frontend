@@ -107,7 +107,7 @@ export function PreferenceSwipe({ cards: rawCards, onComplete }: PreferenceSwipe
   const submit = useCallback(
     async (signal: 'LOVE' | 'HATE') => {
       if (!current || submitting) return
-      signal === 'LOVE' ? hapticSuccess() : hapticMedium()
+      if (signal === 'LOVE') hapticSuccess(); else hapticMedium()
       setSubmitting(true)
       try {
         await tasteSignalsService.submitSignal({

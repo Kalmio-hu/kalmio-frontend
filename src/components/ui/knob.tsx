@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { hapticLight, hapticSelection } from '@/lib/haptics'
 
 interface KnobProps {
@@ -34,7 +34,7 @@ export function Knob({
   const startValue = useRef(0)
   const ref = useRef<SVGSVGElement>(null)
   const valueRef = useRef(value)
-  valueRef.current = value
+  useEffect(() => { valueRef.current = value }, [value])
 
   const clamp = (v: number) => Math.min(max, Math.max(min, v))
 
