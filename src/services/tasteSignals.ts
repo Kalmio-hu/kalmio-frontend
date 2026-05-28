@@ -101,6 +101,16 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
     'hagyma',
     'sajt',
     'kenyér',
+    'csirkecomb',
+    'tojás',
+    'tejföl',
+    'paprika',
+    'burgonya',
+    'rizs',
+    'tészta',
+    'sárgarépa',
+    'fokhagyma',
+    'alma',
   ]
   const DIVERGENT_NAMES = [
     'tofu',
@@ -111,8 +121,25 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
     'lencse',
     'csicseriborsó',
     'édeskömény',
+    'brokkoli',
+    'spenót',
+    'cukkíni',
+    'gomba',
+    'édesburgonya',
+    'tonhal',
+    'lazac',
+    'pulykamell',
   ]
-  const RECIPE_NAMES = ['lecsó', 'csirkepörkölt', 'gyors zöldségleves']
+  const RECIPE_NAMES = [
+    'lecsó',
+    'csirkepörkölt',
+    'gyors zöldségleves',
+    'rakott krumpli',
+    'gulyás',
+    'töltött káposzta',
+    'paprikás csirke',
+    'főzelék',
+  ]
 
   /**
    * Defensive fallback for when `translations.hu.name` is null (KALMIO-474).
@@ -177,7 +204,7 @@ export async function buildTasteDeck(): Promise<TasteCard[]> {
   )
   const fillerIngredients = ingredients
     .filter((i) => !usedIds.has(i.id))
-    .slice(0, Math.max(0, 15 - positiveCards.length - divergentCards.length))
+    .slice(0, Math.max(0, 30 - positiveCards.length - divergentCards.length))
     .map(
       (i): TasteCard => ({
         id: i.id,

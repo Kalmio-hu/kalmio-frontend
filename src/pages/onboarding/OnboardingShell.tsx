@@ -87,7 +87,7 @@ import {
  *          bounced to /app/profile mid-tutorial.
  * Step 4 — TDEE suggestion (reads suggestedKcalTarget from user settings)
  * Step 5 — MealDistributionStep (KALMIO-453: per-meal calorie split)
- * Step 6 — TasteSwipe (combined ingredient + recipe deck, capped at 20 cards)
+ * Step 6 — TasteSwipe (combined ingredient + recipe deck, capped at 50 cards)
  *          KALMIO-450: merged former step 6 (PreferenceSwipe) into this step.
  *          TasteSwipe already handles both INGREDIENT and RECIPE targetTypes.
  *          Analytics events fire under their original source tags.
@@ -97,6 +97,9 @@ import {
  * KALMIO-436: Steps (FirstPlanReveal) and (CsemeteWelcomeMoment) are
  * no longer part of the shell flow. Plan generation and the welcome moment
  * happen on the Plans page after redirect.
+ *
+ * TasteSwipe deck: filler cap is 30 named ingredients + 8 recipe names,
+ * with up to 30 additional filler cards — effective maximum ~50 cards.
  */
 const TOTAL_STEPS = 8
 
