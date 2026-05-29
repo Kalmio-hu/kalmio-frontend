@@ -179,7 +179,7 @@ export function PlanDetail() {
   // Live goal-derived targets for the current user. Used to patch a frozen
   // preferences_snapshot that was taken before the user set their goal.
   const { data: liveTargets } = useQuery({
-    queryKey: ['my-targets'],
+    queryKey: [...USERS_ME_QUERY_KEY, 'targets'],
     queryFn: usersService.getTargets,
     staleTime: 60_000,
   })
