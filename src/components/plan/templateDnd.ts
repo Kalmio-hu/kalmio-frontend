@@ -15,21 +15,22 @@ export function paletteDragId(recipeId: string): string {
   return `palette:${recipeId}`
 }
 
-/** Continuous-feeling stepper: 0.1× increments inside [SERVINGS_MIN, SERVINGS_MAX]. */
-export const SERVINGS_STEP = 0.1
-export const SERVINGS_MIN = 0.1
-export const SERVINGS_MAX = 5
+/** Matches the solver's ServingConfig: step=0.25, min=0.75, max=4.0. */
+export const SERVINGS_STEP = 0.25
+export const SERVINGS_MIN = 0.75
+export const SERVINGS_MAX = 4.0
 
 /**
- * Shift {@code current} by one 0.1× step in either direction, rounded to one
- * decimal place so floating-point drift doesn't accumulate (0.1 + 0.2 = 0.3
- * exactly, not 0.30000000000000004). Returns null when the move would leave
- * the [{@link SERVINGS_MIN}, {@link SERVINGS_MAX}] range so the stepper button
- * can be disabled.
+ * Shift {@code current} by one 0.25× step in either direction, snapped to the
+ * nearest 0.25 grid first so any pre-existing off-grid value (e.g. from a
+ * manual DB edit) re-aligns cleanly on the first press. Returns null when the
+ * move would leave [{@link SERVINGS_MIN}, {@link SERVINGS_MAX}].
  */
 export function nextServings(current: number, direction: 1 | -1): number | null {
-  const raw = current + direction * SERVINGS_STEP
-  const rounded = Math.round(raw * 10) / 10
+  // Snap to nearest 0.25 grid, then move one step.
+  const snapped = Math.round(current / SERVINGS_STEP) * SERVINGS_STEP
+  const raw = snapped + direction * SERVINGS_STEP
+  const rounded = Math.round(raw * 100) / 100   // eliminate float drift
   if (rounded < SERVINGS_MIN || rounded > SERVINGS_MAX) return null
   return rounded
 }
