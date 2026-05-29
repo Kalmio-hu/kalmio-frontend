@@ -15,6 +15,7 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
@@ -31,6 +32,7 @@ export default function ReceiptScanPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { cartId } = useParams<{ cartId: string }>()
+  const isPremium = useIsUserPremium()
 
   const [phase, setPhase] = useState<Phase>('pick')
   const [scanResult, setScanResult] = useState<ReceiptScanResponse | null>(null)
@@ -60,7 +62,11 @@ export default function ReceiptScanPage() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 402) {
-        navigate('/app/founding-member')
+        if (isPremium) {
+          toast({ title: t('shopping.receipt.premiumRequired'), variant: 'destructive' })
+        } else {
+          navigate('/app/founding-member')
+        }
       } else if (status === 429) {
         toast({ title: t('shopping.receipt.rateLimited'), variant: 'destructive' })
       } else if (status === 503) {
