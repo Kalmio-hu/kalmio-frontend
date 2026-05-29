@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from '@/components/ui/toast'
 import { cn } from '@/lib/utils'
 import { capture as captureEvent } from '@/lib/analytics'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { offPlanMealsService } from '@/services/offPlanMeals'
 import type { AiOffPlanLogResponse, MealType } from '@/types'
 
@@ -49,6 +50,7 @@ type ErrorKey =
 export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModalProps) {
   const { t } = useTranslation()
   const qc = useQueryClient()
+  const isPremium = useIsUserPremium()
 
   const [mode, setMode] = useState<Mode>('text')
   const [text, setText] = useState('')
@@ -76,7 +78,7 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
 
   function mapError(err: unknown): ErrorKey {
     const status = (err as { response?: { status?: number } })?.response?.status
-    if (status === 402) return 'premium'
+    if (status === 402) return isPremium ? 'generic' : 'premium'
     if (status === 413) return 'tooLarge'
     if (status === 415) return 'unsupportedType'
     if (status === 429) return mode === 'photo' ? 'rateLimitPhoto' : 'rateLimitText'

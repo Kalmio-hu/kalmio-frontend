@@ -16,6 +16,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 import { capture as captureEvent } from '@/lib/analytics'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { aiRecipeImportService } from '@/services/aiRecipeImport'
 import type { RecipeImportPreview, RecipeImportSource } from '@/types'
 
@@ -49,6 +50,7 @@ type ErrorKey =
 
 export function AiRecipeImportModal({ open, onOpenChange, onPreview }: AiRecipeImportModalProps) {
   const { t } = useTranslation()
+  const isPremium = useIsUserPremium()
 
   const [mode, setMode] = useState<Mode>('text')
   const [text, setText] = useState('')
@@ -72,7 +74,7 @@ export function AiRecipeImportModal({ open, onOpenChange, onPreview }: AiRecipeI
   function mapError(err: unknown, currentMode: Mode): ErrorKey {
     const status = (err as { response?: { status?: number; data?: { type?: string } } })?.response?.status
     const type = (err as { response?: { data?: { type?: string } } })?.response?.data?.type
-    if (status === 402) return 'premium'
+    if (status === 402) return isPremium ? 'generic' : 'premium'
     if (status === 413) return 'tooLarge'
     if (status === 415) return 'unsupportedType'
     if (status === 429) {

@@ -15,6 +15,7 @@
  *   - other → generic error with retry
  */
 import { useQuery } from '@tanstack/react-query'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { ChefHat, Sparkles } from 'lucide-react'
@@ -48,6 +49,7 @@ export function MealRationalePanel({
   onStartCooking,
 }: MealRationalePanelProps) {
   const { t, i18n } = useTranslation()
+  const isPremium = useIsUserPremium()
   const lang = (i18n.resolvedLanguage ?? i18n.language ?? 'hu').startsWith('hu')
     ? 'hu'
     : 'en'
@@ -81,7 +83,7 @@ export function MealRationalePanel({
           <span className="text-xs">{t('plan.rationale.loading')}</span>
         </div>
       ) : query.isError ? (
-        <RationaleError errorKey={mapError(query.error)} onRetry={() => query.refetch()} />
+        <RationaleError errorKey={isPremium && mapError(query.error) === 'premium' ? 'generic' : mapError(query.error)} onRetry={() => query.refetch()} />
       ) : query.data ? (
         <RationaleBody
           data={query.data}

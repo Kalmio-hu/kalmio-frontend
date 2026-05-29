@@ -42,6 +42,7 @@ import { parseTimerWindow } from '@/lib/parseTimerWindow'
 import { CookTimer } from '@/components/cook/CookTimer'
 import { CookTimerStrip } from '@/components/cook/CookTimerStrip'
 import { useCookTimersStore, maybeNotify, type CookTimer as CookTimerType } from '@/store/cookTimers'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 
 const CONTEXT_WINDOW = 5
 
@@ -110,6 +111,7 @@ export function CookMode() {
   const { id: recipeId } = useParams<{ id: string }>()
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
+  const isPremium = useIsUserPremium()
   const lang = i18n.resolvedLanguage?.startsWith('hu') ? 'hu' : 'en'
 
   const { data: recipe, isPending, isError } = useQuery({
@@ -215,7 +217,7 @@ export function CookMode() {
       )
     },
     onError: (err, { id }) => {
-      const key = mapAskError(err)
+      const key = isPremium && mapAskError(err) === 'premium' ? 'generic' : mapAskError(err)
       setExchanges(xs =>
         xs.map(e =>
           e.id === id
