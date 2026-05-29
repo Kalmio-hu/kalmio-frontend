@@ -1109,11 +1109,13 @@ export function PlanDetail() {
         <TemplateDriftBanner planId={id} scheduleId={activeSchedule.id} />
       )}
 
-      {/* Snapshot staleness banner — shown when live user targets diverge from the frozen plan snapshot */}
+      {/* Snapshot staleness banner — shown when live user targets or meal preferences
+          diverge from the frozen plan snapshot */}
       {plan && currentUserId && (
         <SnapshotStalenessBanner
           plan={plan}
           liveTargets={liveTargets}
+          liveSelectedMealTypes={me?.mealPlanPreferences?.selectedMealTypes}
           currentUserId={currentUserId}
           isPending={refreshAndSolveMutation.isPending}
           onRefreshAndSolve={() => refreshAndSolveMutation.mutate()}
