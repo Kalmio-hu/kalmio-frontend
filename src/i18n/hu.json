@@ -1746,7 +1746,7 @@
         "cta": "Új előkészítés",
         "splitSuccess": "Új előkészítés hozzáadva",
         "freezeSuggestion": {
-          "title": "Fagyaszd be",
+          "title": "Fagyaszd le",
           "body": "{{dayGap}} nappal több a hűtős eltarthatóságnál — fagyasztva {{freezerWindow}} napig eláll."
         }
       }
@@ -2810,7 +2810,7 @@
         "cta": "Új előkészítés",
         "splitSuccess": "Új előkészítés hozzáadva",
         "freezeSuggestion": {
-          "title": "Fagyaszd be",
+          "title": "Fagyaszd le",
           "body": "{{dayGap}} nappal több a hűtős eltarthatóságnál — fagyasztva {{freezerWindow}} napig eláll."
         }
       }
