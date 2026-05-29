@@ -66,9 +66,10 @@ export function preferredSlotsByMember(plan: PlanTemplate): Record<string, Set<s
  * the sum of their individual goals. Missing targets contribute null overall:
  * if any single member's target is null we treat the aggregate as "no target."
  *
- * {@code liveOverrides} maps member UUID → a snapshot-shaped override. Used to
- * patch in fresh /api/users/me/targets data for the current user when their
- * frozen snapshot was captured before they set goals.
+ * {@code liveOverrides} maps member UUID → a snapshot-shaped override. Live values
+ * take PRIORITY over the frozen snapshot — this ensures the display always reflects
+ * the user's current goals even when the plan snapshot has not been re-solved yet.
+ * The snapshot is only used as a fallback when no live value is available.
  */
 export function aggregateTargets(
   plan: PlanTemplate,
@@ -84,10 +85,11 @@ export function aggregateTargets(
   for (const memberId of plan.memberIds) {
     const snap = snapshot[memberId] ?? {}
     const live = liveOverrides[memberId] ?? {}
-    const kcal = numericOrNull(snap.target_kcal) ?? numericOrNull(live.target_kcal)
-    const protein = numericOrNull(snap.target_protein_g) ?? numericOrNull(live.target_protein_g)
-    const fat = numericOrNull(snap.target_fat_g) ?? numericOrNull(live.target_fat_g)
-    const carbs = numericOrNull(snap.target_carbs_g) ?? numericOrNull(live.target_carbs_g)
+    // Live overrides take precedence; snapshot is the fallback for members without live data.
+    const kcal = numericOrNull(live.target_kcal) ?? numericOrNull(snap.target_kcal)
+    const protein = numericOrNull(live.target_protein_g) ?? numericOrNull(snap.target_protein_g)
+    const fat = numericOrNull(live.target_fat_g) ?? numericOrNull(snap.target_fat_g)
+    const carbs = numericOrNull(live.target_carbs_g) ?? numericOrNull(snap.target_carbs_g)
 
     if (kcal != null) kcalSum += kcal; else kcalKnown = false
     if (protein != null) proteinSum += protein; else proteinKnown = false
@@ -108,8 +110,7 @@ function numericOrNull(v: unknown): number | null {
 
 /**
  * Single-member targets, layered the same way as {@link aggregateTargets}:
- * frozen snapshot first, then a live override (used for the current user when
- * their snapshot was captured before they set goals).
+ * live override first, frozen snapshot as fallback.
  *
  * Useful for per-cell rendering — a meal belongs to one specific member and
  * should be compared against THAT member's goals, not a family aggregate.
@@ -122,11 +123,12 @@ export function targetsForMember(
   const snapshot = (plan.preferencesSnapshot ?? {}) as Record<string, MemberSnapshot>
   const snap = snapshot[memberId] ?? {}
   const live = liveOverrides[memberId] ?? {}
+  // Live overrides take precedence; snapshot is the fallback.
   return {
-    kcal:    numericOrNull(snap.target_kcal)      ?? numericOrNull(live.target_kcal),
-    protein: numericOrNull(snap.target_protein_g) ?? numericOrNull(live.target_protein_g),
-    fat:     numericOrNull(snap.target_fat_g)     ?? numericOrNull(live.target_fat_g),
-    carbs:   numericOrNull(snap.target_carbs_g)   ?? numericOrNull(live.target_carbs_g),
+    kcal:    numericOrNull(live.target_kcal)      ?? numericOrNull(snap.target_kcal),
+    protein: numericOrNull(live.target_protein_g) ?? numericOrNull(snap.target_protein_g),
+    fat:     numericOrNull(live.target_fat_g)     ?? numericOrNull(snap.target_fat_g),
+    carbs:   numericOrNull(live.target_carbs_g)   ?? numericOrNull(snap.target_carbs_g),
   }
 }
 
