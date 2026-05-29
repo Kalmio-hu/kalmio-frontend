@@ -1218,9 +1218,23 @@ export function PlanDetail() {
           const memberTarget = targetsForMember(plan, uid, overrides)
           const split = snapshot[uid]?.meal_calorie_split
           if (split && Object.keys(split).length > 0) {
+            // Normalize the snapshot's meal_calorie_split values to the member's
+            // current target_kcal before using them as per-slot bar targets.
+            // The solver does the same normalization internally, so without this
+            // the bars compare solver-produced meals (≈ liveTarget) against stale
+            // split values (≈ old kcalTarget), making every slot look "under".
+            const activeSplitSum = plan.mealSlotsCovered.reduce((s, slot) => {
+              const v = split[slot]
+              return s + (typeof v === 'number' ? v : 0)
+            }, 0)
+            const scale = memberTarget.kcal != null && activeSplitSum > 0
+              && Math.abs(activeSplitSum - memberTarget.kcal) > 1
+              ? memberTarget.kcal / activeSplitSum
+              : 1
             const perSlot: Record<string, number | null> = {}
             for (const slot of plan.mealSlotsCovered) {
-              perSlot[slot] = split[slot] ?? null
+              const raw = split[slot]
+              perSlot[slot] = typeof raw === 'number' ? Math.round(raw * scale) : null
             }
             slotKcalTargetByMember[uid] = perSlot
           } else {
