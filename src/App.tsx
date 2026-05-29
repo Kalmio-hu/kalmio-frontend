@@ -1,4 +1,5 @@
 import React, { useEffect, Suspense } from 'react'
+import posthog from 'posthog-js'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AppShell } from '@/components/layout/AppShell'
@@ -111,7 +112,11 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (session) {
       usersService.getMe()
-        .then(user => setAppRole(user.role))
+        .then(user => {
+          setAppRole(user.role)
+          registerSuperProperties({ isAdmin: user.role === 'ADMIN' })
+          if (session) posthog.setPersonProperties({ isAdmin: user.role === 'ADMIN' })
+        })
         .catch(() => setAppRole('USER'))
     } else {
       setAppRole(null)

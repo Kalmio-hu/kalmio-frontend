@@ -65,7 +65,11 @@ export function alias(userId: string): void {
  */
 export function resetIdentity(): void {
   if (!posthog.__loaded) return
-  posthog.reset()
+  // Do not call posthog.reset() — it generates a new anonymous ID on every logout,
+  // breaking flag targeting by distinct_id. The next identify() call on login is
+  // sufficient to switch to the correct user.
+  posthog.unregister('test_source')
+  posthog.unregister('isAdmin')
 }
 
 /**

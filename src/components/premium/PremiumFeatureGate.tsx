@@ -29,7 +29,7 @@
  */
 
 import type { ReactNode } from 'react'
-import { useIsPremiumFeatureEnabled } from './useIsPremiumFeatureEnabled'
+import { useIsPaymentEnabled } from './useIsPaymentEnabled'
 
 interface PremiumFeatureGateProps {
   children: ReactNode
@@ -40,7 +40,7 @@ export function PremiumFeatureGate({
   children,
   fallback = null,
 }: PremiumFeatureGateProps) {
-  const enabled = useIsPremiumFeatureEnabled()
+  const enabled = useIsPaymentEnabled()
 
   if (!enabled) return <>{fallback}</>
   return <>{children}</>
