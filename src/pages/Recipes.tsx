@@ -197,7 +197,14 @@ export function Recipes() {
     }
   }, [user])
 
-  useEffect(() => { setPage(0) }, [search, activeRestrictions, activeMealTypes])
+  // Reset page to 0 when filters change — setState-during-render (React-recommended
+  // alternative to a useEffect that would call setPage synchronously).
+  const filterKey = `${search}|${[...activeRestrictions].sort().join(',')}|${[...activeMealTypes].sort().join(',')}`
+  const [lastFilterKey, setLastFilterKey] = useState(filterKey)
+  if (filterKey !== lastFilterKey) {
+    setLastFilterKey(filterKey)
+    setPage(0)
+  }
 
   const createMutation = useMutation({
     mutationFn: recipesService.create,
