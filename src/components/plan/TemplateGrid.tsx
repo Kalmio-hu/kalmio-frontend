@@ -381,7 +381,7 @@ function MemberCell(props: MemberCellProps) {
   const hasViolation = !isEmpty && props.cell != null && props.violatingMealIds.has(props.cell.id)
 
   return (
-    <div className="flex flex-col min-w-0">
+    <div className="flex flex-col flex-1 min-w-0">
       {hasViolation && props.cell != null && (
         <PrepHoldViolationBanner
           surface="template"
@@ -416,7 +416,7 @@ function EmptyMemberCell({ dayIndex, slot, memberId, memberName, colorClass, isD
         flex items-center gap-1.5 px-3 py-1.5 rounded-full
         border border-dashed text-xs transition-colors
         focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-        min-w-0 max-w-[200px]
+        w-full
         ${isOver || isDropTarget
           ? 'border-[#4f46e5] text-[#4f46e5] bg-[#eef2ff]'
           : nonPreferred
@@ -536,7 +536,7 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
         flex flex-col gap-1 px-3 py-2 rounded-[12px]
         bg-[#F0EDE6] text-[#1A1A1A]
         text-xs font-medium transition-all
-        min-w-[140px] max-w-[220px]
+        w-full
         cursor-grab active:cursor-grabbing touch-none select-none
         focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
         ${showSwapHighlight ? 'ring-2 ring-[#4f46e5] bg-[#eef2ff]' : isOver ? 'ring-2 ring-[#4f46e5] bg-[#eef2ff]' : 'hover:bg-[#e8e4dc]'}
