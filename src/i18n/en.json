@@ -1702,6 +1702,13 @@
         "reRunSuccess": "Schedule restarted from the updated template.",
         "reRunError": "Could not re-run right now. Please try again."
       },
+      "snapshotStale": {
+        "banner": "Your targets changed since this plan was built — refresh the plan to apply the new values.",
+        "cta": "Refresh plan",
+        "refreshing": "Refreshing…",
+        "refreshSolveSuccess": "Plan updated with your new targets.",
+        "refreshSolveError": "Could not refresh the plan. Please try again."
+      },
       "name": {
         "placeholder": "Plan name…",
         "aria": "Edit plan name",

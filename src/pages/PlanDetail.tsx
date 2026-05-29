@@ -52,6 +52,7 @@ import {
 import { hapticMedium, hapticLight } from '@/lib/haptics'
 import { PlanMacroSummary } from '@/components/plan/PlanMacroSummary'
 import { TemplateDriftBanner } from '@/components/plan/TemplateDriftBanner'
+import { SnapshotStalenessBanner } from '@/components/plan/SnapshotStalenessBanner'
 import { RecipeFilterPanel } from '@/components/plan/RecipeFilterPanel'
 import { aggregateTargets, dailyTotals, weeklyAverage, targetsFromLive, targetsForMember, preferredSlotsByMember } from '@/lib/planMacros'
 import { RecipePalette } from '@/components/plan/RecipePalette'
@@ -371,6 +372,24 @@ export function PlanDetail() {
       setFilterNarrowError(null)
       toast({ title: t('plan.detail.fillFailed'), variant: 'destructive' })
       setFillConfirmOpen(false)
+    },
+  })
+
+  // Snapshot staleness: refresh preferences snapshot then re-solve with ALL
+  // mode. Called from SnapshotStalenessBanner when the user's live targets
+  // diverge from the frozen snapshot stored on the plan.
+  const refreshAndSolveMutation = useMutation({
+    mutationFn: async () => {
+      await planTemplateService.refreshSnapshot(id!)
+      await planTemplateService.solve(id!, 'ALL')
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['plan-template', id] })
+      void qc.invalidateQueries({ queryKey: ['template-prep-slots', id] })
+      toast({ title: t('plan.detail.snapshotStale.refreshSolveSuccess'), variant: 'success' })
+    },
+    onError: () => {
+      toast({ title: t('plan.detail.snapshotStale.refreshSolveError'), variant: 'destructive' })
     },
   })
 
@@ -1088,6 +1107,17 @@ export function PlanDetail() {
       {/* Template drift banner — shown when an active schedule's snapshot is stale (KALMIO-323) */}
       {activeSchedule && id && (
         <TemplateDriftBanner planId={id} scheduleId={activeSchedule.id} />
+      )}
+
+      {/* Snapshot staleness banner — shown when live user targets diverge from the frozen plan snapshot */}
+      {plan && currentUserId && (
+        <SnapshotStalenessBanner
+          plan={plan}
+          liveTargets={liveTargets}
+          currentUserId={currentUserId}
+          isPending={refreshAndSolveMutation.isPending}
+          onRefreshAndSolve={() => refreshAndSolveMutation.mutate()}
+        />
       )}
 
       {/* KALMIO-355: draft nudge banner — shown when plan is Draft and every day is empty */}

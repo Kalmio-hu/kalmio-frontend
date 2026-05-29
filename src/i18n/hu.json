@@ -1702,6 +1702,13 @@
         "reRunSuccess": "Az ütemezés újraindult a frissített sablonnal.",
         "reRunError": "Most nem sikerült újraindítani. Próbáld újra."
       },
+      "snapshotStale": {
+        "banner": "A célértékeid megváltoztak a terv elkészítése óta — frissítsd a tervet az új értékekkel.",
+        "cta": "Terv frissítése",
+        "refreshing": "Frissítés…",
+        "refreshSolveSuccess": "A terv frissült az új célértékekkel.",
+        "refreshSolveError": "Nem sikerült frissíteni a tervet. Próbáld újra."
+      },
       "name": {
         "placeholder": "Terv neve…",
         "aria": "Terv nevének szerkesztése",
