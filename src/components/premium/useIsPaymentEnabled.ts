@@ -16,6 +16,7 @@
  */
 
 import { useFeatureFlag } from '@/lib/featureFlags'
+import { useInvestorPreview } from '@/lib/investorPreview'
 
 const BUILD_TIME_ENABLED = import.meta.env.VITE_PAYMENT_ENABLED === 'true'
 
@@ -27,6 +28,11 @@ function hasDevUrlOverride(): boolean {
 
 export function useIsPaymentEnabled(): boolean {
   const runtimeEnabled = useFeatureFlag('payment_enabled')
+  const { isValid: isInvestorPreview, isLoading: isVerifyingToken } = useInvestorPreview()
   if (hasDevUrlOverride()) return true
+  if (isInvestorPreview) return true
+  // Return false while the token is being verified to avoid a flash of the
+  // "coming soon" fallback that would immediately flip to the buy page.
+  if (isVerifyingToken) return false
   return BUILD_TIME_ENABLED && Boolean(runtimeEnabled)
 }

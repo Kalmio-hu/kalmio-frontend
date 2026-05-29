@@ -42,10 +42,12 @@ import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { readOnboardingDone } from '@/hooks/useOnboardingProgress'
+import { useInvestorPreview } from '@/lib/investorPreview'
 
 export function OnboardingGate() {
   const location = useLocation()
   const userId = useAuthStore((s) => s.user?.id ?? '')
+  const { isValid: isInvestorPreview } = useInvestorPreview()
 
   const { data: user, isLoading } = useQuery({
     queryKey: USERS_ME_QUERY_KEY,
@@ -75,7 +77,7 @@ export function OnboardingGate() {
   const ALWAYS_ALLOWED = ['/app/profile', '/app/settings']
   const isAllowed = ALWAYS_ALLOWED.some((p) => location.pathname.startsWith(p))
 
-  if (needsOnboarding && !isAllowed) {
+  if (needsOnboarding && !isAllowed && !isInvestorPreview) {
     // Preserve the intended destination so we can return there after onboarding
     // completes (wired in OnboardingShell when navigate('/app') is called).
     return (

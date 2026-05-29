@@ -28,7 +28,9 @@ import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
 
 // The success page URL must be absolute so Barion can redirect to it.
 function successUrl(): string {
-  return `${window.location.origin}/app/founding-member/success`
+  const token = new URLSearchParams(window.location.search).get('token')
+  const base = `${window.location.origin}/app/founding-member/success`
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base
 }
 
 function FoundingMemberInner() {
