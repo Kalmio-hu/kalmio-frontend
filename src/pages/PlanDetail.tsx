@@ -1175,17 +1175,28 @@ export function PlanDetail() {
         const liveOverride = targetsFromLive(liveTargets ?? null)
         const overrides = liveOverride ? { [currentUserId]: liveOverride } : {}
         const targets = aggregateTargets(plan, overrides)
-        // Per-member slot kcal target = that member's daily kcal / # slots.
-        // Resolved per-member so a family plan where some members lack goals
-        // still renders bars for the members who DO have goals.
+        // Per-member, per-slot kcal targets for the calorie bar in each meal cell.
+        // If the member's snapshot contains meal_calorie_split, use those per-meal values.
+        // Otherwise fall back to total kcal divided evenly across slots (stored under
+        // the "__uniform__" sentinel key so SlotRow can fall back to it for any slot).
         const slotsCount = plan.mealSlotsCovered.length
-        const slotKcalTargetByMember: Record<string, number | null> = {}
+        const snapshot = (plan.preferencesSnapshot ?? {}) as Record<string, { meal_calorie_split?: Record<string, number> | null; target_kcal?: number | null }>
+        const slotKcalTargetByMember: Record<string, Record<string, number | null>> = {}
         for (const uid of plan.memberIds) {
           const memberTarget = targetsForMember(plan, uid, overrides)
-          slotKcalTargetByMember[uid] =
-            memberTarget.kcal != null && slotsCount > 0
+          const split = snapshot[uid]?.meal_calorie_split
+          if (split && Object.keys(split).length > 0) {
+            const perSlot: Record<string, number | null> = {}
+            for (const slot of plan.mealSlotsCovered) {
+              perSlot[slot] = split[slot] ?? null
+            }
+            slotKcalTargetByMember[uid] = perSlot
+          } else {
+            const uniform = memberTarget.kcal != null && slotsCount > 0
               ? memberTarget.kcal / slotsCount
               : null
+            slotKcalTargetByMember[uid] = { '__uniform__': uniform }
+          }
         }
         const memberPreferredSlots = preferredSlotsByMember(plan)
         // Source meal currently being dragged (drives the floating overlay

@@ -34,12 +34,12 @@ interface TemplateGridProps {
   /** Aggregate target across plan members; one set drives all DayCards. */
   targets: MacroTargets
   /**
-   * Per-member daily kcal target divided evenly across covered slots, for the
-   * per-meal slot bar. Family plans need this per-member: the aggregate is
-   * null whenever any single member is missing goals, but each individual
-   * member's bar should still render when THEIR target is known.
+   * Per-member, per-meal-type kcal target for the slot bar.
+   * Outer key = member ID; inner key = MealType string; value = kcal target or null.
+   * When the member has no per-meal split the map contains a single "__uniform__"
+   * entry used as a fallback for every slot.
    */
-  slotKcalTargetByMember: Record<string, number | null>
+  slotKcalTargetByMember: Record<string, Record<string, number | null>>
   /**
    * Per-member set of preferred meal-type names. Slots not in the set are
    * rendered dimmer with a small "Nem preferált" badge so the user can see at
@@ -162,7 +162,7 @@ interface DayCardProps {
   meals: TemplateMeal[]
   dayTotals: MacroTotals
   targets: MacroTargets
-  slotKcalTargetByMember: Record<string, number | null>
+  slotKcalTargetByMember: Record<string, Record<string, number | null>>
   preferredSlotsByMember: Record<string, Set<string>>
   dragSourceMeal: TemplateMeal | null
   dragSourceRecipe: Recipe | undefined
@@ -251,7 +251,7 @@ interface SlotRowProps {
   recipeNames: Record<string, string>
   recipesById: Record<string, Recipe>
   meals: TemplateMeal[]
-  slotKcalTargetByMember: Record<string, number | null>
+  slotKcalTargetByMember: Record<string, Record<string, number | null>>
   preferredSlotsByMember: Record<string, Set<string>>
   dragSourceMeal: TemplateMeal | null
   dragSourceRecipe: Recipe | undefined
@@ -310,7 +310,7 @@ function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesByI
               cell={cell}
               recipe={recipe}
               recipeName={recipeName}
-              slotKcalTarget={slotKcalTargetByMember[memberId] ?? null}
+              slotKcalTarget={slotKcalTargetByMember[memberId]?.[slot] ?? slotKcalTargetByMember[memberId]?.['__uniform__'] ?? null}
               nonPreferred={
                 (() => {
                   const set = preferredSlotsByMember[memberId]

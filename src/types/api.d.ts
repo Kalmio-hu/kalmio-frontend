@@ -4664,7 +4664,7 @@ export interface components {
             /** Format: int32 */
             day?: number;
             /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
             recipe?: components["schemas"]["RecipeResponse"];
             servingMultiplier?: number;
             estimatedCost?: number;
@@ -4869,7 +4869,7 @@ export interface components {
             /** Format: int32 */
             day?: number;
             /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
             /** Format: uuid */
             preferredRecipeId?: string;
             /** Format: int32 */
@@ -5061,7 +5061,7 @@ export interface components {
             /** Format: date */
             date: string;
             /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
             displayName: string;
             kcal: number;
             proteinG?: number;
@@ -5090,7 +5090,7 @@ export interface components {
         AiOffPlanLogRequest: {
             text: string;
             /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
             /** Format: date */
             eatenAt?: string;
         };
@@ -5476,7 +5476,7 @@ export interface components {
         };
         UpdateOffPlanMealRequest: {
             /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
             displayName: string;
             kcal: number;
             proteinG?: number;
@@ -8775,7 +8775,7 @@ export interface operations {
     logFromVoice: {
         parameters: {
             query?: {
-                mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+                mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
                 eatenAt?: string;
             };
             header?: {
@@ -8833,7 +8833,7 @@ export interface operations {
     logFromPhoto: {
         parameters: {
             query?: {
-                mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK";
+                mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
                 eatenAt?: string;
             };
             header?: {

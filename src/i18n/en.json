@@ -407,6 +407,11 @@
     "addRecipe": "Add Recipe",
     "search": "Search recipes…",
     "noResults": "No recipes found",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "summary": "Page {{current}} of {{total}}"
+    },
     "servings_one": "{{count}} serving",
     "servings_other": "{{count}} servings",
     "edit": "Edit",
@@ -1492,7 +1497,8 @@
       "LUNCH": "Lunch",
       "AFTERNOON_SNACK": "Afternoon snack",
       "DINNER": "Dinner",
-      "SNACK": "Snack"
+      "SNACK": "Snack",
+      "EVENING_SNACK": "Evening snack"
     },
     "wizard": {
       "title": "New plan",
@@ -2848,7 +2854,8 @@
       "LUNCH": "Lunch",
       "AFTERNOON_SNACK": "Afternoon snack",
       "DINNER": "Dinner",
-      "SNACK": "Snack"
+      "SNACK": "Snack",
+      "EVENING_SNACK": "Evening snack"
     }
   },
   "oauthConsent": {

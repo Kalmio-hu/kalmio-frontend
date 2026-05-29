@@ -147,6 +147,19 @@ function distributeProportionally(
 
     // If after clamping there's nothing left to distribute, stop.
     if (remaining.length === 0) break
+
+    // Rounding deadlock: unclamped meals exist but every proposed change rounded
+    // to zero (|remainingDelta| too small to move any meal by ≥ 0.5 kcal).
+    // Force the residual onto the largest unclamped meal and exit.
+    if (actualDistributed === 0 && remaining.length > 0) {
+      const largest = remaining.reduce((a, b) =>
+        (result[a] ?? currentMap[a]) >= (result[b] ?? currentMap[b]) ? a : b
+      )
+      const cur = result[largest] ?? currentMap[largest]
+      const adjusted = cur + remainingDelta
+      if (adjusted >= MIN_KCAL) result[largest] = adjusted
+      break
+    }
   }
 
   // Fix integer rounding drift: add residual to the largest unclamped meal.
@@ -311,10 +324,9 @@ function DistributionDonut({
     const rawDeltaKcal = Math.round((deltaDeg / 360) * totalKcal)
     const incrementalDelta = rawDeltaKcal - drag.appliedDeltaKcal
 
-    if (Math.abs(incrementalDelta) >= STEP_KCAL) {
-      const snapped = Math.sign(incrementalDelta) * Math.floor(Math.abs(incrementalDelta) / STEP_KCAL) * STEP_KCAL
-      onDragAdjust(drag.mealBefore, drag.mealAfter, snapped)
-      drag.appliedDeltaKcal += snapped
+    if (incrementalDelta !== 0) {
+      onDragAdjust(drag.mealBefore, drag.mealAfter, incrementalDelta)
+      drag.appliedDeltaKcal += incrementalDelta
     }
   }
 
@@ -437,16 +449,36 @@ export function MealDistributionStep({
 
   const budget = dailyKcal ?? 2000
 
-  // Build initial kcal map from persisted targets or default percentages
+  // Build initial kcal map from persisted targets or default percentages.
+  // If persisted targets don't sum to `budget` (can happen when the user's
+  // daily kcal target changed since they last saved, or due to the drag-handle
+  // inflation bug), rescale them proportionally so the total always equals budget.
   const buildInitialKcal = (): Record<MealTypeKey, number> => {
     if (initialTargets && Object.keys(initialTargets).length > 0) {
-      const result = { ...DEFAULT_PERCENTAGES } as unknown as Record<MealTypeKey, number>
+      const raw: Record<MealTypeKey, number> = {} as Record<MealTypeKey, number>
       for (const m of MEAL_TYPE_ORDER) {
-        result[m] = initialTargets[m] != null
+        raw[m] = initialTargets[m] != null
           ? Math.round(initialTargets[m])
           : Math.round((DEFAULT_PERCENTAGES[m] / 100) * budget)
       }
-      return result
+      const sum = MEAL_TYPE_ORDER.reduce((s, m) => s + raw[m], 0)
+      if (sum > 0 && Math.abs(sum - budget) > 1) {
+        const scale = budget / sum
+        const result = {} as Record<MealTypeKey, number>
+        for (const m of MEAL_TYPE_ORDER) {
+          result[m] = Math.max(MIN_KCAL, Math.round(raw[m] * scale))
+        }
+        // Correct rounding/clamping drift: subtract overshoot from the largest
+        // meal so the total is exactly budget.
+        const overshoot = MEAL_TYPE_ORDER.reduce((s, m) => s + result[m], 0) - budget
+        if (overshoot !== 0) {
+          const largest = MEAL_TYPE_ORDER.reduce((a, b) => result[a] >= result[b] ? a : b)
+          const adjusted = result[largest] - overshoot
+          result[largest] = adjusted >= MIN_KCAL ? adjusted : MIN_KCAL
+        }
+        return result
+      }
+      return raw
     }
     const result = {} as Record<MealTypeKey, number>
     for (const m of MEAL_TYPE_ORDER) {
@@ -484,43 +516,49 @@ export function MealDistributionStep({
   )
 
   // ── Toggle a meal on/off with proportional redistribution ─────────────────
-  // When toggling off: redistribute the meal's kcal proportionally to the
-  // remaining enabled meals.
-  // When toggling on: give it dailyKcal / newActiveCount as a starting point,
-  // and scale the others down proportionally to compensate.
+  // After every toggle the active-meal totals are normalized to sum exactly to
+  // `budget`, so drift cannot accumulate across multiple on/off cycles.
+  //
+  // OFF: zero out the meal, scale remaining active meals proportionally to budget.
+  // ON:  seed the new meal with budget/newCount, then normalize all active meals
+  //      (including the new one) proportionally to budget.
   const toggleMeal = useCallback((meal: MealTypeKey) => {
     setEnabledMap((prevEnabled) => {
       const isCurrentlyEnabled = prevEnabled[meal]
       const nextEnabled = { ...prevEnabled, [meal]: !isCurrentlyEnabled }
+      const newActive = MEAL_TYPE_ORDER.filter((m) => nextEnabled[m])
 
       setKcalMap((prevKcal) => {
-        const next = { ...prevKcal }
+        // Can't disable the last active meal.
+        if (isCurrentlyEnabled && newActive.length === 0) return prevKcal
 
-        if (isCurrentlyEnabled) {
-          // Toggling OFF: redistribute this meal's kcal to the others.
-          const releasedKcal = prevKcal[meal]
-          const others = MEAL_TYPE_ORDER.filter((m) => m !== meal && nextEnabled[m])
-          if (others.length === 0) {
-            // Last active meal — can't disable it; revert.
-            return prevKcal
-          }
-          const redistribution = distributeProportionally(others, prevKcal, releasedKcal)
-          for (const [m, v] of Object.entries(redistribution)) {
-            next[m as MealTypeKey] = v
-          }
-          next[meal] = 0
-        } else {
-          // Toggling ON: assign this meal a share and scale others down.
-          const newActive = MEAL_TYPE_ORDER.filter((m) => nextEnabled[m])
-          const newShare = Math.max(MIN_KCAL, Math.round(budget / newActive.length))
-          const others = MEAL_TYPE_ORDER.filter((m) => m !== meal && nextEnabled[m])
-          // Others need to give up `newShare` total, proportionally.
-          const redistribution = distributeProportionally(others, prevKcal, -newShare)
-          for (const [m, v] of Object.entries(redistribution)) {
-            next[m as MealTypeKey] = v
-          }
-          next[meal] = newShare
+        // Build seed weights: existing meals keep their current kcal;
+        // a newly enabled meal starts with an equal share so it doesn't
+        // dominate before normalization.
+        const seedWeights = { ...prevKcal }
+        if (!isCurrentlyEnabled) {
+          seedWeights[meal] = Math.round(budget / newActive.length)
         }
+
+        // Normalize all newActive meals to sum exactly to `budget`,
+        // preserving their relative proportions.
+        const totalWeight = newActive.reduce((s, m) => s + seedWeights[m], 0)
+        if (totalWeight <= 0) return prevKcal
+
+        const next = { ...prevKcal }
+        let allocated = 0
+        newActive.forEach((m, i) => {
+          if (i === newActive.length - 1) {
+            next[m] = Math.max(MIN_KCAL, budget - allocated)
+          } else {
+            const v = Math.max(MIN_KCAL, Math.round((seedWeights[m] / totalWeight) * budget))
+            next[m] = v
+            allocated += v
+          }
+        })
+        // Zero out the disabled meal.
+        if (isCurrentlyEnabled) next[meal] = 0
+
         return next
       })
 
@@ -553,24 +591,28 @@ export function MealDistributionStep({
   }, [enabledMap])
 
   // ── Drag handle: adjust the boundary between two adjacent meals ───────────
+  // Transfer kcal from one side to the other, clamped by MIN_KCAL on both sides.
+  // Total kcal is always preserved: the actual transfer is the minimum of what
+  // mealBefore can give (when deltaKcal < 0) or what mealAfter can give (when > 0).
   const handleDragAdjust = useCallback((
     mealBefore: MealTypeKey,
     mealAfter: MealTypeKey,
     deltaKcal: number,
   ) => {
     setKcalMap((prev) => {
-      // mealBefore gains deltaKcal; mealAfter loses it (or vice-versa).
-      const beforeNew = Math.max(MIN_KCAL, prev[mealBefore] + deltaKcal)
-      const afterNew  = Math.max(MIN_KCAL, prev[mealAfter]  - deltaKcal)
-
-      // Re-check: actual delta applied (clamping may have reduced it).
-      const actualBefore = beforeNew - prev[mealBefore]
-      const actualAfter  = afterNew  - prev[mealAfter]
-
-      // If both clamped to 0, nothing to do.
-      if (actualBefore === 0 && actualAfter === 0) return prev
-
-      return { ...prev, [mealBefore]: beforeNew, [mealAfter]: afterNew }
+      if (deltaKcal > 0) {
+        // mealBefore grows, mealAfter shrinks — limited by how much mealAfter can give up
+        const canGive = prev[mealAfter] - MIN_KCAL
+        const actual = Math.min(deltaKcal, canGive)
+        if (actual <= 0) return prev
+        return { ...prev, [mealBefore]: prev[mealBefore] + actual, [mealAfter]: prev[mealAfter] - actual }
+      } else {
+        // mealBefore shrinks, mealAfter grows — limited by how much mealBefore can give up
+        const canGive = prev[mealBefore] - MIN_KCAL
+        const actual = Math.min(-deltaKcal, canGive)
+        if (actual <= 0) return prev
+        return { ...prev, [mealBefore]: prev[mealBefore] - actual, [mealAfter]: prev[mealAfter] + actual }
+      }
     })
   }, [])
 

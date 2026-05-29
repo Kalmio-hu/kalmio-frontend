@@ -119,6 +119,30 @@ function equalMealKcals(meals: string[], total: number): Record<string, number> 
   return result
 }
 
+// Proportionally rescale stored targets so they sum to `total`.
+// Strips meals not in the `meals` array (e.g. previously selected meal types
+// that have since been deselected), preventing stale entries from being saved.
+function normalizeKcals(
+  stored: Record<string, number>,
+  meals: string[],
+  total: number,
+): Record<string, number> {
+  const sum = meals.reduce((s, m) => s + (stored[m] ?? 0), 0)
+  if (sum <= 0) return equalMealKcals(meals, total)
+  const out: Record<string, number> = {}
+  let allocated = 0
+  meals.forEach((m, i) => {
+    if (i === meals.length - 1) {
+      out[m] = Math.max(0, total - allocated)
+    } else {
+      const v = Math.max(0, Math.round((stored[m] ?? 0) / sum * total))
+      out[m] = v
+      allocated += v
+    }
+  })
+  return out
+}
+
 function distributeMealKcal(
   key: string, newVal: number,
   current: Record<string, number>,
@@ -461,8 +485,9 @@ export function Profile() {
     if (user) {
       setSelectedGoal(user.goal ?? null)
     }
+  // user?.goal: re-sync when background refetch brings fresh data after stale cache served first
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id])
+  }, [user?.id, user?.goal])
   /* eslint-enable react-hooks/set-state-in-effect */
 
   async function saveGoal(goal: Goal | null) {
@@ -571,7 +596,11 @@ export function Profile() {
         ?.filter(m => MEAL_ORDER.includes(m))
         ?? ['BREAKFAST', 'LUNCH', 'DINNER']
       setSelectedMeals(meals)
-      setMealKcals(prefs?.mealCalorieTargets ?? equalMealKcals(meals, kcal))
+      setMealKcals(
+        prefs?.mealCalorieTargets
+          ? normalizeKcals(prefs.mealCalorieTargets, meals, kcal)
+          : equalMealKcals(meals, kcal),
+      )
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id])

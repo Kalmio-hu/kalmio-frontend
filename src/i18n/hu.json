@@ -407,6 +407,11 @@
     "addRecipe": "Recept hozzáadása",
     "search": "Receptek keresése…",
     "noResults": "Nem találhatók receptek",
+    "pagination": {
+      "previous": "Előző",
+      "next": "Következő",
+      "summary": "{{current}} / {{total}} oldal"
+    },
     "servings_one": "{{count}} adag",
     "servings_other": "{{count}} adag",
     "edit": "Szerkesztés",
@@ -1492,7 +1497,8 @@
       "LUNCH": "Ebéd",
       "AFTERNOON_SNACK": "Uzsonna",
       "DINNER": "Vacsora",
-      "SNACK": "Snack"
+      "SNACK": "Snack",
+      "EVENING_SNACK": "Esti snack"
     },
     "wizard": {
       "title": "Új terv",
@@ -2848,7 +2854,8 @@
       "LUNCH": "Ebéd",
       "AFTERNOON_SNACK": "Uzsonna",
       "DINNER": "Vacsora",
-      "SNACK": "Snack"
+      "SNACK": "Snack",
+      "EVENING_SNACK": "Esti snack"
     }
   },
   "oauthConsent": {

@@ -41,6 +41,7 @@ export interface MemberSnapshot {
   target_carbs_g?: number | null
   target_fat_g?: number | null
   preferred_meal_types?: string[]
+  meal_calorie_split?: Record<string, number> | null
 }
 
 /**

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { ChefHat, ChevronDown, Plus, Pencil, Trash2, Search, Clock, X, CheckCircle, SlidersHorizontal, Sparkles, SendHorizonal, Undo2, Upload, Wand2, Layers } from 'lucide-react'
+import { ChefHat, ChevronDown, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, Search, Clock, X, CheckCircle, SlidersHorizontal, Sparkles, SendHorizonal, Undo2, Upload, Wand2, Layers } from 'lucide-react'
 import { DietTierBadge } from '@/components/recipe/DietTierBadge'
 import { useForm, useFieldArray, useWatch, Controller, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -181,6 +181,8 @@ export function Recipes() {
   // least one of the selected meal-type tags.
   const [activeMealTypes, setActiveMealTypes] = useState<Set<MealType>>(new Set())
   const restrictionsInitialized = useRef(false)
+  const [page, setPage] = useState(0)
+  const PAGE_SIZE = 24
 
   useEffect(() => {
     if (user && !restrictionsInitialized.current) {
@@ -194,6 +196,8 @@ export function Recipes() {
       }
     }
   }, [user])
+
+  useEffect(() => { setPage(0) }, [search, activeRestrictions, activeMealTypes])
 
   const createMutation = useMutation({
     mutationFn: recipesService.create,
@@ -414,6 +418,9 @@ export function Recipes() {
     }
   }
 
+  const totalPages = Math.ceil(displayItems.length / PAGE_SIZE)
+  const pageItems = displayItems.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+
   return (
     <div>
       <Header
@@ -546,7 +553,7 @@ export function Recipes() {
         <Card><CardContent className="py-10 text-center text-sm text-gray-400">{t('recipes.noResults')}</CardContent></Card>
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {displayItems.map(item => {
+          {pageItems.map(item => {
             // Family-summary card — one per family, replacing N individual cards.
             // Click opens the representative member's detail dialog (the most
             // permissive tier, e.g. Omnivore over Vegan), where the "Változatok"
@@ -792,6 +799,32 @@ export function Recipes() {
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6 mb-2">
+          <button
+            type="button"
+            onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            disabled={page === 0}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            {t('recipes.pagination.previous')}
+          </button>
+          <span className="text-sm text-gray-500 tabular-nums">
+            {t('recipes.pagination.summary', { current: page + 1, total: totalPages })}
+          </span>
+          <button
+            type="button"
+            onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+            disabled={page >= totalPages - 1}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {t('recipes.pagination.next')}
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       )}
 
