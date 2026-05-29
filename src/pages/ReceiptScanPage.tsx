@@ -60,7 +60,7 @@ export default function ReceiptScanPage() {
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number } })?.response?.status
       if (status === 402) {
-        toast({ title: t('shopping.receipt.premiumRequired'), variant: 'destructive' })
+        navigate('/app/founding-member')
       } else if (status === 429) {
         toast({ title: t('shopping.receipt.rateLimited'), variant: 'destructive' })
       } else if (status === 503) {
