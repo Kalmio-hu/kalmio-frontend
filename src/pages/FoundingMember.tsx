@@ -61,7 +61,8 @@ function FoundingMemberInner() {
     setCheckoutError(null)
     setIsRedirecting(true)
     try {
-      const result = await foundingMemberService.checkout(successUrl())
+      const previewToken = new URLSearchParams(window.location.search).get('token') ?? undefined
+      const result = await foundingMemberService.checkout(successUrl(), previewToken)
       // Hand control to Barion — this is a full browser redirect.
       window.location.href = result.gatewayUrl
     } catch (err: unknown) {

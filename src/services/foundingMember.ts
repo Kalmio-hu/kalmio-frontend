@@ -5,9 +5,9 @@
  *   GET  /api/founding-member/availability — public, no auth required.
  *        Returns { cap, soldCount, remaining, price, currency }.
  *        Cache-Control max-age=30 on the server side.
- *   POST /api/founding-member/checkout     — authenticated.
- *        Initiates a Barion payment session.
- *        Returns { paymentId, gatewayUrl }.
+ *   POST /api/founding-member/checkout              — authenticated.
+ *   POST /api/founding-member/checkout/preview?token — vault token, no session needed.
+ *        Both initiate a Barion payment session and return { paymentId, gatewayUrl }.
  */
 
 import { api } from '@/lib/api'
@@ -34,9 +34,12 @@ async function getAvailability(): Promise<FoundingMemberAvailability> {
  * session. A deduplicated response could return a stale gatewayUrl from a prior
  * abandoned session, which Barion would reject or associate with the wrong attempt.
  */
-async function checkout(redirectUrl: string): Promise<FoundingMemberCheckoutResponse> {
+async function checkout(redirectUrl: string, previewToken?: string): Promise<FoundingMemberCheckoutResponse> {
   const body: FoundingMemberCheckoutRequest = { redirectUrl }
-  const res = await api.post<FoundingMemberCheckoutResponse>('/api/founding-member/checkout', body)
+  const url = previewToken
+    ? `/api/founding-member/checkout/preview?token=${encodeURIComponent(previewToken)}`
+    : '/api/founding-member/checkout'
+  const res = await api.post<FoundingMemberCheckoutResponse>(url, body)
   return res.data
 }
 

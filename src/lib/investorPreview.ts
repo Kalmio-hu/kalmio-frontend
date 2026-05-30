@@ -13,25 +13,40 @@
  */
 
 import { useQuery } from '@tanstack/react-query'
-import { ipVaultService } from '@/services/ipVault'
 
 function getInvestorToken(): string | null {
   return new URLSearchParams(window.location.search).get('token')
 }
 
+const BASE = import.meta.env.VITE_API_URL ?? ''
+
+// Use fetch directly — bypasses the Axios auth interceptor (waitForAuthInit)
+// which would deadlock: the verify call is what lets ProtectedRoute render, so
+// it cannot block on the very auth state it is trying to bootstrap.
+async function verifyTokenDirect(token: string): Promise<{ valid: boolean }> {
+  const res = await fetch(`${BASE}/api/ip-vault/public/verify?token=${encodeURIComponent(token)}`)
+  if (!res.ok) return { valid: false }
+  return res.json()
+}
+
 export function useInvestorPreview() {
   const token = getInvestorToken()
 
-  const { data, isLoading } = useQuery({
+  const { data, isPending } = useQuery({
     queryKey: ['investor-token-verify', token],
-    queryFn: () => ipVaultService.verifyToken(token!),
+    queryFn: () => verifyTokenDirect(token!),
     enabled: !!token,
     retry: false,
     staleTime: 5 * 60_000,
+    gcTime: 0,  // never persist to IDB — token validity must be re-checked on every page load
   })
 
+  // isPending = status === 'pending' (no data yet, regardless of whether the
+  // fetch has actually started). isLoading = isPending && isFetching misses the
+  // very first render where fetchStatus is still 'idle' — causing ProtectedRoute
+  // to see isVerifyingToken=false before the HTTP request has gone out.
   return {
-    isValid: !isLoading && data?.valid === true,
-    isLoading: !!token && isLoading,
+    isValid: data?.valid === true,
+    isLoading: !!token && isPending,
   }
 }

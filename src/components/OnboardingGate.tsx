@@ -57,7 +57,8 @@ export function OnboardingGate() {
   })
 
   // Show a spinner while we wait for user data on first load.
-  if (isLoading && !user) {
+  // Skip when investor preview is active — the page doesn't need user data.
+  if (isLoading && !user && !isInvestorPreview) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F7F2]">
         <Loader2 className="animate-spin text-[#F28C28]" size={32} />

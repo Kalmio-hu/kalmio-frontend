@@ -143,6 +143,11 @@ export async function _handle401(): Promise<boolean> {
   if (_isHandling401 || window.location.pathname.startsWith('/auth')) {
     return false
   }
+  // Investor preview: ?token= bypasses session auth, so 401s from AppShell
+  // sub-components (points, feedback, etc.) are expected — don't boot to /auth.
+  if (new URLSearchParams(window.location.search).get('token')) {
+    return false
+  }
 
   _isHandling401 = true
   try {
