@@ -37,7 +37,9 @@ export function FoundingMemberPromo() {
   // Don't render the block at all until we have data (avoids layout flash).
   if (!data) return null
 
-  const ctaTarget = user ? '/app/founding-member' : '/auth'
+  // Guest-first: unauthenticated visitors go straight to the public checkout page
+  // (pay first, register after). Logged-in users use the authenticated buy page.
+  const ctaTarget = user ? '/app/founding-member' : '/founding-member'
   const isSoldOut = data.remaining === 0
 
   if (isSoldOut) {

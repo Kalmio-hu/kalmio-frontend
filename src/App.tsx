@@ -42,6 +42,9 @@ import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { Grove } from '@/pages/Grove'
 import { FoundingMember } from '@/pages/FoundingMember'
 import { FoundingMemberSuccess } from '@/pages/FoundingMemberSuccess'
+import { GuestFoundingMember } from '@/pages/GuestFoundingMember'
+import { GuestFoundingMemberSuccess } from '@/pages/GuestFoundingMemberSuccess'
+import { GuestFoundingMemberClaim } from '@/pages/GuestFoundingMemberClaim'
 import { Family } from '@/pages/Family'
 import { Plans } from '@/pages/Plans'
 import { PlanCreate } from '@/pages/PlanCreate'
@@ -162,7 +165,14 @@ export default function App() {
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            {/* Guest-first Founding Member checkout — PUBLIC. A visitor pays before
+                creating an account; the payment is claimed after they register. */}
+            <Route path="/founding-member" element={<GuestFoundingMember />} />
+            <Route path="/founding-member/success" element={<GuestFoundingMemberSuccess />} />
             <Route element={<ProtectedRoute />}>
+              {/* Claim a settled guest payment. OUTSIDE OnboardingGate so a brand-new
+                  user is granted membership before being routed into onboarding. */}
+              <Route path="/founding-member/claim" element={<GuestFoundingMemberClaim />} />
               {/* Full-screen onboarding flow — no AppShell sidebar/nav chrome.
                   These routes are intentionally OUTSIDE OnboardingGate so that
                   new users can reach them before completing the flow. */}

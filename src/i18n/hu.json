@@ -2031,6 +2031,47 @@
       "backToApp": "Vissza az alkalmazásba"
     }
   },
+  "guestFoundingMember": {
+    "email": {
+      "label": "E-mail-cím",
+      "placeholder": "te@pelda.hu"
+    },
+    "cta": "Fizetés és helyem lefoglalása",
+    "trust": "Biztonságos fizetés a Barionon keresztül.",
+    "afterPaymentNote": "Először a fizetés, utána pár másodperc alatt létrehozod a fiókod. Így biztosan a tiéd marad a hely.",
+    "loggedInNote": "Már be vagy jelentkezve. A meglévő fiókoddal egy lépéssel gyorsabb a folyamat.",
+    "loggedInCta": "Tovább a vásárláshoz",
+    "errors": {
+      "email": "Kérlek, adj meg egy érvényes e-mail-címet.",
+      "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium hamarosan más formában is elérhető lesz.",
+      "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
+    }
+  },
+  "guestFoundingMemberSuccess": {
+    "title": "Egy pillanat.",
+    "confirmedTitle": "Megvan a fizetésed.",
+    "verifying": "Ellenőrizzük a fizetésed visszaigazolását…",
+    "confirmed": "A fizetésed megérkezett. Hozd létre a fiókod, és aktiváljuk az alapító tagságod.",
+    "createAccountCta": "Fiók létrehozása",
+    "activateCta": "Tagság aktiválása",
+    "slow": "A bankod kicsit lassabban válaszol. Maradj itt — amint visszaigazolja a tranzakciót, folytathatod.",
+    "refresh": "Frissítés",
+    "failed": "A fizetés nem ment végbe. Nem terheltünk meg semmivel — nyugodtan próbáld újra.",
+    "tryAgain": "Újra megpróbálom",
+    "unknown": "Nem találjuk a fizetésed ezen az eszközön. Ha úgy érzed, valami nem stimmel, nézd meg az e-mailjeidet, vagy keress minket.",
+    "backToOffer": "Vissza az ajánlathoz"
+  },
+  "guestFoundingMemberClaim": {
+    "activating": "Aktiváljuk az alapító tagságod…",
+    "error": {
+      "title": "Egy pillanatra elakadtunk.",
+      "missing": "Nincs azonosítható fizetés ehhez a lépéshez. Lépj be az alkalmazásba, és onnan folytathatod.",
+      "notFound": "Nem találunk beváltható fizetést ehhez az azonosítóhoz. Lehet, hogy már beváltottad.",
+      "notSettled": "A fizetésed még nincs véglegesítve. Várj pár másodpercet, majd próbáld újra.",
+      "retry": "Újra megpróbálom",
+      "toApp": "Tovább az alkalmazásba"
+    }
+  },
   "blog": {
     "nav": "Blog",
     "indexTitle": "A konyhából",

@@ -43,7 +43,51 @@ async function checkout(redirectUrl: string, previewToken?: string): Promise<Fou
   return res.data
 }
 
+/**
+ * Initiates a guest Barion checkout — no account required. The buyer pays first and
+ * claims founding-member status after registering. The email is stored server-side so a
+ * paid-but-unclaimed payment can be recovered.
+ *
+ * @param email       Buyer email (Barion also collects its own billing email separately).
+ * @param redirectUrl Absolute success-page URL Barion redirects to after payment.
+ * @returns `{ paymentId, gatewayUrl }` — store `paymentId` client-side, redirect to `gatewayUrl`.
+ * @throws HTTP 409 when all founding-member slots are taken.
+ */
+async function checkoutGuest(email: string, redirectUrl: string): Promise<FoundingMemberCheckoutResponse> {
+  const res = await api.post<FoundingMemberCheckoutResponse>(
+    '/api/founding-member/checkout/guest',
+    { email, redirectUrl },
+  )
+  return res.data
+}
+
+/**
+ * Polls the coarse status of a guest checkout session. Returns 'PENDING' | 'SUCCEEDED' | 'FAILED'.
+ * @throws HTTP 404 when no guest session exists for this paymentId.
+ */
+async function getGuestPaymentStatus(paymentId: string): Promise<{ status: string }> {
+  const res = await api.get<{ status: string }>(
+    '/api/founding-member/guest-payment-status',
+    { params: { paymentId } },
+  )
+  return res.data
+}
+
+/**
+ * Claims a settled guest payment for the now-authenticated user, granting founding-member
+ * status and binding the payment to their account.
+ *
+ * @throws HTTP 404 when there is no unclaimed guest payment for this paymentId.
+ * @throws HTTP 409 when the payment has not settled yet, or all slots are taken.
+ */
+async function claimPayment(paymentId: string): Promise<void> {
+  await api.post('/api/founding-member/claim', { paymentId })
+}
+
 export const foundingMemberService = {
   getAvailability,
   checkout,
+  checkoutGuest,
+  getGuestPaymentStatus,
+  claimPayment,
 }

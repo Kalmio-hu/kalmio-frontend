@@ -1806,6 +1806,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/founding-member/claim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Claim a settled guest payment
+         * @description Grants founding-member status to the authenticated user for a guest payment that settled before they had an account, and binds the payment to them.
+         */
+        post: operations["claim"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/founding-member/checkout": {
         parameters: {
             query?: never;
@@ -1840,6 +1860,26 @@ export interface paths {
          * @description Same as /checkout but authenticated via a vault token instead of a session JWT. Intended for Barion merchant-review and investor demos only.
          */
         post: operations["checkoutPreview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/founding-member/checkout/guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Initiate Founding Member checkout (guest, no account)
+         * @description Creates a Barion payment session for a visitor who has no account yet. Returns a paymentId (store it client-side) and a gatewayUrl to redirect to. The buyer claims the payment after registering.
+         */
+        post: operations["checkoutGuest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3356,6 +3396,26 @@ export interface paths {
         };
         /** ChatGPT Actions OpenAPI spec — paste into 'Configure actions' dialog */
         get: operations["getGptActionsSpec"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/founding-member/guest-payment-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Guest payment status
+         * @description Returns the coarse status of a guest checkout session so the public success page can poll for settlement. Exposes no buyer or user data.
+         */
+        get: operations["guestPaymentStatus"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5257,6 +5317,14 @@ export interface components {
             retailer?: string;
             items: components["schemas"]["ReceiptPreviewItem"][];
         };
+        /** @description Claim a settled guest Founding Member payment for the authenticated user */
+        FoundingMemberClaimRequest: {
+            /**
+             * @description Barion payment identifier from the guest checkout
+             * @example 64157356-0939-4da5-8688-20c52e8b8c0d
+             */
+            paymentId: string;
+        };
         /** @description Initiate a Founding Member checkout session */
         FoundingMemberCheckoutRequest: {
             /**
@@ -5277,6 +5345,20 @@ export interface components {
              * @example https://secure.barion.com/Pay?id=64157356-0939-4da5-8688-20c52e8b8c0d
              */
             gatewayUrl?: string;
+        };
+        /** @description Initiate a guest Founding Member checkout session (no account required) */
+        GuestCheckoutRequest: {
+            /**
+             * Format: email
+             * @description Buyer email — used to recover unclaimed payments
+             * @example buyer@example.com
+             */
+            email: string;
+            /**
+             * @description URL to redirect the customer to after payment
+             * @example https://kalmio.hu/founding-member/success
+             */
+            redirectUrl: string;
         };
         CreateFeedbackRequest: {
             type: string;
@@ -5759,6 +5841,14 @@ export interface components {
             date?: string;
             consumed?: components["schemas"]["MacrosResponse"];
             target?: components["schemas"]["MacrosResponse"];
+        };
+        /** @description Status of a guest Founding Member checkout session */
+        GuestPaymentStatusResponse: {
+            /**
+             * @description Checkout session status
+             * @example SUCCEEDED
+             */
+            status?: string;
         };
         /** @description Founding Member slot availability */
         FoundingMemberAvailabilityResponse: {
@@ -9419,6 +9509,42 @@ export interface operations {
             };
         };
     };
+    claim: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FoundingMemberClaimRequest"];
+            };
+        };
+        responses: {
+            /** @description Payment claimed; user is now a founding member */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No unclaimed guest payment for this paymentId */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Payment not settled, or all slots are taken */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     checkout: {
         parameters: {
             query?: never;
@@ -9478,6 +9604,39 @@ export interface operations {
             };
             /** @description Invalid or expired vault token */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FoundingMemberCheckoutResponse"];
+                };
+            };
+            /** @description All founding-member slots are taken */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FoundingMemberCheckoutResponse"];
+                };
+            };
+        };
+    };
+    checkoutGuest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuestCheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Checkout session created */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -12031,6 +12190,37 @@ export interface operations {
                 };
                 content: {
                     "application/yaml": string;
+                };
+            };
+        };
+    };
+    guestPaymentStatus: {
+        parameters: {
+            query: {
+                paymentId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Status returned */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GuestPaymentStatusResponse"];
+                };
+            };
+            /** @description No guest checkout session for this paymentId */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GuestPaymentStatusResponse"];
                 };
             };
         };

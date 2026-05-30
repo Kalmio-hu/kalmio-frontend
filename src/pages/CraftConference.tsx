@@ -53,7 +53,8 @@ export function CraftConference() {
   const soldPct = availability ? Math.round((availability.soldCount / availability.cap) * 100) : 0
 
   function handleCta() {
-    navigate(session ? '/app/founding-member' : '/auth?next=/app/founding-member')
+    // Guest-first: unauthenticated visitors pay on the public page before registering.
+    navigate(session ? '/app/founding-member' : '/founding-member')
   }
 
   const heroRef = useRef<HTMLDivElement>(null)

@@ -2031,6 +2031,47 @@
       "backToApp": "Back to the app"
     }
   },
+  "guestFoundingMember": {
+    "email": {
+      "label": "Email address",
+      "placeholder": "you@example.com"
+    },
+    "cta": "Pay and reserve my place",
+    "trust": "Secure payment via Barion.",
+    "afterPaymentNote": "Payment first, then you'll create your account in a few seconds. That way your place is secured.",
+    "loggedInNote": "You're already signed in. With your existing account the process is one step faster.",
+    "loggedInCta": "Continue to checkout",
+    "errors": {
+      "email": "Please enter a valid email address.",
+      "capReached": "The last founding place sold out in the meantime. Premium will be available more widely soon.",
+      "generic": "We couldn't start the payment. Please try again in a few seconds."
+    }
+  },
+  "guestFoundingMemberSuccess": {
+    "title": "One moment.",
+    "confirmedTitle": "Your payment is in.",
+    "verifying": "Verifying your payment confirmation…",
+    "confirmed": "Your payment has arrived. Create your account and we'll activate your founding membership.",
+    "createAccountCta": "Create account",
+    "activateCta": "Activate membership",
+    "slow": "Your bank is a little slow to respond. Stay here — as soon as the transaction confirms, you can continue.",
+    "refresh": "Refresh",
+    "failed": "The payment didn't go through. You weren't charged — feel free to try again.",
+    "tryAgain": "Try again",
+    "unknown": "We can't find your payment on this device. If something seems off, check your email or get in touch.",
+    "backToOffer": "Back to the offer"
+  },
+  "guestFoundingMemberClaim": {
+    "activating": "Activating your founding membership…",
+    "error": {
+      "title": "We hit a brief snag.",
+      "missing": "There's no payment to claim for this step. Head into the app and you can carry on from there.",
+      "notFound": "We can't find a claimable payment for this reference. You may have already claimed it.",
+      "notSettled": "Your payment hasn't settled yet. Give it a few seconds, then try again.",
+      "retry": "Try again",
+      "toApp": "Continue to the app"
+    }
+  },
   "blog": {
     "nav": "Blog",
     "indexTitle": "From the kitchen",
