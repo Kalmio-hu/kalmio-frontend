@@ -150,12 +150,9 @@
         "charsLeft_other": "{{count}} characters left"
       },
       "voice": {
-        "tapToSpeak": "Touch to speak",
-        "stop": "Stop recording",
-        "recorded": "Recording ready",
-        "reRecord": "Record again",
-        "discard": "Discard",
-        "hint": "Mic starts after you tap."
+        "holdToRecord": "Hold to record",
+        "releaseToSend": "Release to send",
+        "stop": "Stop recording"
       },
       "photo": {
         "drop": "Drop a photo here or tap to browse",

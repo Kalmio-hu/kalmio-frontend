@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Camera, Mic, Sparkles, Square, Type, Undo2, Upload, X } from 'lucide-react'
+import { Camera, Mic, Sparkles, Type, Undo2, Upload, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
   Dialog,
@@ -55,7 +55,6 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
   const [mode, setMode] = useState<Mode>('text')
   const [text, setText] = useState('')
   const [mealType, setMealType] = useState<MealType | ''>('')
-  const [audioFile, setAudioFile] = useState<File | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [result, setResult] = useState<AiOffPlanLogResponse | null>(null)
   const [errorKey, setErrorKey] = useState<ErrorKey | null>(null)
@@ -64,7 +63,7 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
     setMode('text')
     setText('')
     setMealType('')
-    setAudioFile(null)
+
     setImageFile(null)
     setResult(null)
     setErrorKey(null)
@@ -105,13 +104,11 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
   })
 
   const voiceMutation = useMutation({
-    mutationFn: () => {
-      if (!audioFile) throw new Error('No audio file')
-      return offPlanMealsService.logFromVoice(audioFile, {
+    mutationFn: (file: File) =>
+      offPlanMealsService.logFromVoice(file, {
         mealType: mealType || undefined,
         eatenAt: date,
-      })
-    },
+      }),
     onSuccess: data => handleSuccess(data, 'voice'),
     onError: err => setErrorKey(mapError(err)),
   })
@@ -147,7 +144,6 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
   function handleSubmit() {
     setErrorKey(null)
     if (mode === 'text') textMutation.mutate()
-    else if (mode === 'voice') voiceMutation.mutate()
     else photoMutation.mutate()
   }
 
@@ -155,7 +151,6 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
   const canSubmit =
     !isPending &&
     ((mode === 'text' && canSubmitText) ||
-      (mode === 'voice' && audioFile != null) ||
       (mode === 'photo' && imageFile != null))
 
   return (
@@ -196,10 +191,9 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
 
             {mode === 'voice' && (
               <VoicePanel
-                file={audioFile}
-                onFile={file => { setAudioFile(file); setErrorKey(null) }}
+                onRecord={file => { setErrorKey(null); voiceMutation.mutate(file) }}
                 onError={key => setErrorKey(key)}
-                disabled={isPending}
+                isPending={voiceMutation.isPending}
               />
             )}
 
@@ -233,24 +227,26 @@ export function AiOffPlanLogModal({ open, onOpenChange, date }: AiOffPlanLogModa
 
             {errorKey && <ErrorBlock errorKey={errorKey} />}
 
-            <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="ghost" onClick={handleClose} disabled={isPending}>
-                {t('common.cancel')}
-              </Button>
-              <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
-                {isPending ? (
-                  <>
-                    <Spinner className="mr-2 h-3.5 w-3.5" />
-                    {t('dashboard.aiOffPlan.parsing')}
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-3.5 w-3.5" />
-                    {t('dashboard.aiOffPlan.parse')}
-                  </>
-                )}
-              </Button>
-            </div>
+            {mode !== 'voice' && (
+              <div className="flex justify-end gap-2 pt-2">
+                <Button type="button" variant="ghost" onClick={handleClose} disabled={isPending}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="button" onClick={handleSubmit} disabled={!canSubmit}>
+                  {isPending ? (
+                    <>
+                      <Spinner className="mr-2 h-3.5 w-3.5" />
+                      {t('dashboard.aiOffPlan.parsing')}
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="mr-2 h-3.5 w-3.5" />
+                      {t('dashboard.aiOffPlan.parse')}
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
           </>
         )}
       </DialogContent>
@@ -595,15 +591,13 @@ function pickAudioMimeType(): { mimeType: string; extension: string } {
 }
 
 function VoicePanel({
-  file,
-  onFile,
+  onRecord,
   onError,
-  disabled,
+  isPending,
 }: {
-  file: File | null
-  onFile: (file: File | null) => void
+  onRecord: (file: File) => void
   onError: (key: ErrorKey) => void
-  disabled: boolean
+  isPending: boolean
 }) {
   const { t } = useTranslation()
   const recorderRef = useRef<MediaRecorder | null>(null)
@@ -611,15 +605,14 @@ function VoicePanel({
   const chunksRef = useRef<Blob[]>([])
   const startedAtRef = useRef<number>(0)
   const tickRef = useRef<number | null>(null)
+  const holdingRef = useRef(false)
 
   const [recording, setRecording] = useState(false)
   const [elapsedMs, setElapsedMs] = useState(0)
 
   const stopStream = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop())
-      streamRef.current = null
-    }
+    streamRef.current?.getTracks().forEach(t => t.stop())
+    streamRef.current = null
     if (tickRef.current != null) {
       window.clearInterval(tickRef.current)
       tickRef.current = null
@@ -627,40 +620,36 @@ function VoicePanel({
   }, [])
 
   useEffect(() => () => {
-    try {
-      recorderRef.current?.stop()
-    } catch {
-      // ignore
-    }
+    try { recorderRef.current?.stop() } catch { /* ignore */ }
     stopStream()
   }, [stopStream])
 
-  async function startRecording() {
-    if (disabled || recording) return
+  async function handlePointerDown(e: React.PointerEvent) {
+    if (isPending || recording) return
+    holdingRef.current = true
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
       onError('micUnavailable')
       return
     }
-    onFile(null)
     let stream: MediaStream
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
     } catch (err) {
       const name = (err as { name?: string })?.name
-      if (name === 'NotAllowedError' || name === 'SecurityError') {
-        onError('micPermission')
-      } else {
-        onError('micUnavailable')
-      }
+      onError(name === 'NotAllowedError' || name === 'SecurityError' ? 'micPermission' : 'micUnavailable')
+      return
+    }
+    if (!holdingRef.current) {
+      stream.getTracks().forEach(t => t.stop())
       return
     }
     streamRef.current = stream
     const { mimeType, extension } = pickAudioMimeType()
     let recorder: MediaRecorder
     try {
-      recorder = mimeType
-        ? new MediaRecorder(stream, { mimeType })
-        : new MediaRecorder(stream)
+      recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
     } catch {
       onError('micUnavailable')
       stopStream()
@@ -676,125 +665,86 @@ function VoicePanel({
       chunksRef.current = []
       stopStream()
       setRecording(false)
-      if (blob.size === 0) {
-        onError('micUnavailable')
-        return
-      }
-      if (blob.size > AUDIO_MAX_BYTES) {
-        onError('tooLarge')
-        return
-      }
-      const ext = extension
-      const filename = `voice-${Date.now()}.${ext}`
-      const audio = new File([blob], filename, { type: actualType })
-      onFile(audio)
+      if (blob.size === 0) { onError('micUnavailable'); return }
+      if (blob.size > AUDIO_MAX_BYTES) { onError('tooLarge'); return }
+      const audio = new File([blob], `voice-${Date.now()}.${extension}`, { type: actualType })
+      onRecord(audio)
     }
     recorderRef.current = recorder
     startedAtRef.current = Date.now()
     setElapsedMs(0)
     tickRef.current = window.setInterval(() => {
       setElapsedMs(Date.now() - startedAtRef.current)
-    }, 200)
+    }, 100)
     recorder.start()
     setRecording(true)
   }
 
-  function stopRecording() {
+  function handlePointerUp() {
+    holdingRef.current = false
     const rec = recorderRef.current
-    if (!rec) return
-    if (rec.state !== 'inactive') rec.stop()
+    if (rec && rec.state !== 'inactive') rec.stop()
   }
 
-  function discard() {
-    onFile(null)
-  }
-
-  if (recording) {
+  if (isPending) {
     return (
-      <div className="space-y-2">
-        <button
-          type="button"
-          onClick={stopRecording}
-          className="w-full rounded-[12px] border-2 border-[#F28C28] bg-[#F28C28]/10 px-4 py-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28]"
-        >
-          <div className="flex flex-col items-center gap-2 text-center">
-            <span className="relative flex h-12 w-12 items-center justify-center rounded-full bg-[#F28C28] text-white">
-              <span className="absolute inset-0 animate-ping rounded-full bg-[#F28C28]/50" aria-hidden />
-              <Square className="h-5 w-5 relative" aria-hidden fill="currentColor" />
-            </span>
-            <span className="text-sm font-medium text-[#1A1A1A]">
-              {t('dashboard.aiOffPlan.voice.stop')}
-            </span>
-            <span className="text-xs tabular-nums text-gray-500">
-              {formatDuration(elapsedMs)}
-            </span>
-          </div>
-        </button>
-      </div>
-    )
-  }
-
-  if (file) {
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between gap-3 rounded-[12px] border border-[#e5e4e7] bg-[#F9F7F2] px-4 py-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <Mic className="h-5 w-5 text-[#F28C28] shrink-0" aria-hidden />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-[#1A1A1A] truncate">
-                {t('dashboard.aiOffPlan.voice.recorded')}
-              </p>
-              <p className="text-xs text-gray-500">
-                {formatBytes(file.size)}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={discard}
-            disabled={disabled}
-            aria-label={t('dashboard.aiOffPlan.voice.discard')}
-            className="rounded-full p-1.5 text-gray-500 hover:bg-white hover:text-[#1A1A1A] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] disabled:opacity-50"
-          >
-            <X className="h-4 w-4" aria-hidden />
-          </button>
-        </div>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={startRecording}
-          disabled={disabled}
-          className="w-full"
-        >
-          <Mic className="mr-2 h-3.5 w-3.5" />
-          {t('dashboard.aiOffPlan.voice.reRecord')}
-        </Button>
+      <div className="flex flex-col items-center gap-3 py-8">
+        <Spinner className="h-8 w-8 text-[#F28C28]" />
+        <span className="text-sm text-gray-500">{t('dashboard.aiOffPlan.parsing')}</span>
       </div>
     )
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col items-center gap-4 py-4 select-none">
+      {/* Waveform + timer — visible while recording */}
+      <div className={cn('flex flex-col items-center gap-2 transition-opacity duration-200', recording ? 'opacity-100' : 'opacity-0 pointer-events-none')}>
+        <div className="flex items-end gap-[3px] h-8" aria-hidden>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <span
+              key={i}
+              className="w-[3px] rounded-full bg-[#F28C28]"
+              style={{
+                height: '60%',
+                animation: recording
+                  ? `voiceBar ${0.45 + (i % 7) * 0.07}s ease-in-out infinite alternate`
+                  : 'none',
+                transform: recording ? undefined : 'scaleY(0.3)',
+                transformOrigin: 'bottom',
+              }}
+            />
+          ))}
+        </div>
+        <span className="text-sm tabular-nums font-medium text-[#F28C28]">
+          {formatDuration(elapsedMs)}
+        </span>
+      </div>
+
+      {/* Hold button */}
       <button
         type="button"
-        onClick={startRecording}
-        disabled={disabled}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        disabled={isPending}
         className={cn(
-          'w-full rounded-[12px] border-2 border-dashed border-[#e5e4e7] bg-[#F9F7F2] px-4 py-8 transition-colors hover:border-[#F28C28] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] disabled:opacity-60',
+          'relative flex h-20 w-20 items-center justify-center rounded-full shadow-lg transition-all duration-150 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#F28C28]/40 disabled:opacity-50',
+          recording
+            ? 'bg-[#F28C28] scale-110 shadow-[0_0_0_12px_rgba(242,140,40,0.18)]'
+            : 'bg-[#F28C28] hover:scale-105 active:scale-110',
         )}
+        aria-label={recording ? t('dashboard.aiOffPlan.voice.stop') : t('dashboard.aiOffPlan.voice.holdToRecord')}
       >
-        <div className="flex flex-col items-center gap-2 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#F28C28] text-white">
-            <Mic className="h-5 w-5" aria-hidden />
-          </span>
-          <span className="text-sm font-medium text-[#1A1A1A]">
-            {t('dashboard.aiOffPlan.voice.tapToSpeak')}
-          </span>
-          <span className="text-xs text-gray-500">
-            {t('dashboard.aiOffPlan.voice.hint')}
-          </span>
-        </div>
+        {recording && (
+          <span className="absolute inset-0 rounded-full animate-ping bg-[#F28C28]/40" aria-hidden />
+        )}
+        <Mic className="h-8 w-8 text-white relative" aria-hidden />
       </button>
+
+      <span className="text-xs text-gray-400">
+        {recording ? t('dashboard.aiOffPlan.voice.releaseToSend') : t('dashboard.aiOffPlan.voice.holdToRecord')}
+      </span>
     </div>
   )
 }
@@ -806,11 +756,6 @@ function formatDuration(ms: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
-function formatBytes(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
 
 function ErrorBlock({ errorKey }: { errorKey: ErrorKey }) {
   const { t } = useTranslation()

@@ -150,12 +150,9 @@
         "charsLeft_other": "{{count}} karakter maradt"
       },
       "voice": {
-        "tapToSpeak": "Koppints és mondd",
-        "stop": "Felvétel leállítása",
-        "recorded": "Felvétel kész",
-        "reRecord": "Új felvétel",
-        "discard": "Elvetés",
-        "hint": "A mikrofon a koppintás után indul."
+        "holdToRecord": "Tartsd nyomva és beszélj",
+        "releaseToSend": "Engedd el a küldéshez",
+        "stop": "Felvétel leállítása"
       },
       "photo": {
         "drop": "Húzd ide a fotót vagy koppints",
