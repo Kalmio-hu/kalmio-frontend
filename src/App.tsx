@@ -57,6 +57,7 @@ import ReceiptScanPage from '@/pages/ReceiptScanPage'
 import { CookMode } from '@/pages/CookMode'
 import { RecipeDetail } from '@/pages/RecipeDetail'
 import { ShopNow } from '@/pages/ShopNow'
+import { CraftConference } from '@/pages/CraftConference'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
 // Vite's dead-code elimination ensures they are absent from production chunks.
@@ -233,6 +234,7 @@ export default function App() {
               </Route>
             </Route>
             <Route path="/oauth/consent" element={<OAuthConsent />} />
+            <Route path="/craft" element={<CraftConference />} />
             <Route path="/vault" element={<InvestorVault />} />
             <Route path="/valuation" element={<Valuation />} />
             <Route path="/timeline" element={<CaptainsBridge />} />

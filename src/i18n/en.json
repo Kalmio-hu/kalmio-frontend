@@ -3083,5 +3083,88 @@
   },
   "plans": {
     "autoScheduleFailed": "Your plan is ready. Use the \"Schedule\" button to activate it."
+  },
+  "craft": {
+    "navTag": "Craft 2026",
+    "hero": {
+      "eyebrow": "Craft Conference · Budapest · 2026",
+      "headline": "Be a Founding Member.",
+      "sub": "Healthy eating. Math, not magic.",
+      "scarcity": "<strong>{{remaining}}</strong> founding slots left",
+      "cta": "Pay once, own it forever",
+      "ctaHint": "One-time payment · Lifetime access · No subscription",
+      "soldOut": "All slots are taken."
+    },
+    "what": {
+      "eyebrow": "What is Kalmio?",
+      "headline": "The meal planner built by engineers, for engineers.",
+      "body": "Kalmio is an optimization engine, not a diet app. You set the parameters — calorie target, protein floor, budget ceiling, intolerances — and the <strong>Timefold constraint solver</strong> finds the optimal week. Deterministic computation, not guesswork.",
+      "aiNote": "Two people and a Claude Code agent swarm write the code."
+    },
+    "free": {
+      "eyebrow": "The free tier is actually free.",
+      "headline": "Core is free forever. Premium only charges for what actually costs us.",
+      "body": "No trial, no hidden walls, no quiet click-gate after week three. Meal planning, fridge tracking, the shopping list, the daily dashboard — all free, forever. Why? Because Hungary's public-health problem only moves with mass adoption — not another €8/month paywall.",
+      "splitTitle": "The line: deterministic vs. agentic",
+      "free": "Free",
+      "premium": "Premium",
+      "freeItems": [
+        "Full meal planner (Timefold solver)",
+        "Fridge and pantry tracking",
+        "Automatic macro tracking",
+        "Shopping list, retail cart handoff",
+        "Daily dashboard and prep tasks"
+      ],
+      "premiumItems": [
+        "\"Swap the broccoli\" — LLM agent smart substitution",
+        "Photograph off-plan meals for auto macro logging",
+        "Natural language plan modifications",
+        "Unlimited AI-powered replanning"
+      ],
+      "premiumNote": "The premium tier is <strong>not yet publicly available.</strong> Founding Members get early access.",
+      "pricing": {
+        "title": "Planned premium pricing",
+        "monthly": "~€5 / month",
+        "yearly": "~€38 / year",
+        "founding": "~€50 · forever",
+        "monthlyHint": "monthly subscription",
+        "yearlyHint": "annual subscription",
+        "foundingHint": "founding membership · first 1,000 users",
+        "foundingBadge": "Best deal"
+      }
+    },
+    "mission": {
+      "eyebrow": "Why does Kalmio exist?",
+      "headline": "We want to be the Hungarian North Karelia project.",
+      "body": "In 1972, a young epidemiologist named Pekka Puska started something stubborn in a rural Finnish province where men were dying of heart disease at the highest rate in the world. Not a medical intervention. A <em>cultural</em> one. Twenty-five years later, North Karelia's cardiovascular mortality had fallen by 80%. The country's life expectancy went up by ten years.",
+      "hungaryBody": "Hungary today has the cardiovascular profile that Finland had then. About a quarter of adults are obese, another third overweight, four in ten have hypertension, and we lose about six years of life expectancy compared to the EU average. This isn't a personal-failure problem — it's a cultural-defaults problem.",
+      "kalmioBody": "Kalmio's name comes from the Finnish <em>kolmio</em> (triangle) — a nod to the North Karelia project and the three eventual pillars: diet, movement, mental health and sleep. We're building the first corner today. The other two come once we've earned the right to add them.",
+      "pillar1": "Diet",
+      "pillar2": "Movement",
+      "pillar3": "Mental health"
+    },
+    "pitch": {
+      "eyebrow": "Founding membership",
+      "headline": "Pay once.\nOwn it forever.",
+      "body": "Kalmio is in beta. Founding membership is capped — this price and this access level won't come back.",
+      "priceHint": "one-time",
+      "scarcity": "<strong>{{remaining}}</strong> slots left",
+      "cta": "Join now",
+      "soldOut": "All slots are taken."
+    },
+    "features": {
+      "f1": {
+        "title": "Weekly plan in seconds",
+        "desc": "Timefold constraint solver running against a real recipe database. No templates, no generic suggestions."
+      },
+      "f2": {
+        "title": "Zero-waste logic",
+        "desc": "Your shopping list contains exactly what you need. Leftovers are folded into the next day automatically."
+      },
+      "f3": {
+        "title": "Founding Member tier",
+        "desc": "Pay once, own it forever. Unlimited access to every current and future feature — for life."
+      }
+    }
   }
 }

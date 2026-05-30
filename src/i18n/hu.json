@@ -3082,5 +3082,88 @@
   },
   "plans": {
     "autoScheduleFailed": "A terved kész. Kézi ütemezéshez keresd a \"Futtassuk\" gombot."
+  },
+  "craft": {
+    "navTag": "Craft 2026",
+    "hero": {
+      "eyebrow": "Craft Conference · Budapest · 2026",
+      "headline": "Légy alapító.",
+      "sub": "Egészséges étkezés. Matek, nem mágia.",
+      "scarcity": "<strong>{{remaining}}</strong> férőhely maradt az alapítói csomagból",
+      "cta": "Egyszer fizetek, örökre az enyém",
+      "ctaHint": "Egyszeri díj · Örökös hozzáférés · Nincs előfizetés",
+      "soldOut": "Minden férőhely foglalt."
+    },
+    "what": {
+      "eyebrow": "Mi a Kalmio?",
+      "headline": "Az étrendtervező, amelyet programozóknak programoztak.",
+      "body": "A Kalmio egy optimalizációs motor, nem diétás alkalmazás. Megadod a céljaidat — kalória, fehérje, keret, allergiák — a <strong>Timefold constraint solver</strong> megtalálja az optimális hetet. Determinisztikus számítás, nem találgatás.",
+      "aiNote": "Két ember és egy Claude Code ágens-csapat írja a kódját."
+    },
+    "free": {
+      "eyebrow": "Az ingyenes változat valóban ingyenes.",
+      "headline": "Az alap funkciók örökre ingyenesek. Prémiumként csak azokért kell fizetni, ami nekünk is pénzbe kerül.",
+      "body": "Nincs próbaidőszak, nincsenek rejtett korlátok, nincs csapda a harmadik hét után. Az étrendtervező, hűtőkövetés, bevásárlólista, napi irányítópult — mindez örökre ingyenes. Miért? Mert Magyarország közegészségügyi problémáját csak tömeges elérés oldja meg — nem egy újabb 2900 Ft/hó paywall.",
+      "splitTitle": "A határ: determinisztikus vs. ágentikus",
+      "free": "Ingyenes",
+      "premium": "Prémium",
+      "freeItems": [
+        "Teljes étrendtervező (Timefold solver)",
+        "Hűtő- és kamrakövetés",
+        "Automatikus makrókövetés",
+        "Bevásárlólista, áruházi kosárátadás",
+        "Napi irányítópult és előkészítési feladatok"
+      ],
+      "premiumItems": [
+        "„Cseréld ki a brokkolit” — LLM-ügynök okos csere",
+        "Ételfotóból automatikus makrónaplózás",
+        "Természetes nyelvű tervmódosítások",
+        "Korlátlan MI-alapú újratervezés"
+      ],
+      "premiumNote": "A prémium funkciók <strong>még nem érhetők el nyilvánosan.</strong> Az alapítói tagok korai hozzáférést kapnak.",
+      "pricing": {
+        "title": "Tervezett prémium árak",
+        "monthly": "1 990 Ft / hó",
+        "yearly": "14 990 Ft / év",
+        "founding": "19 990 Ft · örökre",
+        "monthlyHint": "havi előfizetés",
+        "yearlyHint": "éves előfizetés",
+        "foundingHint": "alapítói csomag · első 1000 felhasználónak",
+        "foundingBadge": "Legjobb ajánlat"
+      }
+    },
+    "mission": {
+      "eyebrow": "Miért létezik a Kalmio?",
+      "headline": "A magyar Észak-Karélia projekt akarunk lenni.",
+      "body": "1972-ben Pekka Puska fiatal finn epidemiológus makacs munkába kezdett Finnország egyik vidéki tartományában — ott, ahol a szívbetegség a legtöbb férfit ölte meg az egész világon. Nem orvosi beavatkozás volt. <em>Kulturális.</em> Huszonöt évvel később Észak-Karélia szív- és érrendszeri halálozása 80%-kal csökkent. Az ország várható élettartama tíz évvel nőtt.",
+      "hungaryBody": "Magyarország ma ott tart, ahol Finnország akkor. A felnőttek negyede elhízott, harmada túlsúlyos, tíz felnőttből négy magas vérnyomással él, és az EU-átlagtól hat évvel élünk kevesebbet. Ez nem személyes sikertelenség kérdése — hanem a kulturális alapértelmezések problémája.",
+      "kalmioBody": "A Kalmio neve a finn <em>kolmio</em> (háromszög) szóból ered — tisztelgés az Észak-Karélia projekt előtt és a három jövőbeli pillér előtt: étrend, mozgás, mentális egészség és alvás. Ma az első sarkot építjük. Az étrend az, amin dolgozunk idén. A másik kettő akkor jön, ha megérdemeltük.",
+      "pillar1": "Étrend",
+      "pillar2": "Mozgás",
+      "pillar3": "Mentális egészség"
+    },
+    "pitch": {
+      "eyebrow": "Alapítói csomag",
+      "headline": "Egyszer fizetsz.\nÖrökre a tiéd.",
+      "body": "A Kalmio most béta fázisban van. Az alapítói tagság korlátozott számú helyre szól — ezt az árat és ezt a hozzáférést utána nem fogjuk megismételni.",
+      "priceHint": "egyszeri díj",
+      "scarcity": "<strong>{{remaining}}</strong> hely maradt",
+      "cta": "Bekapcsolódom",
+      "soldOut": "Minden férőhely foglalt."
+    },
+    "features": {
+      "f1": {
+        "title": "Heti terv másodpercek alatt",
+        "desc": "Timefold constraint solver, valós receptadatbázison. Nincs sablon, nincs generikus javaslat."
+      },
+      "f2": {
+        "title": "Hulladékmentes tervezés",
+        "desc": "A bevásárlólista pontosan azt tartalmazza, amire szükséged van. A megmaradó hozzávalókat a rendszer beforgatja a következő napba."
+      },
+      "f3": {
+        "title": "Alapítói csomag",
+        "desc": "Egyszer fizetsz, örökre a tiéd. Korlátlan hozzáférés minden jelenlegi és jövőbeli funkcióhoz."
+      }
+    }
   }
 }
