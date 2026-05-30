@@ -32,6 +32,7 @@ interface AiOffPlanLogModalProps {
 const MEAL_TYPES: MealType[] = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK']
 const TEXT_MAX = 1000
 const AUDIO_MAX_BYTES = 25 * 1024 * 1024
+const AUDIO_MAX_MS = 30_000
 const IMAGE_MAX_BYTES = 5 * 1024 * 1024
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
@@ -674,7 +675,12 @@ function VoicePanel({
     startedAtRef.current = Date.now()
     setElapsedMs(0)
     tickRef.current = window.setInterval(() => {
-      setElapsedMs(Date.now() - startedAtRef.current)
+      const elapsed = Date.now() - startedAtRef.current
+      setElapsedMs(elapsed)
+      if (elapsed >= AUDIO_MAX_MS) {
+        const rec = recorderRef.current
+        if (rec && rec.state !== 'inactive') rec.stop()
+      }
     }, 100)
     recorder.start()
     setRecording(true)
