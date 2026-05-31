@@ -6,15 +6,16 @@
  * interest — transaction security), and disclosed in the Privacy Notice and
  * Terms (Barion Pixel ÁSZF). See docs.barion.com "Pixel - Base".
  *
- * The pixel id comes from VITE_BARION_PIXEL_ID, with the production sandbox/live
- * id as a fallback so the pixel is present even if the env var is unset. The
- * pixel id is a public client-side identifier, not a secret.
+ * The pixel id comes from VITE_BARION_PIXEL_ID; the fallback is the LIVE production
+ * pixel id, so production (which does not set the env var) reports to the live pixel.
+ * Local development pins the sandbox pixel (BPT-…) via .env.local, which overrides the
+ * fallback. The pixel id is a public client-side identifier, not a secret.
  */
 
 import { useEffect } from 'react'
 
 const PIXEL_ID =
-  (import.meta.env.VITE_BARION_PIXEL_ID as string | undefined) ?? 'BPT-P5LDPnfL4b-1B'
+  (import.meta.env.VITE_BARION_PIXEL_ID as string | undefined) ?? 'BP-CLnSC8PA8g-FB'
 
 // Guard so the base script is injected only once even across remounts/HMR.
 const SCRIPT_FLAG = '__barionPixelInjected'
