@@ -2031,6 +2031,17 @@
       "backToApp": "Vissza az alkalmazásba"
     }
   },
+  "payments": {
+    "acceptedLabel": "Elfogadott fizetési módok"
+  },
+  "checkout": {
+    "acceptPrefix": "Megrendeléssel elfogadom a(z) ",
+    "terms": "ÁSZF-et",
+    "acceptMid": " és az ",
+    "privacy": "Adatkezelési tájékoztatót",
+    "acceptSuffix": ".",
+    "acceptRequired": "A folytatáshoz el kell fogadnod az ÁSZF-et."
+  },
   "guestFoundingMember": {
     "email": {
       "label": "E-mail-cím",

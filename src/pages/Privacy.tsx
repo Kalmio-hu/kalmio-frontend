@@ -70,6 +70,9 @@ function PrivacyHu() {
         <li>
           <strong>PostHog Inc.</strong> (analitika) — Kizárólag az analitikai sütikhez való hozzájárulás esetén. PII-mentes, pszeudoanonimizált eseményadatokat gyűjtünk a termékfejlesztés céljából. Adatközpont: EU. Részletek: <a href="https://posthog.com/privacy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
         </li>
+        <li>
+          <strong>Barion Payment Zrt.</strong> (fizetési szolgáltató) — A bankkártyás és Barion-tárcás fizetések lebonyolítása, valamint csalásmegelőzés (Barion Pixel) céljából. A fizetéshez és a csalásmegelőzéshez szükséges adatokat (pl. e-mail, fizetési és tranzakciós adatok, böngészési események) közvetlenül a Barion kezeli; a teljes bankkártyaszámhoz a Kalmio nem fér hozzá. A Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt áll (engedélyszám: H-EN-I-1064/2013). Adatközpont: EU (Magyarország). Részletek: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/hu/adatvedelmi-tajekoztato</a>.
+        </li>
       </ul>
       <p className="mt-3">
         Az általunk igénybe vett adatfeldolgozók GDPR 28. cikknek megfelelő adatfeldolgozói feltételeket tesznek közzé (pl. Supabase DPA, Microsoft Online Services Terms, PostHog DPA). Az adatfeldolgozók önállóan nem jogosultak az adatokat kezelni.
@@ -217,6 +220,9 @@ function PrivacyEn() {
         </li>
         <li>
           <strong>PostHog Inc.</strong> (analytics) — Only where the user has consented to analytics cookies. We collect pseudonymised, PII-free event data for product improvement. Data centre: EU. Details: <a href="https://posthog.com/privacy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
+        </li>
+        <li>
+          <strong>Barion Payment Zrt.</strong> (payment provider) — For processing card and Barion-wallet payments and for fraud prevention (Barion Pixel). The data needed for payment and fraud prevention (e.g. email, payment and transaction data, browsing events) is handled directly by Barion; Kalmio never has access to the full card number. Barion Payment Zrt. is supervised by the National Bank of Hungary (licence number H-EN-I-1064/2013). Data centre: EU (Hungary). Details: <a href="https://www.barion.com/en/privacy-policy/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/en/privacy-policy</a>.
         </li>
       </ul>
       <p className="mt-3">

@@ -37,6 +37,7 @@ import { usersService } from '@/services/users'
 import { Toaster } from '@/components/ui/toast'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { CookieConsent } from '@/components/CookieConsent'
+import { BarionPixel } from '@/components/BarionPixel'
 import { initAnalytics, identify, resetIdentity, registerSuperProperties, pageView } from '@/lib/analytics'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { Grove } from '@/pages/Grove'
@@ -155,6 +156,7 @@ export default function App() {
     <>
       <Toaster />
       <OfflineBanner />
+      <BarionPixel />
       <BrowserRouter>
         <PageViewTracker />
         <CookieConsent />

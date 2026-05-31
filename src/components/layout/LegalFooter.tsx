@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { resetConsent } from '@/lib/analytics'
+import { PaymentMethods } from '@/components/PaymentMethods'
 
 interface Props {
   variant?: 'dark' | 'light'
@@ -17,6 +18,9 @@ export function LegalFooter({ variant = 'light' }: Props) {
   if (variant === 'dark') {
     return (
       <footer className="bg-[#1A1A1A] border-t border-white/10 py-8 px-6 text-center space-y-2">
+        <div className="mb-5 flex justify-center">
+          <PaymentMethods />
+        </div>
         <p className="text-white/30 text-sm">
           {`© 2026 Kalmio · ${t('footer.operatorLabel')}: `}
           <Link

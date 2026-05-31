@@ -13,7 +13,7 @@ function TermsHu() {
         A Kalmio (<a href="https://kalmio.hu" className="text-[#F28C28] hover:underline">kalmio.hu</a>) egy személyre szabott étrendtervező és táplálkozási alkalmazás. A platform lehetővé teszi heti étrendek automatikus generálását, bevásárlólista összeállítását, hűtő- és kamratartalmak nyilvántartását, valamint a napi táplálkozás nyomon követését.
       </p>
       <p className="mt-3">
-        A szolgáltatást a <strong>Hard Rock Coders Kereskedelmi és Szolgáltató Korlátolt Felelősségű Társaság</strong> (cégjegyzékszám: 01-09-353818, székhely: 1163 Budapest, Veres Péter út 51.) üzemelteti.
+        A szolgáltatást a <strong>Hard Rock Coders Kereskedelmi és Szolgáltató Korlátolt Felelősségű Társaság</strong> (cégjegyzékszám: 01-09-353818, adószám: 27320507-2-42, székhely: 1163 Budapest, Veres Péter út 51., telefon: +36 30 828 5151, e-mail: privacy@kalmio.hu) üzemelteti.
       </p>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">2. A szolgáltatás igénybevételének feltételei</h2>
@@ -95,10 +95,30 @@ function TermsHu() {
         A fogyasztók a jogvitákat alternatív vitarendezési fórumon (online vitarendezési platform: <a href="https://ec.europa.eu/consumers/odr" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>) is rendezhetik.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Kapcsolat</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Fizetés, teljesítés és csalásmegelőzés</h2>
+      <p>
+        Az Alapító tagság egyszeri díjas, digitális szolgáltatás. A vásárlás a weboldalon történik; a megrendelés véglegesítésének előfeltétele a jelen feltételek elfogadása.
+      </p>
+      <p className="mt-3">
+        <strong>Fizetési mód.</strong> Az online bankkártyás fizetések a Barion rendszerén keresztül valósulnak meg (elfogadott kártyatípusok: Visa, Mastercard, Maestro), illetve Barion-tárcával is fizethetsz. A bankkártya adatait a Barion kezeli, azokhoz a Kalmio (Hard Rock Coders Kft.) nem fér hozzá. A szolgáltatást nyújtó Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt álló intézmény, engedélyének száma: H-EN-I-1064/2013.
+      </p>
+      <p className="mt-3">
+        <strong>Teljesítés ideje.</strong> Az Alapító tagság digitális szolgáltatás, fizikai kiszállítás nincs. A hozzáférés a sikeres fizetést követően azonnal, jellemzően néhány percen belül aktiválódik.
+      </p>
+      <p className="mt-3">
+        <strong>Elállás.</strong> Olyan digitális szolgáltatás esetén, amelynek teljesítését a kifejezett, előzetes hozzájárulásoddal azonnal megkezdjük, a 45/2014. (II. 26.) Korm. rendelet szerinti 14 napos elállási jog a teljesítés megkezdése után nem gyakorolható.
+      </p>
+      <p className="mt-3">
+        <strong>Csalásmegelőzés (Barion Pixel).</strong> A weboldal csalásmegelőzési célból a Barion Pixel nevű JavaScript-kódot használja, amely a böngészési és vásárlási eseményekről adatokat továbbít a Barion Payment Zrt. részére. Erről bővebben az <Link to="/privacy" className="text-[#F28C28] hover:underline">Adatkezelési tájékoztatóban</Link> olvashatsz.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Kapcsolat</h2>
       <p>
         Hard Rock Coders Kft.<br />
-        1163 Budapest, Veres Péter út 51.<br />
+        Székhely: 1163 Budapest, Veres Péter út 51.<br />
+        Cégjegyzékszám: 01-09-353818<br />
+        Adószám: 27320507-2-42<br />
+        Telefon: <a href="tel:+36308285151" className="text-[#F28C28] hover:underline">+36 30 828 5151</a><br />
         E-mail: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
@@ -119,7 +139,7 @@ function TermsEn() {
         Kalmio (<a href="https://kalmio.hu" className="text-[#F28C28] hover:underline">kalmio.hu</a>) is a personalised meal planning and nutrition application. The platform generates weekly meal plans automatically, creates shopping lists, tracks fridge and pantry contents, and logs daily nutrition.
       </p>
       <p className="mt-3">
-        The service is operated by <strong>Hard Rock Coders Kereskedelmi és Szolgáltató Korlátolt Felelősségű Társaság</strong> (company registration: 01-09-353818, registered address: 1163 Budapest, Veres Péter út 51., Hungary).
+        The service is operated by <strong>Hard Rock Coders Kereskedelmi és Szolgáltató Korlátolt Felelősségű Társaság</strong> (company registration: 01-09-353818, tax number: 27320507-2-42, registered address: 1163 Budapest, Veres Péter út 51., Hungary, phone: +36 30 828 5151, email: privacy@kalmio.hu).
       </p>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">2. Eligibility</h2>
@@ -201,10 +221,30 @@ function TermsEn() {
         Consumers may also resolve disputes through the EU online dispute resolution platform: <a href="https://ec.europa.eu/consumers/odr" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Contact</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Payment, Fulfilment and Fraud Prevention</h2>
+      <p>
+        Founding Membership is a one-off, digital service. The purchase takes place on the website; accepting these Terms is a precondition of completing the order.
+      </p>
+      <p className="mt-3">
+        <strong>Payment method.</strong> Online card payments are processed through the Barion system (accepted card types: Visa, Mastercard, Maestro), or you may pay with a Barion wallet. Card details are handled by Barion and are never accessible to Kalmio (Hard Rock Coders Kft.). Barion Payment Zrt., the payment provider, is an institution supervised by the National Bank of Hungary under licence number H-EN-I-1064/2013.
+      </p>
+      <p className="mt-3">
+        <strong>Fulfilment time.</strong> Founding Membership is a digital service with no physical delivery. Access is activated immediately after a successful payment, typically within a few minutes.
+      </p>
+      <p className="mt-3">
+        <strong>Right of withdrawal.</strong> For a digital service whose performance begins immediately with your express prior consent, the 14-day right of withdrawal under Hungarian Government Decree 45/2014 (II. 26.) cannot be exercised once performance has begun.
+      </p>
+      <p className="mt-3">
+        <strong>Fraud prevention (Barion Pixel).</strong> For fraud-prevention purposes the website uses a JavaScript snippet called the Barion Pixel, which transmits browsing and purchase events to Barion Payment Zrt. You can read more in our <Link to="/privacy" className="text-[#F28C28] hover:underline">Privacy Notice</Link>.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Contact</h2>
       <p>
         Hard Rock Coders Kft.<br />
-        1163 Budapest, Veres Péter út 51., Hungary<br />
+        Registered address: 1163 Budapest, Veres Péter út 51., Hungary<br />
+        Company registration: 01-09-353818<br />
+        Tax number: 27320507-2-42<br />
+        Phone: <a href="tel:+36308285151" className="text-[#F28C28] hover:underline">+36 30 828 5151</a><br />
         Email: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">

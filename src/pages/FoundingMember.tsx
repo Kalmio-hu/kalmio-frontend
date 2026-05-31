@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import { foundingMemberService } from '@/services/foundingMember'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
+import { PaymentMethods } from '@/components/PaymentMethods'
 
 // The success page URL must be absolute so Barion can redirect to it.
 function successUrl(): string {
@@ -36,6 +37,7 @@ function successUrl(): string {
 function FoundingMemberInner() {
   const { t } = useTranslation()
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [accepted, setAccepted] = useState(false)
   const [checkoutError, setCheckoutError] = useState<'capReached' | 'generic' | null>(null)
 
   // Fetch the current user to detect already-purchased state.
@@ -148,11 +150,32 @@ function FoundingMemberInner() {
         {/* CTA */}
         {!isAlreadyMember && !isSoldOut && (
           <div className="text-center">
+            {/* Mandatory ÁSZF acceptance — purchase is blocked until ticked */}
+            <label className="flex items-start gap-2.5 mb-4 text-left cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={accepted}
+                onChange={(e) => setAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 shrink-0 accent-[#F28C28]"
+              />
+              <span className="text-white/70 text-sm leading-relaxed">
+                {t('checkout.acceptPrefix')}
+                <Link to="/terms" target="_blank" className="text-[#F28C28] underline underline-offset-2">
+                  {t('checkout.terms')}
+                </Link>
+                {t('checkout.acceptMid')}
+                <Link to="/privacy" target="_blank" className="text-[#F28C28] underline underline-offset-2">
+                  {t('checkout.privacy')}
+                </Link>
+                {t('checkout.acceptSuffix')}
+              </span>
+            </label>
+
             <button
               type="button"
               onClick={handleCheckout}
-              disabled={isRedirecting || availability.isLoading}
-              aria-disabled={isRedirecting || availability.isLoading}
+              disabled={isRedirecting || availability.isLoading || !accepted}
+              aria-disabled={isRedirecting || availability.isLoading || !accepted}
               className="inline-flex items-center justify-center bg-[#F28C28] hover:bg-[#e07820] disabled:bg-[#F28C28]/50 text-white font-bold text-base px-10 py-4 rounded-full transition-colors w-full sm:w-auto"
             >
               {isRedirecting
@@ -161,6 +184,10 @@ function FoundingMemberInner() {
                   ? t('foundingMember.buy.ctaSoldOut')
                   : t('foundingMember.buy.cta')}
             </button>
+
+            <div className="mt-6 pt-5 border-t border-white/10">
+              <PaymentMethods />
+            </div>
           </div>
         )}
 

@@ -2031,6 +2031,17 @@
       "backToApp": "Back to the app"
     }
   },
+  "payments": {
+    "acceptedLabel": "Accepted payment methods"
+  },
+  "checkout": {
+    "acceptPrefix": "By ordering, I accept the ",
+    "terms": "Terms",
+    "acceptMid": " and the ",
+    "privacy": "Privacy Notice",
+    "acceptSuffix": ".",
+    "acceptRequired": "You must accept the Terms to continue."
+  },
   "guestFoundingMember": {
     "email": {
       "label": "Email address",

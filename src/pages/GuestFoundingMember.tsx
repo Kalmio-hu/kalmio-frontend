@@ -31,6 +31,7 @@ import { useTranslation } from 'react-i18next'
 import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react'
 import { foundingMemberService } from '@/services/foundingMember'
 import { useAuthStore } from '@/store/auth'
+import { PaymentMethods } from '@/components/PaymentMethods'
 import heroImage from '@/assets/founding-member-hero.png'
 
 /** sessionStorage key used to carry the paymentId across the Barion redirect. */
@@ -74,8 +75,9 @@ export function GuestFoundingMember() {
   const session = useAuthStore((s) => s.session)
 
   const [email, setEmail] = useState('')
+  const [accepted, setAccepted] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
-  const [error, setError] = useState<'capReached' | 'generic' | 'email' | null>(null)
+  const [error, setError] = useState<'capReached' | 'generic' | 'email' | 'accept' | null>(null)
 
   // Availability doubles as the server-side feature gate: 404 when premium is disabled.
   const availability = useQuery({
@@ -93,6 +95,10 @@ export function GuestFoundingMember() {
     setError(null)
     if (!isValidEmail(email)) {
       setError('email')
+      return
+    }
+    if (!accepted) {
+      setError('accept')
       return
     }
     setIsRedirecting(true)
@@ -219,16 +225,40 @@ export function GuestFoundingMember() {
             className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-white/30 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors mb-2"
           />
 
+          {/* Mandatory ÁSZF acceptance — purchase is blocked until ticked */}
+          <label className="flex items-start gap-2.5 mt-4 mb-1 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={accepted}
+              onChange={(e) => {
+                setAccepted(e.target.checked)
+                if (error === 'accept') setError(null)
+              }}
+              className="mt-0.5 h-4 w-4 shrink-0 accent-[#F28C28]"
+            />
+            <span className="text-white/70 text-sm leading-relaxed">
+              {t('checkout.acceptPrefix')}
+              <Link to="/terms" target="_blank" className="text-[#F28C28] underline underline-offset-2">
+                {t('checkout.terms')}
+              </Link>
+              {t('checkout.acceptMid')}
+              <Link to="/privacy" target="_blank" className="text-[#F28C28] underline underline-offset-2">
+                {t('checkout.privacy')}
+              </Link>
+              {t('checkout.acceptSuffix')}
+            </span>
+          </label>
+
           {error && (
             <p className="text-red-400 text-sm mb-3" role="alert">
-              {t(`guestFoundingMember.errors.${error}`)}
+              {t(error === 'accept' ? 'checkout.acceptRequired' : `guestFoundingMember.errors.${error}`)}
             </p>
           )}
 
           <button
             type="submit"
-            disabled={isRedirecting}
-            aria-disabled={isRedirecting}
+            disabled={isRedirecting || !accepted}
+            aria-disabled={isRedirecting || !accepted}
             className="inline-flex items-center justify-center gap-2 bg-[#F28C28] hover:bg-[#e07820] disabled:bg-[#F28C28]/50 text-white font-bold text-base px-10 py-4 rounded-full transition-colors w-full mt-2"
           >
             {isRedirecting ? (
@@ -251,6 +281,10 @@ export function GuestFoundingMember() {
           <p className="text-white/40 text-xs leading-relaxed mt-3">
             {t('guestFoundingMember.afterPaymentNote')}
           </p>
+
+          <div className="mt-6 pt-5 border-t border-white/10">
+            <PaymentMethods align="start" />
+          </div>
         </form>
       )}
     </SplitLayout>
