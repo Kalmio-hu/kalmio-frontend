@@ -2016,6 +2016,12 @@
       "soldOutTitle": "All founder seats are taken.",
       "soldOutSub": "Thank you for the interest. Premium will return in a different form soon.",
       "alreadyMember": "You're already a founding member. Thank you for trusting us first.",
+      "recover": {
+        "found": "We found a completed payment under this email. Activate your founding membership — no need to pay again.",
+        "cta": "Activate membership",
+        "activating": "Activating…",
+        "error": "We couldn't activate it. Please try again in a few seconds, or get in touch."
+      },
       "errors": {
         "capReached": "The last founder seat was just taken. Premium will return in a different form soon.",
         "generic": "Could not start the payment. Please try again in a few seconds."

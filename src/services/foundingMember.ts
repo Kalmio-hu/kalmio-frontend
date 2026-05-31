@@ -84,10 +84,21 @@ async function claimPayment(paymentId: string): Promise<void> {
   await api.post('/api/founding-member/claim', { paymentId })
 }
 
+/**
+ * Returns the paymentId of a settled guest payment matching the logged-in user's email that
+ * hasn't been claimed yet (e.g. the claim link was lost), or null if there's nothing to
+ * recover. Lets the buy page offer to activate an existing payment instead of charging again.
+ */
+async function getUnclaimed(): Promise<{ paymentId: string | null }> {
+  const res = await api.get<{ paymentId: string | null }>('/api/founding-member/unclaimed')
+  return res.data
+}
+
 export const foundingMemberService = {
   getAvailability,
   checkout,
   checkoutGuest,
   getGuestPaymentStatus,
   claimPayment,
+  getUnclaimed,
 }

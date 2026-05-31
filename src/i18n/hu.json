@@ -2016,6 +2016,12 @@
       "soldOutTitle": "Minden alapítói hely elkelt.",
       "soldOutSub": "Köszönjük az érdeklődést. A prémium hamarosan szélesebb körben is elérhető lesz.",
       "alreadyMember": "Már alapító tag vagy. Köszönjük, hogy elsőként hittél bennünk.",
+      "recover": {
+        "found": "Találtunk egy befejezett fizetést ezzel az e-mail-címmel. Aktiváld az alapító tagságod — nem kell újra fizetned.",
+        "cta": "Tagság aktiválása",
+        "activating": "Aktiválás folyamatban…",
+        "error": "Nem sikerült aktiválni. Próbáld újra pár másodperc múlva, vagy írj nekünk."
+      },
       "errors": {
         "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium hamarosan más formában is elérhető lesz.",
         "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."

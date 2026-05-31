@@ -51,6 +51,18 @@ export function Auth() {
     && !raw.startsWith('//')
     && !raw.startsWith('/auth')
   const nextPath = isSafePath ? raw : '/app'
+  // Carry `next` through redirect-based auth (OAuth, magic link) without putting it in
+  // the callback URL — the Supabase redirect-URL allow-list uses exact entries, and a
+  // query string could fail validation and break sign-in. Instead we stash the target
+  // in localStorage before redirecting; AuthCallback reads and clears it. OAuth/magic-link
+  // redirects return to the same browser, so localStorage survives. This is what routes a
+  // guest to /founding-member/claim?paymentId=… after they register.
+  const authCallbackUrl = `${window.location.origin}/auth/callback`
+  const stashPostAuthRedirect = () => {
+    if (nextPath && nextPath !== '/app') {
+      try { localStorage.setItem('kalmio_post_auth_next', nextPath) } catch { /* ignore */ }
+    }
+  }
   const isExpiredSession = searchParams.get('expired') === '1'
   const setSession = useAuthStore((s) => s.setSession)
 
@@ -192,10 +204,11 @@ export function Auth() {
   const signInWithGoogle = async () => {
     setGoogleLoading(true)
     setError(null)
+    stashPostAuthRedirect()
     capture('signup_started', { method: 'google' })
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: authCallbackUrl },
     })
     // If signInWithOAuth succeeds, Supabase redirects the browser; this line
     // is only reached on failure (e.g. provider not configured).
@@ -210,10 +223,11 @@ export function Auth() {
   const signInWithApple = async () => {
     setAppleLoading(true)
     setError(null)
+    stashPostAuthRedirect()
     capture('signup_started', { method: 'apple' })
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: authCallbackUrl },
     })
     // Same as Google: on success the browser redirects to Apple before this
     // line runs. We only reach the error branch if Supabase rejects the call
@@ -229,10 +243,11 @@ export function Auth() {
   const sendMagicLink = async ({ email }: EmailForm) => {
     setEmailLoading(true)
     setError(null)
+    stashPostAuthRedirect()
     capture('signup_started', { method: 'email' })
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: authCallbackUrl },
     })
     setEmailLoading(false)
     if (error) { setError(t(mapAuthError(error))); return }
@@ -268,7 +283,7 @@ export function Auth() {
     setError(null)
     const { error } = await supabase.auth.signInWithOtp({
       email: step.email,
-      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      options: { emailRedirectTo: authCallbackUrl },
     })
     if (error) { setError(t(mapAuthError(error))); return }
     // Reset the countdown; the running useEffect interval will continue ticking

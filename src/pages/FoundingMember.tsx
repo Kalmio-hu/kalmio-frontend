@@ -20,7 +20,7 @@
 
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { foundingMemberService } from '@/services/foundingMember'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
@@ -36,6 +36,7 @@ function successUrl(): string {
 
 function FoundingMemberInner() {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [accepted, setAccepted] = useState(false)
   const [checkoutError, setCheckoutError] = useState<'capReached' | 'generic' | null>(null)
@@ -58,6 +59,24 @@ function FoundingMemberInner() {
   const isSoldOut = availability.data ? availability.data.remaining === 0 : false
   const price = availability.data?.price ?? null
   const remaining = availability.data?.remaining ?? null
+
+  // Recover a paid-but-unclaimed membership (e.g. claim link lost) so the user can
+  // activate it instead of paying twice. Only checked once we know they're not already a member.
+  const unclaimed = useQuery({
+    queryKey: ['founding-member', 'unclaimed'],
+    queryFn: foundingMemberService.getUnclaimed,
+    enabled: me.isSuccess && !isAlreadyMember,
+    staleTime: 30_000,
+  })
+  const unclaimedPaymentId = unclaimed.data?.paymentId ?? null
+
+  const activate = useMutation({
+    mutationFn: (paymentId: string) => foundingMemberService.claimPayment(paymentId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
+      await queryClient.invalidateQueries({ queryKey: ['founding-member', 'unclaimed'] })
+    },
+  })
 
   async function handleCheckout() {
     setCheckoutError(null)
@@ -147,8 +166,33 @@ function FoundingMemberInner() {
           </p>
         )}
 
+        {/* Recover a paid-but-unclaimed membership — activate instead of paying twice */}
+        {!isAlreadyMember && !isSoldOut && unclaimedPaymentId && (
+          <div className="text-center">
+            <p className="text-white/80 text-base leading-relaxed mb-2">
+              {t('foundingMember.buy.recover.found')}
+            </p>
+            {activate.isError && (
+              <p className="text-red-400 text-sm mb-3" role="alert">
+                {t('foundingMember.buy.recover.error')}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => activate.mutate(unclaimedPaymentId)}
+              disabled={activate.isPending}
+              aria-disabled={activate.isPending}
+              className="inline-flex items-center justify-center bg-[#F28C28] hover:bg-[#e07820] disabled:bg-[#F28C28]/50 text-white font-bold text-base px-10 py-4 rounded-full transition-colors w-full sm:w-auto"
+            >
+              {activate.isPending
+                ? t('foundingMember.buy.recover.activating')
+                : t('foundingMember.buy.recover.cta')}
+            </button>
+          </div>
+        )}
+
         {/* CTA */}
-        {!isAlreadyMember && !isSoldOut && (
+        {!isAlreadyMember && !isSoldOut && !unclaimedPaymentId && (
           <div className="text-center">
             {/* Mandatory ÁSZF acceptance — purchase is blocked until ticked */}
             <label className="flex items-start gap-2.5 mb-4 text-left cursor-pointer select-none">
