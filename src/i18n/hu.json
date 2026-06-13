@@ -2047,7 +2047,37 @@
     "acceptMid": " és az ",
     "privacy": "Adatkezelési tájékoztatót",
     "acceptSuffix": ".",
-    "acceptRequired": "A folytatáshoz el kell fogadnod az ÁSZF-et."
+    "acceptRequired": "A folytatáshoz el kell fogadnod az ÁSZF-et.",
+    "billing": {
+      "title": "Számlázási adatok",
+      "note": "A számlázási adatokat a NAV-os e-számlához kérjük.",
+      "name": {
+        "label": "Számlázási név",
+        "placeholder": "Név vagy cégnév"
+      },
+      "country": {
+        "label": "Ország",
+        "hungary": "Magyarország"
+      },
+      "postCode": {
+        "label": "Irányítószám",
+        "placeholder": "1011"
+      },
+      "city": {
+        "label": "Város",
+        "placeholder": "Budapest"
+      },
+      "address": {
+        "label": "Cím",
+        "placeholder": "Utca, házszám"
+      },
+      "errors": {
+        "name": "Kérlek, add meg a számlázási nevet.",
+        "postCode": "Kérlek, add meg az irányítószámot.",
+        "city": "Kérlek, add meg a várost.",
+        "address": "Kérlek, add meg a címet."
+      }
+    }
   },
   "guestFoundingMember": {
     "email": {

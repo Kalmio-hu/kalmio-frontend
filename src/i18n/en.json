@@ -2047,7 +2047,37 @@
     "acceptMid": " and the ",
     "privacy": "Privacy Notice",
     "acceptSuffix": ".",
-    "acceptRequired": "You must accept the Terms to continue."
+    "acceptRequired": "You must accept the Terms to continue.",
+    "billing": {
+      "title": "Billing details",
+      "note": "We need your billing details for the Hungarian NAV e-invoice.",
+      "name": {
+        "label": "Billing name",
+        "placeholder": "Name or company name"
+      },
+      "country": {
+        "label": "Country",
+        "hungary": "Hungary"
+      },
+      "postCode": {
+        "label": "Postal code",
+        "placeholder": "1011"
+      },
+      "city": {
+        "label": "City",
+        "placeholder": "Budapest"
+      },
+      "address": {
+        "label": "Address",
+        "placeholder": "Street and house number"
+      },
+      "errors": {
+        "name": "Please enter the billing name.",
+        "postCode": "Please enter the postal code.",
+        "city": "Please enter the city.",
+        "address": "Please enter the address."
+      }
+    }
   },
   "guestFoundingMember": {
     "email": {

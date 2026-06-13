@@ -1041,13 +1041,34 @@ export interface FoundingMemberAvailability {
 }
 
 /**
+ * Billing address captured for the Hungarian NAV e-invoice (e-számla).
+ *
+ * Field names match the backend checkout contract exactly — do not rename.
+ *
+ * @property name        Billing name (person or company) on the invoice.
+ * @property countryCode ISO 3166-1 alpha-2 country code. Defaults to "HU".
+ * @property postCode    Postal code (irányítószám).
+ * @property city        City (város).
+ * @property address     Street and house number (utca, házszám).
+ */
+export interface BillingInfo {
+  name: string
+  countryCode: string
+  postCode: string
+  city: string
+  address: string
+}
+
+/**
  * Request body for POST /api/founding-member/checkout.
  *
  * @property redirectUrl Public URL Barion redirects the buyer to after payment.
  *                       Must point at the FE success page.
+ * @property billingInfo Billing address for the NAV e-invoice.
  */
 export interface FoundingMemberCheckoutRequest {
   redirectUrl: string
+  billingInfo: BillingInfo
 }
 
 /**

@@ -35,12 +35,32 @@ function successUrl(): string {
   return token ? `${base}?token=${encodeURIComponent(token)}` : base
 }
 
+/** Billing fields the buyer must complete before checkout for the NAV e-invoice. */
+type BillingField = 'name' | 'postCode' | 'city' | 'address'
+
 function FoundingMemberInner() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [accepted, setAccepted] = useState(false)
   const [checkoutError, setCheckoutError] = useState<'capReached' | 'generic' | null>(null)
+
+  // Billing address for the NAV e-invoice. countryCode defaults to "HU" (v1 ships HU only).
+  const [billingName, setBillingName] = useState('')
+  const [billingPostCode, setBillingPostCode] = useState('')
+  const [billingCity, setBillingCity] = useState('')
+  const [billingAddress, setBillingAddress] = useState('')
+  const [billingErrors, setBillingErrors] = useState<Partial<Record<BillingField, boolean>>>({})
+
+  function validateBilling(): boolean {
+    const next: Partial<Record<BillingField, boolean>> = {}
+    if (!billingName.trim()) next.name = true
+    if (!billingPostCode.trim()) next.postCode = true
+    if (!billingCity.trim()) next.city = true
+    if (!billingAddress.trim()) next.address = true
+    setBillingErrors(next)
+    return Object.keys(next).length === 0
+  }
 
   // Fetch the current user to detect already-purchased state.
   const me = useQuery({
@@ -81,10 +101,21 @@ function FoundingMemberInner() {
 
   async function handleCheckout() {
     setCheckoutError(null)
+    if (!validateBilling()) return
     setIsRedirecting(true)
     try {
       const previewToken = new URLSearchParams(window.location.search).get('token') ?? undefined
-      const result = await foundingMemberService.checkout(successUrl(), previewToken)
+      const result = await foundingMemberService.checkout(
+        successUrl(),
+        {
+          name: billingName.trim(),
+          countryCode: 'HU',
+          postCode: billingPostCode.trim(),
+          city: billingCity.trim(),
+          address: billingAddress.trim(),
+        },
+        previewToken,
+      )
       // Hand control to Barion — this is a full browser redirect.
       window.location.href = result.gatewayUrl
     } catch (err: unknown) {
@@ -200,6 +231,118 @@ function FoundingMemberInner() {
         {/* CTA */}
         {!isAlreadyMember && !isSoldOut && !unclaimedPaymentId && (
           <div className="text-center">
+            {/* Billing details — captured for the NAV e-invoice */}
+            <div className="mb-6 text-left">
+              <h2 className="text-white text-sm font-semibold mb-1">
+                {t('checkout.billing.title')}
+              </h2>
+              <p className="text-white/50 text-xs leading-relaxed mb-4">
+                {t('checkout.billing.note')}
+              </p>
+
+              <label htmlFor="fm-billing-name" className="block text-white/70 text-sm mb-1.5">
+                {t('checkout.billing.name.label')}
+              </label>
+              <input
+                id="fm-billing-name"
+                type="text"
+                autoComplete="name"
+                value={billingName}
+                onChange={(e) => {
+                  setBillingName(e.target.value)
+                  if (billingErrors.name) setBillingErrors((p) => ({ ...p, name: false }))
+                }}
+                placeholder={t('checkout.billing.name.placeholder')}
+                aria-invalid={billingErrors.name ?? false}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors"
+              />
+              {billingErrors.name && (
+                <p className="text-red-400 text-xs mt-1" role="alert">
+                  {t('checkout.billing.errors.name')}
+                </p>
+              )}
+
+              <label htmlFor="fm-billing-country" className="block text-white/70 text-sm mb-1.5 mt-4">
+                {t('checkout.billing.country.label')}
+              </label>
+              <select
+                id="fm-billing-country"
+                value="HU"
+                disabled
+                aria-label={t('checkout.billing.country.label')}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white/80 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors disabled:opacity-100"
+              >
+                <option value="HU">{t('checkout.billing.country.hungary')}</option>
+              </select>
+
+              <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                <div className="sm:w-1/3">
+                  <label htmlFor="fm-billing-postcode" className="block text-white/70 text-sm mb-1.5">
+                    {t('checkout.billing.postCode.label')}
+                  </label>
+                  <input
+                    id="fm-billing-postcode"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    value={billingPostCode}
+                    onChange={(e) => {
+                      setBillingPostCode(e.target.value)
+                      if (billingErrors.postCode) setBillingErrors((p) => ({ ...p, postCode: false }))
+                    }}
+                    placeholder={t('checkout.billing.postCode.placeholder')}
+                    aria-invalid={billingErrors.postCode ?? false}
+                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors"
+                  />
+                </div>
+                <div className="sm:flex-1">
+                  <label htmlFor="fm-billing-city" className="block text-white/70 text-sm mb-1.5">
+                    {t('checkout.billing.city.label')}
+                  </label>
+                  <input
+                    id="fm-billing-city"
+                    type="text"
+                    autoComplete="address-level2"
+                    value={billingCity}
+                    onChange={(e) => {
+                      setBillingCity(e.target.value)
+                      if (billingErrors.city) setBillingErrors((p) => ({ ...p, city: false }))
+                    }}
+                    placeholder={t('checkout.billing.city.placeholder')}
+                    aria-invalid={billingErrors.city ?? false}
+                    className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors"
+                  />
+                </div>
+              </div>
+              {(billingErrors.postCode || billingErrors.city) && (
+                <p className="text-red-400 text-xs mt-1" role="alert">
+                  {t(billingErrors.postCode ? 'checkout.billing.errors.postCode' : 'checkout.billing.errors.city')}
+                </p>
+              )}
+
+              <label htmlFor="fm-billing-address" className="block text-white/70 text-sm mb-1.5 mt-4">
+                {t('checkout.billing.address.label')}
+              </label>
+              <input
+                id="fm-billing-address"
+                type="text"
+                autoComplete="street-address"
+                value={billingAddress}
+                onChange={(e) => {
+                  setBillingAddress(e.target.value)
+                  if (billingErrors.address) setBillingErrors((p) => ({ ...p, address: false }))
+                }}
+                placeholder={t('checkout.billing.address.placeholder')}
+                aria-invalid={billingErrors.address ?? false}
+                className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#F28C28] focus:ring-1 focus:ring-[#F28C28] transition-colors"
+              />
+              {billingErrors.address && (
+                <p className="text-red-400 text-xs mt-1" role="alert">
+                  {t('checkout.billing.errors.address')}
+                </p>
+              )}
+            </div>
+
             {/* Mandatory ÁSZF acceptance — purchase is blocked until ticked */}
             <label className="flex items-start gap-2.5 mb-4 text-left cursor-pointer select-none">
               <input

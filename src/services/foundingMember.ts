@@ -12,6 +12,7 @@
 
 import { api } from '@/lib/api'
 import type {
+  BillingInfo,
   FoundingMemberAvailability,
   FoundingMemberCheckoutRequest,
   FoundingMemberCheckoutResponse,
@@ -27,6 +28,7 @@ async function getAvailability(): Promise<FoundingMemberAvailability> {
  *
  * @param redirectUrl  The frontend success page URL Barion redirects to after payment.
  *                     Must be an absolute URL reachable by Barion's servers.
+ * @param billingInfo  Billing address for the NAV e-invoice (e-számla).
  * @returns `{ paymentId, gatewayUrl }` — redirect the user to `gatewayUrl` immediately.
  * @throws HTTP 409 when all founding-member slots are already taken (cap reached).
  *
@@ -34,8 +36,12 @@ async function getAvailability(): Promise<FoundingMemberAvailability> {
  * session. A deduplicated response could return a stale gatewayUrl from a prior
  * abandoned session, which Barion would reject or associate with the wrong attempt.
  */
-async function checkout(redirectUrl: string, previewToken?: string): Promise<FoundingMemberCheckoutResponse> {
-  const body: FoundingMemberCheckoutRequest = { redirectUrl }
+async function checkout(
+  redirectUrl: string,
+  billingInfo: BillingInfo,
+  previewToken?: string,
+): Promise<FoundingMemberCheckoutResponse> {
+  const body: FoundingMemberCheckoutRequest = { redirectUrl, billingInfo }
   const url = previewToken
     ? `/api/founding-member/checkout/preview?token=${encodeURIComponent(previewToken)}`
     : '/api/founding-member/checkout'
@@ -50,13 +56,18 @@ async function checkout(redirectUrl: string, previewToken?: string): Promise<Fou
  *
  * @param email       Buyer email (Barion also collects its own billing email separately).
  * @param redirectUrl Absolute success-page URL Barion redirects to after payment.
+ * @param billingInfo Billing address for the NAV e-invoice (e-számla).
  * @returns `{ paymentId, gatewayUrl }` — store `paymentId` client-side, redirect to `gatewayUrl`.
  * @throws HTTP 409 when all founding-member slots are taken.
  */
-async function checkoutGuest(email: string, redirectUrl: string): Promise<FoundingMemberCheckoutResponse> {
+async function checkoutGuest(
+  email: string,
+  redirectUrl: string,
+  billingInfo: BillingInfo,
+): Promise<FoundingMemberCheckoutResponse> {
   const res = await api.post<FoundingMemberCheckoutResponse>(
     '/api/founding-member/checkout/guest',
-    { email, redirectUrl },
+    { email, redirectUrl, billingInfo },
   )
   return res.data
 }
