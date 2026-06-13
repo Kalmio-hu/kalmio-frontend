@@ -28,7 +28,7 @@ The split is principled — deterministic versus agentic. The free version is go
 
 ## Founding Members
 
-For people who want to back this project early, we're opening a one-time **Founding Member** tier at launch — 19 990 Ft, lifetime access to all premium features, capped at the first 1000 users. It's the simplest way to support the work and lock in the agentic features forever. Details on the landing page when it goes live.
+For people who want to back this project early, we're opening a one-time **Founding Member** tier at launch — 19 900 Ft, lifetime access to all premium features, capped at the first 1000 users. It's the simplest way to support the work and lock in the agentic features forever. Details on the landing page when it goes live.
 
 ## What we're not
 

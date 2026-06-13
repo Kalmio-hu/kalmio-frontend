@@ -1185,7 +1185,7 @@
     "foundingMember": {
       "label": "Alapító tag",
       "headline": "Az első 1000 alapító tag.",
-      "sub": "Élethosszig tartó hozzáférés minden prémium funkcióhoz — 19 990 Ft.",
+      "sub": "Élethosszig tartó hozzáférés minden prémium funkcióhoz — 19 900 Ft.",
       "counter": "Még {{remaining}} hely érhető el.",
       "cta": "Alapító tag leszek",
       "soldOut": "Az alapító tagság elkelt — köszönjük az érdeklődést."
@@ -3195,7 +3195,7 @@
       "headline": "Légy alapító.",
       "sub": "Egészséges étkezés. Matek, nem mágia.",
       "scarcity": "<strong>{{remaining}}</strong> férőhely maradt az alapítói csomagból",
-      "cta": "Egyszer fizetek, örökre az enyém",
+      "cta": "Egyszer fizetsz, örökre a tiéd",
       "ctaHint": "Egyszeri díj · Örökös hozzáférés · Nincs előfizetés",
       "soldOut": "Minden férőhely foglalt."
     },
@@ -3203,7 +3203,7 @@
       "eyebrow": "Mi a Kalmio?",
       "headline": "Az étrendtervező, amelyet programozóknak programoztak.",
       "body": "A Kalmio egy optimalizációs motor, nem diétás alkalmazás. Megadod a céljaidat — kalória, fehérje, keret, allergiák — a <strong>Timefold constraint solver</strong> megtalálja az optimális hetet. Determinisztikus számítás, nem találgatás.",
-      "aiNote": "Két ember és egy Claude Code ágens-csapat írja a kódját."
+      "aiNote": "Két ember és egy Claude Code agent-csapat írja a kódját."
     },
     "free": {
       "eyebrow": "Az ingyenes változat valóban ingyenes.",
@@ -3230,7 +3230,7 @@
         "title": "Tervezett prémium árak",
         "monthly": "1 990 Ft / hó",
         "yearly": "14 990 Ft / év",
-        "founding": "19 990 Ft · örökre",
+        "founding": "19 900 Ft · örökre",
         "monthlyHint": "havi előfizetés",
         "yearlyHint": "éves előfizetés",
         "foundingHint": "alapítói csomag · első 1000 felhasználónak",

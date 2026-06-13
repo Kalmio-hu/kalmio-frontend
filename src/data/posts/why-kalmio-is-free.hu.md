@@ -28,7 +28,7 @@ A választóvonal elvi: determinisztikus vs. agentic. Az ingyenes változat önm
 
 ## Founding Member
 
-Akik korán szeretnék támogatni ezt a projektet, számukra nyitunk egy egyszeri **Founding Member** szintet a launch-kor — 19 990 Ft, élethosszig tartó hozzáférés minden prémium funkcióhoz, az első 1000 felhasználóra korlátozva. A legegyszerűbb módja a munka támogatásának és az agentic funkciók örökre rögzítésének. Részletek a landing oldalon, amikor élesedik.
+Akik korán szeretnék támogatni ezt a projektet, számukra nyitunk egy egyszeri **Founding Member** szintet a launch-kor — 19 900 Ft, élethosszig tartó hozzáférés minden prémium funkcióhoz, az első 1000 felhasználóra korlátozva. A legegyszerűbb módja a munka támogatásának és az agentic funkciók örökre rögzítésének. Részletek a landing oldalon, amikor élesedik.
 
 ## Amik nem vagyunk
 

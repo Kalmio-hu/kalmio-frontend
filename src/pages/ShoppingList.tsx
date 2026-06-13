@@ -72,13 +72,15 @@ export function ShoppingList() {
   } = useQuery({
     queryKey: ['shopping-list', calendarPlan?.id],
     queryFn: () => planService.getShoppingList(calendarPlan!.id),
-    // Only fall back to the plan-based endpoint if planned_meals returned null.
-    enabled: !!calendarPlan && plannedMealsShoppingList === null,
+    // Fire when: (a) primary returned null (404 from missing endpoint), or
+    // (b) primary was never sent because the plan has no startDate/endDate
+    // (template-based plans created via "Terv futtatása" have null calendar dates).
+    enabled: !!calendarPlan && (plannedMealsShoppingList === null || !planFrom || !planTo),
     staleTime: 60_000,
   })
 
   const calendarShoppingList = plannedMealsShoppingList ?? planShoppingList ?? undefined
-  const calendarLoading = plannedMealsListLoading || (plannedMealsShoppingList === null && planListLoading)
+  const calendarLoading = plannedMealsListLoading || ((plannedMealsShoppingList === null || !planFrom || !planTo) && planListLoading)
 
   // Resolve the active shopping list and loading/error state
   const shoppingList = calendarShoppingList
