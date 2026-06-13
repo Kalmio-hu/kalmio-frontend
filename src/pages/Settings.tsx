@@ -505,6 +505,7 @@ export function Settings() {
           firstName={settings?.firstName}
           lastName={settings?.lastName}
           email={settings?.email}
+          avatarUrl={settings?.avatarUrl}
           size="md"
         />
         <div className="flex-1 min-w-0">

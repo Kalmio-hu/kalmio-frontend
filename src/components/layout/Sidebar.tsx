@@ -91,6 +91,7 @@ export function Sidebar() {
           firstName={me?.firstName}
           lastName={me?.lastName}
           email={me?.email}
+          avatarUrl={me?.avatarUrl}
           size="sm"
         />
         <div className="flex-1 min-w-0">
