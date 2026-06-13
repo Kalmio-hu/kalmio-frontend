@@ -2200,11 +2200,11 @@
     },
     "features": {
       "title": "Mit nyit meg a prémium",
-      "subtitle": "Az alapok mindig ingyenesek maradnak. Az Alapító Tagság a teljes AI-asszisztenst adja hozzá.",
+      "subtitle": "Az alapok mindig ingyenesek maradnak. Az Alapító tagság a teljes AI-asszisztenst adja hozzá.",
       "ariaLabel": "Prémium funkciók",
       "items": {
         "recipeImport": {
-          "title": "Receptbehúzás linkből, fotóról, kézírásból",
+          "title": "Receptimport linkből, fotóról, kézírásból",
           "description": "Beillesztesz egy linket, lefotózod a szakácskönyvet vagy a nagymama kézírásos receptjét, a többit elintézem."
         },
         "receiptScan": {
@@ -2216,7 +2216,7 @@
           "description": "Lépésről lépésre végigvezetlek a recepten, miközben a kezed szabad marad."
         },
         "rationale": {
-          "title": "„Miért ezt?\" — indoklás minden étkezéshez",
+          "title": "„Miért ezt?” — indoklás minden étkezéshez",
           "description": "Megmutatom, miért ez a fogás került a tervedbe: a céljaid, a készleted és a heted alapján."
         },
         "weeklyRecap": {
