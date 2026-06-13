@@ -10,7 +10,7 @@
  */
 import { useRef, useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck } from 'lucide-react'
+import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck, Network } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -30,6 +30,7 @@ const ADMIN_ITEMS = [
   { to: '/app/admin/users', icon: Users, labelKey: 'admin.popup.users' },
   { to: '/app/admin/ip-vault', icon: Vault, labelKey: 'admin.popup.ipVault' },
   { to: '/app/admin/content-review', icon: ClipboardList, labelKey: 'admin.popup.contentReview' },
+  { to: '/app/admin/recipe-families', icon: Network, labelKey: 'admin.popup.recipeFamilies' },
   { to: '/app/admin/retail/products', icon: Store, labelKey: 'admin.popup.retailProducts' },
   { to: '/app/admin/retail/providers', icon: Truck, labelKey: 'admin.popup.retailProviders' },
 ] as const
