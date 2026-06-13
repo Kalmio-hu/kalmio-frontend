@@ -2197,6 +2197,52 @@
       "ariaLabel": "Why this? — Founding Member feature",
       "teaser": "Detailed reasoning for Founding Members.",
       "cta": "Founding membership"
+    },
+    "features": {
+      "title": "What premium unlocks",
+      "subtitle": "The essentials stay free forever. Founding membership adds the full AI assistant on top.",
+      "ariaLabel": "Premium features",
+      "items": {
+        "recipeImport": {
+          "title": "Recipe import from a link, photo or handwriting",
+          "description": "Paste a link, photograph a cookbook or grandma's handwritten card — I take care of the rest."
+        },
+        "receiptScan": {
+          "title": "Receipt scan, groceries added automatically",
+          "description": "Photograph your shopping receipt and I add the items to your fridge — no entering them one by one."
+        },
+        "cookMode": {
+          "title": "Cook-mode assistant",
+          "description": "I walk you through the recipe step by step while your hands stay free."
+        },
+        "rationale": {
+          "title": "\"Why this?\" — a rationale for every meal",
+          "description": "I show you why each dish made it into your plan, based on your goals, your stock and your week."
+        },
+        "weeklyRecap": {
+          "title": "Weekly recap",
+          "description": "At the end of the week I give you a short account of how it went and what's worth fine-tuning next."
+        },
+        "conversationalEdit": {
+          "title": "Shaping the plan by conversation",
+          "description": "Tell me what you fancy or what changed, and I'll rework your week — no fresh plan needed."
+        },
+        "cravingsCoach": {
+          "title": "Cravings coach",
+          "description": "When something tempts you, I offer a way to have it that still fits your goals."
+        },
+        "photoLog": {
+          "title": "Logging off-plan meals from a photo",
+          "description": "Photograph what you ate and I'll work out the macros, then add them to your daily total."
+        }
+      },
+      "comparison": {
+        "title": "Free and premium",
+        "freeLabel": "Free",
+        "premiumLabel": "Premium",
+        "freeSummary": "Planning, recipes, shopping list, fridge management — all yours throughout.",
+        "premiumSummary": "Everything in free, extended with the full AI assistant."
+      }
     }
   },
   "onboarding": {

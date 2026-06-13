@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next'
 import { foundingMemberService } from '@/services/foundingMember'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
+import { PremiumFeatureList } from '@/components/premium/PremiumFeatureList'
 import { PaymentMethods } from '@/components/PaymentMethods'
 
 // The success page URL must be absolute so Barion can redirect to it.
@@ -138,6 +139,11 @@ function FoundingMemberInner() {
           <div className="bg-white/5 rounded-2xl px-6 py-6 mb-8 text-center">
             <p className="text-white/40 text-sm">{t('foundingMember.buy.loading')}</p>
           </div>
+        )}
+
+        {/* What premium unlocks — only while the user can still buy */}
+        {!isAlreadyMember && !isSoldOut && (
+          <PremiumFeatureList className="mb-8" />
         )}
 
         {/* Already-member state */}

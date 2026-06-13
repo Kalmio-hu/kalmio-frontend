@@ -32,6 +32,7 @@ import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react'
 import { foundingMemberService } from '@/services/foundingMember'
 import { useAuthStore } from '@/store/auth'
 import { PaymentMethods } from '@/components/PaymentMethods'
+import { PremiumFeatureList } from '@/components/premium/PremiumFeatureList'
 import heroImage from '@/assets/founding-member-hero.png'
 
 /** sessionStorage key used to carry the paymentId across the Barion redirect. */
@@ -170,6 +171,11 @@ export function GuestFoundingMember() {
           <Loader2 className="animate-spin text-white/40" size={18} />
           <p className="text-white/40 text-sm">{t('foundingMember.buy.loading')}</p>
         </div>
+      )}
+
+      {/* What premium unlocks — shown while seats remain (logged-in nudge + guest form) */}
+      {!isSoldOut && availability.isSuccess && (
+        <PremiumFeatureList className="mb-8" />
       )}
 
       {/* Sold out */}

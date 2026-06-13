@@ -2197,6 +2197,52 @@
       "ariaLabel": "Miért ezt? — Alapító Tag funkció",
       "teaser": "Részletes magyarázat Alapító Tag előfizetőknek.",
       "cta": "Alapító tagság"
+    },
+    "features": {
+      "title": "Mit nyit meg a prémium",
+      "subtitle": "Az alapok mindig ingyenesek maradnak. Az Alapító Tagság a teljes AI-asszisztenst adja hozzá.",
+      "ariaLabel": "Prémium funkciók",
+      "items": {
+        "recipeImport": {
+          "title": "Receptbehúzás linkből, fotóról, kézírásból",
+          "description": "Beillesztesz egy linket, lefotózod a szakácskönyvet vagy a nagymama kézírásos receptjét, a többit elintézem."
+        },
+        "receiptScan": {
+          "title": "Blokk beolvasása, automatikus feltöltés",
+          "description": "Lefotózod a bolti blokkot, és a megvásárolt tételeket felveszem a hűtődbe — tételenkénti gépelés nélkül."
+        },
+        "cookMode": {
+          "title": "Főzési asszisztens",
+          "description": "Lépésről lépésre végigvezetlek a recepten, miközben a kezed szabad marad."
+        },
+        "rationale": {
+          "title": "„Miért ezt?\" — indoklás minden étkezéshez",
+          "description": "Megmutatom, miért ez a fogás került a tervedbe: a céljaid, a készleted és a heted alapján."
+        },
+        "weeklyRecap": {
+          "title": "Heti összegzés",
+          "description": "A hét végén röviden összefoglalom, hogyan haladtál, és mit érdemes a jövő héten finomítani."
+        },
+        "conversationalEdit": {
+          "title": "A terv alakítása beszélgetve",
+          "description": "Megírod, mire vágysz vagy mi változott, és én átszervezem a hetedet — új tervezés nélkül."
+        },
+        "cravingsCoach": {
+          "title": "Sóvárgás-segítő",
+          "description": "Amikor megkívánsz valamit, kínálok rá egy olyan megoldást, ami illeszkedik a céljaidhoz."
+        },
+        "photoLog": {
+          "title": "Terven kívüli étkezés rögzítése fotóról",
+          "description": "Lefotózod, amit ettél, és kiszámolom a makrókat, majd hozzáadom a napi összesítéshez."
+        }
+      },
+      "comparison": {
+        "title": "Ingyenes és prémium",
+        "freeLabel": "Ingyenes",
+        "premiumLabel": "Prémium",
+        "freeSummary": "Tervezés, receptek, bevásárlólista, hűtőkezelés — végig a tiéd.",
+        "premiumSummary": "Minden az ingyenesből, kibővítve a teljes AI-asszisztenssel."
+      }
     }
   },
   "onboarding": {
