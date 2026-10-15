@@ -25,3 +25,6 @@ dist-ssr
 
 *storybook.log
 storybook-static
+
+# Claude Code per-ticket worktrees (see .claude/agents/jira-workflow.md)
+.claude/worktrees/
