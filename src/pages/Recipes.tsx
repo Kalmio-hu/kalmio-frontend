@@ -472,8 +472,8 @@ export function Recipes() {
                 })}
                 className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
                   active
-                    ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
-                    : 'bg-white text-gray-500 border-gray-200 hover:border-[#4f46e5] hover:text-[#4f46e5]'
+                    ? 'bg-[#4F7942] text-white border-[#4F7942]'
+                    : 'bg-white text-gray-500 border-gray-200 hover:border-[#4F7942] hover:text-[#4F7942]'
                 }`}
               >
                 {t(`recipes.tags.${mt}`, { defaultValue: mt })}
@@ -815,7 +815,7 @@ export function Recipes() {
             type="button"
             onClick={() => { setPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
             disabled={page === 0}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4F7942] hover:text-[#4F7942] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             {t('recipes.pagination.previous')}
@@ -827,7 +827,7 @@ export function Recipes() {
             type="button"
             onClick={() => { setPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
             disabled={page >= totalPages - 1}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4f46e5] hover:text-[#4f46e5] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm font-medium border border-gray-200 text-gray-700 hover:border-[#4F7942] hover:text-[#4F7942] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           >
             {t('recipes.pagination.next')}
             <ChevronRight className="h-4 w-4" />

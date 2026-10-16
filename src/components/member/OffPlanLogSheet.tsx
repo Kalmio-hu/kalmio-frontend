@@ -110,7 +110,7 @@ export function OffPlanLogSheet({
             type="button"
             aria-label={t('common.close')}
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#6b7280] hover:bg-[#f3f4f6] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+            className="p-1.5 rounded-lg text-[#6b7280] hover:bg-[#f3f4f6] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
           >
             <X className="h-4 w-4" />
           </button>
@@ -135,7 +135,7 @@ export function OffPlanLogSheet({
                         className={`
                           px-3 py-1.5 rounded-full text-sm border transition-colors
                           ${displayName === label
-                            ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
+                            ? 'bg-[#4F7942] text-white border-[#4F7942]'
                             : 'bg-white text-[#1a1a1a] border-[#e5e7eb] hover:bg-[#f3f4f6]'}
                         `}
                       >
@@ -160,7 +160,7 @@ export function OffPlanLogSheet({
                   maxLength={100}
                   className="
                     w-full px-3 py-2.5 rounded-xl border border-[#e5e7eb] text-sm text-[#1a1a1a]
-                    placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]
+                    placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#4F7942]
                   "
                 />
               </div>

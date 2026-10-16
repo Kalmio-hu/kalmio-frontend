@@ -50,17 +50,14 @@ import { Family } from '@/pages/Family'
 import { Plans } from '@/pages/Plans'
 import { PlanCreate } from '@/pages/PlanCreate'
 import { PlanDetail } from '@/pages/PlanDetail'
-import { ScheduleNew } from '@/pages/ScheduleNew'
 import { ScheduleDetail } from '@/pages/ScheduleDetail'
 import { OnboardingShell } from '@/pages/onboarding/OnboardingShell'
 import { ConversationalOnboarding } from '@/pages/onboarding/ConversationalOnboarding'
 import { OnboardingGate } from '@/components/OnboardingGate'
 import { MemberView } from '@/pages/MemberView'
-import { ShoppingCart } from '@/pages/ShoppingCart'
 import ReceiptScanPage from '@/pages/ReceiptScanPage'
 import { CookMode } from '@/pages/CookMode'
 import { RecipeDetail } from '@/pages/RecipeDetail'
-import { ShopNow } from '@/pages/ShopNow'
 import { CraftConference } from '@/pages/CraftConference'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
@@ -197,7 +194,7 @@ export default function App() {
                   <Route path="ingredients" element={<Ingredients />} />
                   <Route path="shopping-list" element={<ShoppingList />} />
                   {/* Persistent in-store shopping checklist (KALMIO-375 / C12) */}
-                  <Route path="shop/:planId" element={<ShopNow />} />
+                  <Route path="shop/:planId" element={<Navigate to="/app/shopping-list" replace />} />
                   <Route path="fridge" element={<Fridge />} />
                   <Route path="grooming" element={<Grooming />} />
                   {/* retail-products legacy path — redirect to admin route (KALMIO-305) */}
@@ -213,7 +210,8 @@ export default function App() {
                   <Route path="founding-member" element={<FoundingMember />} />
                   <Route path="founding-member/success" element={<FoundingMemberSuccess />} />
                   <Route path="family" element={<Family />} />
-                  <Route path="cart" element={<ShoppingCart />} />
+                  {/* The cart is the shopping list — one surface (KALMIO consolidation) */}
+                  <Route path="cart" element={<Navigate to="/app/shopping-list" replace />} />
                   <Route path="cart/:cartId/receipt" element={<ReceiptScanPage />} />
                   <Route path="members/:memberId" element={<MemberView />} />
                   <Route path="plans" element={<Plans />} />
@@ -222,7 +220,7 @@ export default function App() {
                   {/* Schedules / Rhythm — redirected to Plans after KALMIO-306 nav consolidation.
                       Backend entities are preserved; scheduling is now a tab on Plan detail. */}
                   <Route path="schedules" element={<Navigate to="/app/plans" replace />} />
-                  <Route path="schedules/new" element={<ScheduleNew />} />
+                  <Route path="schedules/new" element={<Navigate to="/app/plans" replace />} />
                   <Route path="schedules/:id" element={<ScheduleDetail />} />
                   <Route path="calendar" element={<Navigate to="/app?view=calendar" replace />} />
                   {import.meta.env.DEV && PlantingPreview && DiofaPreview && TasteSwipePreview && (

@@ -104,7 +104,7 @@ export default function ReceiptScanPage() {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="text-sm text-[#4f46e5] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+          className="text-sm text-[#4F7942] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
           aria-label={t('common.back')}
         >
           ← {t('common.back')}
@@ -173,7 +173,7 @@ export default function ReceiptScanPage() {
         {/* Phase: UPLOAD */}
         {phase === 'upload' && (
           <div className="flex flex-col items-center gap-4 py-12">
-            <Spinner className="w-10 h-10 text-[#4f46e5]" />
+            <Spinner className="w-10 h-10 text-[#4F7942]" />
             <p className="text-sm text-[#374151] text-center">
               {t('shopping.receipt.scanning')}
             </p>

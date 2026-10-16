@@ -287,7 +287,7 @@ export function Grooming() {
       </div>
 
       {/* Sticky bottom bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-10 bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between gap-4">
+      <div className="fixed bottom-16 md:bottom-0 left-0 md:left-64 right-0 z-30 bg-white border-t border-gray-100 px-4 py-3 flex items-center justify-between gap-4">
         <span className="text-sm text-gray-500">
           {t('grooming.summary', { kept, discarded })}
         </span>

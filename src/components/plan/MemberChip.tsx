@@ -44,7 +44,7 @@ export function MemberChip({ name, colorClass, hasAllergenWarning = false, onCli
       onClick={onClick}
       className={`
         relative flex items-center justify-center rounded-full font-semibold text-white
-        select-none shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#4f46e5]
+        select-none shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-[#4F7942]
         ${dim} ${colorClass} ${onClick ? 'cursor-pointer hover:opacity-80 active:opacity-70' : 'cursor-default'}
       `}
     >
@@ -65,8 +65,8 @@ export function OverflowChip({ count, size = 'sm' }: { count: number; size?: 'sm
   return (
     <span
       className={`
-        flex items-center justify-center rounded-full font-semibold text-[#4f46e5]
-        bg-[#ede9fe] shrink-0 ${dim}
+        flex items-center justify-center rounded-full font-semibold text-[#4F7942]
+        bg-[#d4e8ce] shrink-0 ${dim}
       `}
     >
       +{count}

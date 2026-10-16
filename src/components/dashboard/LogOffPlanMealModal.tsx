@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { capture } from '@/lib/analytics'
 import { dashboardService } from '@/services/dashboard'
-import { planService } from '@/services/plans'
+import { plannedMealsService } from '@/services/plannedMeals'
 import type { OffPlanMealCard } from '@/types'
 
 interface LogOffPlanMealModalProps {
@@ -88,7 +88,7 @@ export function LogOffPlanMealModal({
         })
         // Mark the original planned meal as SKIPPED so it doesn't also count toward the daily total.
         if (planId && mealId) {
-          await planService.updateMeal(planId, mealId, { status: 'SKIPPED' })
+          await plannedMealsService.updateStatus(mealId, { status: 'SKIPPED' })
         }
       }
     },

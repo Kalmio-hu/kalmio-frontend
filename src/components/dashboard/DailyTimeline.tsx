@@ -25,7 +25,6 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
 import { useDraggable } from '@dnd-kit/core'
 import { dashboardService } from '@/services/dashboard'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
-import { planService } from '@/services/plans'
 import { prepTasksService } from '@/services/prepTasks'
 import { offPlanMealsService } from '@/services/offPlanMeals'
 import { recipesService } from '@/services/recipes'
@@ -1234,8 +1233,8 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['time-preferences'] }),
   })
   const patchMealTime = useMutation({
-    mutationFn: ({ planId, mealId, time }: { planId: string; mealId: string; time: string | null }) =>
-      planService.patchMealScheduledTime(planId, mealId, time),
+    mutationFn: ({ mealId, time }: { planId: string; mealId: string; time: string | null }) =>
+      plannedMealsService.patchScheduledTime(mealId, time),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
   })
   const patchPrepTime = useMutation({
@@ -1244,12 +1243,14 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['dashboard', date] }),
   })
 
-  // Status changes (mark eaten/skipped) and recipe swaps reuse the same
-  // updateMeal endpoint; we invalidate both the dashboard view and the plan
-  // cache so the meal plans page stays in sync.
+  // Status changes (mark eaten/skipped) go to PATCH /api/planned-meals/{id}/status,
+  // recipe swaps to PATCH /{id}/recipe; we invalidate both the dashboard view and
+  // the plan cache so the meal plans page stays in sync.
   const updateMeal = useMutation({
-    mutationFn: ({ planId, mealId, req }: { planId: string; mealId: string; req: import('@/types').UpdatePlannedMealRequest }) =>
-      planService.updateMeal(planId, mealId, req),
+    mutationFn: ({ mealId, req }: { planId: string; mealId: string; req: import('@/types').UpdatePlannedMealRequest }) =>
+      req.replacedWithRecipeId
+        ? plannedMealsService.replaceRecipe(mealId, { recipeId: req.replacedWithRecipeId })
+        : plannedMealsService.updateStatus(mealId, { status: (req.status ?? 'PLANNED') as import('@/types').MaterializedPlannedMealStatus }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['dashboard', date] })
       void queryClient.invalidateQueries({ queryKey: ['plan', 'active'] })
@@ -2117,7 +2118,7 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
           currentRecipeId={swapCard.recipeId}
           onSelect={(recipe: Recipe) => {
             // DailyTimeline runs against the in-memory legacy plan model
-            // (PATCH /api/plans/calendar/{planId}/meals/{mealId}), which doesn't
+            // (PATCH /api/planned-meals/{id}/recipe), which doesn't
             // have a swap-variant counterpart yet. We still benefit from the
             // family-aware picker UX (diet filter + sibling group + badges) here;
             // analytics-grade MEAL_VARIANT_SWAPPED events will follow when the

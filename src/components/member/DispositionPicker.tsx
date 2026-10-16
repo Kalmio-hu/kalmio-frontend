@@ -141,7 +141,7 @@ export function DispositionPicker({
         {/* Given to somebody else */}
         <label className={`flex flex-col gap-2 p-3 rounded-xl border cursor-pointer transition-colors ${
           selected === 'GIVEN_TO_FAMILY' || selected === 'GIVEN_TO_OTHER'
-            ? 'border-[#4f46e5] bg-indigo-50'
+            ? 'border-[#4F7942] bg-[#eef6eb]'
             : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'
         }`}>
           <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ export function DispositionPicker({
               value="GIVEN_TO_FAMILY"
               checked={selected === 'GIVEN_TO_FAMILY' || selected === 'GIVEN_TO_OTHER'}
               onChange={() => handleTopLevel('GIVEN_TO_FAMILY')}
-              className="accent-[#4f46e5]"
+              className="accent-[#4F7942]"
             />
             <span className="text-sm text-[#1a1a1a]">{t('offPlan.disposition.givenToSomebody')}</span>
             <ChevronRight className={`h-4 w-4 text-[#6b7280] ml-auto transition-transform ${givenToOpen ? 'rotate-90' : ''}`} />
@@ -171,8 +171,8 @@ export function DispositionPicker({
                   className={`
                     flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-left transition-colors
                     ${chosenRecipient?.userId === r.userId
-                      ? 'bg-indigo-100 text-[#4f46e5] font-semibold'
-                      : 'hover:bg-[#ede9fe] text-[#1a1a1a]'}
+                      ? 'bg-[#d4e8ce] text-[#4F7942] font-semibold'
+                      : 'hover:bg-[#d4e8ce] text-[#1a1a1a]'}
                   `}
                 >
                   <span className="flex-1">{r.displayName}</span>
@@ -198,8 +198,8 @@ export function DispositionPicker({
                 className={`
                   flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-left transition-colors
                   ${selected === 'GIVEN_TO_OTHER'
-                    ? 'bg-indigo-100 text-[#4f46e5] font-semibold'
-                    : 'hover:bg-[#ede9fe] text-[#1a1a1a]'}
+                    ? 'bg-[#d4e8ce] text-[#4F7942] font-semibold'
+                    : 'hover:bg-[#d4e8ce] text-[#1a1a1a]'}
                 `}
               >
                 {t('offPlan.disposition.givenToOther')}

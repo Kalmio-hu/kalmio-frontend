@@ -1,17 +1,16 @@
 /**
  * MemberMealSlot — one meal row on the member's personal view.
  *
- * Default action: single-tap "ate it" → marks the slot EATEN (will call BE4
- * skip-slot / eat endpoint when available — currently calls the existing
- * PlannedMeal status update endpoint as a best-effort).
+ * Default action: single-tap "ate it" → PATCH /api/planned-meals/{id}/status EATEN.
  *
- * Secondary action: "Something else" → opens the OffPlanLogSheet.
+ * Secondary actions (overflow menu): "Something else" → opens the OffPlanLogSheet;
+ * "Skip" → PATCH status SKIPPED.
  */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { CheckCircle, MoreHorizontal, Sparkles, Utensils } from 'lucide-react'
+import { CheckCircle, MoreHorizontal, Sparkles, Utensils, XCircle } from 'lucide-react'
 import { MealRationalePanel } from '@/components/plan/MealRationalePanel'
 import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { recipesService } from '@/services/recipes'
@@ -34,6 +33,7 @@ export interface MemberMealSlotProps {
   isOwn: boolean
   onMarkEaten?: (plannedMealId: string) => void
   onLogOffPlan?: (plannedMealId: string) => void
+  onSkip?: (plannedMealId: string) => void
 }
 
 const MEAL_TYPE_ORDER: MealType[] = [
@@ -66,6 +66,7 @@ export function MemberMealSlot({
   isOwn,
   onMarkEaten,
   onLogOffPlan,
+  onSkip,
 }: MemberMealSlotProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -178,7 +179,7 @@ export function MemberMealSlot({
               onClick={() => setMenuOpen(o => !o)}
               className="
                 p-1.5 rounded-lg text-[#6b7280] hover:bg-[#f3f4f6] active:bg-[#e5e7eb]
-                transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
               "
             >
               <MoreHorizontal className="h-4 w-4" />
@@ -204,6 +205,19 @@ export function MemberMealSlot({
                     <Utensils className="h-3.5 w-3.5 text-[#6b7280]" />
                     {t('member.actions.somethingElse')}
                   </button>
+                  {onSkip && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false)
+                        onSkip(plannedMealId)
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[#1a1a1a] hover:bg-[#f9f7f2] text-left"
+                    >
+                      <XCircle className="h-3.5 w-3.5 text-[#6b7280]" />
+                      {t('member.actions.skip')}
+                    </button>
+                  )}
                 </div>
               </>
             )}

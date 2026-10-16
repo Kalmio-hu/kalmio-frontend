@@ -14,7 +14,7 @@
  * - useMutation → planTemplateService.copy / archive / refreshSnapshot
  */
 import { useState, useRef, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { FounderFarewellModal } from '@/components/onboarding/FounderFarewellModal'
 import { hasFounderFarewellBeenShown, markFounderFarewellShown } from '@/lib/firstPlanReveal'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -58,6 +58,9 @@ import { aggregateTargets, dailyTotals, weeklyAverage, targetsFromLive, targetsF
 import { RecipePalette } from '@/components/plan/RecipePalette'
 import { TrashDropZone, TRASH_DROP_ID } from '@/components/plan/TrashDropZone'
 import { PlanSidePanel } from '@/components/plan/PlanSidePanel'
+import { PlanMembersPanel } from '@/components/plan/PlanMembersPanel'
+import { ReplanSuggestionsCard } from '@/components/plan/ReplanSuggestionsCard'
+import { RunPlanDialog } from '@/components/plan/RunPlanDialog'
 import type { TemplateCellPickerResult } from '@/components/plan/TemplateCellPicker'
 import type { PrepSlotPickerResult } from '@/components/plan/PrepSlotPicker'
 import { planTemplateService } from '@/services/plans'
@@ -102,6 +105,7 @@ export function PlanDetail() {
 
   // ── Local UI state ───────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<PlanDetailTab>('template')
+  const [runDialogOpen, setRunDialogOpen] = useState(false)
   const [activeCell, setActiveCell] = useState<ActiveCell | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false)
@@ -894,7 +898,7 @@ export function PlanDetail() {
                 disabled={updateNameMutation.isPending}
                 className="
                   text-2xl font-headline font-bold text-[#1A1A1A]
-                  w-full border-0 border-b-2 border-[#4f46e5] bg-transparent
+                  w-full border-0 border-b-2 border-[#4F7942] bg-transparent
                   focus:outline-none focus-visible:ring-0
                   disabled:opacity-60
                 "
@@ -916,8 +920,8 @@ export function PlanDetail() {
                   className="
                     shrink-0 p-1 rounded-md text-[#9ca3af]
                     opacity-0 group-hover:opacity-100 focus-visible:opacity-100
-                    hover:text-[#4f46e5] hover:bg-[#ede9fe]
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                    hover:text-[#4F7942] hover:bg-[#d4e8ce]
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                     transition-opacity
                   "
                 >
@@ -966,28 +970,31 @@ export function PlanDetail() {
               DRAFT and ACTIVE so the user can get to the schedule wizard
               directly from the header without switching to the Runs tab. */}
           {!isArchived && (
-            <Link
-              to={`/app/schedules/new?planId=${id}`}
-              title={t('planDetail.scheduleCta.tooltip')}
+            <button
+              type="button"
+              onClick={() => setRunDialogOpen(true)}
+              disabled={plan.templateMeals.length === 0}
+              title={plan.templateMeals.length === 0 ? fillCtaLabel : t('planDetail.scheduleCta.tooltip')}
               aria-label={t('planDetail.scheduleCta.tooltip')}
               className="
                 inline-flex items-center gap-1.5 h-8 px-3 rounded-[10px]
                 bg-[#F28C28] text-white text-sm font-medium
                 hover:bg-[#d97a20] active:bg-[#c06d1c]
+                disabled:opacity-60 disabled:cursor-not-allowed
                 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-1
                 transition-colors
               "
             >
               <CalendarPlus className="w-3.5 h-3.5" aria-hidden />
               <span className="hidden sm:inline">{t('planDetail.scheduleCta.button')}</span>
-            </Link>
+            </button>
           )}
 
           <button
             type="button"
             onClick={() => navigate('/app/plans')}
             title={t('common.back')}
-            className="text-sm text-[#6b7280] hover:text-[#1A1A1A] flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+            className="text-sm text-[#6b7280] hover:text-[#1A1A1A] flex items-center gap-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
             aria-label={t('common.back')}
           >
             <ChevronLeft className="w-4 h-4" aria-hidden />
@@ -1001,7 +1008,7 @@ export function PlanDetail() {
               onClick={() => setMenuOpen(o => !o)}
               aria-label={t('plan.detail.actions.menuAria')}
               aria-expanded={menuOpen}
-              className="p-2 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] hover:text-[#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+              className="p-2 rounded-lg hover:bg-[#f3f4f6] text-[#6b7280] hover:text-[#1A1A1A] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
             >
               <MoreHorizontal className="w-4 h-4" aria-hidden />
             </button>
@@ -1081,7 +1088,7 @@ export function PlanDetail() {
         {plan.mealSlotsCovered.map(slot => (
           <span
             key={slot}
-            className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#ede9fe] text-[#4f46e5]"
+            className="px-2.5 py-1 rounded-full text-xs font-medium bg-[#d4e8ce] text-[#4F7942]"
           >
             {t(`plan.mealTypes.${slot}`, { defaultValue: slot })}
           </span>
@@ -1129,7 +1136,7 @@ export function PlanDetail() {
           className="
             flex items-center justify-between gap-3 mb-4
             px-4 py-3 rounded-[12px]
-            bg-[#f5f3ff] border border-[#ede9fe] text-[#4f46e5]
+            bg-[#eef6eb] border border-[#d4e8ce] text-[#4F7942]
           "
         >
           <p className="text-sm">
@@ -1145,13 +1152,26 @@ export function PlanDetail() {
             disabled={solveMutation.isPending}
             className="
               shrink-0 text-sm font-medium underline underline-offset-2
-              hover:text-[#3730a3] focus:outline-none focus-visible:ring-2
-              focus-visible:ring-[#4f46e5] disabled:opacity-60
+              hover:text-[#3e6134] focus:outline-none focus-visible:ring-2
+              focus-visible:ring-[#4F7942] disabled:opacity-60
             "
           >
             {t('plan.detail.draftBanner.cta')}
           </button>
         </div>
+      )}
+
+      {/* Household-scope replan suggestions waiting for the planner's decision */}
+      {id && <ReplanSuggestionsCard planId={id} />}
+
+      {/* Run dialog — the same one-click scheduling flow the Plans list uses */}
+      {runDialogOpen && (
+        <RunPlanDialog
+          plan={plan}
+          open={runDialogOpen}
+          onOpenChange={setRunDialogOpen}
+          onSuccess={() => void qc.invalidateQueries({ queryKey: ['schedules'] })}
+        />
       )}
 
       {/* Tab bar — Template | Futtatások (KALMIO-306) */}
@@ -1171,9 +1191,9 @@ export function PlanDetail() {
             onClick={() => setActiveTab(tab)}
             className={`
               px-4 py-2 -mb-px text-sm font-medium border-b-2 transition-colors
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
               ${activeTab === tab
-                ? 'border-[#4f46e5] text-[#4f46e5]'
+                ? 'border-[#4F7942] text-[#4F7942]'
                 : 'border-transparent text-[#6b7280] hover:text-[#1A1A1A] hover:border-[#d1d5db]'}
             `}
           >
@@ -1192,7 +1212,7 @@ export function PlanDetail() {
           aria-labelledby="tab-runs"
           className="pb-10"
         >
-          <PlanRunsTab planId={id!} schedules={planSchedules} />
+          <PlanRunsTab schedules={planSchedules} onNewRun={() => setRunDialogOpen(true)} />
         </div>
       )}
 
@@ -1326,7 +1346,10 @@ export function PlanDetail() {
                   violatingMealIds={violatingMealIds}
                 />
               </div>
-              <aside className="order-3">
+              <aside className="order-3 space-y-4">
+                {family && plan.familyId && (
+                  <PlanMembersPanel plan={plan} family={family} currentUserId={currentUserId} />
+                )}
                 <PlanSidePanel plan={plan} recipesById={recipesById} />
               </aside>
             </div>
@@ -1366,11 +1389,11 @@ export function PlanDetail() {
                     className="
                       flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px]
                       bg-[#F0EDE6] text-[#1A1A1A] text-xs font-medium
-                      shadow-xl ring-2 ring-[#4f46e5] cursor-grabbing
+                      shadow-xl ring-2 ring-[#4F7942] cursor-grabbing
                     "
                     style={{ transform: 'rotate(-2deg)' }}
                   >
-                    <span className="w-2 h-2 rounded-full shrink-0 bg-[#4f46e5]" aria-hidden />
+                    <span className="w-2 h-2 rounded-full shrink-0 bg-[#4F7942]" aria-hidden />
                     <span className="truncate max-w-[140px]">{recipeName}</span>
                     <span className="shrink-0 tabular-nums text-[10.5px] text-[#6b7280]" aria-hidden>
                       {Number(slot.servingsToMake)}×
@@ -1577,9 +1600,9 @@ export function PlanDetail() {
                     onClick={() => setFillMode(mode)}
                     className={`
                       w-full flex items-center gap-3 px-3 py-2.5 rounded-[10px] border text-left
-                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                       ${fillMode === mode
-                        ? 'border-[#4f46e5] bg-[#4f46e5]/5'
+                        ? 'border-[#4F7942] bg-[#4F7942]/5'
                         : 'border-[#e5e7eb] hover:bg-[#f9f7f2]'}
                     `}
                   >
@@ -1589,7 +1612,7 @@ export function PlanDetail() {
                         : t('plan.detail.actions.fillConfirmAll')}
                     </span>
                     {fillMode === mode && (
-                      <Check className="h-4 w-4 text-[#4f46e5] shrink-0" aria-hidden />
+                      <Check className="h-4 w-4 text-[#4F7942] shrink-0" aria-hidden />
                     )}
                   </button>
                 ))}
@@ -1671,13 +1694,12 @@ function cadenceLabel(cadenceDays: number, t: ReturnType<typeof useTranslation>[
 }
 
 interface PlanRunsTabProps {
-  planId: string
   schedules: Schedule[]
+  onNewRun: () => void
 }
 
-function PlanRunsTab({ planId, schedules }: PlanRunsTabProps) {
+function PlanRunsTab({ schedules, onNewRun }: PlanRunsTabProps) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
 
   return (
     <div>
@@ -1690,7 +1712,7 @@ function PlanRunsTab({ planId, schedules }: PlanRunsTabProps) {
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => navigate(`/app/schedules/new?planId=${planId}`)}
+          onClick={onNewRun}
           className="flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" aria-hidden />
@@ -1818,7 +1840,7 @@ function RunCard({ schedule }: { schedule: Schedule }) {
             <button
               onClick={() => setMaterializeOpen(true)}
               disabled={isBusy}
-              className="flex items-center gap-1.5 text-xs font-medium text-[#4f46e5] hover:text-[#3730a3] transition-colors disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs font-medium text-[#4F7942] hover:text-[#3e6134] transition-colors disabled:opacity-50"
               type="button"
             >
               <Zap className="h-3.5 w-3.5" aria-hidden />
@@ -1953,7 +1975,7 @@ function MenuButton({
       className={`
         w-full text-left px-4 py-2 text-sm text-[#1A1A1A] hover:bg-[#f3f4f6]
         disabled:opacity-50 disabled:cursor-not-allowed
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4f46e5]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4F7942]
         ${className}
       `}
     >
@@ -1995,13 +2017,13 @@ function DragGhost({
       className="
         flex flex-col gap-1 px-3 py-2 rounded-[12px]
         bg-[#F0EDE6] text-[#1A1A1A] text-xs font-medium
-        shadow-xl ring-2 ring-[#4f46e5] cursor-grabbing
+        shadow-xl ring-2 ring-[#4F7942] cursor-grabbing
         w-full h-full
       "
       style={{ transform: 'rotate(-2deg)' }}
     >
       <div className="flex items-center gap-1.5 min-w-0 w-full">
-        <span className="w-2 h-2 rounded-full shrink-0 bg-[#4f46e5]" aria-hidden />
+        <span className="w-2 h-2 rounded-full shrink-0 bg-[#4F7942]" aria-hidden />
         <span className="truncate">{recipeName}</span>
       </div>
       {kcal > 0 && (

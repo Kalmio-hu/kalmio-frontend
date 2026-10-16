@@ -68,6 +68,7 @@ import { MealDistributionStep, type MealDistributionValues } from '@/components/
 import { tasteSignalsService } from '@/services/tasteSignals'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import {
   readOnboardingStep,
   writeOnboardingStep,
@@ -256,9 +257,11 @@ function TasteSwipeStep({ onContinue }: TasteSwipeStepProps) {
 
 interface WelcomeStepProps {
   onNext: () => void
+  /** The conversational flow is premium-only on the backend (402 otherwise). */
+  showChatToggle?: boolean
 }
 
-function WelcomeStep({ onNext }: WelcomeStepProps) {
+function WelcomeStep({ onNext, showChatToggle = false }: WelcomeStepProps) {
   const { t } = useTranslation()
   return (
     <div className="flex flex-col items-center gap-6 px-6 py-8 text-center">
@@ -277,12 +280,14 @@ function WelcomeStep({ onNext }: WelcomeStepProps) {
       </button>
 
       {/* Conversational alternative — premium opt-in (E11.7) */}
+      {showChatToggle && (
       <Link
         to="/app/onboarding/conversational"
         className="mt-1 text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
       >
         {t('onboarding.shell.welcome.chatToggle')}
       </Link>
+      )}
     </div>
   )
 }
@@ -296,6 +301,7 @@ export function OnboardingShell() {
   const navigate = useNavigate()
   const qc = useQueryClient()
   const userId = useAuthStore((s) => s.user?.id ?? '')
+  const isPremium = useIsUserPremium()
 
   // Prefetch user data so we can check body-data completeness on final step,
   // and to read suggestedKcalTarget / suggestedProteinTarget for the TDEE step.
@@ -329,6 +335,9 @@ export function OnboardingShell() {
     },
     onSuccess: (updated) => {
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+    },
+    onError: () => {
+      toast({ title: t('onboarding.shell.saveError'), variant: 'destructive' })
     },
   })
 
@@ -369,6 +378,9 @@ export function OnboardingShell() {
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
       toast({ title: t('onboarding.tdeeStep.accepted'), variant: 'success' })
     },
+    onError: () => {
+      toast({ title: t('onboarding.shell.saveError'), variant: 'destructive' })
+    },
   })
 
   // ── MealDistribution step (step 5) — KALMIO-453 ───────────────────────────
@@ -388,6 +400,9 @@ export function OnboardingShell() {
       }),
     onSuccess: (updated) => {
       qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+    },
+    onError: () => {
+      toast({ title: t('onboarding.shell.saveError'), variant: 'destructive' })
     },
   })
 
@@ -438,6 +453,14 @@ export function OnboardingShell() {
     goToStep(currentStep + 1)
   }, [currentStep, goToStep, navigate, userId])
 
+  // Step 8 is a hand-off screen: the actual solve runs on /app/plans?fresh=1, so
+  // advance automatically instead of showing a "loading" state that waits for a tap.
+  useEffect(() => {
+    if (currentStep !== TOTAL_STEPS) return
+    const timer = window.setTimeout(goNext, 1600)
+    return () => window.clearTimeout(timer)
+  }, [currentStep, goNext])
+
   const handleSkipConfirm = useCallback(() => {
     // Skip: mark done, clear persisted progress and go to dashboard.
     if (userId) {
@@ -476,7 +499,7 @@ export function OnboardingShell() {
 
           {/* Chat toggle: visible through steps 1–3 so a user partway through
               the form can still switch modes before investing real effort. */}
-          {currentStep <= 3 && (
+          {currentStep <= 3 && isPremium && (
             <Link
               to="/app/onboarding/conversational"
               className="ml-4 shrink-0 text-sm text-[#6B6460] underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 rounded"
@@ -507,7 +530,7 @@ export function OnboardingShell() {
         <main className="flex-1 flex flex-col px-4 md:px-8 pb-8 max-w-lg mx-auto w-full md:justify-center">
         {/* Step 1: Welcome */}
         {currentStep === 1 && (
-          <WelcomeStep onNext={goNext} />
+          <WelcomeStep onNext={goNext} showChatToggle={isPremium} />
         )}
 
         {/* Step 2: Preferences — KALMIO-393 */}
@@ -522,7 +545,7 @@ export function OnboardingShell() {
             }}
             chatDraft={user?.onboardingChatDraft ?? null}
             onAdvance={(values) => {
-              preferencesMutation.mutate(values, { onSettled: () => goNext() })
+              preferencesMutation.mutate(values, { onSuccess: () => goNext() })
             }}
             onBack={() => goToStep(1)}
             isSubmitting={preferencesMutation.isPending}
@@ -540,7 +563,7 @@ export function OnboardingShell() {
               activityLevel: user?.activityLevel ?? null,
             }}
             onAdvance={(values) => {
-              bodyDataMutation.mutate(values, { onSettled: () => goNext() })
+              bodyDataMutation.mutate(values, { onSuccess: () => goNext() })
             }}
             onSkip={goNext}
             onBack={() => goToStep(2)}
@@ -611,7 +634,7 @@ export function OnboardingShell() {
                     if (kcalTarget != null) {
                       tdeeMutation.mutate(
                         { kcalTarget, proteinTargetG: proteinTarget, carbsTargetG, fatTargetG },
-                        { onSettled: () => goNext() },
+                        { onSuccess: () => goNext() },
                       )
                     } else {
                       goNext()
@@ -638,7 +661,7 @@ export function OnboardingShell() {
             dailyKcal={user?.mealPlanPreferences?.kcalTarget ?? user?.suggestedKcalTarget ?? null}
             initialTargets={user?.mealPlanPreferences?.mealCalorieTargets as Record<string, number> | null | undefined}
             onAdvance={(values) => {
-              mealDistributionMutation.mutate(values, { onSettled: () => goNext() })
+              mealDistributionMutation.mutate(values, { onSuccess: () => goNext() })
             }}
             onSkip={goNext}
             onBack={() => goToStep(4)}

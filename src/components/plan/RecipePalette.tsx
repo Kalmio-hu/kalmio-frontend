@@ -45,7 +45,7 @@ export function RecipePalette({ plan, recipesById, lang }: RecipePaletteProps) {
       className="rounded-[16px] border border-[#e5e7eb] bg-white"
     >
       <div className="px-4 py-3 border-b border-[#f3f4f6] flex items-center gap-2">
-        <Sparkles className="h-3.5 w-3.5 text-[#4f46e5]" aria-hidden />
+        <Sparkles className="h-3.5 w-3.5 text-[#4F7942]" aria-hidden />
         <h3 className="text-sm font-semibold text-[#1A1A1A]">
           {t('plan.detail.palette.title')}
         </h3>
@@ -98,7 +98,7 @@ function PaletteItem({ recipe, lang, assignedCount }: { recipe: Recipe; lang: 'h
           group w-full flex items-center gap-2 px-2.5 py-1.5 rounded-[10px]
           bg-[#F0EDE6] hover:bg-[#e8e4dc] text-left
           cursor-grab active:cursor-grabbing touch-none select-none
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
           transition-colors
           ${isDragging ? 'opacity-40' : ''}
         `}
@@ -130,7 +130,7 @@ function PaletteItem({ recipe, lang, assignedCount }: { recipe: Recipe; lang: 'h
             className="
               shrink-0 inline-flex items-center justify-center
               h-5 min-w-[1.25rem] px-1.5 rounded-full
-              bg-[#4f46e5]/10 text-[#4f46e5] text-[10.5px] font-semibold tabular-nums
+              bg-[#4F7942]/10 text-[#4F7942] text-[10.5px] font-semibold tabular-nums
             "
           >
             ×{assignedCount}

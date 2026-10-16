@@ -19,6 +19,8 @@ import { toast } from '@/components/ui/toast'
 import { shoppingCartService } from '@/services/shoppingCartService'
 
 interface CartPromptCardProps {
+  /** The plan that was just scheduled — the cart is built for its cycle. */
+  planId: string
   /** ISO date "YYYY-MM-DD" — start of the newly-created schedule window. */
   windowStart: string
   /** ISO date "YYYY-MM-DD" — end of the window; null = open-ended (backend defaults). */
@@ -29,7 +31,7 @@ interface CartPromptCardProps {
 
 type PromptPhase = 'idle' | 'added' | 'generatingForReceipt'
 
-export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCardProps) {
+export function CartPromptCard({ planId, windowStart, windowEnd, onDone }: CartPromptCardProps) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
@@ -40,6 +42,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
   const addMutation = useMutation({
     mutationFn: () =>
       shoppingCartService.generate({
+        planId,
         windowStart,
         windowEnd: windowEnd ?? undefined,
       }),
@@ -47,7 +50,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
       const count = data.lineItems.length
       setAddedCount(count)
       setPhase('added')
-      void queryClient.invalidateQueries({ queryKey: ['shopping-cart'] })
+      queryClient.setQueryData(['shopping-cart', 'current'], data)
     },
     onError: () => {
       toast({ title: t('plan.run.cartPrompt.addError'), variant: 'destructive' })
@@ -56,7 +59,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
 
   function handleAdjustManually() {
     onDone()
-    navigate('/app/cart')
+    navigate('/app/shopping-list')
   }
 
   function handleDismiss() {
@@ -99,7 +102,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => { onDone(); navigate('/app/cart') }}
+            onClick={() => { onDone(); navigate('/app/shopping-list') }}
             className="flex-1 text-green-700 hover:bg-green-100"
           >
             {t('plan.run.cartPrompt.viewCart')}
@@ -155,7 +158,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
           variant="ghost"
           onClick={handleReceiptClick}
           disabled={addMutation.isPending || phase === 'generatingForReceipt'}
-          className="w-full text-[#4f46e5] hover:bg-[#ede9fe]"
+          className="w-full text-[#4F7942] hover:bg-[#d4e8ce]"
         >
           {phase === 'generatingForReceipt'
             ? (
@@ -172,7 +175,7 @@ export function CartPromptCard({ windowStart, windowEnd, onDone }: CartPromptCar
       <button
         type="button"
         onClick={handleDismiss}
-        className="text-xs text-[#9ca3af] text-left hover:text-[#6b7280] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+        className="text-xs text-[#9ca3af] text-left hover:text-[#6b7280] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
       >
         {t('plan.run.cartPrompt.dismiss')}
       </button>

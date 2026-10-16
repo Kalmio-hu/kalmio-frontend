@@ -49,7 +49,7 @@ export function InviteFlow({
     mutationFn: (profileId: string) =>
       familyService.removeManagedProfile(familyId, profileId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
     },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
   })
@@ -60,7 +60,7 @@ export function InviteFlow({
     onSuccess: (data) => {
       setClaimCode(data.claimCode)
       setStep('code-ready')
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
     },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
   })

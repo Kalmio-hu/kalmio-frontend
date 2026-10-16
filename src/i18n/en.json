@@ -25,6 +25,8 @@
     "grove": "Grove"
   },
   "common": {
+    "loading": "One moment…",
+    "clear": "Clear",
     "version": "",
     "required": "Required",
     "optional": "optional",
@@ -272,7 +274,7 @@
     },
     "points": {
       "total": "{{count}} points",
-      "weeklyTitle": "Your weekly points: {{count}}"
+      "weeklyTitle": "Your points: {{count}}"
     },
     "activation": {
       "title": "No weekly plan yet",
@@ -308,6 +310,62 @@
       "acceptError": "The suggestion has expired — refreshed.",
       "wasted": "{{name}} cannot be saved{{cost}} — it will go to waste.",
       "sameFamily": "same family"
+    },
+    "premiumTools": "Founding Member tools",
+    "aiEdit": {
+      "title": "Shape the plan",
+      "subtitle": "Tell me what changed or what you're craving — I'll rework the remaining meals.",
+      "placeholder": "E.g. “Guests on Thursday, something more festive for dinner please.”",
+      "submit": "Suggest changes",
+      "submitting": "Thinking…",
+      "changesTitle": "Suggested changes",
+      "noChanges": "No changes needed for this — everything stays as planned.",
+      "discard": "Discard",
+      "accepting": "Applying…",
+      "accepted": "Your plan has been updated.",
+      "errors": {
+        "premium": "Conversational plan editing is a Founding Member feature.",
+        "precondition": "I can only edit an active plan.",
+        "rateLimited": "Please wait a minute before the next request, or you've reached the monthly limit.",
+        "unavailable": "AI plan editing isn't available right now.",
+        "generic": "Couldn't process the request — please try again."
+      }
+    },
+    "coach": {
+      "title": "Cravings coach",
+      "subtitle": "Describe an eating pattern — I'll offer a response that fits your goals.",
+      "placeholder": "E.g. “I always crave sweets in the evening.”",
+      "submit": "Ask for an observation",
+      "submitting": "Observing…",
+      "applyToPlan": "Apply to my plan",
+      "errors": {
+        "premium": "The cravings coach is a Founding Member feature.",
+        "precondition": "I couldn't interpret that — try phrasing it differently.",
+        "rateLimited": "Please wait a minute before the next request, or you've reached the monthly limit.",
+        "unavailable": "The cravings coach isn't available right now.",
+        "generic": "Couldn't process that — please try again."
+      }
+    },
+    "recap": {
+      "title": "Weekly recap",
+      "subtitle": "A short summary of how you're doing with your plan.",
+      "cta": "Get my recap",
+      "loading": "Writing your recap…",
+      "refresh": "Refresh",
+      "generatedAt": "Generated: {{time}}",
+      "metrics": {
+        "meals": "Meals",
+        "recipesTried": "Recipes tried",
+        "kcalDeviation": "Average deviation",
+        "points": "Points"
+      },
+      "errors": {
+        "premium": "The weekly recap is a Founding Member feature.",
+        "precondition": "There isn't enough data for this plan yet.",
+        "rateLimited": "Please wait a minute before the next recap, or you've reached the monthly limit.",
+        "unavailable": "The recap isn't available right now.",
+        "generic": "Couldn't generate the recap — please try again."
+      }
     }
   },
   "mealPlan": {
@@ -644,6 +702,13 @@
       "cancel": "Cancel",
       "create": "Create Product",
       "save": "Save Changes"
+    },
+    "partnerExport": {
+      "title": "Partner export",
+      "subtitle": "The monthly export runs automatically on the first of each month. Trigger it here for a month-end retry or a check.",
+      "cta": "Run export",
+      "running": "Exporting…",
+      "error": "The export failed — check the logs."
     }
   },
   "profile": {
@@ -1281,56 +1346,86 @@
     }
   },
   "shoppingList": {
-    "title": "Shopping List",
-    "subtitle": "Based on your {{days}}-day meal plan",
-    "backToPlan": "Back to Plan",
-    "building": "Building your shopping list…",
-    "error": "Failed to build shopping list",
-    "items": "items",
-    "noActivePlan": {
-      "title": "No active meal plan",
-      "description": "Generate a meal plan first to create a shopping list.",
-      "button": "Go to Meal Plans"
+    "title": "Shopping list",
+    "window": "{{start}} – {{end}}",
+    "backToPlan": "Back to the plan",
+    "noPlan": {
+      "title": "No active plan",
+      "desc": "Start a plan first — I'll build the list from it.",
+      "button": "Go to plans"
     },
+    "empty": {
+      "title": "No shopping list yet",
+      "body": "I'll build it for the current cycle and deduct what's already in your fridge.",
+      "generate": "Build the list"
+    },
+    "generating": "Building…",
+    "regenerate": "Refresh the list",
+    "regenerateHint": "Recalculate from the plan and the fridge — ticks and your own items are kept.",
     "summary": {
-      "totalItems": "Total items",
+      "items": "Items",
+      "covered_one": "{{count}} already in the fridge",
+      "covered_other": "{{count}} already in the fridge",
       "estimatedTotal": "Estimated total",
-      "noRetailMatch": "No retail match",
-      "totalLeftovers": "Estimated leftovers"
+      "leftovers": "Surplus from package sizes: ~{{cost}}"
     },
-    "missingItems_one": "{{count}} ingredient has no Tesco product match. Buy these separately.",
-    "missingItems_other": "{{count}} ingredients have no Tesco product match. Buy these separately.",
-    "totalNeeded": "Total needed:",
-    "noRetailProduct": "No retail product available — buy separately",
-    "tesco": "Tesco",
-    "pantryLabel": "Pantry",
-    "fridgeLabel": "{{amount}} {{unit}} in fridge",
-    "leftovers": {
-      "amount": "Leftovers: {{amount}} {{unit}}",
-      "cost": "~{{cost}}",
-      "summaryTitle": "Leftovers",
-      "summaryDesc": "Portions bought but not needed due to package sizes",
-      "pantrySection": "Pantry staples",
-      "none": "No leftovers — exact package fits",
-      "addToFridge": "Add leftovers to fridge",
-      "addingToFridge": "Adding to fridge…",
-      "addedToFridge": "Leftovers added to your fridge"
-    },
-    "openInTesco": "Add to my Tesco basket",
-    "tescoMappingWeak": "More than half of the items have no Tesco link — search results may vary.",
-    "actions": {
-      "print": "Print",
-      "copy": "Copy",
-      "copied": "Copied",
-      "email": "Email"
-    },
-    "bought": "I bought this",
+    "addItem": "Add an item",
+    "addItemPlaceholder": "E.g. toilet paper",
+    "pickFromCatalog": "Pick from ingredients",
+    "add": "Add",
+    "adding": "Adding…",
+    "removeItem": "Remove {{name}}",
+    "adhocBadge": "Own",
+    "tickAria": "Tick {{name}}",
+    "itemTicked": "Got it: {{name}}",
+    "undoHint": "Tap the row again to undo.",
+    "allDone": "All done.",
+    "covered": "Already in the fridge",
+    "coveredSection": "Already in the fridge",
+    "deducted": "{{need}} needed, {{have}} in stock",
+    "retailDetails": "Product details",
+    "packages_one": "{{count}} package",
+    "packages_other": "{{count}} packages",
+    "leftover": "Surplus: {{amount}}",
+    "openProduct": "Open product",
     "allInFridge": {
-      "title": "Everything's in the fridge",
-      "desc": "All ingredients for your plan are in the fridge."
+      "title": "Everything is in the fridge",
+      "desc": "You already have every ingredient this cycle needs."
     },
-    "shopNowEntry": {
-      "button": "Start shopping"
+    "nothingToBuy": {
+      "title": "Nothing to buy",
+      "desc": "There are no planned meals in this cycle."
+    },
+    "markShoppedCta": "Bought everything — into the fridge",
+    "markShoppedToast": {
+      "message_one": "{{count}} ingredient added to the fridge — tap to review.",
+      "message_other": "{{count}} ingredients added to the fridge — tap to review.",
+      "reviewLink": "Open the fridge"
+    },
+    "receipt": "Scan a receipt",
+    "errors": {
+      "load": "Couldn't load the list.",
+      "generate": "Couldn't build the list.",
+      "tick": "Couldn't tick the item.",
+      "add": "Couldn't add the item.",
+      "markShopped": "Couldn't finish shopping."
+    },
+    "categories": {
+      "PRODUCE": "Produce",
+      "BAKERY": "Bakery",
+      "DAIRY": "Dairy",
+      "MEAT": "Meat",
+      "FISH": "Fish",
+      "DELI": "Deli",
+      "FROZEN": "Frozen",
+      "PANTRY": "Dry goods",
+      "CANNED": "Canned goods",
+      "CONDIMENTS": "Condiments",
+      "BEVERAGES": "Beverages",
+      "SNACKS": "Snacks",
+      "HOUSEHOLD": "Household",
+      "PERSONAL_CARE": "Personal care",
+      "OTHER": "Other"
     }
   },
   "fridge": {
@@ -1372,6 +1467,10 @@
       "dateLabel": "Expiry date (optional)",
       "defaultHint": "If left blank, the system estimates from category.",
       "setDate": "Set expiry date"
+    },
+    "receipt": {
+      "button": "Receipt",
+      "title": "Scan a receipt"
     }
   },
   "plan": {
@@ -1395,6 +1494,7 @@
     "mealCount_other": "{{count}} meals",
     "mealActions": "Actions",
     "forbiddenIngredients": {
+      "removeAria": "Remove {{name}}",
       "label": "Ingredients to avoid",
       "placeholder": "e.g. spinach, broccoli",
       "empty": "No excluded ingredients",
@@ -1419,6 +1519,10 @@
       "title": "My plans",
       "subtitle": "All your meal-plan templates in one place.",
       "newPlan": "New plan",
+      "archiveConfirm": {
+        "title": "Archive plan",
+        "body": "“{{name}}” leaves the list and its running schedules stop. You can still find it under the Archived filter."
+      },
       "empty": "No plans yet.",
       "retry": "Retry",
       "defaultBadge": "Default",
@@ -1786,6 +1890,33 @@
       "cuisine": {
         "label": "Cuisine"
       }
+    },
+    "members": {
+      "title": "Members",
+      "subtitle": "Tick who this plan is for. You can also appoint a co-planner.",
+      "readOnly": "Members can be changed by the planner or a co-planner.",
+      "inPlanAria": "{{name}} in the plan",
+      "lastMember": "A plan needs at least one member.",
+      "plannerBadge": "Planner",
+      "coPlannerBadge": "Co-planner",
+      "memberBadge": "Member",
+      "notInPlan": "Not in the plan",
+      "makeCoPlanner": "Co-planner",
+      "removeCoPlanner": "Revoke",
+      "updated": "Members updated.",
+      "updateError": "Couldn't update — please try again.",
+      "conflict": "Conflict: another plan already covers this member for the same period."
+    },
+    "suggestions": {
+      "title": "Household plan suggestion",
+      "subtitle_one": "{{count}} suggestion is waiting for your decision.",
+      "subtitle_other": "{{count}} suggestions are waiting for your decision.",
+      "noDiff": "This suggestion contains no changes.",
+      "accept": "Accept",
+      "reject": "Decline",
+      "accepted": "Suggestion applied.",
+      "rejected": "Suggestion declined.",
+      "error": "That didn't work — please try again."
     }
   },
   "approval": {
@@ -2143,6 +2274,7 @@
     }
   },
   "taste": {
+    "emptyDeck": "Nothing to rate right now — continue to the next step.",
     "love": "Love it",
     "ok": "I'd eat it",
     "hate": "Not for me",
@@ -2277,6 +2409,7 @@
   },
   "onboarding": {
     "shell": {
+      "saveError": "Could not save — please try again.",
       "progressAriaLabel": "Step {{current}} of {{total}}",
       "progressSrText": "Step {{current}} of {{total}}",
       "skip": "Skip for now",
@@ -2358,7 +2491,7 @@
       "cadenceCustom": "Custom",
       "cadenceCustomAriaLabel": "Enter a custom shopping frequency in days",
       "cadenceError": "The value must be between 1 and 14 days.",
-      "shoppingDayLabel": "Which day works best for shopping?",
+      "shoppingDayLabel": "Which day works best for shopping and prep?",
       "forbiddenLabel": "Excluded ingredients",
       "forbiddenHint": "Optional. If you want to keep something out of your plan entirely, search and add it here.",
       "budgetLabel": "Weekly grocery budget",
@@ -2531,6 +2664,7 @@
       }
     },
     "bodyDataStep": {
+      "rangeError": "Check the values: weight 20–300 kg, height 100–250 cm, age 10–120 years.",
       "title": "A few numbers about you.",
       "body": "I use these to calculate your daily energy needs and protein target. You can change them any time in your Profile.",
       "tdeeHint": "Fill in every field and I'll show your estimated value right here.",
@@ -2598,7 +2732,9 @@
       "leaveAriaLabel": "Leave the family",
       "confirmLeave": "Leave the family? Your personal data stays with you — only the family link is dissolved.",
       "leaveSuccess": "You have left the family.",
-      "cannotLeaveLastPlanner": "You cannot leave — you are the only Planner. Hand off the role first."
+      "cannotLeaveLastPlanner": "You cannot leave — you are the only Planner. Hand off the role first.",
+      "viewMeals": "Daily meals",
+      "viewMealsAria": "{{name}}'s daily meals"
     },
     "roles": {
       "planner": "Planner",
@@ -2635,7 +2771,9 @@
       "revokeInviteCta": "Revoke",
       "revokeInviteConfirm": "Are you sure you want to revoke this invite?",
       "revokeInviteSuccess": "Invite revoked.",
-      "revokeInviteError": "Failed to revoke the invite."
+      "revokeInviteError": "Failed to revoke the invite.",
+      "sentInvitesUnavailable": "Sent invites are unavailable right now.",
+      "sentInvitesEmpty": "You have not sent any invites yet."
     },
     "merge": {
       "dialogTitle": "Link your profile",
@@ -2725,7 +2863,6 @@
       "plannedMeals": "Planned meals",
       "offPlanHistory": "Logged today",
       "noPlanSelected": "No plan selected.",
-      "skipSlotComingSoon": "Skip meal",
       "mealRequestComingSoon": "Request a meal from the planner",
       "recipientNotificationComingSoon": "Notifications when someone shares their portion with you"
     },
@@ -2739,7 +2876,8 @@
       "ateIt": "I ate it",
       "somethingElse": "I had something else",
       "markEaten": "Mark as eaten",
-      "moreOptions": "More options"
+      "moreOptions": "More options",
+      "skip": "Skip"
     }
   },
   "offPlan": {
@@ -2780,37 +2918,6 @@
       "applyToAll": "Apply to all",
       "customizePerSlot": "Customise per meal",
       "confirm": "Confirm"
-    }
-  },
-  "cart": {
-    "title": "Shopping cart",
-    "subtitle_one": "Based on {{count}} plan",
-    "subtitle_other": "Based on {{count}} plans",
-    "subtitle": "Based on {{planCount}} plans",
-    "generating": "Building your list…",
-    "itemCount": "{{count}} ingredients",
-    "markShoppedCta": "All done — close plans as shopped",
-    "markedShopped": "Plans marked as shopped.",
-    "allCheckedNudge": "Everything checked off. You can close out the plans.",
-    "ingredientsTitle": "Ingredients",
-    "checkItem": "Mark {{name}}",
-    "showSourcePlans": "Source plans",
-    "sourcePlan": "Plan",
-    "leftoversRescueNotice": "Returned-to-fridge items will be highlighted here as \"use existing\" once disposition tracking is live.",
-    "empty": {
-      "title": "Nothing to shop for",
-      "desc": "All plans in this period have already been marked as shopped."
-    },
-    "window": {
-      "days3": "Next 3 days",
-      "days7": "Next 7 days",
-      "days14": "Next 14 days",
-      "days30": "Next 30 days"
-    },
-    "markShoppedToast": {
-      "message_one": "{{count}} item added to your fridge — tap to review.",
-      "message_other": "{{count}} items added to your fridge — tap to review.",
-      "reviewLink": "Open fridge"
     }
   },
   "shopping": {
@@ -3110,50 +3217,6 @@
     "queuedActions_other": "{{count}} actions queued, will sync when online.",
     "queuedActionsSynced": "Synced."
   },
-  "shopNow": {
-    "title": "Shopping",
-    "back": "Back",
-    "progress": "{{ticked}} / {{total}}",
-    "emptyState": {
-      "title": "No shopping list yet",
-      "body": "I'll compile the list from the current plan.",
-      "generate": "Build list"
-    },
-    "generating": "Building…",
-    "itemTicked": "Got it",
-    "undo": "Undo",
-    "allDone": "All items collected.",
-    "addItem": "Add item",
-    "addItemPlaceholder": "Search or free text…",
-    "add": "Add",
-    "adding": "Adding…",
-    "searching": "Searching…",
-    "noIngredientMatch": "No matching ingredient",
-    "willAddAdhoc": "will be added as custom item",
-    "error": {
-      "load": "Could not load the shopping list.",
-      "generate": "Could not build the shopping list.",
-      "tick": "Could not update the item.",
-      "addItem": "Could not add the item."
-    },
-    "categories": {
-      "PRODUCE": "Produce",
-      "BAKERY": "Bakery",
-      "DAIRY": "Dairy",
-      "MEAT": "Meat",
-      "FISH": "Fish",
-      "DELI": "Deli",
-      "FROZEN": "Frozen",
-      "PANTRY": "Dry goods",
-      "CANNED": "Canned goods",
-      "CONDIMENTS": "Condiments",
-      "BEVERAGES": "Beverages",
-      "SNACKS": "Snacks",
-      "HOUSEHOLD": "Household",
-      "PERSONAL_CARE": "Personal care",
-      "OTHER": "Other"
-    }
-  },
   "mutation": {
     "rollbackError": "The change could not be saved. The previous state has been restored.",
     "mealStatusError": "Could not update the meal status.",
@@ -3301,5 +3364,18 @@
         "desc": "Pay once, own it forever. Unlimited access to every current and future feature — for life."
       }
     }
+  },
+  "ingredientCategory": {
+    "PROTEIN": "Protein",
+    "CARB": "Carbs",
+    "FAT": "Fats",
+    "VEGGIE": "Fruit & veg",
+    "SPICE": "Spices",
+    "OTHER": "Other"
+  },
+  "units": {
+    "G": "g",
+    "ML": "ml",
+    "PIECE": "pc"
   }
 }

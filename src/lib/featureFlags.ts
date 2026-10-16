@@ -35,7 +35,13 @@ import { getConsent } from './analytics'
 // ── Compile-time defaults ─────────────────────────────────────────────────────
 // Flags not present in this map default to false when PostHog is unavailable.
 const FLAG_DEFAULTS: Record<string, string | boolean> = {
-  // premium_enabled: false — default off; PostHog targeting controls per-user access.
+  // PostHog only loads after analytics consent. These flags gate paid features, so a
+  // user who declines cookies (or whose flags have not loaded yet) must see the
+  // build-time default rather than a permanent "coming soon". The PostHog flag stays
+  // a kill switch for users who did consent; VITE_PAYMENT_ENABLED / VITE_PREMIUM_ENABLED
+  // remain the build-time kill switches for everyone.
+  payment_enabled: true,
+  premium_enabled: true,
 }
 
 // ── Internal helpers ──────────────────────────────────────────────────────────

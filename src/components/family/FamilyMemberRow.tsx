@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, LogOut, Pencil, Trash2, UserCog, UserMinus } from 'lucide-react'
+import { CalendarDays, ChevronDown, LogOut, Pencil, Trash2, UserCog, UserMinus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
@@ -9,8 +10,6 @@ import { ManagedProfileEditor } from './ManagedProfileEditor'
 import { familyService } from '@/services/family'
 import { useAuthStore } from '@/store/auth'
 import type { FamilyMemberDto, FamilyRole } from '@/types'
-
-const FAMILY_ID_KEY = 'kalmio_family_id'
 
 interface Props {
   familyId: string
@@ -50,7 +49,7 @@ export function FamilyMemberRow({
   const removeMutation = useMutation({
     mutationFn: () => familyService.removeManagedProfile(familyId, member.userId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
       toast({ title: t('family.memberRow.profileRemoved') })
     },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
@@ -59,7 +58,7 @@ export function FamilyMemberRow({
   const kickMutation = useMutation({
     mutationFn: () => familyService.removeMember(familyId, member.userId),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
       toast({ title: t('family.memberRow.memberRemoved', { name: displayName }) })
     },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
@@ -68,7 +67,6 @@ export function FamilyMemberRow({
   const leaveMutation = useMutation({
     mutationFn: () => familyService.removeMember(familyId, member.userId),
     onSuccess: () => {
-      localStorage.removeItem(FAMILY_ID_KEY)
       qc.invalidateQueries({ queryKey: ['family'] })
       toast({ title: t('family.memberRow.leaveSuccess') })
     },
@@ -79,7 +77,7 @@ export function FamilyMemberRow({
     mutationFn: (newRole: FamilyRole) =>
       familyService.changeMemberRole(familyId, member.userId, newRole),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
       setRoleMenuOpen(false)
     },
     onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
@@ -194,6 +192,18 @@ export function FamilyMemberRow({
 
       {/* Actions */}
       <div className="flex items-center gap-1 shrink-0">
+        {/* Per-member daily meals view — own view always, others for the planner */}
+        {(isSelf || isCurrentUserPlanner) && (
+          <Link
+            to={`/app/members/${member.userId}`}
+            aria-label={t('family.memberRow.viewMealsAria', { name: displayName })}
+            title={t('family.memberRow.viewMeals')}
+            className="p-1.5 rounded-lg text-[#6b6b6b] hover:text-[#1A1A1A] hover:bg-gray-100 transition-colors"
+          >
+            <CalendarDays className="h-4 w-4" />
+          </Link>
+        )}
+
         {canEdit && (
           <button
             type="button"
@@ -327,7 +337,7 @@ export function FamilyMemberRow({
                   preferences: prefs,
                 })
                 .then(() => {
-                  qc.invalidateQueries({ queryKey: ['family', familyId] })
+                  qc.invalidateQueries({ queryKey: ['family'] })
                   setEditOpen(false)
                   toast({ title: t('family.managedProfile.savedPrefs') })
                 })

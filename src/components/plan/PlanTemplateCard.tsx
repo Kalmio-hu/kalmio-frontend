@@ -131,7 +131,7 @@ export function PlanTemplateCard({
               </h3>
               {isDefault && (
                 <span
-                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-600 shrink-0"
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-[#eef6eb] text-[#4F7942] shrink-0"
                   title={t('plan.list.defaultBadge')}
                 >
                   <Pin className="w-2.5 h-2.5" aria-hidden />
@@ -163,7 +163,7 @@ export function PlanTemplateCard({
               aria-haspopup="true"
               aria-expanded={menuOpen}
               onClick={e => { e.stopPropagation(); setMenuOpen(v => !v) }}
-              className="p-1 rounded hover:bg-[#f3f4f6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] text-[#6b7280]"
+              className="p-1 rounded hover:bg-[#f3f4f6] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] text-[#6b7280]"
             >
               <MoreVertical className="w-4 h-4" aria-hidden />
             </button>

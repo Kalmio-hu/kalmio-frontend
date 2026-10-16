@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { SnoozeActionHandler } from '@/components/notification/SnoozeActions'
@@ -6,6 +6,7 @@ import { useInvestorPreview } from '@/lib/investorPreview'
 
 export function ProtectedRoute() {
   const { session, initialized } = useAuthStore()
+  const location = useLocation()
   const { isValid: isInvestorPreview, isLoading: isVerifyingToken } = useInvestorPreview()
 
   if (!initialized || isVerifyingToken) {
@@ -17,7 +18,10 @@ export function ProtectedRoute() {
   }
 
   if (!session && !isInvestorPreview) {
-    return <Navigate to="/auth" replace />
+    // Carry the intended destination so AuthCallback can return the user to it.
+    const next = `${location.pathname}${location.search}`
+    const to = next && next !== '/app' ? `/auth?next=${encodeURIComponent(next)}` : '/auth'
+    return <Navigate to={to} replace />
   }
 
   return (

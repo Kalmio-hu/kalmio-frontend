@@ -16,7 +16,7 @@ import { api } from './api'
  * cross-cutting auth/observability behaviour continue to apply unchanged.
  *
  * Usage:
- *   const { data, error, response } = await apiClient.GET('/api/plans/calendar/active')
+ *   const { data, error, response } = await apiClient.GET('/api/plans/active')
  *   //                                              ^ autocompletes from `paths`
  *
  * For migration, prefer adopting `apiClient` one service file at a time; the

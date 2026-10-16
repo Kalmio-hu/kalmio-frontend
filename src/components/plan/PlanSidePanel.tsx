@@ -70,7 +70,7 @@ export function PlanSidePanel({ plan, recipesById }: PlanSidePanelProps) {
         className="rounded-[16px] border border-[#e5e7eb] bg-white"
       >
         <div className="px-4 py-3 border-b border-[#f3f4f6] flex items-center gap-2">
-          <Wallet className="h-3.5 w-3.5 text-[#4f46e5]" aria-hidden />
+          <Wallet className="h-3.5 w-3.5 text-[#4F7942]" aria-hidden />
           <h3 className="text-sm font-semibold text-[#1A1A1A]">
             {t('plan.detail.sidePanel.costTitle')}
           </h3>

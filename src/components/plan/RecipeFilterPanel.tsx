@@ -89,7 +89,7 @@ export function RecipeFilterPanel({
       className={`
         rounded-[12px] border transition-colors
         ${hasAnyFilter
-          ? 'border-[#4f46e5] bg-[#f5f3ff]'
+          ? 'border-[#4F7942] bg-[#eef6eb]'
           : 'border-[#e5e7eb] bg-white'}
       `}
     >
@@ -102,7 +102,7 @@ export function RecipeFilterPanel({
         className="
           w-full flex items-center justify-between
           px-4 py-3 text-left rounded-[12px]
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
           disabled:opacity-60
         "
       >
@@ -111,7 +111,7 @@ export function RecipeFilterPanel({
             {t('plan.recipeFilter.title')}
           </span>
           {hasAnyFilter && (
-            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-[#4f46e5] text-white shrink-0">
+            <span className="text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-[#4F7942] text-white shrink-0">
               {t('plan.recipeFilter.activeIndicator')}
             </span>
           )}
@@ -142,8 +142,8 @@ export function RecipeFilterPanel({
             <label className={`
               flex items-center gap-3 px-3 py-2.5 rounded-xl border cursor-pointer transition-colors
               ${value.ownOnly
-                ? 'border-[#4f46e5] bg-[#eef2ff]'
-                : 'border-[#e5e7eb] bg-white hover:border-[#4f46e5]/50'}
+                ? 'border-[#4F7942] bg-[#eef2ff]'
+                : 'border-[#e5e7eb] bg-white hover:border-[#4F7942]/50'}
               ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
             `}>
               <input
@@ -151,7 +151,7 @@ export function RecipeFilterPanel({
                 checked={!!value.ownOnly}
                 disabled={disabled}
                 onChange={e => onChange({ ...value, ownOnly: e.target.checked })}
-                className="w-4 h-4 accent-[#4f46e5] rounded shrink-0"
+                className="w-4 h-4 accent-[#4F7942] rounded shrink-0"
               />
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium text-[#1A1A1A]">
@@ -181,11 +181,11 @@ export function RecipeFilterPanel({
                     onClick={() => toggleTag(tag)}
                     className={`
                       px-3 py-1.5 rounded-full text-xs font-medium border transition-colors
-                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                       disabled:opacity-60 disabled:cursor-not-allowed
                       ${active
-                        ? 'bg-[#4f46e5] text-white border-transparent'
-                        : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
+                        ? 'bg-[#4F7942] text-white border-transparent'
+                        : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#4F7942] hover:text-[#4F7942]'}
                     `}
                   >
                     {t(`plan.recipeFilter.style.tags.${tag}`, tag)}
@@ -212,11 +212,11 @@ export function RecipeFilterPanel({
                     onClick={() => toggleCulturalTag(tag)}
                     className={`
                       px-3 py-1.5 rounded-full text-xs font-medium border transition-colors
-                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                      focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                       disabled:opacity-60 disabled:cursor-not-allowed
                       ${active
-                        ? 'bg-[#4f46e5] text-white border-transparent'
-                        : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
+                        ? 'bg-[#4F7942] text-white border-transparent'
+                        : 'bg-white text-[#6b7280] border-[#e5e7eb] hover:border-[#4F7942] hover:text-[#4F7942]'}
                     `}
                   >
                     {tag}
@@ -233,7 +233,7 @@ export function RecipeFilterPanel({
                 type="button"
                 onClick={clearAll}
                 disabled={disabled}
-                className="text-xs text-[#6b7280] hover:text-[#1A1A1A] underline disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+                className="text-xs text-[#6b7280] hover:text-[#1A1A1A] underline disabled:opacity-60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
               >
                 {t('plan.recipeFilter.clearAll')}
               </button>

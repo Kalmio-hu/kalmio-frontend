@@ -75,8 +75,14 @@ export function BodyDataStep({
     parsedWeight != null && parsedHeight != null && parsedAge != null &&
     biologicalSex !== '' && activityLevel !== ''
 
+  // Mirrors the backend ranges; HTML min/max alone does not stop typed-in values.
+  const inRange = (v: number | null, min: number, max: number) =>
+    v == null || (Number.isFinite(v) && v >= min && v <= max)
+  const rangeValid =
+    inRange(parsedWeight, 20, 300) && inRange(parsedHeight, 100, 250) && inRange(parsedAge, 10, 120)
+
   function handleSubmit() {
-    if (!allComplete || isSubmitting) return
+    if (!allComplete || !rangeValid || isSubmitting) return
     onAdvance({
       weightKg: parsedWeight,
       heightCm: parsedHeight,
@@ -213,10 +219,15 @@ export function BodyDataStep({
       </div>
 
       <div className="flex flex-col gap-3">
+        {!rangeValid && (
+          <p role="alert" className="text-xs text-red-600 text-center">
+            {t('onboarding.bodyDataStep.rangeError')}
+          </p>
+        )}
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!allComplete || isSubmitting}
+          disabled={!allComplete || !rangeValid || isSubmitting}
           className="h-12 w-full rounded-[12px] bg-[#F28C28] px-6 text-base font-semibold text-white transition-colors hover:bg-[#d97a20] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting

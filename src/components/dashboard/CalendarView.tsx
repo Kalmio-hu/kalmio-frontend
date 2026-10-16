@@ -26,12 +26,12 @@ import { RecipeFamilyHint } from '@/components/recipe/RecipeFamilyHint'
 import { plannedMealsService } from '@/services/plannedMeals'
 import { recipesService } from '@/services/recipes'
 import type { MaterializedPlannedMeal, MaterializedPlannedMealStatus, MealType, Recipe } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, dateToIsoLocal } from '@/lib/utils'
 
 // ── Date helpers ────────────────────────────────────────────────────────────
 
 function toIso(d: Date): string {
-  return d.toISOString().split('T')[0]
+  return dateToIsoLocal(d)
 }
 
 /** Return Monday of the week containing `date`. */

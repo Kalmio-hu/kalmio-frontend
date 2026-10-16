@@ -36,8 +36,6 @@ import { useAuthStore } from '@/store/auth'
 import { generateTemplateName } from './planUtils'
 import type { MealType, CreatePlanTemplateRequest } from '@/types'
 
-const FAMILY_ID_KEY = 'kalmio_family_id'
-
 const DURATION_PRESETS = [1, 7, 14]
 
 type SubmitMode = 'AUTO' | 'EMPTY'
@@ -50,15 +48,13 @@ export function PlanCreate() {
   const location = useLocation()
   const qc = useQueryClient()
   const currentUserId = useAuthStore((s) => s.session?.user.id ?? '')
-  const familyId = localStorage.getItem(FAMILY_ID_KEY)
 
   const initialMemberIds =
     (location.state as { initialMemberIds?: string[] } | null)?.initialMemberIds ?? null
 
   const { data: family } = useQuery({
-    queryKey: ['family', familyId],
-    queryFn: () => familyService.getFamily(familyId!),
-    enabled: !!familyId,
+    queryKey: ['family', 'mine'],
+    queryFn: familyService.getMine,
     staleTime: 60_000,
   })
 

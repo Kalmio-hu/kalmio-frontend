@@ -158,10 +158,10 @@ export function PrepSlotPicker({ open, onConfirm, onClose, isSaving }: PrepSlotP
               onClick={() => setScheduledWindow(w)}
               className={`
                 flex-1 py-2 rounded-[10px] text-sm font-medium border transition-colors
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                 ${scheduledWindow === w
-                  ? 'border-[#4f46e5] bg-[#4f46e5]/5 text-[#4f46e5]'
-                  : 'border-[#e5e7eb] text-[#6b7280] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
+                  ? 'border-[#4F7942] bg-[#4F7942]/5 text-[#4F7942]'
+                  : 'border-[#e5e7eb] text-[#6b7280] hover:border-[#4F7942] hover:text-[#4F7942]'}
               `}
               aria-pressed={scheduledWindow === w}
             >

@@ -60,10 +60,10 @@ export function RecipeFilterChips({ state, onChange, compact = false }: RecipeFi
               aria-pressed={active}
               className={`
                 ${pad} rounded-full font-medium transition-colors
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                 ${active
-                  ? 'bg-[#4f46e5] text-white border-transparent'
-                  : 'bg-white text-[#6b7280] border border-[#e5e7eb] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
+                  ? 'bg-[#4F7942] text-white border-transparent'
+                  : 'bg-white text-[#6b7280] border border-[#e5e7eb] hover:border-[#4F7942] hover:text-[#4F7942]'}
               `}
             >
               {t(`recipes.tags.${tag}`, { defaultValue: tag })}
@@ -87,7 +87,7 @@ export function RecipeFilterChips({ state, onChange, compact = false }: RecipeFi
               aria-pressed={active}
               className={`
                 ${pad} rounded-full font-medium transition-colors
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+                focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
                 ${active
                   ? 'bg-[#4F7942] text-white border-transparent'
                   : 'bg-white text-[#6b7280] border border-[#e5e7eb] hover:border-[#4F7942] hover:text-[#4F7942]'}

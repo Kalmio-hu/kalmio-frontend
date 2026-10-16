@@ -1,6 +1,5 @@
 import { api } from '@/lib/api'
-import { apiClient } from '@/lib/api-client'
-import type { Plan, PlannedMeal, CreatePlanRequest, UpdatePlannedMealRequest, ReplanDiff, ShoppingList, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse, RecipeFilter } from '@/types'
+import type { Plan, ReplanDiff, PlanTemplate, CreatePlanTemplateRequest, TemplateMeal, RunPlanBody, RunPlanResponse, RecipeFilter, AiPlanEditResponse, WeeklyRecap, UpdatePlanMembersRequest, ReplanSuggestion } from '@/types'
 
 // ── Template Meal upsert body ──────────────────────────────────────────────
 
@@ -13,57 +12,51 @@ export interface UpsertTemplateMealRequest {
   servings?: number
 }
 
+/**
+ * The calendar projection of the active plan and the replan cycle (PlanController).
+ * Creation, editing and scheduling live in planTemplateService; meal edits in plannedMealsService.
+ */
 export const planService = {
-  create: (req: CreatePlanRequest): Promise<Plan> =>
-    api.post<Plan>('/api/plans/calendar', req, { requestIdempotencyKey: true }).then(r => r.data),
-
-  // KALMIO-387: typed via openapi-fetch — URL is checked at compile time against
-  // the generated OpenAPI spec, so a backend route rename surfaces here as a TS
-  // error rather than a runtime 500. Other planService methods still use the
-  // raw axios client — migrate incrementally; see src/services/README.md.
-  getActive: async (): Promise<Plan | null> => {
-    const { data, response, error } = await apiClient.GET('/api/plans/calendar/active')
-    if (response.status === 404) return null
-    if (error) throw error
-    return data as unknown as Plan
-  },
-
-  getById: (id: string): Promise<Plan> =>
-    api.get<Plan>(`/api/plans/calendar/${id}`).then(r => r.data),
-
-  updateMeal: (planId: string, mealId: string, req: UpdatePlannedMealRequest): Promise<PlannedMeal> =>
+  /** GET /api/plans/active — most recent ACTIVE plan with its planned meals; null when none. */
+  getActive: (): Promise<Plan | null> =>
     api
-      .patch<PlannedMeal>(`/api/plans/calendar/${planId}/meals/${mealId}`, req, { requestIdempotencyKey: true })
-      .then(r => r.data),
-
-  delete: (id: string): Promise<void> =>
-    api.delete(`/api/plans/calendar/${id}`, { requestIdempotencyKey: true }).then(() => undefined),
+      .get<Plan>('/api/plans/active', { validateStatus: s => s === 200 || s === 404 })
+      .then(r => (r.status === 404 ? null : r.data)),
 
   // SW BackgroundSync excludes /replan paths (sw.ts:233). No idempotency key needed;
   // replan-evaluate is a read-like analysis call and the SW will never queue-replay it.
   evaluateReplan: (planId: string, fromDate?: string): Promise<ReplanDiff | null> =>
     api.post<ReplanDiff>(
-      `/api/plans/calendar/${planId}/replan-evaluate`,
+      `/api/plans/${planId}/replan-evaluate`,
       null,
       { params: fromDate ? { fromDate } : {}, validateStatus: (s) => s === 200 || s === 204 }
     ).then(r => r.status === 204 ? null : r.data),
 
   getReplanDiff: (planId: string): Promise<ReplanDiff | null> =>
     api.get<ReplanDiff>(
-      `/api/plans/calendar/${planId}/replan-diff`,
+      `/api/plans/${planId}/replan-diff`,
       { validateStatus: (s) => s === 200 || s === 204 }
     ).then(r => r.status === 204 ? null : r.data),
 
   acceptReplan: (planId: string, diffId: string): Promise<Plan> =>
-    api.post<Plan>(`/api/plans/calendar/${planId}/replan-accept`, { diffId }, { requestIdempotencyKey: true }).then(r => r.data),
+    api.post<Plan>(`/api/plans/${planId}/replan-accept`, { diffId }, { requestIdempotencyKey: true }).then(r => r.data),
 
-  getShoppingList: (planId: string): Promise<ShoppingList> =>
-    api.get<ShoppingList>(`/api/plans/calendar/${planId}/shopping-list`).then(r => r.data),
-
-  patchMealScheduledTime: (planId: string, mealId: string, scheduledTime: string | null): Promise<void> =>
+  /**
+   * POST /api/plans/{id}/conversational-edit (premium) — natural-language edit of the
+   * ACTIVE plan. The solver re-runs for remaining meals; the returned proposalId is the
+   * stored proposal's diff id, so acceptReplan(planId, proposalId) applies it. No idempotency key:
+   * each call is a fresh AI + solver pass.
+   */
+  conversationalEdit: (planId: string, message: string, targetMealId?: string | null): Promise<AiPlanEditResponse> =>
     api
-      .patch(`/api/plans/calendar/${planId}/meals/${mealId}/scheduled-time`, { scheduledTime }, { requestIdempotencyKey: true })
-      .then(() => undefined),
+      .post<AiPlanEditResponse>(`/api/plans/${planId}/conversational-edit`, { message, targetMealId: targetMealId ?? null })
+      .then(r => r.data),
+
+  /** GET /api/plans/{id}/recap (premium) — cached or freshly generated weekly narrative. */
+  getWeeklyRecap: (planId: string): Promise<WeeklyRecap> =>
+    api.get<WeeklyRecap>(`/api/plans/${planId}/recap`).then(r => r.data),
+
+
 }
 
 // ── Plan Templates (A4 / KALMIO-226) ─────────────────────────────────────
@@ -191,4 +184,38 @@ export const planTemplateService = {
    */
   patchRecipeFilter: (planId: string, recipeFilter: RecipeFilter | null): Promise<PlanTemplate> =>
     api.patch<PlanTemplate>(`/api/plans/${planId}`, { recipeFilter }, { requestIdempotencyKey: true }).then(r => r.data),
+}
+
+/**
+ * Family membership, co-planner delegation and the household replan tray
+ * (MultiMemberPlanController). Every mutation returns the ordinary PlanTemplate.
+ */
+export const multiMemberPlanService = {
+  updateMembers: (planId: string, req: UpdatePlanMembersRequest): Promise<PlanTemplate> =>
+    api
+      .patch<PlanTemplate>(`/api/plans/${planId}/members`, req, { requestIdempotencyKey: true })
+      .then(r => r.data),
+
+  promoteCoPlanner: (planId: string, userId: string): Promise<PlanTemplate> =>
+    api
+      .post<PlanTemplate>(`/api/plans/${planId}/co-planners/${userId}`, null, { requestIdempotencyKey: true })
+      .then(r => r.data),
+
+  demoteCoPlanner: (planId: string, userId: string): Promise<PlanTemplate> =>
+    api
+      .delete<PlanTemplate>(`/api/plans/${planId}/co-planners/${userId}`, { requestIdempotencyKey: true })
+      .then(r => r.data),
+
+  listPendingSuggestions: (planId: string): Promise<ReplanSuggestion[]> =>
+    api.get<ReplanSuggestion[]>(`/api/plans/${planId}/replan-suggestions`).then(r => r.data),
+
+  acceptSuggestion: (suggestionId: string): Promise<ReplanSuggestion> =>
+    api
+      .post<ReplanSuggestion>(`/api/plans/replan-suggestions/${suggestionId}/accept`, null, { requestIdempotencyKey: true })
+      .then(r => r.data),
+
+  rejectSuggestion: (suggestionId: string): Promise<ReplanSuggestion> =>
+    api
+      .post<ReplanSuggestion>(`/api/plans/replan-suggestions/${suggestionId}/reject`, null, { requestIdempotencyKey: true })
+      .then(r => r.data),
 }

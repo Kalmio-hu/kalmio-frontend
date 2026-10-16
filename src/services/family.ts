@@ -66,9 +66,11 @@ export const familyService = {
       .post<SendInviteResponse>(`/api/families/${familyId}/invites`, body, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
-  /** POST /api/invites/{code}/accept — accept an invite (claim or join-only). */
-  acceptInvite: (code: string, body: AcceptInviteRequest): Promise<void> =>
-    api.post(`/api/invites/${code}/accept`, body, { requestIdempotencyKey: true }).then(() => undefined),
+  /** POST /api/invites/{code}/accept — accept an invite; returns the family joined. */
+  acceptInvite: (code: string, body: AcceptInviteRequest): Promise<{ familyId: string }> =>
+    api
+      .post<{ familyId: string }>(`/api/invites/${code}/accept`, body, { requestIdempotencyKey: true })
+      .then((r) => r.data),
 
   /** POST /api/invites/{code}/merge-preview — get the merge diff before accepting. */
   mergePreview: (code: string): Promise<MergePreviewResponse> =>
@@ -130,11 +132,20 @@ export const familyService = {
       .post<ImpersonationPermissionDto>(`/api/impersonation-permissions/${permissionId}/deny`, null, { requestIdempotencyKey: true })
       .then((r) => r.data),
 
-  /** [PENDING_BE] GET /api/families/{id}/invites — list sent invites (planner only). */
+  /**
+   * GET /api/families/mine — the caller's family, resolved server-side.
+   * Returns null when the user belongs to no family (404).
+   */
+  getMine: (): Promise<FamilyResponse | null> =>
+    api
+      .get<FamilyResponse>('/api/families/mine', { validateStatus: (s) => s === 200 || s === 404 })
+      .then((r) => (r.status === 404 ? null : r.data)),
+
+  /** GET /api/families/{id}/invites — list sent invites (planner only). */
   listInvites: (familyId: string): Promise<SentInviteDto[]> =>
     api.get<SentInviteDto[]>(`/api/families/${familyId}/invites`).then((r) => r.data),
 
-  /** [PENDING_BE] DELETE /api/families/{id}/invites/{inviteId} — revoke a pending invite. */
+  /** DELETE /api/families/{id}/invites/{inviteId} — revoke a pending invite. */
   revokeInvite: (familyId: string, inviteId: string): Promise<void> =>
     api.delete(`/api/families/${familyId}/invites/${inviteId}`, { requestIdempotencyKey: true }).then(() => undefined),
 }

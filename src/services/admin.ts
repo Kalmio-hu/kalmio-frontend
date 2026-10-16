@@ -36,4 +36,7 @@ export const adminService = {
     api.post<ImpersonateResponse>(`/api/admin/impersonate/${userId}`).then(r => r.data),
   /** GET /api/admin/stats — DB-row-count metrics not available in PostHog event stream. */
   getStats: () => api.get<AdminStatsResponse>('/api/admin/stats').then(r => r.data),
+  /** POST /api/admin/partner/export — runs the partner export now; returns a summary string. */
+  triggerPartnerExport: () =>
+    api.post<string>('/api/admin/partner/export', null, { requestIdempotencyKey: true }).then(r => r.data),
 }

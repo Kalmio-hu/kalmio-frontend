@@ -19,7 +19,7 @@
  * After the plan run mutation succeeds, instead of immediately closing the
  * dialog, shows CartPromptCard - a non-blocking inline card offering:
  * - Add automatically => POST /api/shopping-cart/generate for the schedule window.
- * - Adjust manually => navigate to /app/cart.
+ * - Adjust manually => navigate to /app/shopping-list.
  * - Dismiss => close with no cart action.
  *
  * Calls planTemplateService.runPlan(planId, body) which maps to
@@ -41,6 +41,7 @@ import { toast } from '@/components/ui/toast'
 import { planTemplateService } from '@/services/plans'
 import { fridgeService } from '@/services/fridge'
 import { countExpiringThisWeek } from '@/lib/grooming'
+import { todayIsoLocal } from '@/lib/utils'
 import { CartPromptCard } from './CartPromptCard'
 import type { PlanTemplate, RunPlanBody, RunPlanResponse } from '@/types'
 
@@ -96,7 +97,7 @@ interface RunPlanDialogProps {
 // -- Helpers --
 
 function todayIso(): string {
-  return new Date().toISOString().slice(0, 10)
+  return todayIsoLocal()
 }
 
 // -- Component --
@@ -295,14 +296,14 @@ export function RunPlanDialog({
                   value={startDate}
                   min={todayIso()}
                   onChange={e => setStartDate(e.target.value)}
-                  className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                  className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => setShowMoreOptions(v => !v)}
-                className="text-sm text-[#4f46e5] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+                className="text-sm text-[#4F7942] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
               >
                 {showMoreOptions ? t('plan.run.fewerOptions') : t('plan.run.moreOptions')}
               </button>
@@ -319,7 +320,7 @@ export function RunPlanDialog({
                     id="run-start-day"
                     value={startDayIndex}
                     onChange={e => setStartDayIndex(Number(e.target.value))}
-                    className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                    className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
                   >
                     {dayOptions.map(d => (
                       <option key={d} value={d}>
@@ -333,7 +334,7 @@ export function RunPlanDialog({
               <button
                 type="button"
                 onClick={() => setShowRecurring(v => !v)}
-                className="text-sm text-[#6b7280] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+                className="text-sm text-[#6b7280] underline text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
               >
                 {t('plan.run.recurringToggle')}
               </button>
@@ -358,7 +359,7 @@ export function RunPlanDialog({
                       max={365}
                       value={cadenceDays}
                       onChange={e => setCadenceDays(Number(e.target.value))}
-                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
                     />
                   </div>
 
@@ -376,7 +377,7 @@ export function RunPlanDialog({
                       min={startDate}
                       placeholder={t('plan.run.endDatePlaceholder')}
                       onChange={e => setEndDate(e.target.value)}
-                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]"
+                      className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
                     />
                   </div>
                 </div>
@@ -433,6 +434,7 @@ export function RunPlanDialog({
 
           {cartPromptResult && (
             <CartPromptCard
+              planId={plan.id}
               windowStart={cartPromptResult.schedule.startDate}
               windowEnd={cartWindowEnd(cartPromptResult)}
               onDone={() => onOpenChange(false)}

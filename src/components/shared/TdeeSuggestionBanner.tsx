@@ -233,7 +233,7 @@ export function TdeeSuggestionBanner({
                 value={proteinInput}
                 onChange={(e) => setProteinInput(e.target.value)}
                 disabled={accepting}
-                className="w-24 rounded-lg border border-gray-200 bg-white px-3 py-2 text-base font-bold text-[#4f46e5] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/40 disabled:opacity-60"
+                className="w-24 rounded-lg border border-gray-200 bg-white px-3 py-2 text-base font-bold text-[#4F7942] tabular-nums focus:outline-none focus:ring-2 focus:ring-[#4F7942]/40 disabled:opacity-60"
                 aria-label={t('onboarding.tdeeStep.proteinEditLabel')}
                 aria-describedby={proteinError ? 'tdee-protein-error' : undefined}
               />

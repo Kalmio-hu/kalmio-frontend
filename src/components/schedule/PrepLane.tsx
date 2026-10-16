@@ -312,8 +312,8 @@ function PrepChip({ task, scheduleId, onMutated }: PrepChipProps) {
 function DragOverlayChip({ task, t }: { task: PrepTaskDto; t: (key: string, opts?: Record<string, unknown>) => string }) {
   const wLabel = windowLabel(task.scheduledWindow, t)
   return (
-    <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white border border-[#4f46e5] shadow-lg text-sm font-medium text-[#1A1A1A] opacity-95 cursor-grabbing w-56">
-      <GripVertical className="h-3.5 w-3.5 shrink-0 text-[#4f46e5]" aria-hidden />
+    <div className="flex items-center gap-2 px-3 py-2 rounded-[10px] bg-white border border-[#4F7942] shadow-lg text-sm font-medium text-[#1A1A1A] opacity-95 cursor-grabbing w-56">
+      <GripVertical className="h-3.5 w-3.5 shrink-0 text-[#4F7942]" aria-hidden />
       <Clock className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden />
       <span className="flex-1 truncate">{task.recipeName ?? '—'}</span>
       <span className="text-[11px] text-gray-400 shrink-0 capitalize">{wLabel}</span>
@@ -346,17 +346,17 @@ function DateDropZone({ date, tasks, scheduleId, onMutated, isAnyDragging }: Dat
       ref={setNodeRef}
       className={[
         'rounded-[10px] transition-colors',
-        isAnyDragging && isOver ? 'bg-[#eef2ff] ring-2 ring-[#4f46e5] ring-offset-1' : '',
+        isAnyDragging && isOver ? 'bg-[#eef2ff] ring-2 ring-[#4F7942] ring-offset-1' : '',
         isAnyDragging && !isOver ? 'ring-1 ring-dashed ring-gray-200' : '',
       ].join(' ')}
     >
       <p className={[
         'text-xs font-medium mb-1.5 px-1',
-        isOver ? 'text-[#4f46e5]' : 'text-gray-400',
+        isOver ? 'text-[#4F7942]' : 'text-gray-400',
       ].join(' ')}>
         {label}
         {isOver && (
-          <span className="ml-1.5 text-[10px] font-semibold text-[#4f46e5]">
+          <span className="ml-1.5 text-[10px] font-semibold text-[#4F7942]">
             {t('schedules.prep.dropHere')}
           </span>
         )}

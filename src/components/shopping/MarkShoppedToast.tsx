@@ -27,14 +27,14 @@ export function MarkShoppedToast({ fridgeItemsAdded }: MarkShoppedToastProps) {
       <div className="flex items-center gap-2">
         <CheckCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
         <span>
-          {t('cart.markShoppedToast.message', { count: fridgeItemsAdded })}
+          {t('shoppingList.markShoppedToast.message', { count: fridgeItemsAdded })}
         </span>
       </div>
       <Link
         to="/app/fridge?review=shopping"
         className="shrink-0 font-semibold underline underline-offset-2 hover:text-[#3d6132] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f7942] rounded"
       >
-        {t('cart.markShoppedToast.reviewLink')}
+        {t('shoppingList.markShoppedToast.reviewLink')}
       </Link>
     </div>
   )

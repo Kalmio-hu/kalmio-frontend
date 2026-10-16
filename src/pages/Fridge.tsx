@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Refrigerator, Plus, Trash2, Search, Archive, Calendar, ClipboardCheck } from 'lucide-react'
+import { Refrigerator, Plus, Trash2, Search, Archive, Calendar, ClipboardCheck, ReceiptText } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,10 +13,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Label } from '@/components/ui/label'
 import { IngredientSearchDialog } from '@/components/IngredientSearchDialog'
+import { shoppingCartService } from '@/services/shoppingCartService'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { fridgeService } from '@/services/fridge'
 import { capture } from '@/lib/analytics'
 import { toast } from '@/components/ui/toast'
 import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
+import { todayIsoLocal, addDaysIsoLocal } from '@/lib/utils'
 import type { FridgeItem, Ingredient, IngredientCategory, Unit } from '@/types'
 
 const CATEGORY_COLOR: Record<IngredientCategory, 'green' | 'orange' | 'gray' | 'black'> = {
@@ -38,9 +41,7 @@ const CATEGORY_SHELF_LIFE_DAYS: Record<IngredientCategory, number> = {
 
 function computeDefaultExpiryDate(category: IngredientCategory): string {
   const days = CATEGORY_SHELF_LIFE_DAYS[category] ?? 14
-  const d = new Date()
-  d.setDate(d.getDate() + days)
-  return d.toISOString().split('T')[0]
+  return addDaysIsoLocal(new Date(), days)
 }
 
 const UNITS: Unit[] = ['G', 'ML', 'PIECE']
@@ -87,12 +88,24 @@ export function Fridge() {
     return d
   }, [])
 
-  const todayIso = today.toISOString().split('T')[0]
+  const todayIso = todayIsoLocal()
 
   const [searchParams] = useSearchParams()
   const [search, setSearch] = useState('')
   const [ingredientDialogOpen, setIngredientDialogOpen] = useState(false)
   const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const isPremium = useIsUserPremium()
+
+  // Receipt scanning runs against the shopping cart (one receipt pipeline). Make sure a cart
+  // exists, then open the scan page; unmatched lines still resolve against the catalog.
+  async function openReceiptScan() {
+    try {
+      const cart = (await shoppingCartService.current()) ?? (await shoppingCartService.generate({}))
+      navigate(`/app/cart/${cart.cartId}/receipt`)
+    } catch {
+      toast({ title: t('common.errorGeneric'), variant: 'destructive' })
+    }
+  }
   const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null)
   const [amount, setAmount] = useState('')
   const [unit, setUnit] = useState<Unit>('G')
@@ -229,6 +242,16 @@ export function Fridge() {
               <ClipboardCheck className="h-4 w-4 mr-1.5" />
               {t('fridge.checkButton.label')}
             </Button>
+            {isPremium && (
+              <Button
+                variant="secondary"
+                onClick={() => void openReceiptScan()}
+                aria-label={t('fridge.receipt.title')}
+              >
+                <ReceiptText className="h-4 w-4 mr-1.5" />
+                {t('fridge.receipt.button')}
+              </Button>
+            )}
             <Button onClick={() => setIngredientDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-1.5" />
               {t('fridge.addItem')}
@@ -327,7 +350,7 @@ export function Fridge() {
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-2">
                 <Badge variant={CATEGORY_COLOR[selectedIngredient.category] ?? 'gray'}>
-                  {selectedIngredient.category}
+                  {t(`ingredientCategory.${selectedIngredient.category}`, selectedIngredient.category)}
                 </Badge>
                 <span className="font-semibold">{selectedIngredient.name}</span>
               </div>
@@ -410,7 +433,7 @@ function InlineExpiryEditor({
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(item.expiryDate ?? '')
 
-  const todayIso = today.toISOString().split('T')[0]
+  const todayIso = todayIsoLocal()
   const status = getExpiryStatus(item.expiryDate, today)
   const statusColor =
     status === 'expired' ? 'text-red-500' : status === 'useSoon' ? 'text-amber-500' : 'text-gray-400'
@@ -506,7 +529,7 @@ function FridgeGroup({
                 )}
                 {item.ingredientCategory && (
                   <Badge variant={CATEGORY_COLOR[item.ingredientCategory] ?? 'gray'} className="shrink-0">
-                    {item.ingredientCategory}
+                    {t(`ingredientCategory.${item.ingredientCategory}`, item.ingredientCategory ?? '')}
                   </Badge>
                 )}
                 <span className="font-medium text-sm text-[#1A1A1A] truncate">{item.ingredientName}</span>

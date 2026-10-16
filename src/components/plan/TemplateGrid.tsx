@@ -415,19 +415,19 @@ function EmptyMemberCell({ dayIndex, slot, memberId, memberName, colorClass, isD
       className={`
         flex items-center gap-1.5 px-3 py-1.5 rounded-full
         border border-dashed text-xs transition-colors
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
         w-full
         ${isOver || isDropTarget
-          ? 'border-[#4f46e5] text-[#4f46e5] bg-[#eef2ff]'
+          ? 'border-[#4F7942] text-[#4F7942] bg-[#eef2ff]'
           : nonPreferred
-            ? 'border-[#e5e7eb] text-[#d1d5db] opacity-60 hover:opacity-100 hover:border-[#4f46e5] hover:text-[#4f46e5]'
-            : 'border-[#d1d5db] text-[#9ca3af] hover:border-[#4f46e5] hover:text-[#4f46e5]'}
+            ? 'border-[#e5e7eb] text-[#d1d5db] opacity-60 hover:opacity-100 hover:border-[#4F7942] hover:text-[#4F7942]'
+            : 'border-[#d1d5db] text-[#9ca3af] hover:border-[#4F7942] hover:text-[#4F7942]'}
       `}
     >
       <span aria-hidden className={`w-2 h-2 rounded-full shrink-0 ${colorClass} ${nonPreferred ? 'opacity-50' : ''}`} />
       {previewing && dragSourceRecipeName ? (
         <>
-          <span className="text-[#4f46e5] shrink-0">↓</span>
+          <span className="text-[#4F7942] shrink-0">↓</span>
           <span className="truncate font-medium">{dragSourceRecipeName}</span>
         </>
       ) : (
@@ -538,8 +538,8 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
         text-xs font-medium transition-all
         w-full
         cursor-grab active:cursor-grabbing touch-none select-none
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
-        ${showSwapHighlight ? 'ring-2 ring-[#4f46e5] bg-[#eef2ff]' : isOver ? 'ring-2 ring-[#4f46e5] bg-[#eef2ff]' : 'hover:bg-[#e8e4dc]'}
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
+        ${showSwapHighlight ? 'ring-2 ring-[#4F7942] bg-[#eef2ff]' : isOver ? 'ring-2 ring-[#4F7942] bg-[#eef2ff]' : 'hover:bg-[#e8e4dc]'}
         ${isDragging ? 'opacity-40' : ''}
         ${nonPreferred && !showSwapHighlight && !isOver ? 'opacity-70 ring-1 ring-dashed ring-[#d1d5db]' : ''}
       `}
@@ -550,7 +550,7 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
         <span
           className="
             self-start inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full
-            bg-[#4f46e5] text-white text-[10px] font-semibold
+            bg-[#4F7942] text-white text-[10px] font-semibold
           "
           aria-hidden
         >
@@ -622,7 +622,7 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
               })}
             >
               <div
-                className="absolute inset-y-0 left-0 bg-[#4f46e5] transition-[width]"
+                className="absolute inset-y-0 left-0 bg-[#4F7942] transition-[width]"
                 style={{ width: `${primaryWidth}%` }}
               />
               {overshoot > 0 && (
@@ -683,9 +683,9 @@ function ServingsStepper({ servings, onChange, t }: ServingsStepperProps) {
         onClick={() => lower != null && onChange(lower)}
         className="
           h-5 w-5 inline-flex items-center justify-center rounded-full
-          bg-white text-[#4f46e5] border border-[#e5e7eb]
-          hover:border-[#4f46e5] disabled:opacity-30 disabled:cursor-not-allowed
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+          bg-white text-[#4F7942] border border-[#e5e7eb]
+          hover:border-[#4F7942] disabled:opacity-30 disabled:cursor-not-allowed
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
         "
       >
         <Minus className="w-3 h-3" aria-hidden />
@@ -703,9 +703,9 @@ function ServingsStepper({ servings, onChange, t }: ServingsStepperProps) {
         onClick={() => upper != null && onChange(upper)}
         className="
           h-5 w-5 inline-flex items-center justify-center rounded-full
-          bg-white text-[#4f46e5] border border-[#e5e7eb]
-          hover:border-[#4f46e5] disabled:opacity-30 disabled:cursor-not-allowed
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+          bg-white text-[#4F7942] border border-[#e5e7eb]
+          hover:border-[#4F7942] disabled:opacity-30 disabled:cursor-not-allowed
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
         "
       >
         <Plus className="w-3 h-3" aria-hidden />

@@ -25,6 +25,8 @@
     "grove": "Erdő"
   },
   "common": {
+    "loading": "Egy pillanat…",
+    "clear": "Törlés",
     "version": "",
     "required": "Kötelező",
     "optional": "opcionális",
@@ -272,7 +274,7 @@
     },
     "points": {
       "total": "{{count}} pont",
-      "weeklyTitle": "Heti pontjaid: {{count}} pont"
+      "weeklyTitle": "Pontjaid: {{count}} pont"
     },
     "activation": {
       "title": "Még nincs heti terved",
@@ -308,6 +310,62 @@
       "acceptError": "A javaslat lejárt — frissítve.",
       "wasted": "{{name}} már nem menthető{{cost}} — ki kell dobni.",
       "sameFamily": "azonos család"
+    },
+    "premiumTools": "Alapító Tag eszközök",
+    "aiEdit": {
+      "title": "Alakítsuk a tervet",
+      "subtitle": "Írd le, mi változott vagy mire vágysz — átszervezem a hátralévő étkezéseket.",
+      "placeholder": "Pl. „Csütörtökön vendégek jönnek, vacsorára valami ünnepibbet kérek.”",
+      "submit": "Javaslatot kérek",
+      "submitting": "Gondolkodom…",
+      "changesTitle": "Javasolt változások",
+      "noChanges": "Ehhez nem kell változtatni a terven — minden marad.",
+      "discard": "Elvetem",
+      "accepting": "Alkalmazom…",
+      "accepted": "A terv frissült.",
+      "errors": {
+        "premium": "A terv alakítása beszélgetve Alapító Tag funkció.",
+        "precondition": "Csak aktív terven tudok módosítani.",
+        "rateLimited": "Egy percet kell várni a következő kérésig, vagy elérted a havi keretet.",
+        "unavailable": "Az AI-alapú tervmódosítás most nem elérhető.",
+        "generic": "Nem sikerült feldolgozni a kérést — próbáld újra."
+      }
+    },
+    "coach": {
+      "title": "Sóvárgás-segítő",
+      "subtitle": "Mesélj egy étkezési mintázatról — kínálok rá egy célodhoz illő megoldást.",
+      "placeholder": "Pl. „Esténként mindig édességet kívánok.”",
+      "submit": "Megfigyelést kérek",
+      "submitting": "Figyelem…",
+      "applyToPlan": "Alkalmazom a tervre",
+      "errors": {
+        "premium": "A sóvárgás-segítő Alapító Tag funkció.",
+        "precondition": "Ezt nem tudtam értelmezni — fogalmazd meg másképp.",
+        "rateLimited": "Egy percet kell várni a következő kérésig, vagy elérted a havi keretet.",
+        "unavailable": "A sóvárgás-segítő most nem elérhető.",
+        "generic": "Nem sikerült feldolgozni — próbáld újra."
+      }
+    },
+    "recap": {
+      "title": "Heti összegzés",
+      "subtitle": "Röviden összefoglalom, hogyan haladtál a terveddel.",
+      "cta": "Kérem az összegzést",
+      "loading": "Írom az összegzést…",
+      "refresh": "Frissítés",
+      "generatedAt": "Készült: {{time}}",
+      "metrics": {
+        "meals": "Étkezések",
+        "recipesTried": "Kipróbált receptek",
+        "kcalDeviation": "Átlagos eltérés",
+        "points": "Pontok"
+      },
+      "errors": {
+        "premium": "A heti összegzés Alapító Tag funkció.",
+        "precondition": "Ehhez a tervhez még nincs elég adat.",
+        "rateLimited": "Egy percet kell várni a következő összegzésig, vagy elérted a havi keretet.",
+        "unavailable": "Az összegzés most nem elérhető.",
+        "generic": "Nem sikerült elkészíteni az összegzést — próbáld újra."
+      }
     }
   },
   "mealPlan": {
@@ -644,6 +702,13 @@
       "cancel": "Mégse",
       "create": "Termék létrehozása",
       "save": "Mentés"
+    },
+    "partnerExport": {
+      "title": "Partner export",
+      "subtitle": "A havi export minden hónap első napján fut automatikusan. Innen kézzel is indíthatod — hónap végi újrapróbáláshoz vagy ellenőrzéshez.",
+      "cta": "Export indítása",
+      "running": "Export fut…",
+      "error": "Az export nem sikerült — nézd meg a naplót."
     }
   },
   "profile": {
@@ -1236,55 +1301,85 @@
   },
   "shoppingList": {
     "title": "Bevásárlólista",
-    "subtitle": "{{days}} napos étrendeden alapul",
+    "window": "{{start}} – {{end}}",
     "backToPlan": "Vissza a tervhez",
-    "building": "Bevásárlólista készítése…",
-    "error": "A bevásárlólista létrehozása sikertelen",
-    "items": "tétel",
-    "noActivePlan": {
-      "title": "Nincs aktív étrend",
-      "description": "Először generálj étrendet a bevásárlólista létrehozásához.",
-      "button": "Étrendekhez"
+    "noPlan": {
+      "title": "Nincs aktív terv",
+      "desc": "Előbb indíts egy tervet — abból rakom össze, mit kell venni.",
+      "button": "Tervekhez"
     },
+    "empty": {
+      "title": "Még nincs bevásárlólista",
+      "body": "Összerakom az aktuális ciklusra, és levonom, ami már megvan a hűtődben.",
+      "generate": "Lista összeállítása"
+    },
+    "generating": "Összerakom…",
+    "regenerate": "Lista frissítése",
+    "regenerateHint": "Újraszámolom a terv és a hűtő alapján — a pipák és a saját tételek megmaradnak.",
     "summary": {
-      "totalItems": "Összes tétel",
+      "items": "Tétel",
+      "covered_one": "{{count}} már megvan a hűtőben",
+      "covered_other": "{{count}} már megvan a hűtőben",
       "estimatedTotal": "Becsült összeg",
-      "noRetailMatch": "Nincs kiskereskedelmi egyezés",
-      "totalLeftovers": "Becsült maradék"
+      "leftovers": "Maradék a kiszerelések miatt: ~{{cost}}"
     },
-    "missingItems_one": "{{count}} hozzávalóhoz nincs Tesco termék. Vásárold meg külön.",
-    "missingItems_other": "{{count}} hozzávalóhoz nincs Tesco termék. Vásárold meg külön.",
-    "totalNeeded": "Szükséges összesen:",
-    "noRetailProduct": "Nincs elérhető kiskereskedelmi termék — vásárold meg külön",
-    "tesco": "Tesco",
-    "pantryLabel": "Kamra",
-    "fridgeLabel": "{{amount}} {{unit}} a hűtőben",
-    "leftovers": {
-      "amount": "Maradék: {{amount}} {{unit}}",
-      "cost": "~{{cost}}",
-      "summaryTitle": "Maradékok",
-      "summaryDesc": "Megvásárolt, de nem szükséges mennyiség a kiszerelések miatt",
-      "pantrySection": "Kamrai alapanyagok",
-      "none": "Nincs maradék — pontos kiszerelési illeszkedés",
-      "addToFridge": "Maradékok a hűtőbe",
-      "addingToFridge": "Hozzáadás…",
-      "addedToFridge": "Maradékok hozzáadva a hűtőhöz"
-    },
-    "openInTesco": "Tovább a Tesco kosaramba",
-    "tescoMappingWeak": "A tételek több mint felének nincs Tesco-hivatkozása — a találatok eltérhetnek.",
-    "actions": {
-      "print": "Nyomtatás",
-      "copy": "Másolás",
-      "copied": "Másolva",
-      "email": "E-mail"
-    },
-    "bought": "Megvettem",
+    "addItem": "Tétel hozzáadása",
+    "addItemPlaceholder": "Pl. WC-papír",
+    "pickFromCatalog": "Választás az alapanyagokból",
+    "add": "Hozzáad",
+    "adding": "Hozzáadom…",
+    "removeItem": "{{name}} törlése",
+    "adhocBadge": "Saját",
+    "tickAria": "{{name}} megjelölése",
+    "itemTicked": "Megvan: {{name}}",
+    "undoHint": "Koppints újra a sorra, ha mégsem.",
+    "allDone": "Minden megvan.",
+    "covered": "Megvan a hűtőben",
+    "coveredSection": "Már megvan a hűtőben",
+    "deducted": "{{need}} kell, {{have}} megvan",
+    "retailDetails": "Termék részletei",
+    "packages_one": "{{count}} csomag",
+    "packages_other": "{{count}} csomag",
+    "leftover": "Maradék: {{amount}}",
+    "openProduct": "Termék megnyitása",
     "allInFridge": {
       "title": "Minden megvan a hűtőben",
-      "desc": "A tervhez szükséges összes hozzávaló megvan."
+      "desc": "A ciklushoz szükséges összes alapanyag megvan."
     },
-    "shopNowEntry": {
-      "button": "Vásárlás indítása"
+    "nothingToBuy": {
+      "title": "Nincs bevásárolni való",
+      "desc": "Ebben a ciklusban nincs tervezett étkezés."
+    },
+    "markShoppedCta": "Mindent megvettem — a hűtőbe vele",
+    "markShoppedToast": {
+      "message_one": "{{count}} alapanyag került a hűtőbe — koppints az áttekintéshez.",
+      "message_other": "{{count}} alapanyag került a hűtőbe — koppints az áttekintéshez.",
+      "reviewLink": "Hűtő megtekintése"
+    },
+    "receipt": "Blokk beolvasása",
+    "errors": {
+      "load": "Nem sikerült betölteni a listát.",
+      "generate": "Nem sikerült összeállítani a listát.",
+      "tick": "Nem sikerült jelölni a tételt.",
+      "add": "Nem sikerült hozzáadni a tételt.",
+      "markShopped": "Nem sikerült lezárni a bevásárlást."
+    },
+    "categories": {
+      "PRODUCE": "Zöldség / gyümölcs",
+      "BAKERY": "Pékáru",
+      "DAIRY": "Tejtermék",
+      "MEAT": "Hús",
+      "FISH": "Hal",
+      "DELI": "Felvágott / sajt-pult",
+      "FROZEN": "Mirelit",
+      "PANTRY": "Száraz alapanyag",
+      "CANNED": "Konzerv",
+      "CONDIMENTS": "Fűszer, szósz",
+      "BEVERAGES": "Ital",
+      "SNACKS": "Édesség, snack",
+      "HOUSEHOLD": "Háztartási",
+      "PERSONAL_CARE": "Higiénia",
+      "OTHER": "Egyéb"
     }
   },
   "feedback": {
@@ -1372,6 +1467,10 @@
       "dateLabel": "Lejárati dátum (opcionális)",
       "defaultHint": "Ha nem adod meg, a rendszer a kategória alapján számolja.",
       "setDate": "Lejárat megadása"
+    },
+    "receipt": {
+      "button": "Blokk",
+      "title": "Blokk beolvasása"
     }
   },
   "plan": {
@@ -1395,6 +1494,7 @@
     "mealCount_other": "{{count}} étkezés",
     "mealActions": "Műveletek",
     "forbiddenIngredients": {
+      "removeAria": "{{name}} eltávolítása",
       "label": "Mit kerüljünk?",
       "placeholder": "Pl. spenót, brokkoli",
       "empty": "Nincs kizárt hozzávaló",
@@ -1419,6 +1519,10 @@
       "title": "Terveim",
       "subtitle": "Minden étrend-sablonod egy helyen.",
       "newPlan": "Új terv",
+      "archiveConfirm": {
+        "title": "Terv archiválása",
+        "body": "A(z) „{{name}}” terv lekerül a listáról, és a futó ütemezései leállnak. Később a szűrőből előhívható."
+      },
       "empty": "Még nincs terv.",
       "retry": "Újra",
       "defaultBadge": "Alapértelmezett",
@@ -1786,6 +1890,33 @@
       "cuisine": {
         "label": "Konyha"
       }
+    },
+    "members": {
+      "title": "Tagok",
+      "subtitle": "Pipáld ki, kinek szól a terv. Társtervezőt is kijelölhetsz.",
+      "readOnly": "A tagokat a tervező vagy egy társtervező módosíthatja.",
+      "inPlanAria": "{{name}} a tervben",
+      "lastMember": "Legalább egy tag kell a tervhez.",
+      "plannerBadge": "Tervező",
+      "coPlannerBadge": "Társtervező",
+      "memberBadge": "Tag",
+      "notInPlan": "Nincs a tervben",
+      "makeCoPlanner": "Társtervező",
+      "removeCoPlanner": "Visszavonás",
+      "updated": "A tagok frissültek.",
+      "updateError": "Nem sikerült módosítani — próbáld újra.",
+      "conflict": "Ütközés: ezt a tagot már egy másik terv fedi ugyanarra az időszakra."
+    },
+    "suggestions": {
+      "title": "Háztartási tervjavaslat",
+      "subtitle_one": "{{count}} javaslat vár a döntésedre.",
+      "subtitle_other": "{{count}} javaslat vár a döntésedre.",
+      "noDiff": "A javaslat nem tartalmaz változást.",
+      "accept": "Elfogadom",
+      "reject": "Nem kérem",
+      "accepted": "A javaslatot alkalmaztam.",
+      "rejected": "A javaslatot elvetettem.",
+      "error": "Nem sikerült — próbáld újra."
     }
   },
   "approval": {
@@ -2143,6 +2274,7 @@
     }
   },
   "taste": {
+    "emptyDeck": "Most nincs mit értékelned — folytasd a következő lépéssel.",
     "love": "Imádom",
     "ok": "Megeszem",
     "hate": "Nem ízlik",
@@ -2277,6 +2409,7 @@
   },
   "onboarding": {
     "shell": {
+      "saveError": "Nem sikerült menteni — próbáld újra.",
       "progressAriaLabel": "{{current}}. lépés a {{total}}-ből",
       "progressSrText": "{{current}}. lépés, összesen {{total}} lépésből",
       "skip": "Kihagyom most",
@@ -2358,7 +2491,7 @@
       "cadenceCustom": "Egyedi",
       "cadenceCustomAriaLabel": "Egyedi bevásárlási gyakoriság (napok száma)",
       "cadenceError": "Az értéknek 1 és 14 nap között kell lennie.",
-      "shoppingDayLabel": "Melyik nap a legjobb a bevásárláshoz?",
+      "shoppingDayLabel": "Melyik nap a legjobb a bevásárláshoz és az előkészítéshez?",
       "forbiddenLabel": "Kizárt hozzávalók",
       "forbiddenHint": "Nem kötelező. Ha valamit biztosan nem szeretnél a tervben, keresd rá és add hozzá.",
       "budgetLabel": "Heti élelmiszerkeret",
@@ -2531,6 +2664,7 @@
       }
     },
     "bodyDataStep": {
+      "rangeError": "Ellenőrizd az értékeket: testsúly 20–300 kg, magasság 100–250 cm, életkor 10–120 év.",
       "title": "Pár szám rólad.",
       "body": "Ezekből számolom a napi energiaszükségleted és a fehérjecélod. Bármikor módosíthatod a Profilban.",
       "tdeeHint": "Tölts ki minden mezőt, és itt rögtön megmutatom a becsült értéket.",
@@ -2598,7 +2732,9 @@
       "leaveAriaLabel": "Kilépés a családból",
       "confirmLeave": "Biztosan kilépsz a családból? Saját adataidat megtartod, csak a családhoz fűződő kapcsolatod szűnik meg.",
       "leaveSuccess": "Kiléptél a családból.",
-      "cannotLeaveLastPlanner": "Nem léphetsz ki, mert te vagy az egyetlen tervező. Először adj át a szerepet."
+      "cannotLeaveLastPlanner": "Nem léphetsz ki, mert te vagy az egyetlen tervező. Először adj át a szerepet.",
+      "viewMeals": "Napi étkezések",
+      "viewMealsAria": "{{name}} napi étkezései"
     },
     "roles": {
       "planner": "Tervező",
@@ -2635,7 +2771,9 @@
       "revokeInviteCta": "Visszavonás",
       "revokeInviteConfirm": "Biztosan visszavonod ezt a meghívót?",
       "revokeInviteSuccess": "A meghívó visszavonva.",
-      "revokeInviteError": "A meghívót nem sikerült visszavonni."
+      "revokeInviteError": "A meghívót nem sikerült visszavonni.",
+      "sentInvitesUnavailable": "A kiküldött meghívók most nem érhetők el.",
+      "sentInvitesEmpty": "Még nem küldtél meghívót."
     },
     "merge": {
       "dialogTitle": "Profil összekapcsolása",
@@ -2725,7 +2863,6 @@
       "plannedMeals": "Tervezett étkezések",
       "offPlanHistory": "Ma naplózott étkezések",
       "noPlanSelected": "Nincs kiválasztott terv.",
-      "skipSlotComingSoon": "Étkezés kihagyása",
       "mealRequestComingSoon": "Étkezés kérése a tervezőtől",
       "recipientNotificationComingSoon": "Értesítés, ha valaki megosztja veled az adagját"
     },
@@ -2739,7 +2876,8 @@
       "ateIt": "Megettem",
       "somethingElse": "Mást ettem",
       "markEaten": "Megevettnek jelölés",
-      "moreOptions": "Több lehetőség"
+      "moreOptions": "Több lehetőség",
+      "skip": "Kihagyom"
     }
   },
   "offPlan": {
@@ -2780,37 +2918,6 @@
       "applyToAll": "Alkalmazás az összesre",
       "customizePerSlot": "Egyéni beállítás étkezésenként",
       "confirm": "Megerősítés"
-    }
-  },
-  "cart": {
-    "title": "Bevásárlókosár",
-    "subtitle_one": "{{count}} terv alapján",
-    "subtitle_other": "{{count}} terv alapján",
-    "subtitle": "{{planCount}} terv alapján",
-    "generating": "Összerakom a listát…",
-    "itemCount": "{{count}} hozzávaló",
-    "markShoppedCta": "Mindent megvettem — tervek lezárása",
-    "markedShopped": "A tervek lezárva.",
-    "allCheckedNudge": "Mindent kipipáltál. Lezárhatod a terveket.",
-    "ingredientsTitle": "Hozzávalók",
-    "checkItem": "{{name}} megjelölése",
-    "showSourcePlans": "Forrástervek",
-    "sourcePlan": "Terv",
-    "leftoversRescueNotice": "A hűtőből visszakerült maradékok hamarosan megjelennek itt kiemelve — \"meglévő felhasználás\" jelöléssel.",
-    "empty": {
-      "title": "Nincs bevásárolni való",
-      "desc": "Az összes terv már le van zárva ebben az időszakban."
-    },
-    "window": {
-      "days3": "Következő 3 nap",
-      "days7": "Következő 7 nap",
-      "days14": "Következő 14 nap",
-      "days30": "Következő 30 nap"
-    },
-    "markShoppedToast": {
-      "message_one": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
-      "message_other": "{{count}} hozzávaló kerül a hűtőbe — koppints az áttekintéshez.",
-      "reviewLink": "Hűtő megtekintése"
     }
   },
   "shopping": {
@@ -3110,50 +3217,6 @@
     "queuedActions_other": "{{count}} művelet sorban — szinkronizálásra vár.",
     "queuedActionsSynced": "Szinkronizálva."
   },
-  "shopNow": {
-    "title": "Bevásárlás",
-    "back": "Vissza",
-    "progress": "{{ticked}} / {{total}}",
-    "emptyState": {
-      "title": "Még nincs bevásárlólista",
-      "body": "Összerakom a listát az aktuális terv alapján.",
-      "generate": "Lista összeállítása"
-    },
-    "generating": "Összerakom…",
-    "itemTicked": "Megvan",
-    "undo": "Mégse",
-    "allDone": "Minden megvan.",
-    "addItem": "Termék hozzáadása",
-    "addItemPlaceholder": "Keresés vagy szabad szöveg…",
-    "add": "Hozzáad",
-    "adding": "Hozzáadom…",
-    "searching": "Keresés…",
-    "noIngredientMatch": "Nincs egyező termék",
-    "willAddAdhoc": "saját névként adom hozzá",
-    "error": {
-      "load": "Nem sikerült betölteni a listát.",
-      "generate": "Nem sikerült összeállítani a listát.",
-      "tick": "Nem sikerült jelölni a terméket.",
-      "addItem": "Nem sikerült hozzáadni a terméket."
-    },
-    "categories": {
-      "PRODUCE": "Zöldség / gyümölcs",
-      "BAKERY": "Pékáru",
-      "DAIRY": "Tejtermék",
-      "MEAT": "Hús",
-      "FISH": "Hal",
-      "DELI": "Felvágott / sajt-pult",
-      "FROZEN": "Mirelit",
-      "PANTRY": "Száraz alapanyag",
-      "CANNED": "Konzerv",
-      "CONDIMENTS": "Fűszer, szósz",
-      "BEVERAGES": "Ital",
-      "SNACKS": "Édesség, snack",
-      "HOUSEHOLD": "Háztartási",
-      "PERSONAL_CARE": "Higiénia",
-      "OTHER": "Egyéb"
-    }
-  },
   "mutation": {
     "rollbackError": "A módosítás nem sikerült. A korábbi állapot visszaállt.",
     "mealStatusError": "Az étkezés állapotát nem sikerült frissíteni.",
@@ -3199,7 +3262,8 @@
     "variantCount_other": "{{count}} változat",
     "chipSingleTier": "{{tier}} változat is elérhető",
     "chipTwoTiers": "{{tier1}} és {{tier2}} változat is elérhető",
-    "chipCount": "{{count}} változat is elérhető",
+    "chipCount_one": "{{count}} változat is elérhető",
+    "chipCount_other": "{{count}} változat is elérhető",
     "familyCardCount_one": "{{count}} változat elérhető",
     "familyCardCount_other": "{{count}} változat elérhető",
     "swapTo": "Váltás erre a változatra",
@@ -3300,5 +3364,18 @@
         "desc": "Egyszer fizetsz, örökre a tiéd. Korlátlan hozzáférés minden jelenlegi és jövőbeli funkcióhoz."
       }
     }
+  },
+  "ingredientCategory": {
+    "PROTEIN": "Fehérje",
+    "CARB": "Szénhidrát",
+    "FAT": "Zsiradék",
+    "VEGGIE": "Zöldség-gyümölcs",
+    "SPICE": "Fűszer",
+    "OTHER": "Egyéb"
+  },
+  "units": {
+    "G": "g",
+    "ML": "ml",
+    "PIECE": "db"
   }
 }

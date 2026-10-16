@@ -88,7 +88,7 @@ export function IngredientSearchDialog({
                       {ing.macros.kcal.toFixed(0)} kcal
                     </span>
                     <Badge variant={CATEGORY_COLOR[ing.category] ?? 'gray'}>
-                      {ing.category}
+                      {t(`ingredientCategory.${ing.category}`, ing.category)}
                     </Badge>
                   </div>
                 </button>

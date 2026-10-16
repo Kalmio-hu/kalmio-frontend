@@ -13,6 +13,10 @@ import { TomorrowPrepModule } from '@/components/dashboard/TomorrowPrepModule'
 import { PlanGlanceModule } from '@/components/dashboard/PlanGlanceModule'
 import { MacrosModule } from '@/components/dashboard/MacrosModule'
 import { PointsModule } from '@/components/dashboard/PointsModule'
+import { ConversationalEditCard, type EditPrefill } from '@/components/dashboard/ConversationalEditCard'
+import { CravingsCoachCard } from '@/components/dashboard/CravingsCoachCard'
+import { WeeklyRecapCard } from '@/components/dashboard/WeeklyRecapCard'
+import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { DiofaWidget } from '@/components/diofa/DiofaWidget'
 import { MoistureHistoryStrip } from '@/components/diofa/MoistureHistoryStrip'
 import { DashboardViewToggle, type DashboardView } from '@/components/dashboard/DashboardViewToggle'
@@ -142,6 +146,9 @@ export function Dashboard() {
   const [selectedDayData, setSelectedDayData] = useState<CalendarDayDto | undefined>()
   const [replanDismissed, setReplanDismissed] = useState(false)
   const userId = useAuthStore((s) => s.user?.id ?? '')
+  const isPremium = useIsUserPremium()
+  // Cravings coach → conversational edit hand-off (premium only).
+  const [coachPrefill, setCoachPrefill] = useState<EditPrefill | null>(null)
 
   // View toggle — reads from URL ?view= on first render, falls back to localStorage.
   // After consumption, strip ?view= from the URL so a later refresh respects the
@@ -188,15 +195,11 @@ export function Dashboard() {
     staleTime: 30_000,
   })
 
-  // KALMIO-400 — the activation card must hide as soon as either signal confirms an
-  // active plan. Two signals are needed because v2-only users have no legacy
-  // /api/plans/calendar/active record; instead their plan exists only in
-  // planned_meals (schedule → materialise → planned_meals).
-  //
-  // Do NOT show the activation card while either query is still loading — that
-  // avoids a flash-of-card on every page load for users who do have an active plan.
+  // GET /api/plans/active returns the most recent ACTIVE v2 plan, so it is the one
+  // signal for "has a plan". Do NOT show the activation card while the queries are
+  // still loading — that avoids a flash-of-card for users who do have an active plan.
   const planQueriesLoading = activePlanLoading || plannedMealsLoading
-  const hasActivePlan = activePlan != null || todayPlannedMeals.length > 0
+  const hasActivePlan = activePlan != null
 
   // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
   const { data: dashboardData } = useQuery({
@@ -382,6 +385,22 @@ export function Dashboard() {
 
           <WeeklySummaryModule />
 
+          {/* Premium AI tools — the @RequiresPremium surfaces the buy page advertises */}
+          {isPremium && (
+            <section aria-label={t('dashboard.premiumTools')} className="space-y-3">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                {t('dashboard.premiumTools')}
+              </p>
+              {activePlan && (
+                <ConversationalEditCard planId={activePlan.id} prefill={coachPrefill} />
+              )}
+              <CravingsCoachCard
+                onProposeEdit={activePlan ? (text) => setCoachPrefill({ text, nonce: Date.now() }) : undefined}
+              />
+              {activePlan && <WeeklyRecapCard planId={activePlan.id} />}
+            </section>
+          )}
+
           {/* Diófa — demoted to bottom of page, framed as status section */}
           <section aria-label={t('diofa.statusSection')}>
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
@@ -414,6 +433,9 @@ export function Dashboard() {
 
           {/* Weekly summary */}
           <WeeklySummaryModule />
+
+          {/* Cravings coach works without a plan; the plan-bound tools appear once one exists */}
+          {isPremium && <CravingsCoachCard />}
 
           {/* Diófa — demoted section */}
           <section aria-label={t('diofa.statusSection')}>

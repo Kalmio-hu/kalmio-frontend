@@ -8,14 +8,14 @@
  * - Dietary prefs & allergens summary panel
  * - Off-plan history for the day (existing offPlanMealsService)
  *
- * Routing: /app/members/:memberId?planId=<uuid>&date=<yyyy-mm-dd>
+ * Routing: /app/members/:memberId?date=<yyyy-mm-dd>
+ * Reached from the Family page (calendar icon on each member row).
  *
- * The memberId in the URL is the userId to view. The authenticated user can
- * only see their own slot data — the backend enforces this. The planner can
- * impersonate to see other members' views (via existing ImpersonationBanner).
+ * The memberId in the URL is the userId to view. Members see their own slots;
+ * a family planner may view any member's — the backend enforces this.
  *
- * BE4 DEPENDENCY NOTE: Skip-slot, meal-request, and recipient notification
- * surfaces are rendered as disabled / "coming soon" affordances.
+ * BE4 DEPENDENCY NOTE: meal-request and recipient-notification surfaces have no
+ * backend yet and are rendered as "coming soon" affordances.
  */
 import { useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
@@ -54,8 +54,8 @@ export function MemberView() {
   const targetMemberId = memberId ?? session?.user.id ?? ''
 
   // ── Fetch planned meals for this member on this date ─────────────────────
-  // Source: materialized planned_meal table (meal-planning-v2).
-  // Falls back to empty array until KALMIO-249 backend endpoint ships.
+  // Source: materialized planned_meal table (meal-planning-v2). A 403 (planner
+  // without access to this member) surfaces through the error card below.
   const {
     data: memberMeals = [],
     isLoading: mealsLoading,
@@ -79,9 +79,9 @@ export function MemberView() {
   })
 
   // ── Mark eaten mutation ───────────────────────────────────────────────────
-  const markEatenMutation = useMutation({
-    mutationFn: (mealId: string) =>
-      plannedMealsService.updateStatus(mealId, { status: 'EATEN' }),
+  const statusMutation = useMutation({
+    mutationFn: (vars: { mealId: string; status: 'EATEN' | 'SKIPPED' }) =>
+      plannedMealsService.updateStatus(vars.mealId, { status: vars.status }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planned-meals', viewDate] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
@@ -144,7 +144,8 @@ export function MemberView() {
                     status={meal.status}
                     isBatchCookLeftover={false}
                     isOwn={isOwnView}
-                    onMarkEaten={mealId => markEatenMutation.mutate(mealId)}
+                    onMarkEaten={mealId => statusMutation.mutate({ mealId, status: 'EATEN' })}
+                    onSkip={mealId => statusMutation.mutate({ mealId, status: 'SKIPPED' })}
                     onLogOffPlan={mealId => setLogSheetMealId(mealId)}
                   />
                 ))
@@ -160,7 +161,6 @@ export function MemberView() {
                 <div className="space-y-1">
                   <p className="font-semibold text-[#9ca3af]">{t('common.comingSoon')}</p>
                   <ul className="space-y-0.5 list-disc list-inside">
-                    <li>{t('member.view.skipSlotComingSoon')}</li>
                     <li>{t('member.view.mealRequestComingSoon')}</li>
                     <li>{t('member.view.recipientNotificationComingSoon')}</li>
                   </ul>
@@ -192,7 +192,7 @@ export function MemberView() {
 
           {/* Floating "Log meal" CTA */}
           {isOwnView && (
-            <div className="fixed bottom-6 right-4 sm:right-6 z-30">
+            <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-30">
               <button
                 type="button"
                 onClick={() => setLogSheetMealId('')}

@@ -63,7 +63,7 @@ function PrepSlotChip({ slot, recipeName, onContextMenu }: PrepSlotChipProps) {
         flex items-center gap-1.5 px-2.5 py-1.5 rounded-[10px]
         bg-[#F0EDE6] text-[#1A1A1A] text-xs font-medium
         cursor-grab active:cursor-grabbing touch-none select-none
-        transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+        transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
         ${isDragging ? 'opacity-30' : 'hover:bg-[#e8e4dc]'}
       `}
       onContextMenu={e => {
@@ -125,7 +125,7 @@ function PrepDropCell({
       className={`
         flex flex-row flex-wrap items-center gap-1 flex-1 min-w-0 min-h-[28px] rounded-[8px] p-1 transition-colors
         ${isAnyDragging && isOver
-          ? 'bg-[#eef2ff] ring-2 ring-[#4f46e5]'
+          ? 'bg-[#eef2ff] ring-2 ring-[#4F7942]'
           : isAnyDragging
             ? 'ring-1 ring-dashed ring-[#d1d5db]'
             : ''}
@@ -139,8 +139,8 @@ function PrepDropCell({
           className="
             flex items-center gap-1 px-2 py-1 rounded-[8px]
             border border-dashed border-[#d1d5db] text-[10px] text-[#9ca3af]
-            hover:border-[#4f46e5] hover:text-[#4f46e5] transition-colors
-            focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+            hover:border-[#4F7942] hover:text-[#4F7942] transition-colors
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
           "
         >
           <Plus className="h-2.5 w-2.5" aria-hidden />
@@ -157,7 +157,7 @@ function PrepDropCell({
       ))}
       {/* Drop affordance label when dragging over this cell */}
       {isAnyDragging && isOver && (
-        <div className="text-[10px] text-[#4f46e5] px-1 py-0.5 font-medium">
+        <div className="text-[10px] text-[#4F7942] px-1 py-0.5 font-medium">
           {window === 'MORNING' ? t('plan.prep.windowMorning') : t('plan.prep.windowEvening')}
         </div>
       )}
@@ -256,7 +256,7 @@ export function PrepLaneRow({
               className="
                 w-full text-left px-4 py-2 text-red-500
                 hover:bg-[#f3f4f6] focus:outline-none
-                focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4f46e5]
+                focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#4F7942]
               "
             >
               <span className="flex items-center gap-2">

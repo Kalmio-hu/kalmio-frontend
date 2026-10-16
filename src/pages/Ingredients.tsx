@@ -267,7 +267,7 @@ export function Ingredients() {
                           {t('ingredients.pantryItem.badge')}
                         </span>
                       )}
-                      <Badge variant={CATEGORY_COLOR[ing.category] ?? 'gray'}>{ing.category}</Badge>
+                      <Badge variant={CATEGORY_COLOR[ing.category] ?? 'gray'}>{t(`ingredientCategory.${ing.category}`, ing.category)}</Badge>
                     </div>
                   </div>
 

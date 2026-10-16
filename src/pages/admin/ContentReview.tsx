@@ -211,7 +211,7 @@ export function ContentReview() {
                             </p>
                           )}
                           <div className="flex gap-2 mt-1">
-                            <Badge variant="gray">{ing.category}</Badge>
+                            <Badge variant="gray">{t(`ingredientCategory.${ing.category}`, ing.category)}</Badge>
                             {ing.macros && (
                               <span className="text-xs text-gray-400">
                                 {Math.round(ing.macros.kcal)} kcal

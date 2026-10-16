@@ -21,6 +21,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { todayIsoLocal } from '@/lib/utils'
 import { useState } from 'react'
 import { momentumService } from '@/services/momentum'
 import type { MomentumHistoryEntry } from '@/types'
@@ -141,7 +142,7 @@ export function MoistureHistoryStrip({
     )
   }
 
-  const todayIso = new Date().toISOString().slice(0, 10)
+  const todayIso = todayIsoLocal()
 
   return (
     <div

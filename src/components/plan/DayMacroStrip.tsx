@@ -18,7 +18,7 @@ interface DayMacroStripProps {
 
 const MACROS = [
   { key: 'kcal', unit: 'kcal',
-    bar: 'bg-[#4f46e5]', over: 'bg-[#312e81]', track: 'bg-[#eef2ff]' },
+    bar: 'bg-[#4F7942]', over: 'bg-[#312e81]', track: 'bg-[#eef2ff]' },
   { key: 'protein', unit: 'g',
     bar: 'bg-[#F28C28]', over: 'bg-[#9a4e0a]', track: 'bg-[#fff4e6]' },
   { key: 'fat', unit: 'g',

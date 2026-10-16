@@ -37,7 +37,7 @@ export function PlanMacroSummary({ weekly, targets }: PlanMacroSummaryProps) {
             {t('plan.detail.macros.weeklyTitle')}
           </h2>
           {noTargets && (
-            <Link to="/app/profile" className="text-xs text-[#4f46e5] hover:underline">
+            <Link to="/app/profile" className="text-xs text-[#4F7942] hover:underline">
               {t('plan.detail.macros.setTargetsCta')}
             </Link>
           )}
@@ -49,7 +49,7 @@ export function PlanMacroSummary({ weekly, targets }: PlanMacroSummaryProps) {
             actual={weekly.kcal}
             target={targets.kcal}
             unit="kcal"
-            colorClass="stroke-[#4f46e5]"
+            colorClass="stroke-[#4F7942]"
             trackClass="stroke-[#eef2ff]"
           />
           <TargetDonut

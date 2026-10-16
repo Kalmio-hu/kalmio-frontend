@@ -146,9 +146,9 @@ export function TemplateCellPicker({
               aria-selected={tab === key}
               onClick={() => setTab(key)}
               className={`
-                px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] -mb-px
+                px-4 py-2 text-sm font-medium border-b-2 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] -mb-px
                 ${tab === key
-                  ? 'border-[#4f46e5] text-[#4f46e5]'
+                  ? 'border-[#4F7942] text-[#4F7942]'
                   : 'border-transparent text-[#6b7280] hover:text-[#1A1A1A]'}
               `}
             >

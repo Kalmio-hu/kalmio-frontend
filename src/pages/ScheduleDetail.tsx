@@ -463,12 +463,12 @@ export function ScheduleDetail() {
           <ol className="space-y-2">
             {schedule.planIds.map((planId, idx) => (
               <li key={planId} className="flex items-center gap-2.5">
-                <span className="text-[10px] font-bold text-[#4f46e5] tabular-nums w-5 text-center shrink-0">
+                <span className="text-[10px] font-bold text-[#4F7942] tabular-nums w-5 text-center shrink-0">
                   {idx + 1}
                 </span>
                 <Link
                   to={`/app/plans/${planId}`}
-                  className="flex-1 text-sm text-[#4f46e5] hover:text-[#3730a3] font-medium truncate underline-offset-2 hover:underline"
+                  className="flex-1 text-sm text-[#4F7942] hover:text-[#3e6134] font-medium truncate underline-offset-2 hover:underline"
                 >
                   {planName(planId)}
                 </Link>
@@ -530,7 +530,7 @@ export function ScheduleDetail() {
               className="flex items-center gap-1.5"
               type="button"
             >
-              <Zap className="h-4 w-4 text-[#4f46e5]" aria-hidden />
+              <Zap className="h-4 w-4 text-[#4F7942]" aria-hidden />
               {t('schedules.actions.materialize')}
             </Button>
           </div>

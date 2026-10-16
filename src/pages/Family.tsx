@@ -22,22 +22,10 @@ import { Label } from '@/components/ui/label'
 import { MergeConfirmation } from '@/components/family/MergeConfirmation'
 
 const FAMILY_CAP = 5
-const FAMILY_ID_KEY = 'kalmio_family_id'
-
-function useMyFamilyId(): string | null {
-  return localStorage.getItem(FAMILY_ID_KEY)
-}
-
-function saveMyFamilyId(id: string) {
-  localStorage.setItem(FAMILY_ID_KEY, id)
-}
-
 export function Family() {
   const { t, i18n } = useTranslation()
   const qc = useQueryClient()
   const currentUserId = useAuthStore((s) => s.user?.id) ?? ''
-
-  const familyId = useMyFamilyId()
 
   const [addProfileOpen, setAddProfileOpen] = useState(false)
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -55,17 +43,18 @@ export function Family() {
     ? [me.firstName, me.lastName].filter(Boolean).join(' ') || me.email
     : currentUserId.slice(0, 8)
 
-  // Fetch the family
+  // The caller's family, resolved server-side — never from client storage, so a second
+  // device or a freshly accepted invite sees the same family.
   const {
     data: family,
     isLoading: familyLoading,
     isError: familyError,
   } = useQuery({
-    queryKey: ['family', familyId],
-    queryFn: () => familyService.getFamily(familyId!),
-    enabled: !!familyId,
+    queryKey: ['family', 'mine'],
+    queryFn: familyService.getMine,
     staleTime: 30_000,
   })
+  const familyId = family?.id ?? null
 
   const members: FamilyMemberDto[] = family?.members ?? []
   const memberCount = members.length
@@ -101,8 +90,7 @@ export function Family() {
   // Create family mutation
   const createFamilyMutation = useMutation({
     mutationFn: familyService.createFamily,
-    onSuccess: (data) => {
-      saveMyFamilyId(data.id)
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['family'] })
       toast({ title: t('family.creation.success') })
     },
@@ -117,7 +105,7 @@ export function Family() {
         preferences: body.preferences,
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['family', familyId] })
+      qc.invalidateQueries({ queryKey: ['family'] })
       setAddProfileOpen(false)
       toast({ title: t('family.managedProfile.addSuccess') })
     },
@@ -143,7 +131,7 @@ export function Family() {
   }
 
   // ── Render: no family yet ──────────────────────────────────────────────────
-  if (!familyId || familyError) {
+  if (!familyLoading && (!family || familyError)) {
     return (
       <div>
         <Header title={t('family.title')} subtitle={t('family.subtitleNoFamily')} />
@@ -233,7 +221,7 @@ export function Family() {
             {members.map((member) => (
               <FamilyMemberRow
                 key={member.userId}
-                familyId={familyId}
+                familyId={familyId!}
                 member={member}
                 displayName={displayNames[member.userId] ?? member.userId.slice(0, 8)}
                 isManaged={managedProfileIds.includes(member.userId)}
@@ -339,7 +327,7 @@ export function Family() {
             <DialogTitle>{t('family.invite.dialogTitle')}</DialogTitle>
           </DialogHeader>
           <InviteFlow
-            familyId={familyId}
+            familyId={familyId!}
             members={members}
             displayNames={displayNames}
             atCap={atCap}

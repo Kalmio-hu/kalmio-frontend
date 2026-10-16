@@ -518,14 +518,6 @@ export interface Plan {
   recipeFilter?: RecipeFilter | null
 }
 
-export interface CreatePlanRequest {
-  startDate: string
-  cycleDays: number
-  constraints: GenerateMealPlanRequest
-  /** Optional pre-solve candidate-recipe filter (KALMIO-353). Null = all recipes. */
-  recipeFilter?: RecipeFilter | null
-}
-
 export interface UpdatePlannedMealRequest {
   status?: PlannedMealStatus
   replacedWithRecipeId?: string
@@ -818,37 +810,6 @@ export interface AiCookModeResponse {
 }
 
 // ── Shopping List ─────────────────────────────────────────────────────────
-
-export interface RetailProductInfo {
-  id: string
-  name: string
-  brand: string | null
-  price: number
-  packageSize: number
-  unit: Unit
-  remoteUrl: string | null
-  estimatedCost: number | null
-  leftoverAmount: number | null
-  leftoverCost: number | null
-}
-
-export interface ShoppingListItem {
-  ingredientId: string
-  ingredientName: string
-  ingredientCategory: IngredientCategory | null
-  totalAmount: number
-  unit: Unit
-  pantryItem: boolean
-  fridgeAmount: number | null
-  retailProduct: RetailProductInfo | null
-}
-
-export interface ShoppingList {
-  items: ShoppingListItem[]
-  totalEstimatedCost: number | null
-  totalLeftoverCost: number | null
-  currency: string
-}
 
 // ── Taste Signals ─────────────────────────────────────────────────────────
 
@@ -1369,6 +1330,8 @@ export interface PlanTemplate {
   /** Per-member preference snapshot, keyed by member UUID string. */
   preferencesSnapshot: Record<string, unknown> | null
   templateMeals: TemplateMeal[]
+  /** Users the planner delegated edit rights to. */
+  coPlannerIds: string[]
   createdAt: string   // ISO-8601
   updatedAt: string   // ISO-8601
   archivedAt: string | null   // ISO-8601
@@ -1391,28 +1354,75 @@ export interface CreatePlanTemplateRequest {
 
 // ── Shopping Cart (BE2 / KALMIO-217) ─────────────────────────────────────
 
-export interface CartLineItemResponse {
-  ingredientId: string
-  ingredientName: string
-  totalAmount: number
+/** Cheapest active retail match for a cart line, with package arithmetic for the amount to buy. */
+export interface CartRetailProductInfo {
+  id: string
+  name: string
+  brand: string | null
+  price: number
+  packageSize: number
   unit: string
-  /** UUIDs of plans that contributed to this line item (for drill-down). */
+  remoteUrl: string | null
+  packagesNeeded: number | null
+  packageCost: number | null
+  leftoverAmount: number | null
+  leftoverCost: number | null
+}
+
+export type CartLineSource = 'PLAN' | 'ADHOC'
+
+export interface CartLineItemResponse {
+  id: string
+  /** Null for ad-hoc free-text lines. */
+  ingredientId: string | null
+  ingredientName: string
+  source: CartLineSource
+  /** Supermarket aisle — group and order with the user's shopping category order. */
+  shoppingCategory: ShoppingCategory
+  ingredientCategory: IngredientCategory | null
+  pantryItem: boolean
+  /** What the planned meals need; null for ad-hoc lines. */
+  requiredAmount: number | null
+  /** What was already in the fridge when the cart was generated. */
+  fridgeAmount: number | null
+  /** Amount still to buy (required − fridge); null for ad-hoc lines without a quantity. */
+  totalAmount: number | null
+  unit: string | null
+  bought: boolean
   sourcePlanIds: string[]
+  estimatedCost: number | null
+  retailProduct: CartRetailProductInfo | null
 }
 
 export interface ShoppingCartResponse {
   cartId: string
+  planId: string | null
   planIds: string[]
   windowStart: string   // ISO date "YYYY-MM-DD"
   windowEnd: string     // ISO date "YYYY-MM-DD"
+  generatedAt: string
+  shoppedAt: string | null
   lineItems: CartLineItemResponse[]
-  /** Number of fridge items upserted by mark-shopped. Null on generate responses. KALMIO-312. */
-  fridgeItemsAdded?: number | null
+  /** Number of fridge rows written by mark-shopped. Null otherwise. */
+  fridgeItemsAdded: number | null
+  totalCost: number | null
+  totalLeftoverCost: number | null
+  currency: string | null
 }
 
 export interface GenerateCartRequest {
+  /** The plan to shop for; omitted = everything visible to the caller. */
+  planId?: string | null
   windowStart?: string | null  // ISO date "YYYY-MM-DD"
-  windowEnd?: string | null    // ISO date "YYYY-MM-DD"
+  windowEnd?: string | null    // ISO date "YYYY-MM-DD"; defaults to the end of the current cadence cycle
+}
+
+/** Body of POST /api/shopping-cart/{cartId}/items — either ingredientId or adhocName. */
+export interface AddCartItemRequest {
+  ingredientId?: string | null
+  adhocName?: string | null
+  amount?: number | null
+  unit?: string | null
 }
 
 // ── Off-plan disposition (BE4 stubs / KALMIO-217) ─────────────────────────
@@ -1614,7 +1624,7 @@ export interface CartReceiptConfirmRequest {
   lines: ReceiptMatchLine[]
 }
 
-// ── Persistent Shopping List (KALMIO-374 / C11) ───────────────────────────
+// ── Shopping categories (supermarket aisles) ──────────────────────────────
 
 /**
  * Supermarket aisle categories — mirrors the backend ShoppingCategory enum.
@@ -1637,60 +1647,6 @@ export type ShoppingCategory =
   | 'PERSONAL_CARE'
   | 'OTHER'
 
-/** Source of a shopping list item. */
-export type ShoppingListItemSource = 'PLAN' | 'ADHOC'
-
-/**
- * A single item in the persistent shopping list.
- * Mirrors PersistentShoppingListResponse.ItemResponse from the backend.
- */
-export interface PersistentShoppingListItem {
-  id: string
-  /** Null for ADHOC items with no ingredient catalog match. */
-  ingredientId: string | null
-  name: string
-  amount: number | null
-  unit: string | null
-  source: ShoppingListItemSource
-  /** Null = not yet ticked. ISO-8601 instant when the user ticked off the item. */
-  tickedAt: string | null
-}
-
-/**
- * Items grouped by supermarket aisle.
- * Mirrors PersistentShoppingListResponse.CategoryGroup from the backend.
- */
-export interface PersistentShoppingListCategoryGroup {
-  category: ShoppingCategory
-  /** i18n key used as the category header label (e.g. "shopNow.categories.PRODUCE"). */
-  categoryDisplayKey: string
-  items: PersistentShoppingListItem[]
-}
-
-/**
- * Full persistent shopping list for a plan.
- * Mirrors PersistentShoppingListResponse from the backend.
- */
-export interface PersistentShoppingListResponse {
-  id: string
-  planId: string
-  generatedAt: string   // ISO-8601 instant
-  groups: PersistentShoppingListCategoryGroup[]
-}
-
-/**
- * Request body for POST /api/plans/{planId}/shopping-list/items.
- * Either ingredientId or adhocName must be supplied.
- */
-export interface AdHocShoppingListItemRequest {
-  /** Optional: resolved ingredient ID from catalog search. */
-  ingredientId?: string | null
-  /** Required when ingredientId is null — free-text item name. */
-  adhocName?: string | null
-  amount?: number | null
-  unit?: string | null
-}
-
 // ── Shopping Category Order (KALMIO-373 / C10) ───────────────────────────────
 
 /**
@@ -1709,4 +1665,78 @@ export interface ShoppingCategoryOrderResponse {
  */
 export interface UpdateShoppingCategoryOrderRequest {
   order: ShoppingCategory[]
+}
+
+// ── Cravings coach (POST /api/coach/observe) ──────────────────────────────────
+
+export interface CravingsCoachResponse {
+  observation: string
+  observationEn?: string | null
+  /** Natural-language plan-edit intent the coach proposes; feed it to the conversational edit. */
+  proposedPlanEditIntent?: string | null
+}
+
+// ── Conversational plan edit (POST /api/plans/{id}/conversational-edit) ──────
+
+export interface EditIntent {
+  kind: string
+  mealIds: string[] | null
+  excludeIngredientIds: string[] | null
+  cuisineTag: string | null
+  kcalDelta: number | null
+  servingMultiplier: number | null
+  excludeMealTypes: string[] | null
+  confidence: number | null
+  narrative: string | null
+}
+
+export interface AiPlanEditResponse {
+  /** Equals the cached diff id; pass to planService.acceptReplan to apply. */
+  proposalId: string
+  editIntent: EditIntent
+  candidateRecipeIds: string[]
+  diff: ReplanDiff
+  narrative: string | null
+}
+
+// ── Weekly recap (GET /api/plans/{id}/recap) ──────────────────────────────────
+
+export interface WeeklyRecapMetrics {
+  mealsCompleted: number
+  mealsPlanned: number
+  recipesTried: number
+  avgKcalDeviation: number
+  pointsEarned: number
+}
+
+export interface WeeklyRecap {
+  id: string
+  planId: string
+  weekOf: string
+  narrative: string
+  narrativeEn: string | null
+  headlineMetrics: WeeklyRecapMetrics
+  generatedAt: string
+}
+
+// ── Multi-member plan membership (MultiMemberPlanController) ─────────────────
+
+export interface UpdatePlanMembersRequest {
+  addUserIds?: string[]
+  removeUserIds?: string[]
+}
+
+export type ReplanSuggestionStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'AUTO_APPLIED'
+
+export interface ReplanSuggestion {
+  id: string
+  planId: string
+  triggeredByEventId: string | null
+  scope: 'PERSONAL' | 'HOUSEHOLD'
+  /** The stored diff; its diffId equals the suggestion id. */
+  diff: ReplanDiff
+  status: ReplanSuggestionStatus
+  createdAt: string
+  actionedAt: string | null
+  actionedBy: string | null
 }

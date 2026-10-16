@@ -114,7 +114,7 @@ export function BulkDispositionModal({
           <button
             type="button"
             onClick={() => setCustomizeOpen(o => !o)}
-            className="flex items-center gap-2 text-sm font-semibold text-[#4f46e5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+            className="flex items-center gap-2 text-sm font-semibold text-[#4F7942] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
           >
             {customizeOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             {t('offPlan.bulkDisposition.customizePerSlot')}
@@ -138,7 +138,7 @@ export function BulkDispositionModal({
                           onClick={() => handlePerSlot(slot.plannedMealId, opt.value)}
                           className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${
                             current === opt.value
-                              ? 'bg-[#4f46e5] text-white border-[#4f46e5]'
+                              ? 'bg-[#4F7942] text-white border-[#4F7942]'
                               : 'border-[#e5e7eb] text-[#6b7280] hover:bg-[#f3f4f6]'
                           }`}
                         >

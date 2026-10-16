@@ -228,7 +228,7 @@ function ShoppingCategoryOrderSection() {
                         key={cat}
                         id={cat}
                         index={i}
-                        label={t(`shopNow.categories.${cat}`)}
+                        label={t(`shoppingList.categories.${cat}`)}
                       />
                     ))}
                   </ul>

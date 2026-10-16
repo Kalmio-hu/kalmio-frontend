@@ -37,6 +37,9 @@ import { RunPlanDialog } from '@/components/plan/RunPlanDialog'
 import { planTemplateService } from '@/services/plans'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { toast } from '@/components/ui/toast'
+import { todayIsoLocal } from '@/lib/utils'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
+import { familyService } from '@/services/family'
 import type { PlanTemplate, PlanTemplateStatus } from '@/types'
 
 type ListFilter = 'active' | 'draft' | 'archived' | 'all'
@@ -49,6 +52,7 @@ export function Plans() {
 
   const [filter, setFilter] = useState<ListFilter>('all')
   const [runPlanTarget, setRunPlanTarget] = useState<PlanTemplate | null>(null)
+  const [archiveTarget, setArchiveTarget] = useState<PlanTemplate | null>(null)
   // Flag that we should auto-schedule after solve/fresh landing.
   const pendingAutoScheduleRef = useRef(false)
 
@@ -133,6 +137,27 @@ export function Plans() {
     staleTime: 60_000,
   })
 
+  // Family members — needed so plan cards can show names instead of raw member ids.
+  const { data: myFamily } = useQuery({
+    queryKey: ['family', 'mine'],
+    queryFn: familyService.getMine,
+    staleTime: 60_000,
+  })
+
+  // Resume a plan run that was parked while the user checked their fridge
+  // (RunPlanDialog stores it in sessionStorage before navigating to /app/grooming).
+  // Re-opening the dialog for that plan lets its own effect fire the stored run.
+  const [resumePlanId, setResumePlanId] = useState<string | null>(() => {
+    try {
+      const raw = sessionStorage.getItem('kalmio.pendingGroomingRun')
+      return raw ? (JSON.parse(raw) as { planId?: string }).planId ?? null : null
+    } catch {
+      return null
+    }
+  })
+  const dialogPlan =
+    runPlanTarget ?? (resumePlanId ? plans.find(p => p.id === resumePlanId) ?? null : null)
+
   // ── Auto-schedule after first-plan solve ──────────────────────────────────
   // After the auto-solve completes (fresh=1 landing), automatically call
   // runPlan with startDate=today so the user lands on /app with their first
@@ -144,7 +169,7 @@ export function Plans() {
   const autoScheduleMutation = useMutation({
     mutationFn: (planId: string) =>
       planTemplateService.runPlan(planId, {
-        startDate: new Date().toISOString().slice(0, 10),
+        startDate: todayIsoLocal(),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['schedules'] })
@@ -201,6 +226,9 @@ export function Plans() {
   // ── Member name map ───────────────────────────────────────────────────────
 
   const memberNames: Record<string, string> = {}
+  for (const m of myFamily?.members ?? []) {
+    memberNames[m.userId] = m.displayName ?? m.userId.slice(0, 8)
+  }
   if (me?.id) {
     memberNames[me.id] =
       ([me.firstName, me.lastName].filter(Boolean).join(' ') || me.email) ?? me.id
@@ -270,9 +298,9 @@ export function Plans() {
             aria-pressed={filter === f.key}
             className={`
               px-3 py-1.5 rounded-full text-sm font-medium transition-colors
-              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]
               ${filter === f.key
-                ? 'bg-[#4f46e5] text-white'
+                ? 'bg-[#4F7942] text-white'
                 : 'bg-[#f3f4f6] text-[#6b7280] hover:bg-[#e5e7eb]'}
             `}
           >
@@ -313,7 +341,7 @@ export function Plans() {
           <button
             type="button"
             onClick={() => void refetch()}
-            className="text-sm text-[#4f46e5] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4f46e5] rounded"
+            className="text-sm text-[#4F7942] underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942] rounded"
           >
             {t('plan.list.retry')}
           </button>
@@ -340,22 +368,42 @@ export function Plans() {
               memberNames={memberNames}
               isDefault={plan.isDefault}
               onCopy={id => copyMutation.mutate(id)}
-              onArchive={id => archiveMutation.mutate(id)}
+              onArchive={id => setArchiveTarget(plans.find(p => p.id === id) ?? null)}
               onRun={() => setRunPlanTarget(plan)}
             />
           ))}
         </div>
       )}
 
+      {/* Archive confirmation — archiving hides the plan and ends its schedules */}
+      <ConfirmDialog
+        open={archiveTarget != null}
+        onOpenChange={open => { if (!open) setArchiveTarget(null) }}
+        title={t('plan.list.archiveConfirm.title')}
+        description={archiveTarget ? t('plan.list.archiveConfirm.body', { name: archiveTarget.name }) : undefined}
+        destructiveLabel={t('plan.list.card.menu.archive')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={() => {
+          if (archiveTarget) archiveMutation.mutate(archiveTarget.id, { onSettled: () => setArchiveTarget(null) })
+        }}
+        isPending={archiveMutation.isPending}
+      />
+
       {/* RunPlanDialog — opened from card primary CTA (manual scheduling) */}
-      {runPlanTarget != null && (
+      {dialogPlan != null && (
         <RunPlanDialog
-          plan={runPlanTarget}
-          open={runPlanTarget != null}
+          plan={dialogPlan}
+          open={dialogPlan != null}
           onOpenChange={open => {
-            if (!open) setRunPlanTarget(null)
+            if (!open) {
+              setRunPlanTarget(null)
+              setResumePlanId(null)
+            }
           }}
-          onSuccess={() => setRunPlanTarget(null)}
+          onSuccess={() => {
+            setRunPlanTarget(null)
+            setResumePlanId(null)
+          }}
         />
       )}
     </div>
