@@ -14,6 +14,7 @@ import { Knob } from '@/components/ui/knob'
 import { UserAvatar } from '@/components/ui/UserAvatar'
 import { toast } from '@/components/ui/toast'
 import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
+import { PresetPicker } from '@/components/preferences/PresetPicker'
 import {
   usersService,
   type UpdateProfileRequest,
@@ -1359,6 +1360,9 @@ export function Profile() {
         {/* ════════════════════════════════════════════════════════════════ */}
         {activeTab === 'meals' && (
           <>
+
+        {/* Eating-pattern presets — one tap sets slots + split; the form below stays editable */}
+        <PresetPicker />
 
         {/* Meal types & calorie split */}
         <Card>

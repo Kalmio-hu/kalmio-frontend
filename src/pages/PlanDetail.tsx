@@ -74,7 +74,7 @@ import { useAuthStore } from '@/store/auth'
 import { getRecipeName } from '@/lib/i18nRecipe'
 import { resolveDisplayName } from '@/lib/userDisplay'
 import { toast } from '@/components/ui/toast'
-import type { MealType, TemplateMeal, RecipeFilter } from '@/types'
+import type { MealType, MealCourse, TemplateMeal, RecipeFilter } from '@/types'
 
 const MAX_HEADER_CHIPS = 4
 
@@ -88,6 +88,8 @@ interface ActiveCell {
   dayIndex: number
   mealType: MealType
   memberId: string
+  /** Course being edited inside the slot (composable meals). */
+  course: MealCourse
   existing: TemplateMeal | null
 }
 
@@ -298,6 +300,7 @@ export function PlanDetail() {
           recipeId: vars.cell.recipeId,
           offPlanMealTemplateId: vars.cell.offPlanMealTemplateId,
           servings: vars.servings,
+          course: vars.cell.course ?? 'MAIN',
         },
         vars.cell.id,
       ),
@@ -428,6 +431,7 @@ export function PlanDetail() {
       recipeId: string | null
       offPlanMealTemplateId: string | null
       servings: number
+      course?: MealCourse
     }) => planTemplateService.upsertTemplateMeal(
       id!,
       {
@@ -437,6 +441,7 @@ export function PlanDetail() {
         recipeId: vars.recipeId,
         offPlanMealTemplateId: vars.offPlanMealTemplateId,
         servings: vars.servings,
+        course: vars.course ?? 'MAIN',
       },
       vars.mealId,
     ),
@@ -546,6 +551,7 @@ export function PlanDetail() {
           recipeId: vars.recipeId,
           offPlanMealTemplateId: null,
           servings: Number(vars.target.servings),
+          course: vars.target.course ?? 'MAIN',
         },
         vars.target.id,
       ),
@@ -621,8 +627,10 @@ export function PlanDetail() {
     // already filled we surface a confirm dialog instead of overwriting silently.
     if (sourceId.startsWith('palette:')) {
       const recipeId = sourceId.slice('palette:'.length)
+      // Drag targets are the slot's MAIN course; sides and soups are edited per course.
       const occupant = plan.templateMeals.find(m =>
         m.dayIndex === targetDay && m.mealType === targetSlot && m.memberId === memberId
+          && (m.course ?? 'MAIN') === 'MAIN'
       )
       if (occupant) {
         const sourceRecipeName =
@@ -659,6 +667,7 @@ export function PlanDetail() {
 
     const targetMeal = plan.templateMeals.find(m =>
       m.dayIndex === targetDay && m.mealType === targetSlot && m.memberId === memberId
+        && (m.course ?? 'MAIN') === (sourceMeal.course ?? 'MAIN')
     )
 
     if (targetMeal) {
@@ -672,6 +681,7 @@ export function PlanDetail() {
         recipeId: sourceMeal.recipeId,
         offPlanMealTemplateId: sourceMeal.offPlanMealTemplateId,
         servings: Number(sourceMeal.servings),
+        course: sourceMeal.course ?? 'MAIN',
       })
     }
   }
@@ -742,8 +752,9 @@ export function PlanDetail() {
     mealType: MealType,
     memberId: string,
     existing: TemplateMeal | null,
+    course: MealCourse = existing?.course ?? 'MAIN',
   ) {
-    setActiveCell({ dayIndex, mealType, memberId, existing })
+    setActiveCell({ dayIndex, mealType, memberId, course, existing })
   }
 
   function handlePickerConfirm(result: TemplateCellPickerResult) {
@@ -755,6 +766,7 @@ export function PlanDetail() {
       recipeId: result.recipe.id,
       offPlanMealTemplateId: null,
       servings: result.servings,
+      course: activeCell.course,
     }
     upsertMutation.mutate({ body, existingId: activeCell.existing?.id ?? null })
   }
@@ -1336,6 +1348,7 @@ export function PlanDetail() {
                   onServingsChange={(cell, servings) =>
                     servingsMutation.mutate({ cell, servings })
                   }
+                  onCourseRemove={(row) => clearMutation.mutate(row.id)}
                   prepSlots={prepSlots}
                   isPrepSlotDragging={isPrepSlotDragging}
                   onPrepAddClick={(dayIndex, scheduledWindow) =>
@@ -1444,6 +1457,7 @@ export function PlanDetail() {
           onClose={() => setActiveCell(null)}
           canClear={pickerCanClear}
           isSaving={isMutating}
+          course={activeCell.course}
         />
       )}
 

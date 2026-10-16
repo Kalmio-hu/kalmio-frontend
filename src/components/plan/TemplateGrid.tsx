@@ -12,14 +12,15 @@
  */
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Plus, GripVertical, Minus, Layers } from 'lucide-react'
+import { Plus, GripVertical, Minus, Layers, X } from 'lucide-react'
+import { addableCourses, canRemoveCourse, mainOf, slotRows } from '@/lib/mealCourses'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { MEMBER_COLORS } from './memberColors'
 import { DayMacroStrip } from './DayMacroStrip'
 import { dndCellId, nextServings } from './templateDnd'
 import { PrepLaneRow } from './PrepLaneRow'
 import { PrepHoldViolationBanner } from './PrepHoldViolationBanner'
-import type { PlanTemplate, Recipe, TemplateMeal, MealType, TemplatePrepSlot } from '@/types'
+import type { PlanTemplate, Recipe, TemplateMeal, MealType, MealCourse, TemplatePrepSlot } from '@/types'
 import type { MacroTargets, MacroTotals } from '@/lib/planMacros'
 
 interface TemplateGridProps {
@@ -55,9 +56,15 @@ interface TemplateGridProps {
   dragOverMeal: TemplateMeal | null
   dragOverRecipe: Recipe | undefined
   dragOverRecipeName: string | null
-  onCellClick: (dayIndex: number, mealType: MealType, memberId: string, existing: TemplateMeal | null) => void
-  /** Persist a new servings multiplier for an existing meal cell. */
+  /**
+   * Tap on a cell or on one of its course rows. `existing` is the row being edited (null for
+   * an empty cell or a new course); `course` says which course of the slot is meant.
+   */
+  onCellClick: (dayIndex: number, mealType: MealType, memberId: string, existing: TemplateMeal | null, course: MealCourse) => void
+  /** Persist a new servings multiplier for an existing meal (course) row. */
   onServingsChange: (cell: TemplateMeal, servings: number) => void
+  /** Remove one course row from a slot (sides, soups, condiments; MAIN only when alone). */
+  onCourseRemove?: (cell: TemplateMeal) => void
   // ── Prep lane ────────────────────────────────────────────────────────────
   /** All template prep slots for this plan (loaded from the prep-slots query). */
   prepSlots: TemplatePrepSlot[]
@@ -81,19 +88,21 @@ interface TemplateGridProps {
   violatingMealIds: Set<string>
 }
 
-/** Returns the template meal for a given (dayIndex, mealType, memberId) or null. */
+/**
+ * Returns the MAIN-course template meal for a given (dayIndex, mealType, memberId) or null.
+ * A slot may hold up to four course rows (composable meals); the MAIN row is the cell's
+ * identity for drag-and-drop and the picker, the others render as secondary lines.
+ */
 function findCell(
   meals: TemplateMeal[],
   dayIndex: number,
   mealType: MealType,
   memberId: string,
 ): TemplateMeal | null {
-  return meals.find(
-    m => m.dayIndex === dayIndex && m.mealType === mealType && m.memberId === memberId,
-  ) ?? null
+  return mainOf(slotRows(meals, dayIndex, mealType, memberId))
 }
 
-export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, daily, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceId, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds }: TemplateGridProps) {
+export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, daily, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceId, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, onCourseRemove, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds }: TemplateGridProps) {
   const { t } = useTranslation()
 
   const days = Array.from({ length: plan.lengthDays }, (_, i) => i)
@@ -137,6 +146,7 @@ export function TemplateGrid({ plan, memberNames, recipeNames, recipesById, dail
           dragOverRecipeName={dragOverRecipeName}
           onCellClick={onCellClick}
           onServingsChange={onServingsChange}
+          onCourseRemove={onCourseRemove}
           prepSlots={prepSlots.filter(s => s.dayIndex === dayIndex)}
           isPrepSlotDragging={isPrepSlotDragging}
           onPrepAddClick={onPrepAddClick}
@@ -173,6 +183,7 @@ interface DayCardProps {
   dragOverRecipeName: string | null
   onCellClick: TemplateGridProps['onCellClick']
   onServingsChange: TemplateGridProps['onServingsChange']
+  onCourseRemove?: TemplateGridProps['onCourseRemove']
   // ── Prep lane ────────────────────────────────────────────────────────────
   prepSlots: TemplatePrepSlot[]
   isPrepSlotDragging: boolean
@@ -184,7 +195,7 @@ interface DayCardProps {
   t: TFunction
 }
 
-function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesById, meals, dayTotals, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds, t }: DayCardProps) {
+function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesById, meals, dayTotals, targets, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, onCourseRemove, prepSlots, isPrepSlotDragging, onPrepAddClick, onPrepDelete, planId, violatingMealIds, t }: DayCardProps) {
   return (
     <section
       aria-label={t('plan.detail.dayLabel', { day: dayIndex + 1 })}
@@ -221,6 +232,7 @@ function DayCard({ dayIndex, slots, members, memberNames, recipeNames, recipesBy
             dragOverRecipeName={dragOverRecipeName}
             onCellClick={onCellClick}
             onServingsChange={onServingsChange}
+            onCourseRemove={onCourseRemove}
             planId={planId}
             violatingMealIds={violatingMealIds}
             t={t}
@@ -262,12 +274,13 @@ interface SlotRowProps {
   dragOverRecipeName: string | null
   onCellClick: TemplateGridProps['onCellClick']
   onServingsChange: TemplateGridProps['onServingsChange']
+  onCourseRemove?: TemplateGridProps['onCourseRemove']
   planId: string
   violatingMealIds: Set<string>
   t: TFunction
 }
 
-function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesById, meals, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, planId, violatingMealIds, t }: SlotRowProps) {
+function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesById, meals, slotKcalTargetByMember, preferredSlotsByMember, dragSourceMeal, dragSourceRecipe, dragSourceRecipeName, dragOverId, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, onCourseRemove, planId, violatingMealIds, t }: SlotRowProps) {
   return (
     <div className="flex items-start gap-0 min-h-[52px]">
       {/* Slot label */}
@@ -280,6 +293,7 @@ function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesByI
       {/* Member sub-cells */}
       <div className="flex-1 flex flex-wrap gap-2 px-2 py-2 min-w-0">
         {members.map((memberId, memberIdx) => {
+          const rows = slotRows(meals, dayIndex, slot, memberId)
           const cell = findCell(meals, dayIndex, slot, memberId)
           const name = memberNames[memberId] ?? memberId.slice(0, 8)
           const colorClass = MEMBER_COLORS[memberIdx % MEMBER_COLORS.length]
@@ -308,6 +322,9 @@ function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesByI
               memberName={name}
               colorClass={colorClass}
               cell={cell}
+              rows={rows}
+              recipesById={recipesById}
+              recipeNames={recipeNames}
               recipe={recipe}
               recipeName={recipeName}
               slotKcalTarget={slotKcalTargetByMember[memberId]?.[slot] ?? slotKcalTargetByMember[memberId]?.['__uniform__'] ?? null}
@@ -328,8 +345,10 @@ function SlotRow({ slot, dayIndex, members, memberNames, recipeNames, recipesByI
               dragOverMeal={dragOverMeal}
               dragOverRecipe={dragOverRecipe}
               dragOverRecipeName={dragOverRecipeName}
-              onCellClick={() => onCellClick(dayIndex, slot, memberId, cell)}
+              onCellClick={() => onCellClick(dayIndex, slot, memberId, cell, 'MAIN')}
+              onCourseClick={(row, course) => onCellClick(dayIndex, slot, memberId, row, course)}
               onServingsChange={onServingsChange}
+              onCourseRemove={onCourseRemove}
               planId={planId}
               violatingMealIds={violatingMealIds}
               t={t}
@@ -349,7 +368,13 @@ interface MemberCellProps {
   slot: MealType
   memberName: string
   colorClass: string
+  /** The slot's MAIN row (cell identity), or null when the slot is empty. */
   cell: TemplateMeal | null
+  /** Every course row of the slot in plating order (SOUP, MAIN, SIDE, CONDIMENT). */
+  rows: TemplateMeal[]
+  /** Recipe lookups for the secondary course rows. */
+  recipesById: Record<string, Recipe>
+  recipeNames: Record<string, string>
   recipe: Recipe | undefined
   recipeName: string | null
   slotKcalTarget: number | null
@@ -367,7 +392,10 @@ interface MemberCellProps {
   dragOverRecipe: Recipe | undefined
   dragOverRecipeName: string | null
   onCellClick: () => void
+  /** Tap on a secondary course row (edit) or on "add course" (row = null). */
+  onCourseClick: (row: TemplateMeal | null, course: MealCourse) => void
   onServingsChange: TemplateGridProps['onServingsChange']
+  onCourseRemove?: TemplateGridProps['onCourseRemove']
   planId: string
   violatingMealIds: Set<string>
   t: TFunction
@@ -448,7 +476,7 @@ function EmptyMemberCell({ dayIndex, slot, memberId, memberName, colorClass, isD
   )
 }
 
-function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, cell, recipe, recipeName, slotKcalTarget, nonPreferred, isDropTarget, isDragSource, dragSourceRecipe, dragSourceRecipeName, dragSourceServings, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onServingsChange, t }: MemberCellProps) {
+function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, cell, rows, recipesById, recipeNames, recipe, recipeName, slotKcalTarget, nonPreferred, isDropTarget, isDragSource, dragSourceRecipe, dragSourceRecipeName, dragSourceServings, dragOverMeal, dragOverRecipe, dragOverRecipeName, onCellClick, onCourseClick, onServingsChange, onCourseRemove, t }: MemberCellProps) {
   // Both the droppable + draggable hooks always fire on this code path
   // (cell is guaranteed non-null because the wrapper dispatched here).
   const { setNodeRef: setDropRef, isOver } = useDroppable({
@@ -479,20 +507,34 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
     : Number(cell?.servings ?? 1)
   const displayLabel = effectiveRecipeName ?? memberName
 
-  // Per-meal macros = (recipe.macros / recipe.servings) × cell.servings.
+  // Per-meal macros = Σ over the slot's course rows of (recipe.macros / recipe.servings) × row.servings.
+  // While previewing a swap only the main row's substitute is shown, so sum just that one.
   let mealKcal = 0
   let mealProtein = 0
   let mealFat = 0
   let mealCarbs = 0
-  if (effectiveRecipe?.macros && effectiveRecipe.servings > 0) {
-    const factor = effectiveServings / effectiveRecipe.servings
-    if (Number.isFinite(factor) && factor > 0) {
-      mealKcal = effectiveRecipe.macros.kcal * factor
-      mealProtein = effectiveRecipe.macros.protein * factor
-      mealFat = effectiveRecipe.macros.fat * factor
-      mealCarbs = effectiveRecipe.macros.carbs * factor
+  const macroRows: Array<{ r: Recipe | undefined; servings: number }> =
+    (previewSwap || previewSourceSwap)
+      ? [{ r: effectiveRecipe, servings: effectiveServings }]
+      : rows.map(row => ({
+          r: row.id === cell?.id ? effectiveRecipe : (row.recipeId ? recipesById[row.recipeId] : undefined),
+          servings: Number(row.servings ?? 1),
+        }))
+  for (const { r, servings } of macroRows) {
+    if (r?.macros && r.servings > 0) {
+      const factor = servings / r.servings
+      if (Number.isFinite(factor) && factor > 0) {
+        mealKcal += r.macros.kcal * factor
+        mealProtein += r.macros.protein * factor
+        mealFat += r.macros.fat * factor
+        mealCarbs += r.macros.carbs * factor
+      }
     }
   }
+  const secondaryRows = rows.filter(row => row.id !== cell?.id)
+  const presentCourses = rows.map(row => row.course ?? 'MAIN')
+  const addable = addableCourses(presentCourses).filter(c => c !== 'MAIN')
+  const stopAll = (e: React.SyntheticEvent) => { e.stopPropagation(); e.preventDefault() }
 
   const hasTarget = slotKcalTarget != null && slotKcalTarget > 0
   const ratio = hasTarget ? mealKcal / slotKcalTarget! : 0
@@ -644,6 +686,69 @@ function FilledMemberCell({ memberId, dayIndex, slot, memberName, colorClass, ce
           t={t}
         />
       )}
+
+      {/* Secondary courses — leves · köret · savanyúság, each editable and resizable on its own */}
+      {!previewSwap && !previewSourceSwap && secondaryRows.length > 0 && (
+        <ul className="mt-0.5 space-y-0.5 w-full" onPointerDown={stopAll}>
+          {secondaryRows.map(row => {
+            const course = (row.course ?? 'MAIN') as MealCourse
+            const label = row.recipeId
+              ? (recipeNames[row.recipeId] ?? row.recipeId.slice(0, 8))
+              : t(`plan.courses.${course}`)
+            return (
+              <li key={row.id} className="flex items-center gap-1.5 min-w-0">
+                <button
+                  type="button"
+                  onClick={(e) => { stopAll(e); onCourseClick(row, course) }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { stopAll(e); onCourseClick(row, course) } }}
+                  className="flex-1 min-w-0 flex items-center gap-1.5 text-left rounded-md px-1.5 py-0.5 hover:bg-white/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
+                  title={`${t(`plan.courses.${course}`)} — ${label}`}
+                >
+                  <span className="shrink-0 text-[9px] font-semibold uppercase tracking-wide text-[#6b7280]">
+                    {t(`plan.courses.${course}`)}
+                  </span>
+                  <span className="truncate text-[11px] text-[#1A1A1A]">{label}</span>
+                </button>
+                <ServingsStepper
+                  servings={Number(row.servings)}
+                  onChange={(next) => onServingsChange(row, next)}
+                  t={t}
+                  compact
+                />
+                {onCourseRemove && canRemoveCourse(row, rows) && (
+                  <button
+                    type="button"
+                    aria-label={t('plan.detail.cell.clearSlot')}
+                    onClick={(e) => { stopAll(e); onCourseRemove(row) }}
+                    className="h-5 w-5 inline-flex items-center justify-center rounded-full text-[#9ca3af] hover:text-red-500 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
+                  >
+                    <X className="w-3 h-3" aria-hidden />
+                  </button>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+
+      {/* Add course — offers only the courses not yet present in this slot */}
+      {!previewSwap && !previewSourceSwap && addable.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-0.5" onPointerDown={stopAll}>
+          {addable.map(course => (
+            <button
+              key={course}
+              type="button"
+              aria-label={`${t('plan.detail.cell.addCourseAria')}: ${t(`plan.courses.${course}`)}`}
+              onClick={(e) => { stopAll(e); onCourseClick(null, course) }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { stopAll(e); onCourseClick(null, course) } }}
+              className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full border border-dashed border-[#d1d5db] text-[10px] text-[#6b7280] hover:border-[#4F7942] hover:text-[#4F7942] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
+            >
+              <Plus className="w-2.5 h-2.5" aria-hidden />
+              {t(`plan.courses.${course}`)}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -652,6 +757,8 @@ interface ServingsStepperProps {
   servings: number
   onChange: (next: number) => void
   t: TFunction
+  /** Smaller variant for secondary course rows. */
+  compact?: boolean
 }
 
 /**
@@ -660,7 +767,7 @@ interface ServingsStepperProps {
  * not open the editor; pointer events are also stopped so @dnd-kit does not
  * start a drag from the stepper buttons.
  */
-function ServingsStepper({ servings, onChange, t }: ServingsStepperProps) {
+function ServingsStepper({ servings, onChange, t, compact = false }: ServingsStepperProps) {
   const lower = nextServings(servings, -1)
   const upper = nextServings(servings, +1)
 
@@ -692,9 +799,9 @@ function ServingsStepper({ servings, onChange, t }: ServingsStepperProps) {
       </button>
       <span
         aria-label={t('plan.detail.cell.servingsValueAria', { servings })}
-        className="text-[10.5px] tabular-nums text-[#1A1A1A] font-semibold min-w-[2rem] text-center"
+        className={`tabular-nums text-[#1A1A1A] font-semibold text-center ${compact ? 'text-[10px] min-w-[1.6rem]' : 'text-[10.5px] min-w-[2rem]'}`}
       >
-        {servings}× {t('plan.detail.cell.servingsUnit')}
+        {compact ? `${servings}×` : `${servings}× ${t('plan.detail.cell.servingsUnit')}`}
       </span>
       <button
         type="button"

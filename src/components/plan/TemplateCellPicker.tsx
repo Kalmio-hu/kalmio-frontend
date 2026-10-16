@@ -26,12 +26,18 @@ import { RecipeFilterChips } from './RecipeFilterChips'
 import { filterByDietTier, groupByFamily } from './recipeFamilyGrouping'
 import { DietTierBadge } from '@/components/recipe/DietTierBadge'
 import { Badge } from '@/components/ui/badge'
-import type { Recipe } from '@/types'
+import type { MealCourse, Recipe, RecipeRole } from '@/types'
+import { COURSE_ALLOWED_ROLES } from '@/lib/mealCourses'
 
 export interface TemplateCellPickerResult {
   type: 'recipe'
   recipe: Recipe
   servings: number
+}
+
+/** Role chip label key for a recipe; COMPLETE recipes show no chip (the default). */
+function roleOf(recipe: Recipe): RecipeRole {
+  return recipe.role ?? 'COMPLETE'
 }
 
 // Off-plan template — lightweight local type until a backend endpoint exists.
@@ -57,6 +63,12 @@ interface TemplateCellPickerProps {
   /** Whether the clear button should be shown (cell is not empty). */
   canClear: boolean
   isSaving: boolean
+  /**
+   * Course being edited (composable meals). The recipe list is filtered to the roles the
+   * course accepts — a SIDE recipe is never offered for the MAIN course and vice versa.
+   * Defaults to MAIN for callers that predate courses.
+   */
+  course?: MealCourse
 }
 
 type Tab = 'recipe' | 'offplan'
@@ -70,8 +82,10 @@ export function TemplateCellPicker({
   onClose,
   canClear,
   isSaving,
+  course = 'MAIN',
 }: TemplateCellPickerProps) {
   const { t, i18n } = useTranslation()
+  const allowedRoles = COURSE_ALLOWED_ROLES[course]
   const lang = (i18n.resolvedLanguage === 'hu' ? 'hu' : 'en') as 'hu' | 'en'
 
   const [tab, setTab] = useState<Tab>('recipe')
@@ -114,7 +128,7 @@ export function TemplateCellPicker({
   const dietFiltered = filterByDietTier(
     filterRecipes(recipes, filters, lang, ingredientConstraintsMap),
     me?.effectiveDietTier,
-  )
+  ).filter(r => allowedRoles.includes(roleOf(r)))
   const { siblings, others } = groupByFamily(dietFiltered, currentRecipeId)
   const currentRecipe = recipes.find(r => r.id === currentRecipeId) ?? null
   const familyName = currentRecipe?.familyName ?? null
@@ -133,8 +147,17 @@ export function TemplateCellPicker({
     <Dialog open={open} onOpenChange={isOpen => !isOpen && onClose()}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{t('plan.detail.cell.pickerTitle')}</DialogTitle>
+          <DialogTitle>
+            {course === 'MAIN'
+              ? t('plan.detail.cell.pickerTitle')
+              : t('plan.detail.cell.pickerTitleCourse', { course: t(`plan.courses.${course}`) })}
+          </DialogTitle>
         </DialogHeader>
+        {course !== 'MAIN' && (
+          <p className="-mt-2 mb-3 text-xs text-[#6b7280]">
+            {t('plan.detail.cell.roleFilterHint', { course: t(`plan.courses.${course}`) })}
+          </p>
+        )}
 
         {/* Tab strip */}
         <div className="flex gap-1 mb-4 border-b border-[#e5e7eb]">
@@ -356,6 +379,9 @@ function TemplateRecipeRow({ recipe, isSelected, isSibling, lang, onSelect, t }:
               {getRecipeName(recipe, lang)}
             </p>
             {recipe.dietTier && <DietTierBadge tier={recipe.dietTier} />}
+            {roleOf(recipe) !== 'COMPLETE' && (
+              <Badge variant="gray">{t(`recipes.roles.${roleOf(recipe)}`, { defaultValue: roleOf(recipe) })}</Badge>
+            )}
           </div>
           {isSibling && recipe.variantLabel && (
             <p className="text-[11px] text-[#4F7942] font-medium mt-0.5">

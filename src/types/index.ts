@@ -299,6 +299,28 @@ export interface Recipe {
    * Null when this is a standalone recipe.
    */
   siblings: RecipeSibling[] | null
+  // ── Composable meals (docs/product/composable-meals.md §3.1) ──────────────
+  /** What the recipe is on the plate. Missing on very old responses = COMPLETE. */
+  role?: RecipeRole
+  /** Effective plate components (chef override over derived). */
+  plate?: RecipePlate | null
+  /** Recipe ids this recipe must never share a meal slot with. */
+  pairsBadlyWith?: string[]
+}
+
+/** COMPLETE = one-pot / plated dish; MAIN = protein centre that needs a side; SIDE / SOUP / CONDIMENT. */
+export type RecipeRole = 'COMPLETE' | 'MAIN' | 'SIDE' | 'SOUP' | 'CONDIMENT'
+
+/** A course inside one meal slot — a slot holds one row per course. */
+export type MealCourse = 'SOUP' | 'MAIN' | 'SIDE' | 'CONDIMENT'
+
+export interface RecipePlate {
+  protein: boolean
+  starch: boolean
+  vegetable: boolean
+  proteinOverride: boolean | null
+  starchOverride: boolean | null
+  vegetableOverride: boolean | null
 }
 
 export interface CreateRecipeRequest {
@@ -1304,6 +1326,8 @@ export interface TemplateMeal {
   offPlanMealTemplateId: string | null
   servings: number
   source: TemplateMealSource
+  /** Course inside the (day, meal type, member) slot. Missing on old responses = MAIN. */
+  course?: MealCourse
 }
 
 /**
@@ -1580,6 +1604,30 @@ export interface MaterializedPlannedMeal {
   source: MaterializedPlannedMealSource
   generatedAt: string | null   // ISO-8601
   eatenAt: string | null       // ISO-8601
+  /** Serving multiplier of this row (1 = one portion). */
+  servings?: number
+  /** Course inside the (member, date, meal type) slot. Missing on old responses = MAIN. */
+  course?: MealCourse
+}
+
+// ── Eating-pattern presets (docs/product/composable-meals.md §5) ──────────
+
+export type EatingPatternPresetId =
+  | 'CLASSIC_3' | 'CLASSIC_5' | 'IF_12_12' | 'IF_16_8' | 'OMAD'
+  | 'HUNGARIAN_CLASSIC' | 'MEDITERRANEAN' | 'HIGH_PROTEIN' | 'PLANT_FORWARD'
+
+export interface EatingPatternPreset {
+  id: EatingPatternPresetId
+  axis: 'TIMING' | 'STYLE'
+  mealTypes: MealType[]
+  slotSplitPct: Record<string, number>
+  proteinPct: number | null
+  fatPct: number | null
+  carbsPct: number | null
+  preferLocallySourced: boolean | null
+  evidenceKey: string
+  /** True when the user's current preferences already match this preset. */
+  active: boolean
 }
 
 /** Request body for PATCH /api/planned-meals/{id}/status (KALMIO-249). */

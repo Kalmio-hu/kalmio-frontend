@@ -583,6 +583,13 @@
       "uploadError": "Image upload failed.",
       "errorNotImage": "Only image files are accepted (JPEG, PNG, WebP, GIF).",
       "errorTooLarge": "File is too large. Maximum 5 MB allowed."
+    },
+    "roles": {
+      "COMPLETE": "Complete dish",
+      "MAIN": "Main (needs a side)",
+      "SIDE": "Side",
+      "SOUP": "Soup",
+      "CONDIMENT": "Pickle / salad"
     }
   },
   "recipeDetail": {
@@ -1731,7 +1738,15 @@
         "servingsUnit": "serving",
         "servingsIncAria": "Increase servings",
         "servingsDecAria": "Decrease servings",
-        "servingsValueAria": "{{servings}} servings"
+        "servingsValueAria": "{{servings}} servings",
+        "addCourse": "Add course",
+        "addCourseAria": "Add a course to this meal",
+        "courseLabel": "Course",
+        "pickerTitleCourse": "Edit {{course}}",
+        "roleFilterHint": "Only recipes with the {{course}} role are shown.",
+        "mainLockedHint": "The main course cannot be removed while other courses exist.",
+        "courseSaved": "Course set.",
+        "roleMismatch": "This recipe does not fit this course."
       },
       "copySuccess": "Copy created.",
       "snapshotRefreshSuccess": "Preferences refreshed.",
@@ -1917,6 +1932,12 @@
       "accepted": "Suggestion applied.",
       "rejected": "Suggestion declined.",
       "error": "That didn't work — please try again."
+    },
+    "courses": {
+      "SOUP": "Soup",
+      "MAIN": "Main",
+      "SIDE": "Side",
+      "CONDIMENT": "Pickle / salad"
     }
   },
   "approval": {
@@ -2006,6 +2027,63 @@
       },
       "forbidden": {
         "title": "Forbidden ingredients"
+      }
+    },
+    "presets": {
+      "title": "Eating patterns",
+      "subtitle": "One tap sets your meal slots and calorie split. Everything stays editable afterwards.",
+      "timingTitle": "Timing",
+      "styleTitle": "Style",
+      "apply": "Apply",
+      "applied": "Pattern applied.",
+      "applyError": "Could not apply the pattern.",
+      "active": "Active",
+      "items": {
+        "CLASSIC_3": {
+          "name": "Classic",
+          "tagline": "Breakfast, lunch, dinner — 25 / 40 / 35 %",
+          "evidence": "Three meals perform as well as several small ones in most trials; the daily total is what matters."
+        },
+        "CLASSIC_5": {
+          "name": "Classic with two snacks",
+          "tagline": "Five meals — 20 / 10 / 35 / 10 / 25 %",
+          "evidence": "Eating more often does not speed up metabolism, but it helps many people eat evenly."
+        },
+        "IF_12_12": {
+          "name": "12:12",
+          "tagline": "A 12-hour eating window with three meals",
+          "evidence": "Mild time-restricted eating; the benefit mostly comes from less late-evening snacking."
+        },
+        "IF_16_8": {
+          "name": "16:8 intermittent fasting",
+          "tagline": "Lunch and dinner — 45 / 55 %",
+          "evidence": "In randomised trials 16:8 produces about the same weight loss as calorie restriction alone; adherence is the key."
+        },
+        "OMAD": {
+          "name": "Warrior diet (one meal a day)",
+          "tagline": "One meal a day — 100 % dinner",
+          "evidence": "The only 8-week randomised trial (21 lean adults) found higher LDL and blood pressure and some lean-mass loss. If you choose it, dinner becomes a multi-course meal."
+        },
+        "HUNGARIAN_CLASSIC": {
+          "name": "Hungarian classic",
+          "tagline": "Soup, main, side — from local ingredients",
+          "evidence": "A lighter take on traditional Hungarian cooking; sides and fat are what keep the calories in check."
+        },
+        "MEDITERRANEAN": {
+          "name": "Mediterranean",
+          "tagline": "More olive oil, fish, vegetables — 20 / 35 / 45 %",
+          "evidence": "The best-supported diet for lowering cardiovascular risk (PREDIMED)."
+        },
+        "HIGH_PROTEIN": {
+          "name": "High protein",
+          "tagline": "30 % of calories from protein",
+          "evidence": "Higher protein intake preserves muscle during weight loss and keeps you full longer."
+        },
+        "PLANT_FORWARD": {
+          "name": "Plant-forward",
+          "tagline": "More legumes and grains — 18 / 30 / 52 %",
+          "evidence": "More fibre and less saturated fat; legume–grain pairing keeps the protein complete."
+        }
       }
     }
   },

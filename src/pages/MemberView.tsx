@@ -135,7 +135,9 @@ export function MemberView() {
                     date={meal.date}
                     mealType={meal.mealType}
                     recipeId={meal.recipeId}
-                    recipeName={meal.recipeName}
+                    recipeName={meal.course && meal.course !== 'MAIN'
+                      ? `${t(`plan.courses.${meal.course}`)} · ${meal.recipeName ?? ''}`
+                      : meal.recipeName}
                     portionKcal={null}
                     portionProtein={null}
                     portionFat={null}

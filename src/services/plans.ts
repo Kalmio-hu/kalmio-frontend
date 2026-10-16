@@ -10,6 +10,8 @@ export interface UpsertTemplateMealRequest {
   recipeId?: string | null
   offPlanMealTemplateId?: string | null
   servings?: number
+  /** Course inside the slot (composable meals). Omitted = MAIN. */
+  course?: import('@/types').MealCourse
 }
 
 /**

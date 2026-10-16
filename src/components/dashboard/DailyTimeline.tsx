@@ -1349,7 +1349,11 @@ export function DailyTimeline({ date, hasShoppingDay, activePlanId, plannedMeals
           mealId: pm.id,
           mealType: pm.mealType,
           recipeId: pm.recipeId ?? '',
-          recipeName: pm.recipeName ?? '',
+          // Composable meals: a slot's leves / köret / savanyúság rows carry their course
+          // in the title so the three cards of one lunch read as one meal.
+          recipeName: pm.course && pm.course !== 'MAIN'
+            ? `${t(`plan.courses.${pm.course}`)} · ${pm.recipeName ?? ''}`
+            : (pm.recipeName ?? ''),
           recipeTranslations: null,
           scheduledTime: null,
           macros: null,

@@ -583,6 +583,13 @@
       "uploadError": "A kép feltöltése nem sikerült.",
       "errorNotImage": "Csak képfájl tölthető fel (JPEG, PNG, WebP, GIF).",
       "errorTooLarge": "A fájl túl nagy. Maximum 5 MB megengedett."
+    },
+    "roles": {
+      "COMPLETE": "Teljes étel",
+      "MAIN": "Főétel köret nélkül",
+      "SIDE": "Köret",
+      "SOUP": "Leves",
+      "CONDIMENT": "Savanyúság / saláta"
     }
   },
   "recipeDetail": {
@@ -1731,7 +1738,15 @@
         "servingsUnit": "adag",
         "servingsIncAria": "Több adag",
         "servingsDecAria": "Kevesebb adag",
-        "servingsValueAria": "{{servings}} adag"
+        "servingsValueAria": "{{servings}} adag",
+        "addCourse": "Fogás hozzáadása",
+        "addCourseAria": "Fogás hozzáadása ehhez az étkezéshez",
+        "courseLabel": "Fogás",
+        "pickerTitleCourse": "{{course}} szerkesztése",
+        "roleFilterHint": "Csak {{course}} szerepű receptek jelennek meg.",
+        "mainLockedHint": "A főétel nem törölhető, amíg a többi fogás megvan.",
+        "courseSaved": "Fogás beállítva.",
+        "roleMismatch": "Ez a recept nem illik ebbe a fogásba."
       },
       "copySuccess": "Másolat létrehozva.",
       "snapshotRefreshSuccess": "Preferenciák frissítve.",
@@ -1917,6 +1932,12 @@
       "accepted": "A javaslatot alkalmaztam.",
       "rejected": "A javaslatot elvetettem.",
       "error": "Nem sikerült — próbáld újra."
+    },
+    "courses": {
+      "SOUP": "Leves",
+      "MAIN": "Főétel",
+      "SIDE": "Köret",
+      "CONDIMENT": "Savanyúság / saláta"
     }
   },
   "approval": {
@@ -2006,6 +2027,63 @@
       },
       "forbidden": {
         "title": "Kizárt hozzávalók"
+      }
+    },
+    "presets": {
+      "title": "Étkezési minták",
+      "subtitle": "Egy kattintással beállítjuk az étkezéseket és a kalóriaelosztást. Utána bármit átírhatsz.",
+      "timingTitle": "Időzítés",
+      "styleTitle": "Stílus",
+      "apply": "Alkalmazás",
+      "applied": "Minta alkalmazva.",
+      "applyError": "Nem sikerült alkalmazni a mintát.",
+      "active": "Aktív",
+      "items": {
+        "CLASSIC_3": {
+          "name": "Klasszikus",
+          "tagline": "Reggeli, ebéd, vacsora — 25 / 40 / 35 %",
+          "evidence": "Három étkezés a legtöbb vizsgálatban ugyanolyan jól működik, mint a több kisebb; a napi összmennyiség számít."
+        },
+        "CLASSIC_5": {
+          "name": "Klasszikus tízóraival és uzsonnával",
+          "tagline": "Öt étkezés — 20 / 10 / 35 / 10 / 25 %",
+          "evidence": "A gyakoribb étkezés nem gyorsítja az anyagcserét, de sokaknak segít egyenletesen enni."
+        },
+        "IF_12_12": {
+          "name": "12:12",
+          "tagline": "12 órás étkezési ablak, három étkezéssel",
+          "evidence": "Enyhe időkorlátos evés; az előnyök főleg abból jönnek, hogy este kevesebb nassolás fér bele."
+        },
+        "IF_16_8": {
+          "name": "16:8 időszakos böjt",
+          "tagline": "Ebéd és vacsora — 45 / 55 %",
+          "evidence": "Randomizált vizsgálatokban a 16:8 annyi fogyást hoz, amennyit a kalóriacsökkentés önmagában; a betartás a kulcs."
+        },
+        "OMAD": {
+          "name": "Harcosok étrendje",
+          "tagline": "Egy étkezés naponta — 100 % vacsora",
+          "evidence": "Az egyetlen 8 hetes randomizált vizsgálat (21 sovány felnőtt) magasabb LDL-t és vérnyomást, valamint sovány testtömeg-vesztést talált. Ha ezt választod, a vacsora több fogásból áll."
+        },
+        "HUNGARIAN_CLASSIC": {
+          "name": "Magyar klasszikus",
+          "tagline": "Leves, főétel, köret — hazai alapanyagokból",
+          "evidence": "A hagyományos magyar konyha könnyített változata; a kalóriakeretet a köretek és a zsiradék adagolása tartja."
+        },
+        "MEDITERRANEAN": {
+          "name": "Mediterrán",
+          "tagline": "Több olívaolaj, hal, zöldség — 20 / 35 / 45 %",
+          "evidence": "A legjobban alátámasztott étrend a szív- és érrendszeri kockázat csökkentésére (PREDIMED)."
+        },
+        "HIGH_PROTEIN": {
+          "name": "Fehérjedús",
+          "tagline": "A kalóriák 30 %-a fehérje",
+          "evidence": "Magasabb fehérjebevitel mellett jobban megmarad az izom fogyás közben, és tovább tart a jóllakottság."
+        },
+        "PLANT_FORWARD": {
+          "name": "Növényi túlsúlyú",
+          "tagline": "Több hüvelyes és gabona — 18 / 30 / 52 %",
+          "evidence": "Több rost és kevesebb telített zsír; a fehérjét hüvelyes–gabona párosítással tartjuk teljesnek."
+        }
       }
     }
   },
