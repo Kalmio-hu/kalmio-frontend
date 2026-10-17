@@ -1477,6 +1477,12 @@
       "nothing": "Nincs mit küldeni — ennél a boltnál egyik tételre sincs termék.",
       "notConnected": "Előbb kösd össze a {{provider}}-fiókodat a Beállításokban.",
       "error": "Nem sikerült elküldeni a kosarat."
+    },
+    "comparison": {
+      "title": "Ugyanez a {{count}} tétel más boltokban (Árfigyelő, egész kiszerelések)",
+      "active": "ebből árazunk",
+      "priced": "{{priced}}/{{total}} tétel",
+      "hint": "A GVH Árfigyelő napi bolti árai. Boltot a Beállítások › Boltok alatt választasz."
     }
   },
   "feedback": {

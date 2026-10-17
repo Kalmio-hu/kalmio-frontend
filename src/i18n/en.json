@@ -1523,6 +1523,12 @@
       "nothing": "Nothing to send — no line has a product at this store.",
       "notConnected": "Link your {{provider}} account in Settings first.",
       "error": "Could not send the basket."
+    },
+    "comparison": {
+      "title": "The same {{count}} items at other shops (price monitor, whole packs)",
+      "active": "pricing now",
+      "priced": "{{priced}}/{{total}} items",
+      "hint": "Daily shelf prices from the GVH price monitor. Pick your shop under Settings › Shops."
     }
   },
   "fridge": {

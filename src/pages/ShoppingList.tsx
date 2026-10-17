@@ -272,6 +272,13 @@ export function ShoppingList() {
 
   // Retail partners with a basket handoff: show one button per active, enabled MCP provider that
   // prices at least one open line. Connected → send; not connected → start linking.
+  const { data: comparison } = useQuery({
+    queryKey: ['shopping-cart', cart?.cartId, 'price-comparison'],
+    queryFn: () => shoppingCartService.priceComparison(cart!.cartId),
+    enabled: !!cart?.cartId,
+    staleTime: 5 * 60_000,
+  })
+
   const { data: providers = [] } = useQuery({
     queryKey: RETAIL_PROVIDERS_QUERY_KEY,
     queryFn: retailService.listProviders,
@@ -489,6 +496,30 @@ export function ShoppingList() {
               )}
             </CardContent></Card>
           </div>
+
+          {/* Same list at every shop with prices */}
+          {comparison && comparison.providers.length > 1 && (
+            <Card><CardContent className="py-3">
+              <p className="text-xs text-neutral-500 mb-2">{t('shoppingList.comparison.title', { count: comparison.lines })}</p>
+              <ul className="divide-y divide-neutral-100">
+                {comparison.providers.map(p => (
+                  <li key={p.providerId} className="flex items-baseline justify-between py-1.5 text-sm">
+                    <span className="flex items-center gap-2">
+                      <span className={p.enabled ? 'font-medium text-[#1A1A1A]' : 'text-neutral-600'}>{p.name}</span>
+                      {p.enabled && <span className="text-[10px] uppercase tracking-wide text-[#4F7942]">{t('shoppingList.comparison.active')}</span>}
+                      {p.pricedLines < comparison.lines && (
+                        <span className="text-[11px] text-neutral-400">{t('shoppingList.comparison.priced', { priced: p.pricedLines, total: comparison.lines })}</span>
+                      )}
+                    </span>
+                    <span className="tabular-nums font-semibold text-[#1A1A1A]">
+                      {p.packTotal != null ? `~${formatCurrency(p.packTotal, comparison.currency ?? 'HUF')}` : '—'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-[11px] text-neutral-400 mt-2">{t('shoppingList.comparison.hint')}</p>
+            </CardContent></Card>
+          )}
 
           {/* Add item */}
           {showAdd ? (

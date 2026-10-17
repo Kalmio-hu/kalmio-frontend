@@ -1494,6 +1494,23 @@ export interface ShoppingCartResponse {
   currency: string | null
 }
 
+/** The same cart priced at every shop that has prices, in whole packs. */
+export interface CartPriceComparison {
+  cartId: string
+  lines: number
+  currency: string | null
+  providers: Array<{
+    providerId: string
+    code: string
+    name: string
+    enabled: boolean
+    handoff: boolean
+    pricedLines: number
+    packTotal: number | null
+    missing: string[]
+  }>
+}
+
 export interface GenerateCartRequest {
   /** The plan to shop for; omitted = everything visible to the caller. */
   planId?: string | null

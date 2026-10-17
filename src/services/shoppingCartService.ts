@@ -7,6 +7,7 @@ import type {
   ReceiptScanResponse,
   RetailHandoffResponse,
   ShoppingCartResponse,
+  CartPriceComparison,
 } from '@/types'
 
 /**
@@ -35,6 +36,9 @@ export const shoppingCartService = {
 
   getById: (cartId: string): Promise<ShoppingCartResponse> =>
     api.get<ShoppingCartResponse>(`/api/shopping-cart/${cartId}`).then(r => r.data),
+
+  priceComparison: (cartId: string): Promise<CartPriceComparison> =>
+    api.get<CartPriceComparison>(`/api/shopping-cart/${cartId}/price-comparison`).then(r => r.data),
 
   markShopped: (cartId: string): Promise<ShoppingCartResponse> =>
     api
