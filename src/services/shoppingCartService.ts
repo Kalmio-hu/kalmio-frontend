@@ -5,6 +5,7 @@ import type {
   CartReceiptConfirmRequest,
   GenerateCartRequest,
   ReceiptScanResponse,
+  RetailHandoffResponse,
   ShoppingCartResponse,
 } from '@/types'
 
@@ -52,6 +53,12 @@ export const shoppingCartService = {
 
   deleteItem: (itemId: string): Promise<void> =>
     api.delete(`/api/shopping-cart/items/${itemId}`, { requestIdempotencyKey: true }).then(() => undefined),
+
+  /** Push the to-buy lines into a connected partner's basket. The user pays on the partner site. */
+  handoff: (cartId: string, providerId: string): Promise<RetailHandoffResponse> =>
+    api
+      .post<RetailHandoffResponse>(`/api/shopping-cart/${cartId}/handoff/${providerId}`, null, { requestIdempotencyKey: true })
+      .then(r => r.data),
 
   /** Receipt photo → 3-pass match against the cart and the catalog. Nothing is written yet. Premium. */
   scanReceipt: (cartId: string, file: File): Promise<ReceiptScanResponse> => {

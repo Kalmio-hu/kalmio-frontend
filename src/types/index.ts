@@ -394,13 +394,61 @@ export interface RecipeImportConfirmRequest {
 
 // ── Retail ────────────────────────────────────────────────────────────────
 
+export type RetailHandoffType = 'NONE' | 'MCP'
+
 export interface RetailProvider {
   id: string
   name: string
+  /** Stable machine code, e.g. TESCO, KIFLI. */
+  code: string | null
   country: string
   currency: string
   baseUrl: string | null
+  /** Global switch (admin). */
   active: boolean
+  /** NONE = prices and deeplinks only; MCP = the partner's official MCP server fills the user's basket. */
+  handoffType: RetailHandoffType
+  cartUrl: string | null
+  searchUrlTemplate: string | null
+  /** The caller's own switch; true when never set. */
+  enabled: boolean
+  /** Whether the caller has linked their partner account (MCP providers). */
+  connected: boolean
+  productCount: number
+}
+
+/** POST /api/retail/providers/{id}/connect */
+export interface RetailConnectStart {
+  authorizeUrl: string
+  redirectUri: string
+  providerCode: string
+}
+
+export interface RetailConnectionStatus {
+  providerId: string
+  providerCode: string | null
+  connected: boolean
+  connectedAt: string | null
+}
+
+/** POST /api/shopping-cart/{cartId}/handoff/{providerId} */
+export interface RetailHandoffLine {
+  lineItemId: string
+  name: string
+  productName: string | null
+  quantity: number | null
+  reason: string | null
+}
+
+export interface RetailHandoffResponse {
+  providerId: string
+  providerCode: string
+  providerName: string
+  toolName: string | null
+  sent: RetailHandoffLine[]
+  failed: RetailHandoffLine[]
+  skipped: RetailHandoffLine[]
+  cartUrl: string | null
 }
 
 export interface RetailIngredientMapping {
@@ -1386,11 +1434,19 @@ export interface CartRetailProductInfo {
   price: number
   packageSize: number
   unit: string
+  /** Product page, or the provider's search deeplink when the product has none. */
   remoteUrl: string | null
   packagesNeeded: number | null
   packageCost: number | null
   leftoverAmount: number | null
   leftoverCost: number | null
+  providerId: string | null
+  providerName: string | null
+  providerCode: string | null
+  externalProductId: string | null
+  /** Regular price when `price` is a promotion. */
+  listPrice: number | null
+  saleValidTill: string | null
 }
 
 export type CartLineSource = 'PLAN' | 'ADHOC'

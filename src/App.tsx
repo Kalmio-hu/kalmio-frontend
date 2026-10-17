@@ -57,6 +57,7 @@ import { OnboardingGate } from '@/components/OnboardingGate'
 import { MemberView } from '@/pages/MemberView'
 import ReceiptScanPage from '@/pages/ReceiptScanPage'
 import { CookMode } from '@/pages/CookMode'
+import { RetailConnectCallback } from '@/pages/RetailConnectCallback'
 import { RecipeDetail } from '@/pages/RecipeDetail'
 import { CraftConference } from '@/pages/CraftConference'
 
@@ -185,6 +186,7 @@ export default function App() {
                 {/* Cook mode is rendered OUTSIDE AppShell so it can claim every
                     pixel for the phone-propped-in-the-kitchen experience. */}
                 <Route path="/app/recipes/:id/cook" element={<CookMode />} />
+                <Route path="/app/retail/connect/callback" element={<RetailConnectCallback />} />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<Dashboard />} />
                   {/* Recipe detail page — must appear before the list route so

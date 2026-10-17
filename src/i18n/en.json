@@ -675,7 +675,23 @@
       "subtitle_one": "{{count}} provider",
       "subtitle_other": "{{count}} providers",
       "empty": "No providers registered yet.",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "handoffMcp": "Basket handoff (MCP)",
+      "handoffNone": "Prices only",
+      "products_one": "{{count}} product",
+      "products_other": "{{count}} products",
+      "setActive": "Switch on",
+      "setInactive": "Switch off for everyone",
+      "sync": "Sync catalogue",
+      "syncForce": "Re-match everything",
+      "refreshPrices": "Refresh prices",
+      "syncStarted": "Catalogue sync started in the background.",
+      "syncRunning": "Sync running…",
+      "syncAlreadyRunning": "A sync is already running.",
+      "pricesRefreshed_one": "{{count}} product price refreshed.",
+      "pricesRefreshed_other": "{{count}} product prices refreshed.",
+      "lastSync": "Last sync: {{matched}} matched, {{unmatched}} unmatched, {{failed}} failed",
+      "error": "The action failed."
     },
     "title": "Retail Products",
     "subtitle_one": "{{count}} product",
@@ -1003,6 +1019,29 @@
       "saveSuccess": "Order saved.",
       "saveError": "Could not save the order.",
       "validationError": "The order is invalid — please try again."
+    },
+    "retailProviders": {
+      "title": "Stores",
+      "description": "Which stores' prices should the shopping list use? Link a store account and I'll put the list in its basket with one tap.",
+      "enabled": "Included",
+      "disabled": "Switched off",
+      "inactiveGlobal": "Currently unavailable",
+      "connected": "Account linked",
+      "connect": "Link account",
+      "disconnect": "Unlink",
+      "connecting": "Redirecting…",
+      "products_one": "{{count}} product",
+      "products_other": "{{count}} products",
+      "saveError": "Could not save the setting.",
+      "connectError": "Could not start linking.",
+      "disconnected": "Account unlinked.",
+      "manual": {
+        "title": "Finish linking",
+        "body": "After signing in, the store sends you to an address your browser cannot open. Copy the full address from the address bar and paste it here.",
+        "placeholder": "http://localhost…?code=…&state=…",
+        "submit": "Finish linking",
+        "invalid": "No code could be read from that address."
+      }
     }
   },
   "impersonation": {
@@ -1433,6 +1472,25 @@
       "HOUSEHOLD": "Household",
       "PERSONAL_CARE": "Personal care",
       "OTHER": "Other"
+    },
+    "sale": "On sale, was {{list}}",
+    "saleUntil": "until {{date}}",
+    "handoff": {
+      "cta": "Add to {{provider}} basket",
+      "ctaShort": "Basket: {{provider}}",
+      "connectCta": "Link {{provider}} account",
+      "sending": "Adding to basket…",
+      "title": "Basket sent",
+      "sentSummary_one": "{{count}} item is in your {{provider}} basket.",
+      "sentSummary_other": "{{count}} items are in your {{provider}} basket.",
+      "failed_one": "{{count}} item was refused by the store:",
+      "failed_other": "{{count}} items were refused by the store:",
+      "skipped_one": "{{count}} item was left out (no product there, already bought, or covered by the fridge).",
+      "skipped_other": "{{count}} items were left out (no product there, already bought, or covered by the fridge).",
+      "open": "Open your {{provider}} basket",
+      "nothing": "Nothing to send — no line has a product at this store.",
+      "notConnected": "Link your {{provider}} account in Settings first.",
+      "error": "Could not send the basket."
     }
   },
   "fridge": {
@@ -3455,5 +3513,12 @@
     "G": "g",
     "ML": "ml",
     "PIECE": "pc"
+  },
+  "retailConnect": {
+    "title": "Link store",
+    "working": "Linking your account…",
+    "success": "Your {{provider}} account is linked.",
+    "error": "Linking failed. Try again from Settings.",
+    "back": "Back to the shopping list"
   }
 }

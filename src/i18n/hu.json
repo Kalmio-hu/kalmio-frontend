@@ -675,7 +675,23 @@
       "subtitle_one": "{{count}} forgalmazó",
       "subtitle_other": "{{count}} forgalmazó",
       "empty": "Még nincs bejegyzett forgalmazó.",
-      "inactive": "Inaktív"
+      "inactive": "Inaktív",
+      "handoffMcp": "Kosárátadás (MCP)",
+      "handoffNone": "Csak árak",
+      "products_one": "{{count}} termék",
+      "products_other": "{{count}} termék",
+      "setActive": "Bekapcsolás",
+      "setInactive": "Kikapcsolás mindenkinek",
+      "sync": "Katalógus szinkron",
+      "syncForce": "Teljes újraegyeztetés",
+      "refreshPrices": "Árak frissítése",
+      "syncStarted": "A katalógus szinkron elindult a háttérben.",
+      "syncRunning": "Szinkron fut…",
+      "syncAlreadyRunning": "Már fut egy szinkron.",
+      "pricesRefreshed_one": "{{count}} termék ára frissült.",
+      "pricesRefreshed_other": "{{count}} termék ára frissült.",
+      "lastSync": "Utolsó szinkron: {{matched}} egyeztetve, {{unmatched}} találat nélkül, {{failed}} hiba",
+      "error": "A művelet nem sikerült."
     },
     "title": "Kiskereskedelmi termékek",
     "subtitle_one": "{{count}} termék",
@@ -1003,6 +1019,29 @@
       "saveSuccess": "Sorrend elmentve.",
       "saveError": "Nem sikerült menteni a sorrendet.",
       "validationError": "A sorrend érvénytelen — kérjük, próbáld újra."
+    },
+    "retailProviders": {
+      "title": "Boltok",
+      "description": "Melyik boltok árait vegyem figyelembe a bevásárlólistánál? Ha egy bolthoz összekötöd a fiókodat, a listát egy koppintással a kosarába teszem.",
+      "enabled": "Figyelembe veszem",
+      "disabled": "Kikapcsolva",
+      "inactiveGlobal": "Jelenleg nem elérhető",
+      "connected": "Fiók összekötve",
+      "connect": "Fiók összekötése",
+      "disconnect": "Szétkapcsolás",
+      "connecting": "Átirányítás…",
+      "products_one": "{{count}} termék",
+      "products_other": "{{count}} termék",
+      "saveError": "Nem sikerült menteni a beállítást.",
+      "connectError": "Nem sikerült elindítani az összekötést.",
+      "disconnected": "Fiók szétkapcsolva.",
+      "manual": {
+        "title": "Fejezd be az összekötést",
+        "body": "A bolt bejelentkezés után egy olyan címre irányít, amit a böngésző nem tud megnyitni. Másold ide a címsorból a teljes címet.",
+        "placeholder": "http://localhost…?code=…&state=…",
+        "submit": "Összekötés befejezése",
+        "invalid": "Ebből a címből nem olvasható ki a kód."
+      }
     }
   },
   "impersonation": {
@@ -1387,6 +1426,25 @@
       "HOUSEHOLD": "Háztartási",
       "PERSONAL_CARE": "Higiénia",
       "OTHER": "Egyéb"
+    },
+    "sale": "Akció {{list}} helyett",
+    "saleUntil": "{{date}}-ig",
+    "handoff": {
+      "cta": "Kosárba a {{provider}}-nél",
+      "ctaShort": "Kosárba: {{provider}}",
+      "connectCta": "{{provider}}-fiók összekötése",
+      "sending": "Kosárba teszem…",
+      "title": "A kosár elküldve",
+      "sentSummary_one": "{{count}} tétel a {{provider}} kosarában.",
+      "sentSummary_other": "{{count}} tétel a {{provider}} kosarában.",
+      "failed_one": "{{count}} tételt a bolt nem fogadott el:",
+      "failed_other": "{{count}} tételt a bolt nem fogadott el:",
+      "skipped_one": "{{count}} tétel kimaradt (nincs rá termék, már megvan, vagy a hűtő fedezi).",
+      "skipped_other": "{{count}} tétel kimaradt (nincs rá termék, már megvan, vagy a hűtő fedezi).",
+      "open": "Tovább a {{provider}} kosarához",
+      "nothing": "Nincs mit küldeni — ennél a boltnál egyik tételre sincs termék.",
+      "notConnected": "Előbb kösd össze a {{provider}}-fiókodat a Beállításokban.",
+      "error": "Nem sikerült elküldeni a kosarat."
     }
   },
   "feedback": {
@@ -3455,5 +3513,12 @@
     "G": "g",
     "ML": "ml",
     "PIECE": "db"
+  },
+  "retailConnect": {
+    "title": "Bolt összekötése",
+    "working": "Összekötöm a fiókodat…",
+    "success": "A {{provider}}-fiókod össze van kötve.",
+    "error": "Az összekötés nem sikerült. Próbáld újra a Beállításokból.",
+    "back": "Vissza a bevásárlólistához"
   }
 }

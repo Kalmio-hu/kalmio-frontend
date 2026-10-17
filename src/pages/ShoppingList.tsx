@@ -11,7 +11,7 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Check, ChevronDown, ChevronUp, Loader2, Plus, ReceiptText, RefreshCw, Search, ShoppingCart as CartIcon, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, ExternalLink, Link2, Loader2, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, ShoppingCart as CartIcon, X } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -22,12 +22,16 @@ import { IngredientSearchDialog } from '@/components/IngredientSearchDialog'
 import { MarkShoppedToast } from '@/components/shopping/MarkShoppedToast'
 import { planService } from '@/services/plans'
 import { shoppingCartService } from '@/services/shoppingCartService'
+import { retailService, RETAIL_PROVIDERS_QUERY_KEY } from '@/services/retail'
+import { useRetailConnect } from '@/hooks/useRetailConnect'
+import { RetailConnectManualDialog } from '@/components/retail/RetailConnectManualDialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import shoppingCategoryOrderService, { SHOPPING_CATEGORY_ORDER_QUERY_KEY } from '@/services/shoppingCategoryOrder'
 import { useIsUserPremium } from '@/hooks/useIsUserPremium'
 import { useSyncInvalidation } from '@/hooks/useSyncInvalidation'
 import { formatCurrency } from '@/lib/utils'
 import { capture } from '@/lib/analytics'
-import type { CartLineItemResponse, Ingredient, ShoppingCartResponse, ShoppingCategory } from '@/types'
+import type { CartLineItemResponse, Ingredient, RetailHandoffResponse, RetailProvider, ShoppingCartResponse, ShoppingCategory } from '@/types'
 
 const CART_QUERY_KEY = ['shopping-cart', 'current'] as const
 
@@ -147,8 +151,15 @@ function ItemRow({
       {expanded && retail && (
         <div className="ml-9 mb-2 text-[12px] text-neutral-500 space-y-0.5">
           <p>
+            {retail.providerName && <span className="font-medium text-neutral-600">{retail.providerName} · </span>}
             {retail.name}{retail.brand ? ` · ${retail.brand}` : ''} — {formatCurrency(retail.price, currency ?? 'HUF')} / {fmtAmount(retail.packageSize, retail.unit)}
           </p>
+          {retail.listPrice != null && retail.listPrice > retail.price && (
+            <p className="text-[#F28C28]">
+              {t('shoppingList.sale', { list: formatCurrency(retail.listPrice, currency ?? 'HUF') })}
+              {retail.saleValidTill ? ` · ${t('shoppingList.saleUntil', { date: new Date(retail.saleValidTill).toLocaleDateString() })}` : ''}
+            </p>
+          )}
           {retail.packagesNeeded != null && retail.packagesNeeded > 0 && (
             <p>{t('shoppingList.packages', { count: retail.packagesNeeded })}</p>
           )}
@@ -258,6 +269,38 @@ export function ShoppingList() {
     staleTime: 5 * 60_000,
   })
   const order = orderData?.order ?? DEFAULT_ORDER
+
+  // Retail partners with a basket handoff: show one button per active, enabled MCP provider that
+  // prices at least one open line. Connected → send; not connected → start linking.
+  const { data: providers = [] } = useQuery({
+    queryKey: RETAIL_PROVIDERS_QUERY_KEY,
+    queryFn: retailService.listProviders,
+    staleTime: 60_000,
+  })
+  const connect = useRetailConnect()
+  const [handoffResult, setHandoffResult] = useState<RetailHandoffResponse | null>(null)
+  const handoffMutation = useMutation({
+    mutationFn: (providerId: string) => shoppingCartService.handoff(cart!.cartId, providerId),
+    onSuccess: (res) => {
+      setHandoffResult(res)
+      capture('retail_basket_handoff', { provider: res.providerCode, sent: res.sent.length, failed: res.failed.length, skipped: res.skipped.length })
+    },
+    onError: (err: unknown) => {
+      const status = (err as { response?: { status?: number } })?.response?.status
+      if (status === 409) {
+        void qc.invalidateQueries({ queryKey: RETAIL_PROVIDERS_QUERY_KEY })
+        toast({ title: t('shoppingList.handoff.notConnected', { provider: 'Kifli' }), variant: 'destructive' })
+      } else {
+        toast({ title: t('shoppingList.handoff.error'), variant: 'destructive' })
+      }
+    },
+  })
+  const handoffProviders: RetailProvider[] = useMemo(() => {
+    if (!cart) return []
+    const withLines = new Set(cart.lineItems.filter(l => !l.bought && l.retailProduct?.providerId).map(l => l.retailProduct!.providerId as string))
+    return providers.filter(p => p.active && p.enabled && p.handoffType === 'MCP' && withLines.has(p.id))
+  }, [cart, providers])
+  const providerLabel = (p: RetailProvider) => (p.code === 'KIFLI' ? 'Kifli' : p.name)
 
   const generateMutation = useMutation({
     mutationFn: () => shoppingCartService.generate({ planId: activePlan?.id ?? null }),
@@ -492,6 +535,29 @@ export function ShoppingList() {
 
           {/* Actions */}
           <div className="flex flex-col gap-2">
+            {handoffProviders.map((p) => (
+              p.connected ? (
+                <Button
+                  key={p.id}
+                  onClick={() => handoffMutation.mutate(p.id)}
+                  disabled={handoffMutation.isPending}
+                  className="w-full min-h-[48px] bg-[#1A1A1A] hover:bg-black text-white"
+                >
+                  {handoffMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShoppingBag className="h-4 w-4" />}
+                  {handoffMutation.isPending ? t('shoppingList.handoff.sending') : t('shoppingList.handoff.cta', { provider: providerLabel(p) })}
+                </Button>
+              ) : (
+                <Button
+                  key={p.id}
+                  variant="secondary"
+                  onClick={() => connect.start.mutate(p.id)}
+                  disabled={connect.start.isPending}
+                  className="w-full min-h-[48px]"
+                >
+                  <Link2 className="h-4 w-4" /> {t('shoppingList.handoff.connectCta', { provider: providerLabel(p) })}
+                </Button>
+              )
+            ))}
             <Button
               onClick={() => markShoppedMutation.mutate()}
               disabled={markShoppedMutation.isPending || cart.lineItems.length === 0}
@@ -513,6 +579,56 @@ export function ShoppingList() {
           </div>
         </div>
       )}
+
+      <RetailConnectManualDialog
+        manual={connect.manual}
+        onClose={() => connect.setManual(null)}
+        onSubmit={(args) => connect.finish.mutate(args)}
+        pending={connect.finish.isPending}
+      />
+
+      <Dialog open={!!handoffResult} onOpenChange={(o) => { if (!o) setHandoffResult(null) }}>
+        <DialogContent>
+          {handoffResult && (() => {
+            const label = handoffResult.providerCode === 'KIFLI' ? 'Kifli' : handoffResult.providerName
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>{t('shoppingList.handoff.title')}</DialogTitle>
+                  <DialogDescription>
+                    {handoffResult.sent.length > 0
+                      ? t('shoppingList.handoff.sentSummary', { count: handoffResult.sent.length, provider: label })
+                      : t('shoppingList.handoff.nothing')}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-3 text-sm">
+                  {handoffResult.failed.length > 0 && (
+                    <div>
+                      <p className="text-red-700">{t('shoppingList.handoff.failed', { count: handoffResult.failed.length })}</p>
+                      <ul className="mt-1 text-xs text-neutral-600 list-disc pl-5">
+                        {handoffResult.failed.map(f => <li key={f.lineItemId}>{f.name}{f.reason ? ` — ${f.reason}` : ''}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {handoffResult.skipped.length > 0 && (
+                    <p className="text-neutral-500 text-xs">{t('shoppingList.handoff.skipped', { count: handoffResult.skipped.length })}</p>
+                  )}
+                  {handoffResult.cartUrl && handoffResult.sent.length > 0 && (
+                    <a
+                      href={handoffResult.cartUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full min-h-[44px] rounded-xl bg-[#4F7942] text-white font-medium hover:bg-[#3d6132]"
+                    >
+                      <ExternalLink className="h-4 w-4" aria-hidden /> {t('shoppingList.handoff.open', { provider: label })}
+                    </a>
+                  )}
+                </div>
+              </>
+            )
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

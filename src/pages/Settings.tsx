@@ -37,6 +37,7 @@ import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usersService, type UpdateSettingsRequest, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { notificationService, NOTIFICATION_PREFS_QUERY_KEY } from '@/services/notificationService'
 import { DiofaNameField } from '@/components/settings/DiofaNameField'
+import { RetailProvidersSection } from '@/components/settings/RetailProvidersSection'
 import { listPasskeys, registerPasskey, deletePasskey, type PasskeyInfo } from '@/services/passkey'
 import { apiKeysService, type ApiKey, type ApiKeyCreated } from '@/services/apiKeys'
 import { useAuthStore } from '@/store/auth'
@@ -911,6 +912,9 @@ export function Settings() {
 
       {/* Card 6 — Shopping Category Order (KALMIO-373) */}
       <ShoppingCategoryOrderSection />
+
+      {/* Card 7 — Stores: per-user provider switches and partner account linking */}
+      <RetailProvidersSection />
 
       {/* Sign-out — mobile only */}
       <div className="max-w-lg mt-6 md:hidden">
