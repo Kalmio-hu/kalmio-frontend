@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ExternalLink } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +35,18 @@ export function RetailConnectManualDialog({ manual, onClose, onSubmit, pending }
           <DialogDescription>{t('settings.retailProviders.manual.body')}</DialogDescription>
         </DialogHeader>
         <div className="space-y-3 mt-2">
+          {manual && (
+            <a
+              href={manual.authorizeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#4F7942] px-4 py-3 text-sm font-semibold text-white"
+            >
+              <ExternalLink size={16} aria-hidden />
+              {t('settings.retailProviders.manual.openLogin', { provider: manual.providerCode === 'KIFLI' ? 'Kifli.hu' : manual.providerCode })}
+            </a>
+          )}
+          <p className="text-xs text-[#6B6460]">{t('settings.retailProviders.manual.steps')}</p>
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}

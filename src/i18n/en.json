@@ -1037,10 +1037,12 @@
       "disconnected": "Account unlinked.",
       "manual": {
         "title": "Finish linking",
-        "body": "After signing in, the store sends you to an address your browser cannot open. Copy the full address from the address bar and paste it here.",
+        "body": "After you sign in, the store sends you to an address your browser cannot open. That is expected.",
         "placeholder": "http://localhost…?code=…&state=…",
         "submit": "Finish linking",
-        "invalid": "No code could be read from that address."
+        "invalid": "No code could be read from that address.",
+        "openLogin": "Open {{provider}} login",
+        "steps": "1. Open the login and sign in to the store. 2. When the browser shows a “cannot connect” page, copy the full address from the address bar. 3. Paste it here."
       }
     },
     "plannerWeights": {

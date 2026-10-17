@@ -7,6 +7,8 @@ import { retailService, RETAIL_PROVIDERS_QUERY_KEY } from '@/services/retail'
 export interface ManualConnect {
   providerId: string
   providerCode: string
+  /** The partner's login page; opened from a button in the dialog so mobile browsers allow it. */
+  authorizeUrl: string
 }
 
 /** True when the partner will redirect straight back into this app. */
@@ -51,8 +53,9 @@ export function useRetailConnect() {
       if (redirectsHere(res.redirectUri)) {
         window.location.assign(res.authorizeUrl)
       } else {
-        window.open(res.authorizeUrl, '_blank', 'noopener')
-        setManual({ providerId, providerCode: res.providerCode })
+        // No window.open here: after an awaited request it is no longer a user gesture, and
+        // Safari (and iOS PWAs) silently block it. The dialog carries the login link instead.
+        setManual({ providerId, providerCode: res.providerCode, authorizeUrl: res.authorizeUrl })
       }
     },
     onError: () => toast({ title: t('settings.retailProviders.connectError'), variant: 'destructive' }),

@@ -1037,10 +1037,12 @@
       "disconnected": "Fiók szétkapcsolva.",
       "manual": {
         "title": "Fejezd be az összekötést",
-        "body": "A bolt bejelentkezés után egy olyan címre irányít, amit a böngésző nem tud megnyitni. Másold ide a címsorból a teljes címet.",
+        "body": "A bejelentkezés után a bolt egy olyan címre irányít, amit a böngésző nem tud megnyitni – ez így van rendjén.",
         "placeholder": "http://localhost…?code=…&state=…",
         "submit": "Összekötés befejezése",
-        "invalid": "Ebből a címből nem olvasható ki a kód."
+        "invalid": "Ebből a címből nem olvasható ki a kód.",
+        "openLogin": "{{provider}} bejelentkezés megnyitása",
+        "steps": "1. Nyisd meg a bejelentkezést, és lépj be a boltba. 2. Amikor a böngésző „nem tud kapcsolódni” oldalt mutat, másold ki a címsorból a teljes címet. 3. Illeszd be ide."
       }
     },
     "plannerWeights": {
