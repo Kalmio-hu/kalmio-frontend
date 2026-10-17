@@ -1487,6 +1487,8 @@ export interface ShoppingCartResponse {
   fridgeItemsAdded: number | null
   totalCost: number | null
   totalLeftoverCost: number | null
+  /** Pack cost of pantry-staple lines (spices, oils…), bought whole and used for weeks. */
+  pantryCost: number | null
   currency: string | null
 }
 

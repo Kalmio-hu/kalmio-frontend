@@ -1057,6 +1057,21 @@
       "recipeRepeat": "Változatosság",
       "recipeRepeatHint": "Mennyire kerülje ugyanazt a receptet egy terven belül.",
       "hint": "A csúszkákat mentéskor százalékra arányosítjuk, hogy együtt 100-at adjanak."
+    },
+    "plannerBudget": {
+      "title": "Napi büdzsé",
+      "subtitle": "Ennyiből tervezzen a tervező egy napra. Legfeljebb 20%-kal lépi túl, és a Költségkeret súly dönti el, mennyire ragaszkodik hozzá alatta.",
+      "label": "Napi keret",
+      "unit": "Ft / nap",
+      "suggest": "Javaslat: {{amount}} Ft naponta két étkezésre",
+      "invalid": "500 és 50 000 Ft közötti összeget adj meg."
+    },
+    "plannerCourses": {
+      "title": "Fogások",
+      "subtitle": "Alapból minden étkezés egy fogás. Ha levest is kérsz a főétel elé, a bevásárlás és a főzés nagyjából megduplázódik.",
+      "lunch": "Ebédhez leves is",
+      "dinner": "Vacsorához leves is",
+      "note": "Az egytálételnek számító levesek (gulyás, bableves, főzelék) egyfogásos étkezésként is bekerülhetnek."
     }
   },
   "impersonation": {
@@ -1383,7 +1398,8 @@
       "covered_other": "{{count}} már megvan a hűtőben",
       "estimatedTotal": "Fizetendő kb.",
       "leftovers": "Maradék a kiszerelések miatt: ~{{cost}}",
-      "usedByRecipes": "Ebből a receptek szerint felhasznált: {{cost}}"
+      "usedByRecipes": "Ebből a receptek szerint felhasznált: {{cost}}",
+      "pantry": "Ebből kamra-alap (fűszer, olaj, ecet – ritkán kell újravenni): ~{{cost}}"
     },
     "addItem": "Tétel hozzáadása",
     "addItemPlaceholder": "Pl. WC-papír",
@@ -1857,7 +1873,8 @@
         "usedEmpty": "A terv nem nyúl bele a hűtődbe.",
         "fridgeSection": "Hűtő tartalma",
         "fridgeTitle": "A hűtődben",
-        "fridgeEmpty": "A hűtő üres."
+        "fridgeEmpty": "A hűtő üres.",
+        "costPerDay": "{{amount}} Ft / nap"
       },
       "macros": {
         "sectionAria": "Makró összesítő",

@@ -480,6 +480,11 @@ export function ShoppingList() {
                   {t('shoppingList.summary.leftovers', { cost: formatCurrency(cart.totalLeftoverCost, cart.currency ?? 'HUF') })}
                 </p>
               )}
+              {cart.pantryCost != null && cart.pantryCost > 0 && (
+                <p className="text-[11px] text-neutral-500">
+                  {t('shoppingList.summary.pantry', { cost: formatCurrency(cart.pantryCost, cart.currency ?? 'HUF') })}
+                </p>
+              )}
             </CardContent></Card>
           </div>
 

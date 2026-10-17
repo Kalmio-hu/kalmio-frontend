@@ -86,6 +86,13 @@ export function PlanSidePanel({ plan, recipesById }: PlanSidePanelProps) {
           ) : (
             <p className="text-sm text-[#9ca3af]">{t('plan.detail.sidePanel.costNoData')}</p>
           )}
+          {costedCells > 0 && plan.lengthDays > 0 && (
+            <p className="text-[11px] text-[#6b7280] mt-1 tabular-nums">
+              {t('plan.detail.sidePanel.costPerDay', {
+                amount: Math.round(totalCost / plan.lengthDays).toLocaleString(lang === 'hu' ? 'hu-HU' : 'en-US'),
+              })}
+            </p>
+          )}
           {uncostedCells > 0 && (
             <p className="text-[11px] text-[#9ca3af] mt-1">
               {t('plan.detail.sidePanel.costMissing', { count: uncostedCells })}

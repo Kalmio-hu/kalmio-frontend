@@ -7,6 +7,8 @@ export interface UserMealPreferences {
   kcalTarget?: number
   proteinTarget?: number
   budgetMax?: number
+  /** Meal types (LUNCH, DINNER) that get a soup course before the main. */
+  twoCourseMealTypes?: string[]
   prepTimeMax?: number
   forbiddenIngredientIds?: string[]
   maxRecipeRepetitions?: number

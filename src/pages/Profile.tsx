@@ -16,6 +16,8 @@ import { toast } from '@/components/ui/toast'
 import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
 import { PresetPicker } from '@/components/preferences/PresetPicker'
 import { PlannerWeightsCard } from '@/components/preferences/PlannerWeightsCard'
+import { PlannerBudgetCard } from '@/components/preferences/PlannerBudgetCard'
+import { PlannerCoursesCard } from '@/components/preferences/PlannerCoursesCard'
 import {
   usersService,
   type UpdateProfileRequest,
@@ -1442,6 +1444,8 @@ export function Profile() {
         </Card>
 
         {/* Planner weights — what the solver trades off */}
+        {user && <PlannerBudgetCard user={user} />}
+        {user && <PlannerCoursesCard user={user} />}
         {user && <PlannerWeightsCard user={user} />}
 
         {/* Prep preferences */}

@@ -1057,6 +1057,21 @@
       "recipeRepeat": "Variety",
       "recipeRepeatHint": "How strongly to avoid the same recipe within one plan.",
       "hint": "The sliders are scaled to percentages on save so they add up to 100."
+    },
+    "plannerBudget": {
+      "title": "Daily budget",
+      "subtitle": "What the planner may spend per day. It overshoots by at most 20%, and the Budget weight decides how hard it stays below.",
+      "label": "Daily budget",
+      "unit": "Ft / day",
+      "suggest": "Suggested: {{amount}} Ft a day for two meals",
+      "invalid": "Enter an amount between 500 and 50 000 Ft."
+    },
+    "plannerCourses": {
+      "title": "Courses",
+      "subtitle": "Every meal is one course by default. A soup before the main roughly doubles the shopping and the cooking.",
+      "lunch": "Soup with lunch",
+      "dinner": "Soup with dinner",
+      "note": "Soups that are a meal in themselves (gulyás, bean soup, főzelék) can still fill a single-course slot."
     }
   },
   "impersonation": {
@@ -1429,7 +1444,8 @@
       "covered_other": "{{count}} already in the fridge",
       "estimatedTotal": "You pay about",
       "leftovers": "Left over because of pack sizes: ~{{cost}}",
-      "usedByRecipes": "Of which the recipes use: {{cost}}"
+      "usedByRecipes": "Of which the recipes use: {{cost}}",
+      "pantry": "Of which pantry staples (spices, oil, vinegar – rarely rebought): ~{{cost}}"
     },
     "addItem": "Add an item",
     "addItemPlaceholder": "E.g. toilet paper",
@@ -1857,7 +1873,8 @@
         "usedEmpty": "The plan doesn't touch your fridge.",
         "fridgeSection": "Fridge contents",
         "fridgeTitle": "In your fridge",
-        "fridgeEmpty": "Fridge is empty."
+        "fridgeEmpty": "Fridge is empty.",
+        "costPerDay": "{{amount}} Ft / day"
       },
       "macros": {
         "sectionAria": "Macro summary",
