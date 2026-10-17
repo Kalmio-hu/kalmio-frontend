@@ -1042,6 +1042,19 @@
         "submit": "Finish linking",
         "invalid": "No code could be read from that address."
       }
+    },
+    "plannerWeights": {
+      "title": "What should the planner weigh?",
+      "subtitle": "Four considerations the planner trades off. The ratios matter, not the exact numbers.",
+      "leftovers": "Fewer leftovers",
+      "leftoversHint": "Use up whole packs instead of leaving half a box in the fridge.",
+      "budget": "Budget",
+      "budgetHint": "How much staying within the daily budget matters.",
+      "prepTime": "Short kitchen time",
+      "prepTimeHint": "How strongly to penalise cooking beyond your time limit.",
+      "recipeRepeat": "Variety",
+      "recipeRepeatHint": "How strongly to avoid the same recipe within one plan.",
+      "hint": "The sliders are scaled to percentages on save so they add up to 100."
     }
   },
   "impersonation": {
@@ -3196,6 +3209,13 @@
           "body": "{{dayGap}} days past the fridge window, but frozen it keeps for {{freezerWindow}} days."
         }
       }
+    },
+    "recurringMode": {
+      "label": "Following weeks",
+      "auto": "Automatic",
+      "SOLVER": "A fresh plan every week",
+      "DUPLICATE": "The same plan every week",
+      "hint": "The first week is this plan. With a fresh plan, the planner builds every following week so it does not repeat what you ate last week. Keep copying for a plan you built by hand."
     }
   },
   "calendar": {

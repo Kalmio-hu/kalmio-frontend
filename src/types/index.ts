@@ -1542,6 +1542,12 @@ export interface MemberMealSlotDto {
 export type ScheduleStatus = 'ACTIVE' | 'PAUSED' | 'ENDED'
 
 /**
+ * How a schedule fills the cycles after its first one.
+ * DUPLICATE = copy the template every cycle; SOLVER = a fresh solve per cycle (variety across weeks).
+ */
+export type RecurringMode = 'DUPLICATE' | 'SOLVER'
+
+/**
  * A recurring schedule that materialises one or more plan templates onto the
  * calendar. Mirrors ScheduleResponse from the backend (KALMIO-227).
  */
@@ -1559,6 +1565,7 @@ export interface Schedule {
   /** Last day (inclusive); null = open-ended. ISO date "YYYY-MM-DD". */
   endDate: string | null
   status: ScheduleStatus
+  recurringMode: RecurringMode
   /** Watermark for the eager materialization job. ISO date "YYYY-MM-DD". */
   lastMaterializedDate: string | null
   createdAt: string   // ISO-8601
@@ -1577,6 +1584,8 @@ export interface CreateScheduleRequest {
   /** ISO date "YYYY-MM-DD"; null = open-ended. */
   endDate?: string | null
   familyId?: string | null
+  /** null = SOLVER when every plan was solver-filled, else DUPLICATE. */
+  recurringMode?: RecurringMode | null
 }
 
 /** Request body for PATCH /api/schedules/{id}. All fields optional. */
@@ -1588,6 +1597,7 @@ export interface UpdateScheduleRequest {
   startDate?: string
   /** ISO date "YYYY-MM-DD"; null = clear end date. */
   endDate?: string | null
+  recurringMode?: RecurringMode | null
 }
 
 // ── Run Plan (KALMIO-307 / KALMIO-320) ───────────────────────────────────
@@ -1611,6 +1621,8 @@ export interface RunPlanBody {
     cadenceDays?: number | null
     /** ISO date "YYYY-MM-DD"; null = open-ended. */
     endDate?: string | null
+    /** null = SOLVER when the plan was solver-filled, else DUPLICATE. */
+    recurringMode?: RecurringMode | null
   } | null
 }
 
@@ -1633,7 +1645,7 @@ export type MaterializedPlannedMealStatus = 'PLANNED' | 'EATEN' | 'SKIPPED' | 'R
  * Source that created the planned_meal row.
  * Mirrors the backend `planned_meal.source` enum.
  */
-export type MaterializedPlannedMealSource = 'SCHEDULED' | 'MANUAL' | 'OFF_PLAN'
+export type MaterializedPlannedMealSource = 'SCHEDULED' | 'MANUAL' | 'OFF_PLAN' | 'CYCLE_SOLVER'
 
 /**
  * A materialized calendar entry from the `planned_meal` table.

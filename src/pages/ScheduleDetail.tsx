@@ -20,6 +20,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { toast } from '@/components/ui/toast'
@@ -31,7 +32,7 @@ import { api } from '@/lib/api'
 import { PrepLane } from '@/components/schedule/PrepLane'
 import { PrepHoldViolationBanner } from '@/components/plan/PrepHoldViolationBanner'
 import type { PrepTaskDto } from '@/services/prepTasks'
-import type { ScheduleStatus } from '@/types'
+import type { RecurringMode, ScheduleStatus } from '@/types'
 
 function statusBadge(status: ScheduleStatus) {
   if (status === 'ACTIVE') return 'green'
@@ -119,6 +120,7 @@ interface EditFormProps {
   initialCadenceDays: number
   initialStartDate: string
   initialEndDate: string | null
+  initialRecurringMode: RecurringMode
   onCancel: () => void
   onSaved: () => void
 }
@@ -129,6 +131,7 @@ function EditForm({
   initialCadenceDays,
   initialStartDate,
   initialEndDate,
+  initialRecurringMode,
   onCancel,
   onSaved,
 }: EditFormProps) {
@@ -139,6 +142,7 @@ function EditForm({
   const [cadenceDays, setCadenceDays] = useState(initialCadenceDays)
   const [startDate, setStartDate] = useState(initialStartDate)
   const [endDate, setEndDate] = useState(initialEndDate ?? '')
+  const [recurringMode, setRecurringMode] = useState<RecurringMode>(initialRecurringMode)
 
   const { mutate: doSave, isPending } = useMutation({
     mutationFn: () =>
@@ -147,6 +151,7 @@ function EditForm({
         cadenceDays,
         startDate,
         endDate: endDate || null,
+        recurringMode,
       }),
     onSuccess: () => {
       toast({ title: t('schedules.detail.saveSuccess') })
@@ -205,6 +210,19 @@ function EditForm({
           className="mt-1"
         />
         <p className="text-xs text-gray-400 mt-1">{t('schedules.wizard.endDateHint')}</p>
+      </div>
+      <div>
+        <Label htmlFor="edit-recurring-mode">{t('schedules.recurringMode.label')}</Label>
+        <Select
+          id="edit-recurring-mode"
+          value={recurringMode}
+          onChange={e => setRecurringMode(e.target.value as RecurringMode)}
+          className="mt-1"
+        >
+          <option value="SOLVER">{t('schedules.recurringMode.SOLVER')}</option>
+          <option value="DUPLICATE">{t('schedules.recurringMode.DUPLICATE')}</option>
+        </Select>
+        <p className="text-xs text-gray-400 mt-1">{t('schedules.recurringMode.hint')}</p>
       </div>
       <div className="flex gap-2 justify-end">
         <Button variant="outline" onClick={onCancel} type="button">
@@ -412,6 +430,7 @@ export function ScheduleDetail() {
               initialCadenceDays={schedule.cadenceDays}
               initialStartDate={schedule.startDate}
               initialEndDate={schedule.endDate}
+              initialRecurringMode={schedule.recurringMode ?? 'DUPLICATE'}
               onCancel={() => setEditOpen(false)}
               onSaved={() => setEditOpen(false)}
             />
@@ -447,6 +466,14 @@ export function ScheduleDetail() {
               </p>
               <p className="font-medium text-[#1A1A1A]">
                 {schedule.lastMaterializedDate ?? '—'}
+              </p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-xs text-gray-400 font-medium uppercase tracking-wide mb-0.5">
+                {t('schedules.recurringMode.label')}
+              </p>
+              <p className="font-medium text-[#1A1A1A]">
+                {t(`schedules.recurringMode.${schedule.recurringMode ?? 'DUPLICATE'}`)}
               </p>
             </div>
           </div>

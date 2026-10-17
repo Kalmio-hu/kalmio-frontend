@@ -43,7 +43,7 @@ import { fridgeService } from '@/services/fridge'
 import { countExpiringThisWeek } from '@/lib/grooming'
 import { todayIsoLocal } from '@/lib/utils'
 import { CartPromptCard } from './CartPromptCard'
-import type { PlanTemplate, RunPlanBody, RunPlanResponse } from '@/types'
+import type { PlanTemplate, RecurringMode, RunPlanBody, RunPlanResponse } from '@/types'
 
 // -- sessionStorage key for pending post-grooming plan run --
 
@@ -119,6 +119,8 @@ export function RunPlanDialog({
   const [showRecurring, setShowRecurring] = useState(false)
   const [cadenceDays, setCadenceDays] = useState(plan.lengthDays)
   const [endDate, setEndDate] = useState('')
+  // '' = let the backend decide: SOLVER for a solver-filled plan, DUPLICATE for a hand-built one.
+  const [recurringMode, setRecurringMode] = useState<RecurringMode | ''>('')
   const [groomingDismissed, setGroomingDismissed] = useState(false)
   const [cartPromptResult, setCartPromptResult] = useState<RunPlanResponse | null>(null)
 
@@ -214,6 +216,7 @@ export function RunPlanDialog({
       recurrence: {
         cadenceDays: cadenceDays || null,
         endDate: endDate || null,
+        recurringMode: recurringMode || null,
       },
     }
   }
@@ -379,6 +382,26 @@ export function RunPlanDialog({
                       onChange={e => setEndDate(e.target.value)}
                       className="w-full rounded-lg border border-[#d1d5db] px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
                     />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label
+                      htmlFor="run-recurring-mode"
+                      className="text-sm font-medium text-[#374151]"
+                    >
+                      {t('schedules.recurringMode.label')}
+                    </label>
+                    <select
+                      id="run-recurring-mode"
+                      value={recurringMode}
+                      onChange={e => setRecurringMode(e.target.value as RecurringMode | '')}
+                      className="w-full rounded-lg border border-[#d1d5db] bg-white px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4F7942]"
+                    >
+                      <option value="">{t('schedules.recurringMode.auto')}</option>
+                      <option value="SOLVER">{t('schedules.recurringMode.SOLVER')}</option>
+                      <option value="DUPLICATE">{t('schedules.recurringMode.DUPLICATE')}</option>
+                    </select>
+                    <p className="text-xs text-[#6b7280]">{t('schedules.recurringMode.hint')}</p>
                   </div>
                 </div>
               )}

@@ -15,6 +15,7 @@ import { UserAvatar } from '@/components/ui/UserAvatar'
 import { toast } from '@/components/ui/toast'
 import { ForbiddenIngredientsPicker } from '@/components/ForbiddenIngredientsPicker'
 import { PresetPicker } from '@/components/preferences/PresetPicker'
+import { PlannerWeightsCard } from '@/components/preferences/PlannerWeightsCard'
 import {
   usersService,
   type UpdateProfileRequest,
@@ -1439,6 +1440,9 @@ export function Profile() {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Planner weights — what the solver trades off */}
+        {user && <PlannerWeightsCard user={user} />}
 
         {/* Prep preferences */}
         <Card>

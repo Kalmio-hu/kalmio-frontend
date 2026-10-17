@@ -1042,6 +1042,19 @@
         "submit": "Összekötés befejezése",
         "invalid": "Ebből a címből nem olvasható ki a kód."
       }
+    },
+    "plannerWeights": {
+      "title": "Mire figyeljen a tervező?",
+      "subtitle": "Négy szempont, amelyek között a tervező mérlegel. Az arányok számítanak, nem a pontos számok.",
+      "leftovers": "Kevesebb maradék",
+      "leftoversHint": "Egész csomagokat használjon el, ne maradjon fél doboz a hűtőben.",
+      "budget": "Költségkeret",
+      "budgetHint": "Mennyire fontos a napi keret betartása.",
+      "prepTime": "Rövid konyhaidő",
+      "prepTimeHint": "Mennyire büntesse a megadott időkereten túli főzést.",
+      "recipeRepeat": "Változatosság",
+      "recipeRepeatHint": "Mennyire kerülje ugyanazt a receptet egy terven belül.",
+      "hint": "A csúszkákat mentéskor százalékra arányosítjuk, hogy együtt 100-at adjanak."
     }
   },
   "impersonation": {
@@ -3196,6 +3209,13 @@
           "body": "{{dayGap}} nappal több a hűtős eltarthatóságnál — fagyasztva {{freezerWindow}} napig eláll."
         }
       }
+    },
+    "recurringMode": {
+      "label": "Következő hetek",
+      "auto": "Automatikus",
+      "SOLVER": "Minden héten új étrend",
+      "DUPLICATE": "Ugyanez minden héten",
+      "hint": "Az első hét ez a terv. Új étrendnél a következő heteket a tervező állítja össze úgy, hogy ne ismétlődjön, amit a múlt héten ettél. Kézzel épített tervnél maradjon a másolás."
     }
   },
   "calendar": {
