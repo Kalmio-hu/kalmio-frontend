@@ -1381,8 +1381,9 @@
       "items": "Tétel",
       "covered_one": "{{count}} már megvan a hűtőben",
       "covered_other": "{{count}} már megvan a hűtőben",
-      "estimatedTotal": "Becsült összeg",
-      "leftovers": "Maradék a kiszerelések miatt: ~{{cost}}"
+      "estimatedTotal": "Fizetendő kb.",
+      "leftovers": "Maradék a kiszerelések miatt: ~{{cost}}",
+      "usedByRecipes": "Ebből a receptek szerint felhasznált: {{cost}}"
     },
     "addItem": "Tétel hozzáadása",
     "addItemPlaceholder": "Pl. WC-papír",

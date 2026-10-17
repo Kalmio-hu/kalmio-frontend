@@ -1427,8 +1427,9 @@
       "items": "Items",
       "covered_one": "{{count}} already in the fridge",
       "covered_other": "{{count}} already in the fridge",
-      "estimatedTotal": "Estimated total",
-      "leftovers": "Surplus from package sizes: ~{{cost}}"
+      "estimatedTotal": "You pay about",
+      "leftovers": "Left over because of pack sizes: ~{{cost}}",
+      "usedByRecipes": "Of which the recipes use: {{cost}}"
     },
     "addItem": "Add an item",
     "addItemPlaceholder": "E.g. toilet paper",
