@@ -1489,6 +1489,8 @@ export interface ShoppingCartResponse {
   totalLeftoverCost: number | null
   /** Pack cost of pantry-staple lines (spices, oils…), bought whole and used for weeks. */
   pantryCost: number | null
+  /** Whole-pack cost of every priced line, pantry included — what a partner basket shows. */
+  totalPackCost: number | null
   currency: string | null
 }
 

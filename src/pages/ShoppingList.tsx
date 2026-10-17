@@ -466,9 +466,11 @@ export function ShoppingList() {
             <Card><CardContent className="py-3">
               <p className="text-xs text-neutral-500">{t('shoppingList.summary.estimatedTotal')}</p>
               <p className="text-xl font-headline font-bold text-[#1A1A1A]">
-                {cart.totalCost != null
-                  ? formatCurrency(cart.totalCost + (cart.totalLeftoverCost ?? 0), cart.currency ?? 'HUF')
-                  : '—'}
+                {cart.totalPackCost != null
+                  ? formatCurrency(cart.totalPackCost, cart.currency ?? 'HUF')
+                  : cart.totalCost != null
+                    ? formatCurrency(cart.totalCost + (cart.totalLeftoverCost ?? 0), cart.currency ?? 'HUF')
+                    : '—'}
               </p>
               {cart.totalCost != null && cart.totalLeftoverCost != null && cart.totalLeftoverCost > 0 && (
                 <p className="text-[11px] text-neutral-500">
