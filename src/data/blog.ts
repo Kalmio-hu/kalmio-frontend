@@ -20,6 +20,20 @@ import fozelekEn from './posts/fozelek-is-back.en.md?raw'
 import fozelekHu from './posts/fozelek-is-back.hu.md?raw'
 import originEn from './posts/where-kalmio-comes-from.en.md?raw'
 import originHu from './posts/where-kalmio-comes-from.hu.md?raw'
+import shopsEn from './posts/your-shops-your-prices.en.md?raw'
+import shopsHu from './posts/your-shops-your-prices.hu.md?raw'
+import kifliEn from './posts/kifli-in-one-tap.en.md?raw'
+import kifliHu from './posts/kifli-in-one-tap.hu.md?raw'
+import weekCostEn from './posts/what-a-week-really-costs.en.md?raw'
+import weekCostHu from './posts/what-a-week-really-costs.hu.md?raw'
+import oneCourseEn from './posts/one-course-is-a-meal.en.md?raw'
+import oneCourseHu from './posts/one-course-is-a-meal.hu.md?raw'
+import arfigyeloEn from './posts/arfigyelo-six-chains-one-list.en.md?raw'
+import arfigyeloHu from './posts/arfigyelo-six-chains-one-list.hu.md?raw'
+import substitutesEn from './posts/cheaper-substitutes.en.md?raw'
+import substitutesHu from './posts/cheaper-substitutes.hu.md?raw'
+import roadmapEn from './posts/autumn-roadmap.en.md?raw'
+import roadmapHu from './posts/autumn-roadmap.hu.md?raw'
 
 export type BlogCategory = 'Roadmap' | 'Feature' | 'Nutrition' | 'News'
 
@@ -37,6 +51,104 @@ export interface BlogPost {
 }
 
 export const posts: BlogPost[] = [
+  {
+    slug: 'your-shops-your-prices',
+    date: '2026-09-04',
+    category: 'Feature',
+    titleEn: 'Your shops, your prices',
+    titleHu: 'A te boltod, a te áraid',
+    excerptEn:
+      'Under Settings › Shops you now choose which stores price your list. Every line shows the cheapest pack at the shops you switched on, and the weekly total finally says what the till says.',
+    excerptHu:
+      'A Beállítások › Boltok alatt mostantól te döntöd el, melyik boltok áraival készül a listád. Minden sor a bekapcsolt boltok legolcsóbb kiszerelését mutatja, és a heti összeg végre azt mondja, amit a kassza.',
+    readingTimeMin: 3,
+    contentEn: shopsEn,
+    contentHu: shopsHu,
+  },
+  {
+    slug: 'kifli-in-one-tap',
+    date: '2026-09-18',
+    category: 'Feature',
+    titleEn: 'Kifli in one tap',
+    titleHu: 'Kifli egy koppintással',
+    excerptEn:
+      'Link your Kifli.hu account and the weekly list lands in your basket as the right products in the right number of packs. Payment and delivery stay with Kifli. One honest detour in the linking, explained.',
+    excerptHu:
+      'Összekötöd a Kifli.hu-fiókodat, és a heti lista a kosaradban landol: a megfelelő termékek, a megfelelő darabszámmal. A fizetés és a kiszállítás a Kiflinél marad. Az összekötés egy kerülőútját őszintén elmondjuk.',
+    readingTimeMin: 3,
+    contentEn: kifliEn,
+    contentHu: kifliHu,
+  },
+  {
+    slug: 'what-a-week-really-costs',
+    date: '2026-09-29',
+    category: 'Nutrition',
+    titleEn: 'What a week really costs',
+    titleHu: 'Mennyibe kerül valójában egy hét',
+    excerptEn:
+      'A plan showed 24 000 forints, the till said 51 000. Recipes consume one amount, you buy whole packs, and pantry staples are heavy in week one. The list now headlines what you pay, and three lessons from the gap.',
+    excerptHu:
+      'A terv 24 000 forintot mondott, a kassza 51 000-et. A receptek egy mennyiséget fogyasztanak, te egész csomagokat veszel, a kamra-alapok pedig az első héten súlyosak. A lista mostantól azt írja ki, amit fizetsz, és három tanulság a különbségből.',
+    readingTimeMin: 4,
+    contentEn: weekCostEn,
+    contentHu: weekCostHu,
+  },
+  {
+    slug: 'one-course-is-a-meal',
+    date: '2026-10-06',
+    category: 'Feature',
+    titleEn: 'One course is a meal',
+    titleHu: 'Egy fogás is étkezés',
+    excerptEn:
+      'Soup plus main every day doubled the week. Meals are one course by default now, with soup as an opt-in, fourteen one-pot dishes that stand alone, a daily budget you can set, and a planner that prefers fewer packs.',
+    excerptHu:
+      'Leves plusz főétel minden napra megduplázta a hetet. Mostantól egy étkezés egy fogás, a leves opció, tizennégy egytálétel, ami egymagában megáll, beállítható napi büdzsé, és egy tervező, ami kevesebb csomagot szeret.',
+    readingTimeMin: 4,
+    contentEn: oneCourseEn,
+    contentHu: oneCourseHu,
+  },
+  {
+    slug: 'arfigyelo-six-chains-one-list',
+    date: '2026-10-13',
+    category: 'Feature',
+    titleEn: 'Six chains, one list',
+    titleHu: 'Hat bolt, egy lista',
+    excerptEn:
+      'Kalmio now reads the GVH price monitor every morning and shows what your list would cost at Lidl, Aldi, Penny, Spar, Tesco and Auchan in whole packs. On a real week, Lidl came in 23 percent under Kifli on the shared lines.',
+    excerptHu:
+      'A Kalmio minden hajnalban beolvassa a GVH Árfigyelőt, és megmutatja, mibe kerülne a listád a Lidlben, az Aldiban, a Pennyben, a Sparban, a Tescóban és az Auchanban, egész kiszerelésekben. Egy valódi héten a Lidl 23 százalékkal volt olcsóbb a Kiflinél az azonos sorokon.',
+    readingTimeMin: 4,
+    contentEn: arfigyeloEn,
+    contentHu: arfigyeloHu,
+  },
+  {
+    slug: 'cheaper-substitutes',
+    date: '2026-10-16',
+    category: 'Feature',
+    titleEn: 'Cheaper substitutes, if you ask',
+    titleHu: 'Olcsóbb helyettesítők, ha kéred',
+    excerptEn:
+      'Savoy cabbage instead of kale, a bouillon cube instead of stock, chicken thigh instead of breast. A switch under the daily budget lets the list and the planner swap ingredients for cheaper substitutes, and say so on every line.',
+    excerptHu:
+      'Kelkáposzta a fodros kel helyett, leveskocka az alaplé helyett, csirkecomb a mell helyett. Egy kapcsoló a napi büdzsé alatt, és a lista meg a tervező olcsóbb helyettesítőkkel dolgozik, minden sornál kiírva, mi helyett.',
+    readingTimeMin: 3,
+    contentEn: substitutesEn,
+    contentHu: substitutesHu,
+  },
+  {
+    slug: 'autumn-roadmap',
+    date: '2026-10-17',
+    category: 'Roadmap',
+    titleEn: 'Where we are, what is next',
+    titleHu: 'Hol tartunk, mi jön',
+    excerptEn:
+      'Autumn was about shopping: six chains, two webshops, a basket that fills itself, a list that tells the truth. Here is what is still missing and what arrives next: a one-step Kifli link, more price-monitor hits, more substitutions, faster fixes.',
+    excerptHu:
+      'Az ősz a bevásárlásról szólt: hat lánc, két webshop, magától megtelő kosár, igazat mondó lista. Itt van, ami még hiányzik, és ami jön: egylépéses Kifli-összekötés, több Árfigyelő-találat, több helyettesítés, gyorsabb javítások.',
+    readingTimeMin: 3,
+    contentEn: roadmapEn,
+    contentHu: roadmapHu,
+  },
   {
     slug: 'talk-to-kalmio-from-claude-or-chatgpt',
     date: '2026-05-17',
