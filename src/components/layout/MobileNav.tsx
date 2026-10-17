@@ -14,6 +14,7 @@ import {
   Leaf,
   Star,
   Trees,
+  UserRound,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -32,6 +33,7 @@ const OVERFLOW_ROUTES = [
   '/app/ingredients',
   '/app/family',
   '/app/settings',
+  '/app/profile',
   '/app/founding-member',
   '/app/grove',
   '/app/admin',
@@ -170,6 +172,17 @@ export function MobileNav() {
             >
               <Users className="h-5 w-5 shrink-0" />
               {t('nav.family')}
+            </NavLink>
+
+            {/* Profil — targets, budget, courses, substitutions */}
+            <NavLink
+              to="/app/profile"
+              role="menuitem"
+              onClick={() => setOverflowOpen(false)}
+              className={({ isActive }) => overflowItemClass(isActive)}
+            >
+              <UserRound className="h-5 w-5 shrink-0" />
+              {t('nav.profile')}
             </NavLink>
 
             {/* Beállítások */}
