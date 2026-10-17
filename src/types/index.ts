@@ -1475,6 +1475,8 @@ export interface CartLineItemResponse {
   /** When the cost-saver swapped this line, the original ingredient; null otherwise. */
   substitutedFromIngredientId: string | null
   substitutedFromName: string | null
+  /** The product the user pinned to this line, if any. */
+  preferredProductId: string | null
 }
 
 export interface ShoppingCartResponse {
@@ -1895,4 +1897,15 @@ export interface IngredientSubstitution {
   substituteUnit: 'G' | 'ML' | 'PIECE'
   kind: 'COST' | 'FORM' | 'DIET'
   note: string | null
+}
+
+/** One shop's best pack for a cart line, with the arithmetic for the line's amount. */
+export interface CartLineOffer {
+  providerId: string
+  providerName: string
+  providerCode: string | null
+  enabled: boolean
+  selected: boolean
+  pinned: boolean
+  product: CartRetailProductInfo | null
 }

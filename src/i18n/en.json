@@ -1537,6 +1537,14 @@
       "cheaper": "{{pct}}% cheaper",
       "dearer": "{{pct}}% dearer",
       "hint": "The price is the sum of the items that shop can price, in whole packs. The percentage compares the same items with your current shops. For price-monitor chains we know prices only; we do not fill a basket."
+    },
+    "offers": {
+      "title": "At other shops",
+      "none": "No price for this item at another shop.",
+      "off": "off",
+      "current": "pricing now",
+      "pick": "Buy this one",
+      "unpin": "Reset"
     }
   },
   "fridge": {

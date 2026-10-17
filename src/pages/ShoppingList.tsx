@@ -58,15 +58,28 @@ function withBought(cart: ShoppingCartResponse | null | undefined, itemId: strin
 // ── Row ───────────────────────────────────────────────────────────────────
 
 function ItemRow({
-  item, currency, onTick, onRemove,
+  item, cartId, currency, onTick, onRemove,
 }: {
   item: CartLineItemResponse
+  cartId: string
   currency: string | null
   onTick: (item: CartLineItemResponse) => void
   onRemove: (item: CartLineItemResponse) => void
 }) {
   const { t } = useTranslation()
+  const qc = useQueryClient()
   const [expanded, setExpanded] = useState(false)
+  const { data: offers = [], isLoading: offersLoading } = useQuery({
+    queryKey: ['shopping-cart', cartId, 'offers', item.id],
+    queryFn: () => shoppingCartService.lineOffers(cartId, item.id),
+    enabled: expanded && !!item.ingredientId,
+    staleTime: 60_000,
+  })
+  const pin = useMutation({
+    mutationFn: (productId: string | null) => shoppingCartService.setLineProduct(cartId, item.id, productId),
+    onSuccess: () => { void qc.invalidateQueries({ queryKey: ['shopping-cart'] }) },
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
   const covered = isCovered(item)
   const ticked = item.bought || covered
   const retail = item.retailProduct
@@ -174,6 +187,49 @@ function ItemRow({
               {t('shoppingList.openProduct')}
             </a>
           )}
+        </div>
+      )}
+      {expanded && item.ingredientId && (
+        <div className="ml-9 mb-3 text-[12px]">
+          <p className="text-neutral-500 mb-1">{t('shoppingList.offers.title')}</p>
+          {offersLoading && <p className="text-neutral-400">{t('common.loading')}</p>}
+          {!offersLoading && offers.length === 0 && <p className="text-neutral-400">{t('shoppingList.offers.none')}</p>}
+          <ul className="divide-y divide-neutral-100">
+            {offers.map(o => (
+              <li key={o.providerId} className="flex items-center justify-between gap-2 py-1.5">
+                <span className="min-w-0">
+                  <span className={`block truncate ${o.selected ? 'font-medium text-[#1A1A1A]' : 'text-neutral-700'}`}>
+                    {o.providerName}
+                    {!o.enabled && <span className="ml-1 text-[10px] uppercase tracking-wide text-neutral-400">{t('shoppingList.offers.off')}</span>}
+                  </span>
+                  {o.product && (
+                    <span className="block text-neutral-500 truncate">
+                      {o.product.name} · {formatCurrency(o.product.price, currency ?? 'HUF')} / {fmtAmount(o.product.packageSize, o.product.unit)}
+                      {o.product.packagesNeeded != null && o.product.packagesNeeded > 0 ? ` · ${t('shoppingList.packages', { count: o.product.packagesNeeded })}` : ''}
+                    </span>
+                  )}
+                </span>
+                <span className="flex items-center gap-2 shrink-0">
+                  <span className="tabular-nums font-semibold text-[#1A1A1A]">
+                    {o.product?.packageCost != null ? formatCurrency(o.product.packageCost, currency ?? 'HUF') : '—'}
+                  </span>
+                  {o.pinned ? (
+                    <button type="button" disabled={pin.isPending} onClick={() => pin.mutate(null)}
+                      className="rounded-full border border-neutral-300 px-2 py-0.5 text-[11px] text-neutral-600">
+                      {t('shoppingList.offers.unpin')}
+                    </button>
+                  ) : o.selected ? (
+                    <span className="text-[11px] text-[#4F7942]">{t('shoppingList.offers.current')}</span>
+                  ) : (
+                    <button type="button" disabled={pin.isPending || !o.product} onClick={() => o.product && pin.mutate(o.product.id)}
+                      className="rounded-full bg-[#4F7942] px-2 py-0.5 text-[11px] font-medium text-white">
+                      {t('shoppingList.offers.pick')}
+                    </button>
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </li>
@@ -595,7 +651,7 @@ export function ShoppingList() {
                 </h2>
                 <ul className="divide-y divide-neutral-100">
                   {group.items.map(item => (
-                    <ItemRow key={item.id} item={item} currency={cart.currency} onTick={handleTick} onRemove={i => removeMutation.mutate(i.id)} />
+                    <ItemRow cartId={cart.cartId} key={item.id} item={item} currency={cart.currency} onTick={handleTick} onRemove={i => removeMutation.mutate(i.id)} />
                   ))}
                 </ul>
               </section>
@@ -607,7 +663,7 @@ export function ShoppingList() {
                 </h2>
                 <ul className="divide-y divide-neutral-100">
                   {covered.map(item => (
-                    <ItemRow key={item.id} item={item} currency={cart.currency} onTick={handleTick} onRemove={i => removeMutation.mutate(i.id)} />
+                    <ItemRow cartId={cart.cartId} key={item.id} item={item} currency={cart.currency} onTick={handleTick} onRemove={i => removeMutation.mutate(i.id)} />
                   ))}
                 </ul>
               </section>

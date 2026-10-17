@@ -1491,6 +1491,14 @@
       "cheaper": "{{pct}}% olcsóbb",
       "dearer": "{{pct}}% drágább",
       "hint": "Az ár az adott boltban beárazható tételek összege, egész kiszerelésekben. A százalék ugyanezekre a tételekre a mostani boltjaiddal vet össze. Árfigyelő-láncoknál csak az árakat ismerjük, kosarat nem töltünk."
+    },
+    "offers": {
+      "title": "Más boltokban",
+      "none": "Ehhez a tételhez más boltban nincs árunk.",
+      "off": "kikapcsolva",
+      "current": "ebből árazunk",
+      "pick": "Ezt veszem",
+      "unpin": "Visszaállítás"
     }
   },
   "feedback": {

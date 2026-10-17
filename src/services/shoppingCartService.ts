@@ -8,6 +8,7 @@ import type {
   RetailHandoffResponse,
   ShoppingCartResponse,
   CartPriceComparison,
+  CartLineOffer,
 } from '@/types'
 
 /**
@@ -36,6 +37,12 @@ export const shoppingCartService = {
 
   getById: (cartId: string): Promise<ShoppingCartResponse> =>
     api.get<ShoppingCartResponse>(`/api/shopping-cart/${cartId}`).then(r => r.data),
+
+  lineOffers: (cartId: string, itemId: string): Promise<CartLineOffer[]> =>
+    api.get<CartLineOffer[]>(`/api/shopping-cart/${cartId}/items/${itemId}/offers`).then(r => r.data),
+
+  setLineProduct: (cartId: string, itemId: string, productId: string | null): Promise<ShoppingCartResponse> =>
+    api.patch<ShoppingCartResponse>(`/api/shopping-cart/${cartId}/items/${itemId}/product`, { productId }).then(r => r.data),
 
   priceComparison: (cartId: string): Promise<CartPriceComparison> =>
     api.get<CartPriceComparison>(`/api/shopping-cart/${cartId}/price-comparison`).then(r => r.data),
