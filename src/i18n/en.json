@@ -1528,13 +1528,16 @@
       "notConnected": "Link your {{provider}} account in Settings first.",
       "error": "Could not send the basket."
     },
-    "comparison": {
-      "title": "The same {{count}} items at other shops (price monitor, whole packs)",
-      "active": "pricing now",
+    "substitutedFrom": "instead of {{name}}",
+    "shops": {
+      "title": "Shops – switch on where you buy; the list recalculates at once",
+      "mixed": "The list now mixes the cheapest prices of {{count}} shops – no single trip buys that. Leave one or two on.",
       "priced": "{{priced}}/{{total}} items",
-      "hint": "Daily shelf prices from the GVH price monitor. Pick your shop under Settings › Shops."
-    },
-    "substitutedFrom": "instead of {{name}}"
+      "sameAtCurrent": "same items at your shops: {{cost}}",
+      "cheaper": "{{pct}}% cheaper",
+      "dearer": "{{pct}}% dearer",
+      "hint": "The price is the sum of the items that shop can price, in whole packs. The percentage compares the same items with your current shops. For price-monitor chains we know prices only; we do not fill a basket."
+    }
   },
   "fridge": {
     "title": "My Fridge",

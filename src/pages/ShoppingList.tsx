@@ -282,6 +282,17 @@ export function ShoppingList() {
     staleTime: 5 * 60_000,
   })
 
+  const toggleShop = useMutation({
+    mutationFn: ({ id, enabled }: { id: string; enabled: boolean }) => retailService.updatePreference(id, enabled),
+    onSuccess: (updated) => {
+      qc.setQueryData<RetailProvider[]>(RETAIL_PROVIDERS_QUERY_KEY, (old) =>
+        old ? old.map(p => (p.id === updated.id ? updated : p)) : old)
+      // the cart prices at read time from the enabled shops, so a refetch recalculates every line
+      void qc.invalidateQueries({ queryKey: ['shopping-cart'] })
+    },
+    onError: () => toast({ title: t('common.errorGeneric'), variant: 'destructive' }),
+  })
+
   const { data: providers = [] } = useQuery({
     queryKey: RETAIL_PROVIDERS_QUERY_KEY,
     queryFn: retailService.listProviders,
@@ -500,27 +511,53 @@ export function ShoppingList() {
             </CardContent></Card>
           </div>
 
-          {/* Same list at every shop with prices */}
-          {comparison && comparison.providers.length > 1 && (
+          {/* Shops: switch where the list prices from, and see the same lines at every shop */}
+          {comparison && comparison.providers.length > 0 && (
             <Card><CardContent className="py-3">
-              <p className="text-xs text-neutral-500 mb-2">{t('shoppingList.comparison.title', { count: comparison.lines })}</p>
+              <p className="text-xs text-neutral-500 mb-2">{t('shoppingList.shops.title')}</p>
+              {cart.pricingProviderCount > 2 && (
+                <p className="text-[11px] text-orange-600 mb-2">{t('shoppingList.shops.mixed', { count: cart.pricingProviderCount })}</p>
+              )}
               <ul className="divide-y divide-neutral-100">
-                {comparison.providers.map(p => (
-                  <li key={p.providerId} className="flex items-baseline justify-between py-1.5 text-sm">
-                    <span className="flex items-center gap-2">
-                      <span className={p.enabled ? 'font-medium text-[#1A1A1A]' : 'text-neutral-600'}>{p.name}</span>
-                      {p.enabled && <span className="text-[10px] uppercase tracking-wide text-[#4F7942]">{t('shoppingList.comparison.active')}</span>}
-                      {p.pricedLines < comparison.lines && (
-                        <span className="text-[11px] text-neutral-400">{t('shoppingList.comparison.priced', { priced: p.pricedLines, total: comparison.lines })}</span>
-                      )}
-                    </span>
-                    <span className="tabular-nums font-semibold text-[#1A1A1A]">
-                      {p.packTotal != null ? `~${formatCurrency(p.packTotal, comparison.currency ?? 'HUF')}` : '—'}
-                    </span>
-                  </li>
-                ))}
+                {comparison.providers.map(p => {
+                  const delta = p.packTotal != null && p.sameLinesAtCurrent != null && p.sameLinesAtCurrent > 0
+                    ? Math.round(100 * (1 - p.packTotal / p.sameLinesAtCurrent))
+                    : null
+                  return (
+                    <li key={p.providerId} className="flex items-center justify-between gap-3 py-2 text-sm">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={p.enabled}
+                        disabled={toggleShop.isPending}
+                        onClick={() => toggleShop.mutate({ id: p.providerId, enabled: !p.enabled })}
+                        className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
+                          p.enabled ? 'bg-[#4F7942] text-white border-[#4F7942]' : 'bg-white text-neutral-600 border-neutral-300'
+                        }`}
+                      >
+                        {p.name}
+                      </button>
+                      <span className="flex-1 min-w-0 text-[11px] text-neutral-400 truncate">
+                        {t('shoppingList.shops.priced', { priced: p.pricedLines, total: comparison.lines })}
+                        {p.sameLinesAtCurrent != null && p.packTotal != null && !p.enabled && (
+                          <> · {t('shoppingList.shops.sameAtCurrent', { cost: formatCurrency(p.sameLinesAtCurrent, comparison.currency ?? 'HUF') })}</>
+                        )}
+                      </span>
+                      <span className="text-right shrink-0">
+                        <span className="block tabular-nums font-semibold text-[#1A1A1A]">
+                          {p.packTotal != null ? `~${formatCurrency(p.packTotal, comparison.currency ?? 'HUF')}` : '—'}
+                        </span>
+                        {delta != null && !p.enabled && delta !== 0 && (
+                          <span className={`block text-[11px] tabular-nums ${delta > 0 ? 'text-[#4F7942]' : 'text-orange-600'}`}>
+                            {delta > 0 ? t('shoppingList.shops.cheaper', { pct: delta }) : t('shoppingList.shops.dearer', { pct: -delta })}
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  )
+                })}
               </ul>
-              <p className="text-[11px] text-neutral-400 mt-2">{t('shoppingList.comparison.hint')}</p>
+              <p className="text-[11px] text-neutral-400 mt-2">{t('shoppingList.shops.hint')}</p>
             </CardContent></Card>
           )}
 

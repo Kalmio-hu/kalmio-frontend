@@ -1494,6 +1494,8 @@ export interface ShoppingCartResponse {
   pantryCost: number | null
   /** Whole-pack cost of every priced line, pantry included — what a partner basket shows. */
   totalPackCost: number | null
+  /** How many shops price the lines; above two the list is a mix nobody buys in one trip. */
+  pricingProviderCount: number
   currency: string | null
 }
 
@@ -1510,6 +1512,8 @@ export interface CartPriceComparison {
     handoff: boolean
     pricedLines: number
     packTotal: number | null
+    /** The same priced lines at the caller's current shops, for a like-for-like reading. */
+    sameLinesAtCurrent: number | null
     missing: string[]
   }>
 }

@@ -1482,13 +1482,16 @@
       "notConnected": "Előbb kösd össze a {{provider}}-fiókodat a Beállításokban.",
       "error": "Nem sikerült elküldeni a kosarat."
     },
-    "comparison": {
-      "title": "Ugyanez a {{count}} tétel más boltokban (Árfigyelő, egész kiszerelések)",
-      "active": "ebből árazunk",
+    "substitutedFrom": "{{name}} helyett",
+    "shops": {
+      "title": "Boltok – kapcsold be, ahol vásárolsz; a lista azonnal újraszámol",
+      "mixed": "A lista most {{count}} bolt legolcsóbb árait keveri – ezt egy bevásárlással nem lehet megvenni. Hagyj bekapcsolva egyet-kettőt.",
       "priced": "{{priced}}/{{total}} tétel",
-      "hint": "A GVH Árfigyelő napi bolti árai. Boltot a Beállítások › Boltok alatt választasz."
-    },
-    "substitutedFrom": "{{name}} helyett"
+      "sameAtCurrent": "ugyanezek nálad: {{cost}}",
+      "cheaper": "{{pct}}% olcsóbb",
+      "dearer": "{{pct}}% drágább",
+      "hint": "Az ár az adott boltban beárazható tételek összege, egész kiszerelésekben. A százalék ugyanezekre a tételekre a mostani boltjaiddal vet össze. Árfigyelő-láncoknál csak az árakat ismerjük, kosarat nem töltünk."
+    }
   },
   "feedback": {
     "panelTitle": "Visszajelzés",

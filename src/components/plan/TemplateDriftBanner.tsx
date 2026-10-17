@@ -54,6 +54,11 @@ export function TemplateDriftBanner({ planId, scheduleId }: TemplateDriftBannerP
       toast({ title: t('plan.detail.templateDrift.reRunSuccess'), variant: 'success' })
     },
     onError: () => {
+      // The server may well have completed (the 2026-10-17 case: new schedule created, client
+      // reported failure); refetch so the page shows the real state either way.
+      void qc.invalidateQueries({ queryKey: ['schedule-drift'] })
+      void qc.invalidateQueries({ queryKey: ['schedules'] })
+      void qc.invalidateQueries({ queryKey: ['plan-template', planId] })
       toast({ title: t('plan.detail.templateDrift.reRunError'), variant: 'destructive' })
     },
   })
