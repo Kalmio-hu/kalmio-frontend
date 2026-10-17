@@ -102,6 +102,9 @@ function ItemRow({
             {item.source === 'ADHOC' && (
               <span className="text-[10px] uppercase tracking-wide text-[#F28C28] shrink-0">{t('shoppingList.adhocBadge')}</span>
             )}
+            {item.substitutedFromName && (
+              <span className="text-[11px] text-[#4F7942] shrink-0">{t('shoppingList.substitutedFrom', { name: item.substitutedFromName })}</span>
+            )}
           </span>
           <span className="block text-[12px] text-neutral-500 truncate">
             {covered

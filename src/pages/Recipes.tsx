@@ -43,6 +43,7 @@ import type {
   DietaryRestrictionKey,
   MealType,
   RecipeFamily,
+  IngredientSubstitution,
 } from '@/types'
 
 /** Meal-type filter chip order — matches the wizard's MEAL_TYPES constant. */
@@ -171,6 +172,14 @@ export function Recipes() {
   const { data: recipes = [], isLoading } = useQuery({ queryKey: ['recipes'], queryFn: recipesService.list })
   const { data: ingredients = [] } = useQuery({ queryKey: ['ingredients'], queryFn: ingredientsService.list, staleTime: 30_000 })
   const { data: user } = useQuery({ queryKey: USERS_ME_QUERY_KEY, queryFn: usersService.getMe })
+  const costSaver = user?.mealPlanPreferences?.costSaverSubstitutions === true
+  const { data: substitutions = [] } = useQuery({
+    queryKey: ['ingredient-substitutions'],
+    queryFn: ingredientsService.substitutions,
+    enabled: costSaver,
+    staleTime: 60 * 60_000,
+  })
+  const substituteFor = new Map(substitutions.filter(s => s.kind !== 'DIET').map(s => [s.ingredientId, s]))
   const ingredientMap = new Map(ingredients.map(i => [i.id, i.translations?.[lang]?.name ?? i.name]))
   const ingredientConstraintsMap = new Map(ingredients.map(i => [i.id, i.constraints]))
 
@@ -863,6 +872,7 @@ export function Recipes() {
         open={detailTarget !== null}
         recipe={detailTarget ?? undefined}
         ingredientMap={ingredientMap}
+        substituteFor={costSaver ? substituteFor : undefined}
         allRecipes={recipes}
         onSelectVariant={(r) => setDetailTarget(r)}
         onOpenChange={open => { if (!open) setDetailTarget(null) }}
@@ -1051,11 +1061,13 @@ function ImportPreviewHeader({
 // ── Recipe detail dialog ──────────────────────────────────────────────────
 
 function RecipeDetailDialog({
-  open, recipe, ingredientMap, allRecipes, onSelectVariant, onOpenChange,
+  open, recipe, ingredientMap, allRecipes, onSelectVariant, onOpenChange, substituteFor,
 }: {
   open: boolean
   recipe?: Recipe
   ingredientMap: Map<string, string>
+  /** Cost-saver rules by original ingredient id; only passed when the user's switch is on. */
+  substituteFor?: Map<string, IngredientSubstitution>
   /** Full recipes catalogue — used to compute family siblings client-side. */
   allRecipes?: Recipe[]
   /** Called when the user clicks a sibling row; parent replaces the dialog target. */
@@ -1235,12 +1247,22 @@ function RecipeDetailDialog({
                 {t('recipes.detail.ingredients')}
               </p>
               <ul className="space-y-1">
-                {recipe.ingredients.map(ing => (
-                  <li key={ing.id} className="flex items-center justify-between text-sm">
-                    <span className="text-[#1A1A1A]">{ingredientMap.get(ing.ingredientId) ?? ing.ingredientId}</span>
-                    <span className="text-gray-500 tabular-nums">{ing.amount} {ing.unit}</span>
-                  </li>
-                ))}
+                {recipe.ingredients.map(ing => {
+                  const sub = substituteFor?.get(ing.ingredientId)
+                  return (
+                    <li key={ing.id} className="text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#1A1A1A]">{ingredientMap.get(ing.ingredientId) ?? ing.ingredientId}</span>
+                        <span className="text-gray-500 tabular-nums">{ing.amount} {ing.unit}</span>
+                      </div>
+                      {sub && (
+                        <p className="text-[11px] text-[#4F7942]">
+                          {t('recipes.detail.substituteHint', { name: sub.substituteName })}{sub.note ? ` – ${sub.note}` : ''}
+                        </p>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           )}

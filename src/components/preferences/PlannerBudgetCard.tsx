@@ -26,6 +26,21 @@ export function PlannerBudgetCard({ user }: Props) {
   const [value, setValue] = useState<string>(stored != null ? String(Math.round(stored)) : '')
   const [seenStored, setSeenStored] = useState(stored)
   const [saving, setSaving] = useState(false)
+  const costSaver = user.mealPlanPreferences?.costSaverSubstitutions === true
+  const [togglingSaver, setTogglingSaver] = useState(false)
+
+  async function toggleCostSaver(next: boolean) {
+    setTogglingSaver(true)
+    try {
+      const updated = await usersService.updateSettings({ mealPlanPreferences: { costSaverSubstitutions: next } })
+      qc.setQueryData(USERS_ME_QUERY_KEY, updated)
+      qc.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
+    } catch {
+      toast({ title: t('settings.saveError'), variant: 'destructive' })
+    } finally {
+      setTogglingSaver(false)
+    }
+  }
 
   // Re-sync the field when the stored value changes (adjusting state during render, not in an effect).
   if (seenStored !== stored) {
@@ -88,6 +103,19 @@ export function PlannerBudgetCard({ user }: Props) {
           </button>
         )}
         {!valid && <p className="text-xs text-red-600">{t('settings.plannerBudget.invalid')}</p>}
+        <label className="flex items-start gap-3 text-sm text-[#1A1A1A] pt-1">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-[#4F7942]"
+            checked={costSaver}
+            disabled={togglingSaver}
+            onChange={e => void toggleCostSaver(e.target.checked)}
+          />
+          <span>
+            <span className="font-medium">{t('settings.plannerBudget.costSaver')}</span>
+            <span className="block text-xs text-gray-400">{t('settings.plannerBudget.costSaverHint')}</span>
+          </span>
+        </label>
         <Button size="sm" onClick={save} disabled={saving || !dirty || !valid || parsed === null}>
           {t('common.save')}
         </Button>

@@ -1,10 +1,11 @@
 import { api } from '@/lib/api'
-import type { Ingredient, CreateIngredientRequest, UpdateIngredientRequest, IngredientTranslations } from '@/types'
+import type { Ingredient, CreateIngredientRequest, UpdateIngredientRequest, IngredientTranslations, IngredientSubstitution } from '@/types'
 
 export const ingredientsService = {
   list: () => api.get<Ingredient[]>('/api/ingredients').then(r => r.data),
   get: (id: string) => api.get<Ingredient>(`/api/ingredients/${id}`).then(r => r.data),
   mine: () => api.get<Ingredient[]>('/api/ingredients/mine').then(r => r.data),
+  substitutions: () => api.get<IngredientSubstitution[]>('/api/ingredients/substitutions').then(r => r.data),
   create: (body: CreateIngredientRequest) => api.post<Ingredient>('/api/ingredients', body, { requestIdempotencyKey: true }).then(r => r.data),
   update: (id: string, body: UpdateIngredientRequest) => api.put<Ingredient>(`/api/ingredients/${id}`, body, { requestIdempotencyKey: true }).then(r => r.data),
   delete: (id: string) => api.delete(`/api/ingredients/${id}`, { requestIdempotencyKey: true }),

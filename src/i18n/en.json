@@ -490,7 +490,8 @@
       "noIngredients": "No ingredients listed.",
       "piece": "pc",
       "startCooking": "Start cooking",
-      "garnish": "Serving suggestion"
+      "garnish": "Serving suggestion",
+      "substituteHint": "Cost-saver swap: {{name}}"
     },
     "cookMode": {
       "stepLabel": "Step",
@@ -1064,7 +1065,9 @@
       "label": "Daily budget",
       "unit": "Ft / day",
       "suggest": "Suggested: {{amount}} Ft a day for two meals",
-      "invalid": "Enter an amount between 500 and 50 000 Ft."
+      "invalid": "Enter an amount between 500 and 50 000 Ft.",
+      "costSaver": "Cost-saver substitutions",
+      "costSaverHint": "When cheaper, the list buys savoy cabbage instead of kale, bouillon cubes instead of stock, and the planner prices recipes that way too. The swap is shown under the recipe."
     },
     "plannerCourses": {
       "title": "Courses",
@@ -1529,7 +1532,8 @@
       "active": "pricing now",
       "priced": "{{priced}}/{{total}} items",
       "hint": "Daily shelf prices from the GVH price monitor. Pick your shop under Settings › Shops."
-    }
+    },
+    "substitutedFrom": "instead of {{name}}"
   },
   "fridge": {
     "title": "My Fridge",

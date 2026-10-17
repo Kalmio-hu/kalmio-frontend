@@ -9,6 +9,8 @@ export interface UserMealPreferences {
   budgetMax?: number
   /** Meal types (LUNCH, DINNER) that get a soup course before the main. */
   twoCourseMealTypes?: string[]
+  /** "Spórolós helyettesítések": cart and solver may swap ingredients for cheaper substitutes. */
+  costSaverSubstitutions?: boolean
   prepTimeMax?: number
   forbiddenIngredientIds?: string[]
   maxRecipeRepetitions?: number

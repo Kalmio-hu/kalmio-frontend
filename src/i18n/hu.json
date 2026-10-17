@@ -490,7 +490,8 @@
       "noIngredients": "Nincsenek hozzávalók.",
       "piece": "db",
       "startCooking": "Főzés indítása",
-      "garnish": "Tálalási javaslat"
+      "garnish": "Tálalási javaslat",
+      "substituteHint": "Spórolós csere: {{name}}"
     },
     "cookMode": {
       "stepLabel": "Lépés",
@@ -1064,7 +1065,9 @@
       "label": "Napi keret",
       "unit": "Ft / nap",
       "suggest": "Javaslat: {{amount}} Ft naponta két étkezésre",
-      "invalid": "500 és 50 000 Ft közötti összeget adj meg."
+      "invalid": "500 és 50 000 Ft közötti összeget adj meg.",
+      "costSaver": "Spórolós helyettesítések",
+      "costSaverHint": "Ha olcsóbb, a lista kelkáposztát ír a fodros kel helyett, leveskockát az alaplé helyett, és a tervező is így árazza a recepteket. A recept alatt jelezzük a cserét."
     },
     "plannerCourses": {
       "title": "Fogások",
@@ -1483,7 +1486,8 @@
       "active": "ebből árazunk",
       "priced": "{{priced}}/{{total}} tétel",
       "hint": "A GVH Árfigyelő napi bolti árai. Boltot a Beállítások › Boltok alatt választasz."
-    }
+    },
+    "substitutedFrom": "{{name}} helyett"
   },
   "feedback": {
     "panelTitle": "Visszajelzés",

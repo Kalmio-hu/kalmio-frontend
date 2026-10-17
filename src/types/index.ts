@@ -1472,6 +1472,9 @@ export interface CartLineItemResponse {
   sourcePlanIds: string[]
   estimatedCost: number | null
   retailProduct: CartRetailProductInfo | null
+  /** When the cost-saver swapped this line, the original ingredient; null otherwise. */
+  substitutedFromIngredientId: string | null
+  substitutedFromName: string | null
 }
 
 export interface ShoppingCartResponse {
@@ -1876,4 +1879,16 @@ export interface ReplanSuggestion {
   createdAt: string
   actionedAt: string | null
   actionedBy: string | null
+}
+
+/** A cost-saver or form substitution rule (ingredient_substitution). */
+export interface IngredientSubstitution {
+  ingredientId: string
+  ingredientName: string
+  substituteId: string
+  substituteName: string
+  ratio: number
+  substituteUnit: 'G' | 'ML' | 'PIECE'
+  kind: 'COST' | 'FORM' | 'DIET'
+  note: string | null
 }
