@@ -24,14 +24,12 @@ function redirectsHere(redirectUri: string): boolean {
 export function parseCallbackUrl(raw: string): { code: string; state: string } | null {
   const s = raw.trim()
   if (!s) return null
-  try {
-    const u = new URL(s.startsWith('http') ? s : `http://x/?${s.replace(/^\?/, '')}`)
-    const code = u.searchParams.get('code')
-    const state = u.searchParams.get('state')
-    return code && state ? { code, state } : null
-  } catch {
-    return null
-  }
+  // Phones copy the address without its scheme ("localhost:5173/…?code=…"), so read the two
+  // parameters straight out of the text instead of trusting the URL shape.
+  const code = /(?:^|[?&#\s])code=([^&#\s]+)/.exec(s)?.[1]
+  const state = /(?:^|[?&#\s])state=([^&#\s]+)/.exec(s)?.[1]
+  if (code && state) return { code: decodeURIComponent(code), state: decodeURIComponent(state) }
+  return null
 }
 
 /**
