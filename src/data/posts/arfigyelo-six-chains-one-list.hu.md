@@ -1,6 +1,6 @@
 ## Hat bolt, egy lista
 
-A Gazdasági Versenyhivatal Árfigyelője naponta közzéteszi a nagy láncok polcárait: Lidl, Aldi, Penny, Spar, Tesco, Auchan, mintegy 3 700 élelmiszer. Mostantól a Kalmio minden hajnalban beolvassa, és a bevásárlólista alján megmutatja, mibe kerülne ugyanez a lista mindegyik boltban, egész kiszerelésekben.
+A Gazdasági Versenyhivatal Árfigyelője naponta közzéteszi a nagy láncok polcárait: Lidl, Aldi, Penny, Spar, Tesco, Auchan, mintegy 3 700 élelmiszer-termék. Mostantól a Kalmio minden hajnalban beolvassa, és a bevásárlólista alján megmutatja, mibe kerülne ugyanez a lista mindegyik boltban, egész kiszerelésekben.
 
 Nem árazunk át semmit a hátad mögött. A listád továbbra is abból a boltból áraz, amit a Boltok alatt bekapcsoltál. Az összehasonlítás egy tény, nem egy döntés; a döntés a tiéd.
 

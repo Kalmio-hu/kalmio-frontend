@@ -56,7 +56,7 @@ export const posts: BlogPost[] = [
     date: '2026-09-04',
     category: 'Feature',
     titleEn: 'Your shops, your prices',
-    titleHu: 'A te boltod, a te áraid',
+    titleHu: 'A te boltjaid, a te áraid',
     excerptEn:
       'Under Settings › Shops you now choose which stores price your list. Every line shows the cheapest pack at the shops you switched on, and the weekly total finally says what the till says.',
     excerptHu:
@@ -74,7 +74,7 @@ export const posts: BlogPost[] = [
     excerptEn:
       'Link your Kifli.hu account and the weekly list lands in your basket as the right products in the right number of packs. Payment and delivery stay with Kifli. One honest detour in the linking, explained.',
     excerptHu:
-      'Összekötöd a Kifli.hu-fiókodat, és a heti lista a kosaradban landol: a megfelelő termékek, a megfelelő darabszámmal. A fizetés és a kiszállítás a Kiflinél marad. Az összekötés egy kerülőútját őszintén elmondjuk.',
+      'Összekötöd a Kifli.hu-fiókodat, és a heti lista a kosaradba kerül: a megfelelő termékek, a megfelelő darabszámmal. A fizetés és a kiszállítás a Kiflinél marad. Az összekötésben van egy kerülő lépés; ezt őszintén leírjuk.',
     readingTimeMin: 3,
     contentEn: kifliEn,
     contentHu: kifliHu,
@@ -88,7 +88,7 @@ export const posts: BlogPost[] = [
     excerptEn:
       'A plan showed 24 000 forints, the till said 51 000. Recipes consume one amount, you buy whole packs, and pantry staples are heavy in week one. The list now headlines what you pay, and three lessons from the gap.',
     excerptHu:
-      'A terv 24 000 forintot mondott, a kassza 51 000-et. A receptek egy mennyiséget fogyasztanak, te egész csomagokat veszel, a kamra-alapok pedig az első héten súlyosak. A lista mostantól azt írja ki, amit fizetsz, és három tanulság a különbségből.',
+      'A terv 24 000 forintot mondott, a kassza 51 000-et. A receptek egy mennyiséget fogyasztanak, te egész csomagokat veszel, a kamra-alapok pedig az első héten súlyosak. A lista mostantól azt írja ki, amit fizetsz; a különbségből három tanulság következik.',
     readingTimeMin: 4,
     contentEn: weekCostEn,
     contentHu: weekCostHu,
@@ -102,7 +102,7 @@ export const posts: BlogPost[] = [
     excerptEn:
       'Soup plus main every day doubled the week. Meals are one course by default now, with soup as an opt-in, fourteen one-pot dishes that stand alone, a daily budget you can set, and a planner that prefers fewer packs.',
     excerptHu:
-      'Leves plusz főétel minden napra megduplázta a hetet. Mostantól egy étkezés egy fogás, a leves opció, tizennégy egytálétel, ami egymagában megáll, beállítható napi büdzsé, és egy tervező, ami kevesebb csomagot szeret.',
+      'Leves plusz főétel minden napra megduplázta a hetet. Mostantól egy étkezés egy fogás, a leves választható, tizennégy egytálétel áll meg egymagában, a napi büdzsé beállítható, a tervező pedig kevesebb csomagra törekszik.',
     readingTimeMin: 4,
     contentEn: oneCourseEn,
     contentHu: oneCourseHu,

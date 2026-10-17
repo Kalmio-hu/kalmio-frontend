@@ -12,7 +12,7 @@ A bolt a Kalmióban nem egy logó, hanem három dolog együtt:
 - **árak** – naponta frissítve, akciós árral és az akció lejáratával együtt;
 - **átadás** – ha a bolt engedi, a listát egy koppintással a kosarába tesszük.
 
-Minden bolt külön sorban él ezekkel az adatokkal, és a tervező, a bevásárlólista meg a receptek költsége ugyanabból az egy forrásból dolgozik. Nincs kétféle ár ugyanarra a csirkemellre.
+Minden bolthoz külön tartoznak ezek az adatok, és a tervező, a bevásárlólista meg a receptek költsége ugyanabból az egy forrásból dolgozik. Nincs kétféle ár ugyanarra a csirkemellre.
 
 ## Miért nem keverünk boltokat
 

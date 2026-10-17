@@ -6,7 +6,7 @@ Egy heti terv a Kalmióban három különböző összeget tud mutatni, és egy i
 - **Amit a boltban leveszel a polcról.** A kel 300 grammos csomagban jön, a feta 200-asban. A különbözet a maradék, és a kasszánál ezt is kifizeted.
 - **Amit a kamra-alapok visznek.** Fűszer, olaj, ecet, só: egész üvegek, amik hónapokig kitartanak. Az első héten súlyosak, utána alig.
 
-Egy valódi hét nálunk így nézett ki: a receptek 24 000 forintot ettek, a maradék 17 000-et tett rá, a kamra-alapok további tízet. A kasszán 51 000 állt. A terv oldala pedig 24-et mondott.
+Egy valódi hét nálunk így nézett ki: a receptek 24 000 forintot tettek ki, a maradék 17 000-et tett rá, a kamra-alapok további tízet. A kasszán 51 000 állt. A terv oldala pedig 24-et mondott.
 
 ## Mi változott
 

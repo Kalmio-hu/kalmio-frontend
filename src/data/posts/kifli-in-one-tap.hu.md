@@ -1,6 +1,6 @@
 ## A lista, ami magától a kosárba megy
 
-A Kifli.hu az első bolt, ahol a Kalmio nem csak árakat mutat, hanem a bevásárlást is elindítja. Összekötöd a fiókodat, és a heti lista egy koppintással a Kifli kosaradban landol: minden sor a megfelelő termékkel, a kiszerelésnek megfelelő darabszámmal. A fizetés és a kiszállítás a Kiflinél marad, ahogy eddig is.
+A Kifli.hu az első bolt, ahol a Kalmio nem csak árakat mutat, hanem a bevásárlást is elindítja. Összekötöd a fiókodat, és a heti lista egy koppintással a Kifli-kosaradba kerül: minden sor a megfelelő termékkel, a kiszerelésnek megfelelő darabszámmal. A fizetés és a kiszállítás a Kiflinél marad, ahogy eddig is.
 
 ## Hogyan működik
 
@@ -12,10 +12,10 @@ Igen, a harmadik lépés egy kerülőút. A Kifli ma csak saját gépen futó al
 
 ## Mi kerül a kosárba
 
-A lista „kell még” mennyiségei, egész csomagokra kerekítve. Ha otthon van 250 g joghurt és a terv 300-at kér, a Kifli kosárba egy doboz megy, nem kettő. A kamra-alapokat (fűszer, olaj, ecet) is beletesszük, de a heti összegben külön soron látod őket: ezeket nem minden héten veszed újra.
+A lista „kell még” mennyiségei, egész csomagokra kerekítve. Ha otthon van 250 g joghurt és a terv 300-at kér, a Kifli-kosárba egy doboz kerül, nem kettő. A kamra-alapokat (fűszer, olaj, ecet) is beletesszük, de a heti összegben külön soron látod őket: ezeket nem minden héten veszed újra.
 
 Ami nincs a Kiflinél, azt a Kalmio kihagyja és megmondja, melyik sorokat. Nem találgatunk helyetted.
 
-## Mi az, amit nem csinálunk
+## Amit nem csinálunk
 
 Nem fizetünk a nevedben, és nem tárolunk bankkártyát. Nem olvassuk a rendelési előzményeidet. A Kifli-hozzáférést titkosítva tároljuk, és a Boltok alatt bármikor megszakítod.
