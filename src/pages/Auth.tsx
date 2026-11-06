@@ -8,6 +8,7 @@ import { Loader2, Fingerprint, Mail, CheckCircle2, ArrowLeft, ChevronDown } from
 import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '@/lib/supabase'
 import { buildSessionFromAccessToken, persistPasskeyToken } from '@/lib/passkeySession'
+import { externalReturnUrl, goToReturn } from '@/lib/returnTo'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -50,7 +51,8 @@ export function Auth() {
     && raw.startsWith('/')
     && !raw.startsWith('//')
     && !raw.startsWith('/auth')
-  const nextPath = isSafePath ? raw : '/app'
+  // …or a full URL into another Kalmio app (Kalmio Home), which gets the user back after sign-in.
+  const nextPath = isSafePath ? raw : (externalReturnUrl(raw) ?? '/app')
   // Carry `next` through redirect-based auth (OAuth, magic link) without putting it in
   // the callback URL — the Supabase redirect-URL allow-list uses exact entries, and a
   // query string could fail validation and break sign-in. Instead we stash the target
@@ -65,6 +67,12 @@ export function Auth() {
   }
   const isExpiredSession = searchParams.get('expired') === '1'
   const setSession = useAuthStore((s) => s.setSession)
+  const session = useAuthStore((s) => s.session)
+
+  // Already signed in (the session is shared across *.kalmio.hu): send the other app's user straight back.
+  useEffect(() => {
+    if (session && externalReturnUrl(nextPath)) goToReturn(navigate, nextPath)
+  }, [session, nextPath, navigate])
 
   const [step, setStep] = useState<Step>({ mode: 'home' })
   const [passkeyLoading, setPasskeyLoading] = useState(false)
@@ -144,7 +152,7 @@ export function Auth() {
     try {
       const result = await authenticateWithPasskeyDiscoverable()
       storeSessionFromToken(result.accessToken)
-      navigate(nextPath, { replace: true })
+      goToReturn(navigate, nextPath)
     } catch (err: unknown) {
       const name = err instanceof Error ? err.name : ''
       const msg = err instanceof Error ? err.message : ''
@@ -175,7 +183,7 @@ export function Auth() {
     try {
       const result = await authenticateWithPasskey(email)
       storeSessionFromToken(result.accessToken)
-      navigate(nextPath, { replace: true })
+      goToReturn(navigate, nextPath)
     } catch {
       setError(t('auth.passkeyError'))
     } finally {
@@ -275,7 +283,7 @@ export function Auth() {
     // Session is set by the Supabase onAuthStateChange listener that already
     // exists in the app shell — navigation happens via the existing auth callback.
     capture('signin_completed', { method: 'otp' })
-    navigate(nextPath, { replace: true })
+    goToReturn(navigate, nextPath)
   }
 
   const resendCode = async () => {
