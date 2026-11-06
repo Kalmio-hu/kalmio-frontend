@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
+import { sharedAuthStorage } from '@/lib/sharedAuthStorage'
 
 const STORAGE_KEY = 'kalmio-passkey-token'
 
@@ -24,25 +25,25 @@ export function buildSessionFromAccessToken(accessToken: string): Session {
 }
 
 export function persistPasskeyToken(accessToken: string): void {
-  localStorage.setItem(STORAGE_KEY, accessToken)
+  sharedAuthStorage.setItem(STORAGE_KEY, accessToken)
 }
 
 export function clearPasskeyToken(): void {
-  localStorage.removeItem(STORAGE_KEY)
+  sharedAuthStorage.removeItem(STORAGE_KEY)
 }
 
 export function restorePasskeySession(): Session | null {
-  const token = localStorage.getItem(STORAGE_KEY)
+  const token = sharedAuthStorage.getItem(STORAGE_KEY)
   if (!token) return null
   try {
     const payload = JSON.parse(atob(token.split('.')[1]))
     if ((payload.exp as number) <= Math.floor(Date.now() / 1000)) {
-      localStorage.removeItem(STORAGE_KEY)
+      sharedAuthStorage.removeItem(STORAGE_KEY)
       return null
     }
     return buildSessionFromAccessToken(token)
   } catch {
-    localStorage.removeItem(STORAGE_KEY)
+    sharedAuthStorage.removeItem(STORAGE_KEY)
     return null
   }
 }

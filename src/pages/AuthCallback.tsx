@@ -4,6 +4,7 @@ import { Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/auth'
 import { capture, identify, alias } from '@/lib/analytics'
+import { goToReturn } from '@/lib/returnTo'
 
 const POST_AUTH_NEXT_KEY = 'kalmio_post_auth_next'
 
@@ -52,7 +53,7 @@ export function AuthCallback() {
         try { dest = localStorage.getItem(POST_AUTH_NEXT_KEY) } catch { /* ignore */ }
       }
       try { localStorage.removeItem(POST_AUTH_NEXT_KEY) } catch { /* ignore */ }
-      navigate(dest || '/app', { replace: true })
+      goToReturn(navigate, dest || '/app')
     }
 
     run()
