@@ -166,6 +166,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/space/last": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Remember which space the caller used last (NUTRITION | MOVE) */
+        put: operations["setLastSpace"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ingredients/{id}": {
         parameters: {
             query?: never;
@@ -411,8 +428,42 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark all plans in a cart as shopped (atomic) */
+        /** Mark the cart shopped and move its lines into the fridge */
         post: operations["markShopped"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shopping-cart/{cartId}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an item by hand (catalog ingredient or free text) */
+        post: operations["addItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shopping-cart/{cartId}/handoff/{providerId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send the cart's to-buy lines into a connected retail partner's basket (user pays on the partner site) */
+        post: operations["handoff"];
         delete?: never;
         options?: never;
         head?: never;
@@ -428,7 +479,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Generate aggregated shopping cart across unshopped plans */
+        /** Generate the shopping cart for a plan's current cycle (replaces the open cart, keeps ticks) */
         post: operations["generate_1"];
         delete?: never;
         options?: never;
@@ -534,6 +585,40 @@ export interface paths {
          * @description Materializes from last_materialized_date + 1 through throughDate. Returns counts of planned_meal rows written and conflicts skipped.
          */
         post: operations["materialize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/retail/providers/{id}/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start linking the caller's partner account; returns the partner's authorize URL */
+        post: operations["connect"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/retail/providers/connect/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Finish linking: exchange the authorization code the partner redirected back with */
+        post: operations["connectCallback"];
         delete?: never;
         options?: never;
         head?: never;
@@ -820,6 +905,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/preferences/presets/{id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply a preset — writes meal slots / calorie split (timing) or macro split (style) */
+        post: operations["apply"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plans": {
         parameters: {
             query?: never;
@@ -906,40 +1008,6 @@ export interface paths {
          * @description Atomic swap of (day_index, meal_type, member_id) between two rows of the same plan. Used by the drag-and-drop editor when the drop target is already filled. Caller needs plan-member access.
          */
         post: operations["swapTemplateMeals"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/{planId}/shopping-list/items": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add an ad-hoc item to the shopping list */
-        post: operations["addAdHocItem"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/{planId}/shopping-list/generate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Generate (or replace) the persistent shopping list for a plan */
-        post: operations["generate_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1046,6 +1114,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/plans/{id}/replan-evaluate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Re-solve remaining meals and store the result as the pending proposal (204 when nothing changes) */
+        post: operations["replanEvaluate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/plans/{id}/replan-accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply a pending proposal by diffId */
+        post: operations["replanAccept"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/plans/{id}/copy": {
         parameters: {
             query?: never;
@@ -1118,87 +1220,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/plans/multi": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a multi-member meal plan */
-        post: operations["create_4"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["create_5"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}/replan-evaluate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["replanEvaluate"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}/replan-accept": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["replanAccept"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/empty": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["createEmpty"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/planned-meals/{plannedMealId}/explain": {
         parameters: {
             query?: never;
@@ -1233,26 +1254,6 @@ export interface paths {
          * @description Stricter version of PATCH /{id}/recipe. The target recipe MUST be in the same recipe_family as the current recipe, AND its derived diet_tier must be compatible with the caller's effectiveDietTier. Fires the MEAL_VARIANT_SWAPPED domain event on success.
          */
         post: operations["swapVariant"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plan-jobs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Enqueue an async meal-plan generation job
-         * @description Stores the request as a PENDING row in plan_jobs and returns the job id immediately. A PlanJobWorker thread picks the job up out-of-band and runs the Timefold solver; poll GET /api/plan-jobs/{jobId} for status.
-         */
-        post: operations["enqueue"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1529,6 +1530,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/media/{mediaId}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report a demonstration as wrong; three independent reports unpublish it */
+        post: operations["report"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/invites/{code}/merge-preview": {
         parameters: {
             query?: never;
@@ -1572,7 +1590,7 @@ export interface paths {
         get: operations["list_5"];
         put?: never;
         /** Create ingredient (admin: PUBLIC; user: PRIVATE) */
-        post: operations["create_6"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1730,46 +1748,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/fridge/from-receipt": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Parse receipt photo (premium)
-         * @description Sends receipt image to gpt-4o vision. Returns a preview of matched fridge items with default expiry. Nothing is persisted — call POST /api/fridge/from-receipt/confirm to save. Requires premium. Rate-limited to 2/min, 20/month.
-         */
-        post: operations["parseReceipt"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/fridge/from-receipt/confirm": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Confirm receipt parse preview (premium)
-         * @description Writes the confirmed receipt items to user_fridge_items with source=SHOPPING and category-defaulted expiry. Fires RECEIPT_CONFIRMED domain event. Returns the count of fridge items saved.
-         */
-        post: operations["confirmReceipt"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/fridge/batch": {
         parameters: {
             query?: never;
@@ -1896,7 +1874,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Submit a bug report or feedback */
-        post: operations["create_7"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1993,7 +1971,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["listInvites"];
         put?: never;
         post: operations["sendInvite"];
         delete?: never;
@@ -2072,6 +2050,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/users/{id}/revoke-founding-member": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke a user's Founding Member entitlement (admin-only)
+         * @description Clears users.founding_member, nulls founding_member_purchased_at, stamps the originating founding_member_payments row(s) revoked_at, and fires a FOUNDING_MEMBER_REVOKED domain event. Use this for a manual refund follow-up or a support-driven revoke. Idempotent: revoking a non-member / already-revoked user is a safe no-op. Returns 200 with { revoked } indicating whether an active entitlement was cleared. Auto-refund is NOT performed — issue the refund in the Barion dashboard.
+         */
+        post: operations["revokeFoundingMember"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/retail/providers/{id}/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start the partner catalogue sync in the background (Kifli only for now) */
+        post: operations["sync"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/retail/providers/{id}/refresh-prices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh partner prices now (Kifli only for now) */
+        post: operations["refreshPrices"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/retail/gvh/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start the GVH Árfigyelő sync in the background (prices for every GVH_* chain, then ingredient matching) */
+        post: operations["syncGvh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/recipes/{id}/reject": {
         parameters: {
             query?: never;
@@ -2117,6 +2166,57 @@ export interface paths {
         put?: never;
         /** Trigger a manual partner export (CSV or API mode) */
         post: operations["triggerExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/review/{mediaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve or reject one asset (REJECT needs a reasonCode) */
+        post: operations["verdict"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/exercises/{id}/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload one generated asset for an exercise (row starts PENDING; attempt is unique) */
+        post: operations["uploadMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/characters/{code}/sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload sheet view(s) for a character; bumps sheet_version and replaces sheet_urls */
+        post: operations["uploadSheet"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2257,7 +2357,7 @@ export interface paths {
         patch: operations["patchTemplatePrepSlot"];
         trace?: never;
     };
-    "/api/shopping-list-items/{id}/untick": {
+    "/api/shopping-cart/{cartId}/items/{itemId}/product": {
         parameters: {
             query?: never;
             header?: never;
@@ -2270,25 +2370,8 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Untick a shopping list item (put back) */
-        patch: operations["untick"];
-        trace?: never;
-    };
-    "/api/shopping-list-items/{id}/tick": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Tick off a shopping list item (mark as picked up) */
-        patch: operations["tick"];
+        /** Pin the line to one shelf product (null clears the pin); the line keeps that product across shop switches */
+        patch: operations["setLineProduct"];
         trace?: never;
     };
     "/api/shopping-cart/items/{itemId}": {
@@ -2301,10 +2384,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** Remove a line */
+        delete: operations["deleteItem"];
         options?: never;
         head?: never;
-        /** Toggle the bought flag on a shopping cart line item */
+        /** Tick or untick a line */
         patch: operations["toggleItem"];
         trace?: never;
     };
@@ -2334,6 +2418,23 @@ export interface paths {
          * @description Patches name, planIds, cadenceDays, startDate, or endDate. Only non-null fields are applied.
          */
         patch: operations["update_2"];
+        trace?: never;
+    };
+    "/api/retail/providers/{id}/preference": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Switch a provider on or off for the caller (cart pricing honours it) */
+        patch: operations["updatePreference"];
         trace?: never;
     };
     "/api/recipe-families/{id}": {
@@ -2467,38 +2568,6 @@ export interface paths {
         patch: operations["updateMembers"];
         trace?: never;
     };
-    "/api/plans/calendar/{id}/meals/{plannedMealId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["updateMealStatus"];
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}/meals/{plannedMealId}/scheduled-time": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations["updateMealScheduledTime"];
-        trace?: never;
-    };
     "/api/planned-meals/{id}/status": {
         parameters: {
             query?: never;
@@ -2517,6 +2586,26 @@ export interface paths {
          * @description Sets the status to PLANNED, EATEN, SKIPPED, or REPLACED. When status is set to EATEN, eatenAt is recorded automatically. Requires schedule ownership or PLANNER role, or being the member whose meal this is.
          */
         patch: operations["updateStatus_1"];
+        trace?: never;
+    };
+    "/api/planned-meals/{id}/scheduled-time": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Set or clear the clock time of a planned meal
+         * @description Null clears the time. Same authorisation as the status update.
+         */
+        patch: operations["updateScheduledTime_1"];
         trace?: never;
     };
     "/api/planned-meals/{id}/recipe": {
@@ -2657,6 +2746,40 @@ export interface paths {
          * @description Sets app_users.premium_enabled to the supplied value and fires a PREMIUM_TOGGLED domain event. Use this to grant or revoke friends-and-family premium access. Returns the updated admin user record including the new premiumEnabled value. KALMIO-179 — E11.0.
          */
         patch: operations["togglePremiumEnabled"];
+        trace?: never;
+    };
+    "/api/admin/retail/providers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Switch a retail provider on or off globally */
+        patch: operations["setActive"];
+        trace?: never;
+    };
+    "/api/admin/move/exercises/{id}/shot-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Replace the shot card and/or its status; a changed card bumps the version */
+        patch: operations["patchShotCard"];
         trace?: never;
     };
     "/api/admin/feedback/{id}/status": {
@@ -2897,6 +3020,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/shopping-cart/{cartId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A shopping cart by id */
+        get: operations["getById_2"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shopping-cart/{cartId}/price-comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What this cart costs at every shop with prices, in whole packs (ignores the caller's shop switches) */
+        get: operations["priceComparison"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shopping-cart/{cartId}/items/{itemId}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The line's ingredient at every active shop: best pack, packs needed, cost; which one prices the line now */
+        get: operations["lineOffers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/shopping-cart/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's open shopping cart (404 when none) */
+        get: operations["current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/schedules/{id}/template-drift": {
         parameters: {
             query?: never;
@@ -2944,7 +3135,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List all retail providers */
+        /** List retail providers with the caller's own switch and connection state */
         get: operations["listProviders"];
         put?: never;
         post?: never;
@@ -2961,7 +3152,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get a retail provider by id */
+        /** Get a retail provider by ID */
         get: operations["getProvider"];
         put?: never;
         post?: never;
@@ -3044,14 +3235,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/points/me": {
+    "/api/preferences/presets": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getMyPoints"];
+        /** List eating-pattern presets (timing and style) with the user's active ones flagged */
+        get: operations["list_7"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3060,15 +3252,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/plans/{planId}/shopping-list": {
+    "/api/points/me": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get the persistent shopping list for a plan (grouped by category) */
-        get: operations["getForPlan"];
+        get: operations["getMyPoints"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3140,7 +3331,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get pending replan suggestions for planner review */
+        /** Pending household-scope replan suggestions for planner review */
         get: operations["getPendingSuggestions"];
         put?: never;
         post?: never;
@@ -3150,79 +3341,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/plans/{id}/details": {
+    "/api/plans/{id}/replan-diff": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get plan details with full membership */
-        get: operations["getDetails"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List plans visible to the caller */
-        get: operations["list_7"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getById_2"];
-        put?: never;
-        post?: never;
-        delete: operations["delete_4"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}/shopping-list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["shoppingList"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plans/calendar/{id}/replan-diff": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
+        /** The pending replan proposal for the plan (204 when none) */
         get: operations["getReplanDiff"];
         put?: never;
         post?: never;
@@ -3232,13 +3358,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/plans/calendar/active": {
+    "/api/plans/active": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
+        /** The caller's most recent ACTIVE plan with its planned meals */
         get: operations["getActive"];
         put?: never;
         post?: never;
@@ -3260,26 +3387,6 @@ export interface paths {
          * @description Returns all planned_meal rows visible to the authenticated user within the inclusive date range. Supply 'memberId' to filter to a single family member (requires schedule ownership or PLANNER role).
          */
         get: operations["list_8"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/plan-jobs/{jobId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the status of an enqueued meal-plan job
-         * @description Returns the current status, queue position (if PENDING), and result (if DONE).
-         */
-        get: operations["getStatus"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3322,6 +3429,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Gate, active spaces, last space and register for the caller */
+        get: operations["status"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/characters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active demonstrator characters ("bemutató"), with their sheet urls */
+        get: operations["characters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/me/impersonation-permission-requests/pending": {
         parameters: {
             query?: never;
@@ -3354,6 +3495,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ingredients/substitutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every cost-saver and form substitution rule (ingredient_substitution), with names in the caller's language */
+        get: operations["substitutions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ingredients/mine": {
         parameters: {
             query?: never;
@@ -3363,6 +3521,26 @@ export interface paths {
         };
         /** Get current user's own ingredients (all visibility states) */
         get: operations["findMine_1"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/grove/pins": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Grove pins
+         * @description All graduated users as tree pins with initials and a stable map position.
+         */
+        get: operations["pins"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3531,6 +3709,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/families/mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMyFamily"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dashboard": {
         parameters: {
             query?: never;
@@ -3615,6 +3809,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/retail/providers/{id}/sync-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last catalogue sync report */
+        get: operations["syncStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/retail/gvh/sync-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Last GVH Árfigyelő sync report */
+        get: operations["gvhSyncStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/recipes/pending": {
         parameters: {
             query?: never;
@@ -3624,6 +3852,74 @@ export interface paths {
         };
         /** List all recipes pending admin review */
         get: operations["listPendingRecipes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Library and review counters */
+        get: operations["stats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/review/queue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review queue: one asset beside its shot card, with running counts */
+        get: operations["queue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exercises, optionally by pack and shot-card status */
+        get: operations["exercises"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/move/exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One exercise with its shot card and every media row */
+        get: operations["exercise"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3735,7 +4031,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/shopping-list-items/{id}": {
+    "/api/retail/providers/{id}/connection": {
         parameters: {
             query?: never;
             header?: never;
@@ -3745,8 +4041,8 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete a shopping list item */
-        delete: operations["deleteItem"];
+        /** Unlink the caller's partner account */
+        delete: operations["disconnect"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3763,7 +4059,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete a registered passkey */
-        delete: operations["delete_5"];
+        delete: operations["delete_4"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3780,6 +4076,22 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["removeMember"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/families/{id}/invites/{inviteId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["revokeInvite"];
         options?: never;
         head?: never;
         patch?: never;
@@ -3882,6 +4194,8 @@ export interface components {
             carbsTargetG?: number;
             /** Format: int32 */
             fatTargetG?: number;
+            twoCourseMealTypes?: string[];
+            costSaverSubstitutions?: boolean;
         };
         OnboardingChatDraftDto: {
             /** Format: int32 */
@@ -4018,6 +4332,12 @@ export interface components {
             /** Format: int32 */
             passivePrepMinutes?: number;
             garnish?: string;
+            /** @enum {string} */
+            role?: "COMPLETE" | "MAIN" | "SIDE" | "SOUP" | "CONDIMENT";
+            plateProtein?: boolean;
+            plateStarch?: boolean;
+            plateVegetable?: boolean;
+            pairsBadlyWith?: string[];
         };
         IngredientRef: {
             /** Format: uuid */
@@ -4038,6 +4358,14 @@ export interface components {
             fat?: number;
             carbs?: number;
             fiber?: number;
+        };
+        PlateResponse: {
+            protein?: boolean;
+            starch?: boolean;
+            vegetable?: boolean;
+            proteinOverride?: boolean;
+            starchOverride?: boolean;
+            vegetableOverride?: boolean;
         };
         RecipeResponse: {
             /** Format: uuid */
@@ -4080,6 +4408,9 @@ export interface components {
             variantLabel?: string;
             dietTier?: string;
             siblings?: components["schemas"]["SiblingResponse"][];
+            role?: string;
+            plate?: components["schemas"]["PlateResponse"];
+            pairsBadlyWith?: string[];
         };
         SiblingResponse: {
             /** Format: uuid */
@@ -4113,6 +4444,7 @@ export interface components {
             /** Format: uuid */
             offPlanMealTemplateId?: string;
             servings?: number;
+            course?: string;
         };
         TemplateMealResponse: {
             /** Format: uuid */
@@ -4130,6 +4462,17 @@ export interface components {
             offPlanMealTemplateId?: string;
             servings?: number;
             source?: string;
+            course?: string;
+        };
+        LastSpaceRequest: {
+            space: string;
+        };
+        MoveStatus: {
+            enabled?: boolean;
+            spaceActive?: boolean;
+            nutritionActive?: boolean;
+            lastSpace?: string;
+            register?: string;
         };
         ConstraintsRequest: {
             vegetarian?: boolean;
@@ -4316,27 +4659,102 @@ export interface components {
             /** Format: uuid */
             ingredientId?: string;
             ingredientName?: string;
+            source?: string;
+            shoppingCategory?: string;
+            /** @enum {string} */
+            ingredientCategory?: "PROTEIN" | "CARB" | "FAT" | "VEGGIE" | "SPICE";
+            pantryItem?: boolean;
+            requiredAmount?: number;
+            fridgeAmount?: number;
             totalAmount?: number;
             unit?: string;
             bought?: boolean;
             sourcePlanIds?: string[];
             estimatedCost?: number;
+            retailProduct?: components["schemas"]["RetailProductInfo"];
+            /** Format: uuid */
+            substitutedFromIngredientId?: string;
+            substitutedFromName?: string;
+            /** Format: uuid */
+            preferredProductId?: string;
+        };
+        RetailProductInfo: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            brand?: string;
+            price?: number;
+            packageSize?: number;
+            unit?: string;
+            remoteUrl?: string;
+            packagesNeeded?: number;
+            packageCost?: number;
+            leftoverAmount?: number;
+            leftoverCost?: number;
+            /** Format: uuid */
+            providerId?: string;
+            providerName?: string;
+            providerCode?: string;
+            externalProductId?: string;
+            listPrice?: number;
+            /** Format: date-time */
+            saleValidTill?: string;
         };
         ShoppingCartResponse: {
             /** Format: uuid */
             cartId?: string;
+            /** Format: uuid */
+            planId?: string;
             planIds?: string[];
             /** Format: date */
             windowStart?: string;
             /** Format: date */
             windowEnd?: string;
+            /** Format: date-time */
+            generatedAt?: string;
+            /** Format: date-time */
+            shoppedAt?: string;
             lineItems?: components["schemas"]["CartLineItemResponse"][];
             /** Format: int32 */
             fridgeItemsAdded?: number;
             totalCost?: number;
+            totalLeftoverCost?: number;
+            pantryCost?: number;
+            totalPackCost?: number;
+            /** Format: int32 */
+            pricingProviderCount?: number;
             currency?: string;
         };
+        AddCartItemRequest: {
+            /** Format: uuid */
+            ingredientId?: string;
+            adhocName?: string;
+            amount?: number;
+            unit?: string;
+        };
+        Line: {
+            /** Format: uuid */
+            lineItemId?: string;
+            name?: string;
+            productName?: string;
+            /** Format: int32 */
+            quantity?: number;
+            reason?: string;
+        };
+        RetailHandoffResponse: {
+            /** Format: uuid */
+            providerId?: string;
+            providerCode?: string;
+            providerName?: string;
+            toolName?: string;
+            sent?: components["schemas"]["Line"][];
+            failed?: components["schemas"]["Line"][];
+            skipped?: components["schemas"]["Line"][];
+            cartUrl?: string;
+        };
         GenerateCartRequest: {
+            /** Format: uuid */
+            planId?: string;
             /** Format: date */
             windowStart?: string;
             /** Format: date */
@@ -4353,6 +4771,8 @@ export interface components {
             endDate?: string;
             /** Format: uuid */
             familyId?: string;
+            /** @enum {string} */
+            recurringMode?: "DUPLICATE" | "SOLVER";
         };
         ScheduleResponse: {
             /** Format: uuid */
@@ -4370,6 +4790,7 @@ export interface components {
             /** Format: date */
             endDate?: string;
             status?: string;
+            recurringMode?: string;
             /** Format: date */
             lastMaterializedDate?: string;
             /** Format: date-time */
@@ -4394,6 +4815,23 @@ export interface components {
             conflictsSkipped?: number;
             /** Format: date */
             lastMaterializedDate?: string;
+        };
+        ConnectStart: {
+            authorizeUrl?: string;
+            redirectUri?: string;
+            providerCode?: string;
+        };
+        ConnectCallbackRequest: {
+            code: string;
+            state: string;
+        };
+        ConnectionStatus: {
+            /** Format: uuid */
+            providerId?: string;
+            providerCode?: string;
+            connected?: boolean;
+            /** Format: date-time */
+            connectedAt?: string;
         };
         CreateRetailProductRequest: {
             /** Format: uuid */
@@ -4421,6 +4859,12 @@ export interface components {
             ingredients: components["schemas"]["RecipeIngredientRequest"][];
             tags?: ("QUICK" | "CHEAP" | "MEALPREP" | "HIGH_PROTEIN" | "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "HEALTHY" | "VEGETARIAN" | "VEGAN" | "COMFORT" | "KID_FRIENDLY")[];
             garnish?: string;
+            /** @enum {string} */
+            role?: "COMPLETE" | "MAIN" | "SIDE" | "SOUP" | "CONDIMENT";
+            plateProtein?: boolean;
+            plateStarch?: boolean;
+            plateVegetable?: boolean;
+            pairsBadlyWith?: string[];
         };
         AiCookModeRequest: {
             question: string;
@@ -4495,6 +4939,18 @@ export interface components {
             variantLabel?: string;
             /** @enum {string} */
             dietTier?: "VEGAN" | "VEGETARIAN" | "PESCATARIAN" | "OMNIVORE";
+            composition?: components["schemas"]["RecipeComposition"];
+        };
+        RecipeComposition: {
+            /** @enum {string} */
+            role?: "COMPLETE" | "MAIN" | "SIDE" | "SOUP" | "CONDIMENT";
+            plateProteinOverride?: boolean;
+            plateStarchOverride?: boolean;
+            plateVegetableOverride?: boolean;
+            plateProteinDerived?: boolean;
+            plateStarchDerived?: boolean;
+            plateVegetableDerived?: boolean;
+            pairsBadlyWith?: string[];
         };
         RecipeImportPreview: {
             recipe?: components["schemas"]["Recipe"];
@@ -4638,6 +5094,7 @@ export interface components {
             /** Format: date-time */
             archivedAt?: string;
             isDefault?: boolean;
+            coPlannerIds?: string[];
         };
         CreateTemplatePrepSlotRequest: {
             /** Format: uuid */
@@ -4654,40 +5111,6 @@ export interface components {
             firstId: string;
             /** Format: uuid */
             secondId: string;
-        };
-        AdHocShoppingListItemRequest: {
-            /** Format: uuid */
-            ingredientId?: string;
-            adhocName?: string;
-            amount?: number;
-            unit?: string;
-        };
-        ItemResponse: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            ingredientId?: string;
-            name?: string;
-            amount?: number;
-            unit?: string;
-            source?: string;
-            /** Format: date-time */
-            tickedAt?: string;
-        };
-        CategoryGroup: {
-            /** @enum {string} */
-            category?: "PRODUCE" | "BAKERY" | "DAIRY" | "MEAT" | "FISH" | "DELI" | "FROZEN" | "PANTRY" | "CANNED" | "CONDIMENTS" | "BEVERAGES" | "SNACKS" | "HOUSEHOLD" | "PERSONAL_CARE" | "OTHER";
-            categoryDisplayKey?: string;
-            items?: components["schemas"]["ItemResponse"][];
-        };
-        PersistentShoppingListResponse: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            planId?: string;
-            /** Format: date-time */
-            generatedAt?: string;
-            groups?: components["schemas"]["CategoryGroup"][];
         };
         AiPlanEditRequest: {
             message: string;
@@ -4747,6 +5170,26 @@ export interface components {
             costDelta?: number;
             narrative?: string[];
             wastedMeals?: components["schemas"]["WastedMeal"][];
+            pillar?: string;
+            reason?: string;
+            sessionChanges?: components["schemas"]["SessionChange"][];
+            movement?: boolean;
+        };
+        SessionChange: {
+            /** Format: uuid */
+            sessionId?: string;
+            /** Format: date */
+            oldDate?: string;
+            /** Format: date */
+            newDate?: string;
+            modalityCode?: string;
+            role?: string;
+            intensity?: string;
+            /** Format: int32 */
+            oldDurationMin?: number;
+            /** Format: int32 */
+            newDurationMin?: number;
+            changeType?: string;
         };
         WastedMeal: {
             /** Format: uuid */
@@ -4772,6 +5215,8 @@ export interface components {
             isBatchCookLeftover?: boolean;
             /** Format: uuid */
             memberId?: string;
+            /** @enum {string} */
+            course?: "SOUP" | "MAIN" | "SIDE" | "CONDIMENT";
         };
         MealPlanResponse: {
             /** Format: uuid */
@@ -4799,6 +5244,8 @@ export interface components {
             cadenceDays?: number;
             /** Format: date */
             endDate?: string;
+            /** @enum {string} */
+            recurringMode?: "DUPLICATE" | "SOLVER";
         };
         RunPlanRequest: {
             /** Format: date */
@@ -4813,30 +5260,26 @@ export interface components {
             rowsWritten?: number;
             onceMode?: boolean;
         };
-        CopyPlanRequest: {
-            name?: string;
+        ReplanAcceptRequest: {
+            /** Format: uuid */
+            diffId: string;
         };
-        MultiMemberPlanResponse: {
+        PlanResponse: {
             /** Format: uuid */
             id?: string;
-            name?: string;
             /** Format: uuid */
-            plannerId?: string;
-            memberIds?: string[];
-            coPlannerIds?: string[];
+            userId?: string;
             /** Format: date */
             startDate?: string;
             /** Format: date */
             endDate?: string;
-            /** Format: int32 */
-            durationDays?: number;
-            mealSlotsCovered?: string[];
             status?: string;
-            /** Format: date-time */
-            shoppedAt?: string;
+            /** Format: int32 */
+            shoppingCycleDays?: number;
             /** Format: date-time */
             createdAt?: string;
             meals?: components["schemas"]["PlannedMealResponse"][];
+            recipeFilter?: components["schemas"]["RecipeFilterRequest"];
         };
         PlannedMealResponse: {
             /** Format: uuid */
@@ -4860,6 +5303,16 @@ export interface components {
             isBatchCookLeftover?: boolean;
             /** Format: uuid */
             memberId?: string;
+            course?: string;
+        };
+        RecipeFilterRequest: {
+            ownOnly?: boolean;
+            tags?: string[];
+            culturalTags?: string[];
+            empty?: boolean;
+        };
+        CopyPlanRequest: {
+            name?: string;
         };
         ReplanSuggestionResponse: {
             /** Format: uuid */
@@ -4869,7 +5322,7 @@ export interface components {
             /** Format: uuid */
             triggeredByEventId?: string;
             scope?: string;
-            diff?: unknown;
+            diff?: components["schemas"]["ReplanDiffResponse"];
             status?: string;
             /** Format: date-time */
             createdAt?: string;
@@ -4877,166 +5330,9 @@ export interface components {
             actionedAt?: string;
             /** Format: uuid */
             actionedBy?: string;
-        };
-        CreateMultiMemberPlanRequest: {
-            memberIds: string[];
-            /** Format: date */
-            startDate: string;
-            /** Format: int32 */
-            durationDays?: number;
-            mealSlotsCovered: string[];
-            name?: string;
-        };
-        ConstraintWeightsRequest: {
-            /** Format: int32 */
-            leftovers?: number;
-            /** Format: int32 */
-            budget?: number;
-            /** Format: int32 */
-            prepTime?: number;
-            /** Format: int32 */
-            recipeRepeat?: number;
-        };
-        CreatePlanRequest: {
-            /** Format: date */
-            startDate: string;
-            /** Format: int32 */
-            cycleDays?: number;
-            constraints: components["schemas"]["GenerateMealPlanRequest"];
+            pillar?: string;
             /** Format: uuid */
-            groomingSessionId?: string;
-            recipeFilter?: components["schemas"]["RecipeFilterRequest"];
-        };
-        FridgeItemForSolver: {
-            /** Format: uuid */
-            ingredientId?: string;
-            availableAmount?: number;
-            /** @enum {string} */
-            unit?: "G" | "ML" | "PIECE";
-            estimatedValue?: number;
-            isPantryItem?: boolean;
-        };
-        GenerateMealPlanRequest: {
-            /** Format: int32 */
-            days?: number;
-            selectedMeals: string[];
-            constraints: components["schemas"]["MealPlanConstraintsRequest"];
-            servingConfig?: components["schemas"]["MealPlanServingConfigRequest"];
-        };
-        MealPlanConstraintsRequest: {
-            kcalTarget: number;
-            proteinTarget?: number;
-            budgetMax?: number;
-            /** Format: int32 */
-            prepTimeMax?: number;
-            forbiddenIngredientIds?: string[];
-            /** Format: int32 */
-            maxRecipeRepetitions?: number;
-            constraintWeights?: components["schemas"]["ConstraintWeightsRequest"];
-            mealCalorieTargets?: {
-                [key: string]: number;
-            };
-            fridgeIngredientIds?: string[];
-            dietaryRestrictions?: string[];
-            slotPreferences?: components["schemas"]["SlotPreference"][];
-            fridgeItemsForSolver?: components["schemas"]["FridgeItemForSolver"][];
-            /** Format: int32 */
-            carbsTargetG?: number;
-            /** Format: int32 */
-            fatTargetG?: number;
-            memberProfiles?: components["schemas"]["PlanMember"][];
-            constraintWeightsSumValid?: boolean;
-        };
-        MealPlanServingConfigRequest: {
-            minMultiplier: number;
-            maxMultiplier: number;
-            step: number;
-        };
-        PlanMember: {
-            /** Format: uuid */
-            memberId?: string;
-            displayName?: string;
-            preferences?: components["schemas"]["UserPreferences"];
-            isPlanner?: boolean;
-        };
-        RecipeFilterRequest: {
-            ownOnly?: boolean;
-            tags?: string[];
-            culturalTags?: string[];
-            empty?: boolean;
-        };
-        SlotPreference: {
-            /** Format: int32 */
-            day?: number;
-            /** @enum {string} */
-            mealType?: "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SNACK" | "EVENING_SNACK";
-            /** Format: uuid */
-            preferredRecipeId?: string;
-            /** Format: int32 */
-            priority?: number;
-        };
-        UserPreferences: {
-            /** Format: uuid */
-            userId?: string;
-            allergens?: string[];
-            dislikedIngredientIds?: string[];
-            vegetarian?: boolean;
-            vegan?: boolean;
-            pescatarian?: boolean;
-            glutenFree?: boolean;
-            dairyFree?: boolean;
-            lactoseFree?: boolean;
-            milkProteinFree?: boolean;
-            eggFree?: boolean;
-            nutFree?: boolean;
-            peanutFree?: boolean;
-            soyFree?: boolean;
-            fishFree?: boolean;
-            shellfishFree?: boolean;
-            sesameFree?: boolean;
-            halal?: boolean;
-            kosher?: boolean;
-            keto?: boolean;
-            lowGi?: boolean;
-            lowFodmap?: boolean;
-            paleo?: boolean;
-            kcalTarget?: number;
-            proteinTargetG?: number;
-            /** Format: int32 */
-            carbsTargetG?: number;
-            /** Format: int32 */
-            fatTargetG?: number;
-            portionSizeMultiplier?: number;
-            /** Format: int32 */
-            prepToleranceMinutes?: number;
-        };
-        PlanResponse: {
-            /** Format: uuid */
-            id?: string;
-            /** Format: uuid */
-            userId?: string;
-            /** Format: date */
-            startDate?: string;
-            /** Format: date */
-            endDate?: string;
-            status?: string;
-            /** Format: int32 */
-            shoppingCycleDays?: number;
-            /** Format: date-time */
-            createdAt?: string;
-            meals?: components["schemas"]["PlannedMealResponse"][];
-            recipeFilter?: components["schemas"]["RecipeFilterRequest"];
-        };
-        ReplanAcceptRequest: {
-            /** Format: uuid */
-            diffId: string;
-        };
-        CreateEmptyPlanRequest: {
-            /** Format: date */
-            startDate: string;
-            /** Format: int32 */
-            days?: number;
-            selectedMeals?: string[];
+            ownerUserId?: string;
         };
         MealRationaleResponse: {
             /** Format: uuid */
@@ -5074,6 +5370,7 @@ export interface components {
             /** Format: date-time */
             eatenAt?: string;
             servings?: number;
+            course?: string;
         };
         RegisterStartRequest: {
             friendlyName?: string;
@@ -5205,6 +5502,17 @@ export interface components {
         PermissionOutcomeRequest: {
             outcome: string;
         };
+        MediaReportRequest: {
+            note?: string;
+        };
+        MediaReportResponse: {
+            /** Format: uuid */
+            mediaId?: string;
+            /** Format: int32 */
+            reportCount?: number;
+            unpublished?: boolean;
+            alreadyReported?: boolean;
+        };
         MacroMergeResultDto: {
             kcalTargetSource?: string;
             proteinTargetSource?: string;
@@ -5219,6 +5527,10 @@ export interface components {
         };
         AcceptInviteRequest: {
             claim?: boolean;
+        };
+        AcceptInviteResponse: {
+            /** Format: uuid */
+            familyId?: string;
         };
         CreateIngredientRequest: {
             name: string;
@@ -5313,30 +5625,6 @@ export interface components {
             /** Format: date */
             expiryDate?: string;
         };
-        ReceiptParsePreview: {
-            retailer?: string;
-            items?: components["schemas"]["ReceiptPreviewItem"][];
-            unrecognizedLines?: string[];
-        };
-        ReceiptPreviewItem: {
-            rawText?: string;
-            /** Format: uuid */
-            ingredientId?: string;
-            ingredientName?: string;
-            quantity?: number;
-            /** @enum {string} */
-            unit?: "G" | "ML" | "PIECE";
-            /** Format: double */
-            confidence?: number;
-            /** @enum {string} */
-            category?: "PROTEIN" | "CARB" | "FAT" | "VEGGIE" | "SPICE";
-            /** Format: date */
-            defaultExpiry?: string;
-        };
-        ReceiptConfirmRequest: {
-            retailer?: string;
-            items: components["schemas"]["ReceiptPreviewItem"][];
-        };
         /** @description Claim a settled guest Founding Member payment for the authenticated user */
         FoundingMemberClaimRequest: {
             /**
@@ -5345,6 +5633,8 @@ export interface components {
              */
             paymentId: string;
         };
+        /** @description Billing address for the NAV e-invoice (számlázási név + cím) */
+        BillingInfoRequest: null;
         /** @description Initiate a Founding Member checkout session */
         FoundingMemberCheckoutRequest: {
             /**
@@ -5352,6 +5642,8 @@ export interface components {
              * @example https://kalmio.hu/founding-member/success
              */
             redirectUrl: string;
+            /** @description Billing address for the NAV e-invoice (számlázási név + cím) */
+            billingInfo?: components["schemas"]["BillingInfoRequest"];
         };
         /** @description Barion checkout session details */
         FoundingMemberCheckoutResponse: {
@@ -5379,6 +5671,8 @@ export interface components {
              * @example https://kalmio.hu/founding-member/success
              */
             redirectUrl: string;
+            /** @description Billing address for the NAV e-invoice (számlázási név + cím) */
+            billingInfo: components["schemas"]["BillingInfoRequest"];
         };
         CreateFeedbackRequest: {
             type: string;
@@ -5497,6 +5791,95 @@ export interface components {
             observationEn?: string;
             proposedPlanEditIntent?: string;
         };
+        RevokeFoundingMemberResponse: {
+            /** Format: uuid */
+            userId?: string;
+            revoked?: boolean;
+        };
+        ReviewVerdictRequest: {
+            verdict?: string;
+            reasonCode?: string;
+            note?: string;
+        };
+        MediaDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            exerciseId?: string;
+            characterCode?: string;
+            mediaType?: string;
+            style?: string;
+            url?: string;
+            /** Format: int32 */
+            width?: number;
+            /** Format: int32 */
+            height?: number;
+            /** Format: int32 */
+            bytes?: number;
+            /** Format: int32 */
+            shotCardVersion?: number;
+            aiGenerated?: boolean;
+            provider?: string;
+            model?: string;
+            promptHash?: string;
+            /** Format: int32 */
+            attempt?: number;
+            generationCostUsd?: number;
+            reviewStatus?: string;
+            /** Format: date-time */
+            reviewedAt?: string;
+            reasonCode?: string;
+            reviewNote?: string;
+            /** Format: int32 */
+            reportCount?: number;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        CharacterDto: {
+            code?: string;
+            firstName?: string;
+            ageBand?: string;
+            build?: string;
+            outfit?: string;
+            palette?: components["schemas"]["JsonNode"];
+            style?: string;
+            /** Format: int32 */
+            sheetVersion?: number;
+            sheetUrls?: string[];
+            forChildren?: boolean;
+            register?: string;
+            /** Format: int32 */
+            sortOrder?: number;
+            aiGenerated?: boolean;
+        };
+        JsonNode: {
+            int?: boolean;
+            long?: boolean;
+            pojo?: boolean;
+            /** @enum {string} */
+            nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
+            short?: boolean;
+            double?: boolean;
+            bigDecimal?: boolean;
+            bigInteger?: boolean;
+            valueNode?: boolean;
+            missingNode?: boolean;
+            object?: boolean;
+            /** @deprecated */
+            textual?: boolean;
+            boolean?: boolean;
+            binary?: boolean;
+            integralNumber?: boolean;
+            floatingPointNumber?: boolean;
+            container?: boolean;
+            string?: boolean;
+            number?: boolean;
+            array?: boolean;
+            empty?: boolean;
+            null?: boolean;
+            float?: boolean;
+            embeddedValue?: boolean;
+        };
         ImpersonationTokenResponse: {
             accessToken?: string;
             userId?: string;
@@ -5534,6 +5917,10 @@ export interface components {
             servingsToMake?: number;
             servingsToFreeze?: number;
         };
+        SetCartLineProductRequest: {
+            /** Format: uuid */
+            productId?: string;
+        };
         ToggleItemRequest: {
             bought: boolean;
         };
@@ -5546,6 +5933,28 @@ export interface components {
             startDate?: string;
             /** Format: date */
             endDate?: string;
+            /** @enum {string} */
+            recurringMode?: "DUPLICATE" | "SOLVER";
+        };
+        UpdateRetailProviderPreferenceRequest: {
+            enabled: boolean;
+        };
+        RetailProviderResponse: {
+            /** Format: uuid */
+            id?: string;
+            name?: string;
+            code?: string;
+            country?: string;
+            currency?: string;
+            baseUrl?: string;
+            active?: boolean;
+            handoffType?: string;
+            cartUrl?: string;
+            searchUrlTemplate?: string;
+            enabled?: boolean;
+            connected?: boolean;
+            /** Format: int64 */
+            productCount?: number;
         };
         UpdateRecipeFamilyRequest: {
             name?: string;
@@ -5581,14 +5990,6 @@ export interface components {
             addUserIds?: string[];
             removeUserIds?: string[];
         };
-        UpdatePlannedMealRequest: {
-            /** @enum {string} */
-            status?: "PLANNED" | "EATEN" | "SKIPPED" | "REPLACED";
-            /** Format: uuid */
-            replacedWithRecipeId?: string;
-            notes?: string;
-            servingMultiplier?: number;
-        };
         UpdatePlannedMealStatusRequest: {
             status: string;
         };
@@ -5615,6 +6016,70 @@ export interface components {
         };
         TogglePremiumEnabledRequest: {
             enabled: boolean;
+        };
+        UpdateRetailProviderRequest: {
+            active: boolean;
+        };
+        ShotCardPatchRequest: {
+            shotCard?: components["schemas"]["JsonNode"];
+            status?: string;
+        };
+        ExerciseDetailDto: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            packCode?: string;
+            kind?: string;
+            nameHu?: string;
+            nameEn?: string;
+            aliases?: string[];
+            pattern?: string;
+            primaryMuscles?: string[];
+            secondaryMuscles?: string[];
+            equipment?: string[];
+            loadType?: string;
+            position?: string;
+            /** Format: int32 */
+            difficultyRung?: number;
+            ladderCode?: string;
+            /** Format: int32 */
+            ladderRung?: number;
+            variantGroup?: string;
+            familyCode?: string;
+            /** Format: int32 */
+            familyRung?: number;
+            contraindicationTags?: string[];
+            impact?: string;
+            space?: string;
+            noise?: string;
+            minLevel?: string;
+            maxLevel?: string;
+            /** Format: int32 */
+            repMin?: number;
+            /** Format: int32 */
+            repMax?: number;
+            /** Format: int32 */
+            restSeconds?: number;
+            /** Format: int32 */
+            unitSeconds?: number;
+            tempo?: string;
+            cuesHu?: string[];
+            cuesFormalHu?: string[];
+            commonFaultsHu?: string[];
+            stopRuleHu?: string;
+            garminCategory?: string;
+            garminName?: string;
+            riskClass?: string;
+            /** Format: int32 */
+            ageMin?: number;
+            /** Format: int32 */
+            ageMax?: number;
+            shotCard?: components["schemas"]["JsonNode"];
+            /** Format: int32 */
+            shotCardVersion?: number;
+            shotCardStatus?: string;
+            published?: boolean;
+            media?: components["schemas"]["MediaDto"][];
         };
         UpdateFeedbackStatusRequest: {
             status: string;
@@ -5730,6 +6195,37 @@ export interface components {
             /** Format: date-time */
             lastUsedAt?: string;
         };
+        CartPriceComparisonResponse: {
+            /** Format: uuid */
+            cartId?: string;
+            /** Format: int32 */
+            lines?: number;
+            currency?: string;
+            providers?: components["schemas"]["ProviderTotal"][];
+        };
+        ProviderTotal: {
+            /** Format: uuid */
+            providerId?: string;
+            code?: string;
+            name?: string;
+            enabled?: boolean;
+            handoff?: boolean;
+            /** Format: int32 */
+            pricedLines?: number;
+            packTotal?: number;
+            sameLinesAtCurrent?: number;
+            missing?: string[];
+        };
+        CartLineOfferResponse: {
+            /** Format: uuid */
+            providerId?: string;
+            providerName?: string;
+            providerCode?: string;
+            enabled?: boolean;
+            selected?: boolean;
+            pinned?: boolean;
+            product?: components["schemas"]["RetailProductInfo"];
+        };
         TemplateDriftResponse: {
             /** Format: uuid */
             scheduleId?: string;
@@ -5750,13 +6246,21 @@ export interface components {
             recipeId?: string;
             recommendedStorage?: string;
         };
-        RetailProviderResponse: {
-            /** Format: uuid */
+        EatingPatternPresetResponse: {
             id?: string;
-            name?: string;
-            country?: string;
-            currency?: string;
-            baseUrl?: string;
+            axis?: string;
+            mealTypes?: string[];
+            slotSplitPct?: {
+                [key: string]: number;
+            };
+            /** Format: int32 */
+            proteinPct?: number;
+            /** Format: int32 */
+            fatPct?: number;
+            /** Format: int32 */
+            carbsPct?: number;
+            preferLocallySourced?: boolean;
+            evidenceKey?: string;
             active?: boolean;
         };
         PointEventDto: {
@@ -5810,57 +6314,37 @@ export interface components {
             recipeId?: string;
             recommendedStorage?: string;
         };
-        RetailProductInfo: {
-            /** Format: uuid */
-            id?: string;
-            name?: string;
-            brand?: string;
-            price?: number;
-            packageSize?: number;
-            /** @enum {string} */
-            unit?: "G" | "ML" | "PIECE";
-            remoteUrl?: string;
-            packagesNeeded?: number;
-            estimatedCost?: number;
-            leftoverAmount?: number;
-            leftoverCost?: number;
-        };
-        ShoppingListItem: {
-            /** Format: uuid */
-            ingredientId?: string;
-            ingredientName?: string;
-            /** @enum {string} */
-            ingredientCategory?: "PROTEIN" | "CARB" | "FAT" | "VEGGIE" | "SPICE";
-            totalAmount?: number;
-            /** @enum {string} */
-            unit?: "G" | "ML" | "PIECE";
-            pantryItem?: boolean;
-            fridgeAmount?: number;
-            retailProduct?: components["schemas"]["RetailProductInfo"];
-        };
-        ShoppingListResponse: {
-            items?: components["schemas"]["ShoppingListItem"][];
-            totalEstimatedCost?: number;
-            totalLeftoverCost?: number;
-            currency?: string;
-        };
-        PlanJobStatusResponse: {
-            /** Format: uuid */
-            jobId?: string;
-            /** @enum {string} */
-            status?: "PENDING" | "RUNNING" | "DONE" | "FAILED";
-            /** Format: int32 */
-            queuePosition?: number;
-            /** Format: int32 */
-            estimatedWaitSeconds?: number;
-            result?: string;
-            errorMessage?: string;
-        };
         DailyMacroDto: {
             /** Format: date */
             date?: string;
             consumed?: components["schemas"]["MacrosResponse"];
             target?: components["schemas"]["MacrosResponse"];
+        };
+        IngredientSubstitutionResponse: {
+            /** Format: uuid */
+            ingredientId?: string;
+            ingredientName?: string;
+            /** Format: uuid */
+            substituteId?: string;
+            substituteName?: string;
+            ratio?: number;
+            substituteUnit?: string;
+            kind?: string;
+            note?: string;
+        };
+        GrovePin: {
+            /** Format: uuid */
+            userId?: string;
+            displayName?: string;
+            /** Format: double */
+            x?: number;
+            /** Format: double */
+            y?: number;
+            /** Format: uuid */
+            certificateId?: string;
+        };
+        GrovePinsResponse: {
+            pins?: components["schemas"]["GrovePin"][];
         };
         /** @description A settled guest payment the authenticated user can still claim */
         UnclaimedPaymentResponse: {
@@ -5927,6 +6411,15 @@ export interface components {
             /** Format: int32 */
             messageCount?: number;
         };
+        SentInviteResponse: {
+            /** Format: uuid */
+            id?: string;
+            claimCode?: string;
+            /** Format: date-time */
+            expiresAt?: string;
+            boundProfileName?: string;
+            status?: string;
+        };
         ActiveFlagsDto: {
             hasActivePlan?: boolean;
             needsGrooming?: boolean;
@@ -5941,6 +6434,7 @@ export interface components {
             /** Format: int32 */
             pointsTotal?: number;
             activeFlags?: components["schemas"]["ActiveFlagsDto"];
+            movement?: unknown;
         };
         OffPlanMealCard: {
             /** Format: uuid */
@@ -6040,6 +6534,71 @@ export interface components {
             stageDistribution?: {
                 [key: string]: number;
             };
+        };
+        MoveStatsDto: {
+            /** Format: int64 */
+            exercises?: number;
+            exercisesByPack?: {
+                [key: string]: number;
+            };
+            shotCardsByStatus?: {
+                [key: string]: number;
+            };
+            mediaByReviewStatus?: {
+                [key: string]: number;
+            };
+            /** Format: int64 */
+            pendingReview?: number;
+            /** Format: int64 */
+            mediaReports?: number;
+            /** Format: int64 */
+            activeProfiles?: number;
+            /** Format: int64 */
+            charactersWithSheets?: number;
+            /** Format: int64 */
+            modalities?: number;
+            /** Format: int64 */
+            sessionTemplates?: number;
+        };
+        ExerciseSummaryDto: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            packCode?: string;
+            kind?: string;
+            nameHu?: string;
+            nameEn?: string;
+            pattern?: string;
+            equipment?: string[];
+            position?: string;
+            /** Format: int32 */
+            difficultyRung?: number;
+            riskClass?: string;
+            /** Format: int32 */
+            shotCardVersion?: number;
+            shotCardStatus?: string;
+            published?: boolean;
+            /** Format: int64 */
+            mediaApproved?: number;
+            /** Format: int64 */
+            mediaPending?: number;
+        };
+        ReviewQueueItemDto: {
+            media?: components["schemas"]["MediaDto"];
+            exercise?: components["schemas"]["ExerciseSummaryDto"];
+            shotCard?: components["schemas"]["JsonNode"];
+            pairedStill?: components["schemas"]["MediaDto"];
+        };
+        ReviewQueueResponse: {
+            items?: components["schemas"]["ReviewQueueItemDto"][];
+            /** Format: int64 */
+            pending?: number;
+            /** Format: int64 */
+            approved?: number;
+            /** Format: int64 */
+            rejected?: number;
+            /** Format: int64 */
+            unpublished?: number;
         };
     };
     responses: never;
@@ -6519,6 +7078,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    setLastSpace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LastSpaceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveStatus"];
+                };
             };
         };
     };
@@ -7045,6 +7628,55 @@ export interface operations {
             };
         };
     };
+    addItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cartId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddCartItemRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CartLineItemResponse"];
+                };
+            };
+        };
+    };
+    handoff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cartId: string;
+                providerId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RetailHandoffResponse"];
+                };
+            };
+        };
+    };
     generate_1: {
         parameters: {
             query?: never;
@@ -7238,6 +7870,52 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MaterializeScheduleResponse"];
+                };
+            };
+        };
+    };
+    connect: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConnectStart"];
+                };
+            };
+        };
+    };
+    connectCallback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConnectCallbackRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ConnectionStatus"];
                 };
             };
         };
@@ -7822,6 +8500,28 @@ export interface operations {
             };
         };
     };
+    apply: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserSettingsResponse"];
+                };
+            };
+        };
+    };
     list_4: {
         parameters: {
             query?: never;
@@ -8096,54 +8796,6 @@ export interface operations {
             };
         };
     };
-    addAdHocItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                planId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["AdHocShoppingListItemRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ItemResponse"];
-                };
-            };
-        };
-    };
-    generate_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                planId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PersistentShoppingListResponse"];
-                };
-            };
-        };
-    };
     conversationalEdit: {
         parameters: {
             query?: never;
@@ -8352,170 +9004,6 @@ export interface operations {
             };
         };
     };
-    copy: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["CopyPlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Copy created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlanTemplateResponse"];
-                };
-            };
-        };
-    };
-    promoteCoPlanner: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"];
-                };
-            };
-        };
-    };
-    demoteCoPlanner: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"];
-                };
-            };
-        };
-    };
-    rejectSuggestion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                suggestionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ReplanSuggestionResponse"];
-                };
-            };
-        };
-    };
-    acceptSuggestion: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                suggestionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ReplanSuggestionResponse"];
-                };
-            };
-        };
-    };
-    create_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateMultiMemberPlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"];
-                };
-            };
-        };
-    };
-    create_5: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreatePlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlanResponse"];
-                };
-            };
-        };
-    };
     replanEvaluate: {
         parameters: {
             query?: {
@@ -8566,26 +9054,118 @@ export interface operations {
             };
         };
     };
-    createEmpty: {
+    copy: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                id: string;
+            };
             cookie?: never;
         };
-        requestBody: {
+        requestBody?: {
             content: {
-                "application/json": components["schemas"]["CreateEmptyPlanRequest"];
+                "application/json": components["schemas"]["CopyPlanRequest"];
             };
         };
         responses: {
-            /** @description Created */
+            /** @description Copy created */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["PlanResponse"];
+                    "*/*": components["schemas"]["PlanTemplateResponse"];
+                };
+            };
+        };
+    };
+    promoteCoPlanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlanTemplateResponse"];
+                };
+            };
+        };
+    };
+    demoteCoPlanner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlanTemplateResponse"];
+                };
+            };
+        };
+    };
+    rejectSuggestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                suggestionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReplanSuggestionResponse"];
+                };
+            };
+        };
+    };
+    acceptSuggestion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                suggestionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReplanSuggestionResponse"];
                 };
             };
         };
@@ -8663,37 +9243,6 @@ export interface operations {
                 content: {
                     "*/*": components["schemas"]["NewPlannedMealResponse"];
                 };
-            };
-        };
-    };
-    enqueue: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["GenerateMealPlanRequest"];
-            };
-        };
-        responses: {
-            /** @description Job enqueued */
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": string;
-                };
-            };
-            /** @description Validation error */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };
@@ -9079,6 +9628,32 @@ export interface operations {
             };
         };
     };
+    report: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mediaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["MediaReportRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MediaReportResponse"];
+                };
+            };
+        };
+    };
     mergePreview: {
         parameters: {
             query?: never;
@@ -9116,12 +9691,14 @@ export interface operations {
             };
         };
         responses: {
-            /** @description No Content */
-            204: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "*/*": components["schemas"]["AcceptInviteResponse"];
+                };
             };
         };
     };
@@ -9147,7 +9724,7 @@ export interface operations {
             };
         };
     };
-    create_6: {
+    create_4: {
         parameters: {
             query: {
                 securityContext: components["schemas"]["SecurityContext"];
@@ -9439,59 +10016,6 @@ export interface operations {
             };
         };
     };
-    parseReceipt: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    image: string;
-                };
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ReceiptParsePreview"];
-                };
-            };
-        };
-    };
-    confirmReceipt: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReceiptConfirmRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": {
-                        [key: string]: number;
-                    };
-                };
-            };
-        };
-    };
     addBatch: {
         parameters: {
             query?: never;
@@ -9680,7 +10204,7 @@ export interface operations {
             };
         };
     };
-    create_7: {
+    create_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -9821,6 +10345,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["AddManagedProfileResponse"];
+                };
+            };
+        };
+    };
+    listInvites: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SentInviteResponse"][];
                 };
             };
         };
@@ -9967,6 +10513,102 @@ export interface operations {
             };
         };
     };
+    revokeFoundingMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RevokeFoundingMemberResponse"];
+                };
+            };
+        };
+    };
+    sync: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    refreshPrices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    syncGvh: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     rejectRecipe: {
         parameters: {
             query?: never;
@@ -10055,6 +10697,101 @@ export interface operations {
                 };
                 content: {
                     "*/*": string;
+                };
+            };
+        };
+    };
+    verdict: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mediaId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewVerdictRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MediaDto"];
+                };
+            };
+        };
+    };
+    uploadMedia: {
+        parameters: {
+            query: {
+                characterCode?: string;
+                mediaType: string;
+                style?: string;
+                shotCardVersion?: number;
+                provider?: string;
+                model?: string;
+                promptHash?: string;
+                attempt?: number;
+                costUsd?: number;
+                width?: number;
+                height?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MediaDto"];
+                };
+            };
+        };
+    };
+    uploadSheet: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": {
+                    files: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CharacterDto"];
                 };
             };
         };
@@ -10347,16 +11084,21 @@ export interface operations {
             };
         };
     };
-    untick: {
+    setLineProduct: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                cartId: string;
+                itemId: string;
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCartLineProductRequest"];
+            };
+        };
         responses: {
             /** @description OK */
             200: {
@@ -10364,30 +11106,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["ItemResponse"];
+                    "*/*": components["schemas"]["ShoppingCartResponse"];
                 };
             };
         };
     };
-    tick: {
+    deleteItem: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                itemId: string;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
-            200: {
+            /** @description No Content */
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "*/*": components["schemas"]["ItemResponse"];
-                };
+                content?: never;
             };
         };
     };
@@ -10500,6 +11240,32 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["ScheduleResponse"];
+                };
+            };
+        };
+    };
+    updatePreference: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRetailProviderPreferenceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RetailProviderResponse"];
                 };
             };
         };
@@ -10789,61 +11555,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"];
-                };
-            };
-        };
-    };
-    updateMealStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                plannedMealId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdatePlannedMealRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlannedMealResponse"];
-                };
-            };
-        };
-    };
-    updateMealScheduledTime: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                plannedMealId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateScheduledTimeRequest"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlannedMealResponse"];
+                    "*/*": components["schemas"]["PlanTemplateResponse"];
                 };
             };
         };
@@ -10861,6 +11573,51 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdatePlannedMealStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated planned meal row */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+            /** @description Not authorized to update this row */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+            /** @description Planned meal not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NewPlannedMealResponse"];
+                };
+            };
+        };
+    };
+    updateScheduledTime_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Planned meal UUID */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateScheduledTimeRequest"];
             };
         };
         responses: {
@@ -11208,6 +11965,58 @@ export interface operations {
             };
         };
     };
+    setActive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRetailProviderRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RetailProviderResponse"];
+                };
+            };
+        };
+    };
+    patchShotCard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShotCardPatchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExerciseDetailDto"];
+                };
+            };
+        };
+    };
     updateStatus_2: {
         parameters: {
             query?: never;
@@ -11491,6 +12300,95 @@ export interface operations {
             };
         };
     };
+    getById_2: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cartId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ShoppingCartResponse"];
+                };
+            };
+        };
+    };
+    priceComparison: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cartId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CartPriceComparisonResponse"];
+                };
+            };
+        };
+    };
+    lineOffers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cartId: string;
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CartLineOfferResponse"][];
+                };
+            };
+        };
+    };
+    current: {
+        parameters: {
+            query?: {
+                planId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ShoppingCartResponse"];
+                };
+            };
+        };
+    };
     checkTemplateDrift: {
         parameters: {
             query?: never;
@@ -11604,7 +12502,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description OK */
+            /** @description Provider found */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -11613,7 +12511,7 @@ export interface operations {
                     "*/*": components["schemas"]["RetailProviderResponse"];
                 };
             };
-            /** @description Not found */
+            /** @description Provider not found */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -11711,6 +12609,26 @@ export interface operations {
             };
         };
     };
+    list_7: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EatingPatternPresetResponse"][];
+                };
+            };
+        };
+    };
     getMyPoints: {
         parameters: {
             query?: never;
@@ -11727,28 +12645,6 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["PointsResponse"];
-                };
-            };
-        };
-    };
-    getForPlan: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                planId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PersistentShoppingListResponse"];
                 };
             };
         };
@@ -11860,114 +12756,6 @@ export interface operations {
             };
         };
     };
-    getDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"];
-                };
-            };
-        };
-    };
-    list_7: {
-        parameters: {
-            query?: {
-                status?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["MultiMemberPlanResponse"][];
-                };
-            };
-        };
-    };
-    getById_2: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlanResponse"];
-                };
-            };
-        };
-    };
-    delete_4: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description No Content */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    shoppingList: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["ShoppingListResponse"];
-                };
-            };
-        };
-    };
     getReplanDiff: {
         parameters: {
             query?: never;
@@ -12046,35 +12834,6 @@ export interface operations {
             };
         };
     };
-    getStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                jobId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Job status */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["PlanJobStatusResponse"];
-                };
-            };
-            /** @description Job not found or not owned by caller */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     list_9: {
         parameters: {
             query?: never;
@@ -12111,6 +12870,46 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["NotificationPreferenceResponse"];
+                };
+            };
+        };
+    };
+    status: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveStatus"];
+                };
+            };
+        };
+    };
+    characters: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CharacterDto"][];
                 };
             };
         };
@@ -12157,6 +12956,26 @@ export interface operations {
             };
         };
     };
+    substitutions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["IngredientSubstitutionResponse"][];
+                };
+            };
+        };
+    };
     findMine_1: {
         parameters: {
             query?: never;
@@ -12173,6 +12992,26 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["IngredientResponse"];
+                };
+            };
+        };
+    };
+    pins: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GrovePinsResponse"];
                 };
             };
         };
@@ -12374,6 +13213,26 @@ export interface operations {
             };
         };
     };
+    getMyFamily: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CreateFamilyResponse"];
+                };
+            };
+        };
+    };
     getDashboard: {
         parameters: {
             query?: {
@@ -12482,6 +13341,52 @@ export interface operations {
             };
         };
     };
+    syncStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    gvhSyncStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     listPendingRecipes: {
         parameters: {
             query?: never;
@@ -12498,6 +13403,94 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["RecipeResponse"];
+                };
+            };
+        };
+    };
+    stats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveStatsDto"];
+                };
+            };
+        };
+    };
+    queue: {
+        parameters: {
+            query?: {
+                status?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ReviewQueueResponse"];
+                };
+            };
+        };
+    };
+    exercises: {
+        parameters: {
+            query?: {
+                pack?: string;
+                shotCardStatus?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExerciseSummaryDto"][];
+                };
+            };
+        };
+    };
+    exercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExerciseDetailDto"];
                 };
             };
         };
@@ -12646,7 +13639,7 @@ export interface operations {
             };
         };
     };
-    deleteItem: {
+    disconnect: {
         parameters: {
             query?: never;
             header?: never;
@@ -12666,7 +13659,7 @@ export interface operations {
             };
         };
     };
-    delete_5: {
+    delete_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -12693,6 +13686,27 @@ export interface operations {
             path: {
                 id: string;
                 userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    revokeInvite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                inviteId: string;
             };
             cookie?: never;
         };

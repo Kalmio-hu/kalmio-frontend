@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, LogOut, Settings, MessageSquarePlus, ChevronRight, Refrigerator, NotebookPen, Star, Trees, Users } from 'lucide-react'
+import { LayoutDashboard, ChefHat, ShoppingCart, Leaf, LogOut, Settings, MessageSquarePlus, ChevronRight, Refrigerator, NotebookPen, Star, Trees, Users, Footprints } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -13,6 +13,7 @@ import { UserAvatar } from '@/components/ui/UserAvatar'
 import { usePoints } from '@/hooks/usePoints'
 import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
 import { hasFounderFarewellBeenShown } from '@/lib/firstPlanReveal'
+import { useMoveStatus, MOVE_ACCENT } from '@/features/move'
 
 export function Sidebar() {
   const { t } = useTranslation()
@@ -25,6 +26,10 @@ export function Sidebar() {
   // and navigated away for the first time).
   const showFeedbackCoachmark = !hasFounderFarewellBeenShown(userId)
   const { data: points } = usePoints()
+  // Kalmio Move entry: one line, only while the gate is on and Move is not yet
+  // started. Once both spaces are active the Header switcher is the entry (D8 rule 4).
+  const { status: moveStatus } = useMoveStatus()
+  const showMoveEntry = moveStatus.enabled && !moveStatus.spaceActive
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['feedback', 'unread', isAdmin],
@@ -120,6 +125,17 @@ export function Sidebar() {
             {label}
           </NavLink>
         ))}
+
+        {showMoveEntry && (
+          <NavLink
+            to="/app/move/start"
+            className={({ isActive }) => navItemClass(isActive)}
+            style={{ color: MOVE_ACCENT }}
+          >
+            <Footprints className="h-4 w-4 shrink-0" aria-hidden />
+            {t('move:nav.enterMove')}
+          </NavLink>
+        )}
 
         {/* Grove — visible only to graduated users (FIATAL / TERMO) */}
         {isGraduated && (

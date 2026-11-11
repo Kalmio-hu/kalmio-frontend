@@ -1,39 +1,20 @@
 /**
- * OnboardingGate — KALMIO-45
+ * OnboardingGate — KALMIO-45, space-aware since Kalmio Move (D8 rule 6).
  *
- * React Router layout route that redirects first-time users to the onboarding
- * flow before they can access the main app. Pass-through for returning users.
+ * React Router layout route that sends first-time nutrition users to the
+ * onboarding flow and routes members between the two spaces. The decision
+ * itself is the pure `decideGate` in ./onboardingGate.rules.ts (tested in
+ * OnboardingGate.test.ts); this component only gathers its inputs:
  *
- * Usage in App.tsx (layout route pattern, same as ProtectedRoute / AdminRoute):
+ *   - `['users','me']` for meal / dietary preferences (shared query, usually warm)
+ *   - `useMoveStatus()` for the Move gate, active spaces and the last space
+ *     (GET /api/move/status, 60 s stale, defaults to "off" on any error)
+ *   - the per-user local done-flag (completion or skip on this device)
  *
- *   <Route element={<ProtectedRoute />}>
- *     <Route path="/app/onboarding" element={<OnboardingShell />} />
- *     <Route element={<OnboardingGate />}>   ← wraps all post-onboarding routes
- *       <Route path="/app" element={<AppShell />}>…</Route>
- *     </Route>
- *   </Route>
- *
- * A user is considered "new" (needs onboarding) when ALL of these are true:
- *   1. The user has no `mealPlanPreferences` on the server (null).
- *   2. The user has no `dietaryPreferences` on the server (null).
- *   3. The local "onboarding done" flag is not set in localStorage.
- *
- * Condition 3 catches two cases:
- *   a. The user already completed onboarding on this device.
- *   b. The user explicitly skipped onboarding (OnboardingShell writes the
- *      flag on both completion and skip — see writeOnboardingDone).
- *
- * The server-side conditions (1 + 2) act as a cross-device safety net: if the
- * user completes onboarding on device A and signs in on device B where the
- * localStorage flag is absent, they are not re-onboarded because preferences
- * already exist on the server.
- *
- * The gate is intentionally lightweight:
- *   - Reuses the `['users', 'me']` TanStack Query — already fetched by most
- *     authenticated pages, so there is normally no extra network request.
- *   - Renders a full-screen spinner while the query is pending.
- *   - Preserves the intended destination in location state so the flow can
- *     redirect back after completion (future enhancement).
+ * Rules, in order: /app/move/* always passes; /app → /app/move when Move is
+ * active and is the last-used or the only active space; a Move-only member is
+ * never sent to nutrition onboarding; otherwise no preferences + no local flag
+ * → /app/onboarding (except /app/profile and /app/settings — KALMIO-414).
  */
 
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
@@ -41,13 +22,15 @@ import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
-import { readOnboardingDone } from '@/hooks/useOnboardingProgress'
 import { useInvestorPreview } from '@/lib/investorPreview'
+import { useMoveStatus } from '@/features/move'
+import { decideGate } from './onboardingGate.rules'
 
 export function OnboardingGate() {
   const location = useLocation()
   const userId = useAuthStore((s) => s.user?.id ?? '')
   const { isValid: isInvestorPreview } = useInvestorPreview()
+  const { status: move, isLoading: moveLoading } = useMoveStatus()
 
   const { data: user, isLoading } = useQuery({
     queryKey: USERS_ME_QUERY_KEY,
@@ -56,9 +39,9 @@ export function OnboardingGate() {
     enabled: !!userId,
   })
 
-  // Show a spinner while we wait for user data on first load.
-  // Skip when investor preview is active — the page doesn't need user data.
-  if (isLoading && !user && !isInvestorPreview) {
+  // Spinner while user data (and the one status call) load on first visit.
+  // Skipped under investor preview — the page doesn't need user data.
+  if (((isLoading && !user) || moveLoading) && !isInvestorPreview) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F9F7F2]">
         <Loader2 className="animate-spin text-[#F28C28]" size={32} />
@@ -66,30 +49,20 @@ export function OnboardingGate() {
     )
   }
 
-  // Determine whether this user needs onboarding.
-  const doneLocally = userId ? readOnboardingDone(userId) : false
-  const hasPreferences = !!(user?.mealPlanPreferences || user?.dietaryPreferences)
-  const needsOnboarding = !doneLocally && !hasPreferences
+  const decision = decideGate({
+    pathname: location.pathname,
+    userId,
+    prefs: user
+      ? { mealPlanPreferences: user.mealPlanPreferences, dietaryPreferences: user.dietaryPreferences }
+      : undefined,
+    move,
+    isInvestorPreview,
+  })
 
-  // KALMIO-414: paths the gate should let through even mid-onboarding, so the
-  // body-data CTA on onboarding step 3 doesn't dead-end the user back into
-  // the same flow they came from. /app/profile is the destination for the
-  // "Testadatok megadása" link; /app/settings hosts language/passkey controls.
-  const ALWAYS_ALLOWED = ['/app/profile', '/app/settings']
-  const isAllowed = ALWAYS_ALLOWED.some((p) => location.pathname.startsWith(p))
-
-  if (needsOnboarding && !isAllowed && !isInvestorPreview) {
-    // Preserve the intended destination so we can return there after onboarding
-    // completes (wired in OnboardingShell when navigate('/app') is called).
-    return (
-      <Navigate
-        to="/app/onboarding"
-        replace
-        state={{ from: location }}
-      />
-    )
+  if (decision.action === 'redirect') {
+    // Preserve the intended destination so the flow can return there.
+    return <Navigate to={decision.to} replace state={{ from: location }} />
   }
 
-  // User has completed or skipped onboarding — render the requested route.
   return <Outlet />
 }

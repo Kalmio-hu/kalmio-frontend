@@ -769,6 +769,14 @@ export interface DashboardDto {
     needsGrooming: boolean
     hasReplanDiff: boolean
   }
+  /**
+   * Kalmio Move today block (movement-prd.md §10). Untyped on purpose: the
+   * nutrition side stays free of movement types, exactly like the backend's
+   * `MovementDashboardPort.todayBlock` returning Object. `<MoveTodayBlock />`
+   * from `@/features/move` narrows and renders it. Absent when the gate is off
+   * or the member has no Move profile.
+   */
+  movement?: unknown
 }
 
 export interface DailyMacroDto {

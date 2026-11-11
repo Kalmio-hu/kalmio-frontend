@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
@@ -7,6 +8,7 @@ import { CsemeteWelcomeMoment } from '@/components/onboarding/CsemeteWelcomeMome
 import { useCsemeteWelcomeMoment } from '@/hooks/useCsemeteWelcomeMoment'
 import { PremiumTasterRevealBanner } from '@/components/premium/PremiumTasterRevealBanner'
 import { usePremiumTaster } from '@/hooks/usePremiumTaster'
+import { useMoveStatus } from '@/features/move'
 
 export function AppShell() {
   const { shouldShow: showCsemeteWelcome, dismiss: dismissCsemeteWelcome } =
@@ -17,6 +19,14 @@ export function AppShell() {
     tasterStage,
     dismiss: dismissPremiumTaster,
   } = usePremiumTaster()
+
+  // "The application opens in the space used last" (movement-prd.md D8 rule 4).
+  const { status: moveStatus, setLastSpace } = useMoveStatus()
+  useEffect(() => {
+    if (moveStatus.enabled && moveStatus.spaceActive && moveStatus.lastSpace !== 'NUTRITION') {
+      void setLastSpace('NUTRITION')
+    }
+  }, [moveStatus.enabled, moveStatus.spaceActive, moveStatus.lastSpace, setLastSpace])
 
   return (
     <div className="flex h-screen overflow-hidden w-full">

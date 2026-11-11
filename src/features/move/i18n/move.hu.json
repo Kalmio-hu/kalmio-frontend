@@ -1,0 +1,991 @@
+{
+  "brand": {
+    "name": "Kalmio Move",
+    "suffix": "Move",
+    "aiLabel": "MI által készített bemutató",
+    "reviewedLine": "A bemutatókat gyógytornász ellenőrizte."
+  },
+  "common": {
+    "loading": "Egy pillanat…",
+    "error": "Most nem sikerült — egy másodperc.",
+    "retry": "Újra",
+    "back": "Vissza",
+    "save": "Mentés",
+    "saved": "Elmentve.",
+    "cancel": "Mégse",
+    "close": "Bezárás",
+    "minutes": "{{count}} perc",
+    "inProgress": "Ez a rész még készül."
+  },
+  "nav": {
+    "today": "Ma",
+    "week": "Hét",
+    "library": "Gyakorlatok",
+    "progress": "Haladás",
+    "settings": "Beállítások",
+    "signOut": "Kijelentkezés",
+    "enterMove": "Mozgás",
+    "enterMoveHint": "Heti háromszor 15 perc, otthon.",
+    "mainLabel": "Mozgás menü"
+  },
+  "switcher": {
+    "label": "Terület váltása",
+    "nutrition": "Étrend",
+    "move": "Mozgás"
+  },
+  "landing": {
+    "title": "Kalmio Move",
+    "tagline": "Heti háromszor 15 perc, otthon.",
+    "lead": "Rövid, végigvezetett mozgás a saját nappalidban. Nincs bérlet, nincs felszerelés, nincs rohanás.",
+    "what": {
+      "title": "Mi ez?",
+      "body": "A Kalmio Move hetente néhány rövid alkalmat tervez neked: séta, erősítés, nyújtás vagy székes gyakorlatok, ahogy neked jó. Minden alkalom lépésekből áll, lépésenként egy utasítással és egy bemutatóval."
+    },
+    "safety": {
+      "title": "Először a biztonság",
+      "body": "Tíz rövid kérdéssel kezdünk, és a hét ehhez igazodik. Minden képernyőn ott a szabály: hagyd abba, ha szédülsz, mellkasi fájdalmat érzel, vagy szokatlanul nehezen kapsz levegőt."
+    },
+    "points": {
+      "home": "Otthon, a saját tempódban",
+      "short": "Tizenöt perc is számít",
+      "plain": "Egyszerű szavakkal, egyszerre egy utasítás"
+    },
+    "cta": "Kezdjük el",
+    "signInHint": "Bejelentkezés után a beállítás egy percet vesz igénybe."
+  },
+  "start": {
+    "title": "Kezdjük el",
+    "subtitle": "Hét rövid lépés után ma már indulhat az első alkalom.",
+    "subtitle_formal": "Hét rövid lépés után ma már indulhat az első alkalom.",
+    "exit": "Vissza",
+    "steps": {
+      "forWhom": "Kinek?",
+      "modalities": "Mit szeretsz, mit próbálnál ki?",
+      "modalities_formal": "Mit szeret, mit próbálna ki?",
+      "schedule": "Milyen gyakran és meddig?",
+      "equipment": "Mi van otthon?",
+      "health": "Néhány kérdés az egészségről",
+      "result": "A heted",
+      "result_formal": "A hete"
+    },
+    "cta": "Kezdjük el",
+    "alreadyActive": "A mozgás már be van állítva.",
+    "goToToday": "Irány a mai nap",
+    "forWhom": {
+      "self": "Magamnak",
+      "other": "Valaki másnak állítom be",
+      "hint": "Ha másnak állítod be, a megszólítás önöző lesz.",
+      "helperNote": "Ketten töltitek ki, az ő telefonján vagy a tiéden. Ő a legegyszerűbb nézetet kapja: nagy betű, egyszerre egy utasítás. A heti összesítőt csak az ő beleegyezésével látod.",
+      "memberLabel": "Kinek?",
+      "memberHint": "Válassz családtagot, vagy kapcsoljátok össze később a Segítő oldalon.",
+      "memberNone": "Később kapcsoljuk össze"
+    },
+    "next": "Tovább",
+    "back": "Vissza",
+    "later": "Majd később",
+    "stepOf": "Lépés: {{index}} / {{total}}",
+    "underage": {
+      "title": "Ez a rész a felnőtteké.",
+      "body": "A gyerekek a szülő tervében jelennek meg, közös alkalomként: „Közös 10 perc”. A szülő a saját Mozgás részében találja.",
+      "back": "Vissza"
+    },
+    "modalities": {
+      "hint": "Többet is választhatsz. Kép alapján is lehet.",
+      "hint_formal": "Többet is választhat. Kép alapján is lehet.",
+      "recommend": "Nem tudom, ajánljon valamit",
+      "recommended": "Ezt ajánljuk kezdésnek. Bármikor módosíthatod.",
+      "recommended_formal": "Ezt ajánljuk kezdésnek. Bármikor módosíthatja.",
+      "singleRole": "Ehhez heti két rövid erősítés sokat ad. Beteszem a tervbe?",
+      "singleRoleAdd": "Igen, tedd be",
+      "singleRoleAdd_formal": "Igen, tegye be",
+      "empty": "Most nem tudtuk betölteni a mozgásformákat.",
+      "picked": "{{count}} kiválasztva"
+    },
+    "schedule": {
+      "days": "Hetente hány napon?",
+      "daysValue": "{{count}} nap",
+      "minutes": "Mennyi idő jut egy alkalomra?",
+      "fixedTitle": "Fix órák (nem kötelező)",
+      "fixedHint": "Jóga, úszás, csapatedzés — ami adott napon, adott időben van. A hét ezek köré épül.",
+      "fixedAdd": "Fix óra hozzáadása",
+      "fixedName": "Mi az?",
+      "fixedWeekday": "Melyik nap?",
+      "fixedTime": "Mikor kezdődik?",
+      "fixedDuration": "Meddig tart?",
+      "fixedSave": "Hozzáadom",
+      "fixedRemove": "Törlés",
+      "fixedLater": "Később is hozzáadhatod a beállításokban.",
+      "fixedLater_formal": "Később is hozzáadhatja a beállításokban.",
+      "fixedLine": "{{name}} · {{weekday}} {{time}} · {{minutes}} perc"
+    },
+    "equipment": {
+      "hint": "Ami otthon van. A súlyokat majd az első erősítésnél kérdezzük.",
+      "items": {
+        "NONE": "Semmi",
+        "DUMBBELLS": "Kézisúlyzó",
+        "BANDS": "Gumiszalag",
+        "CHAIR": "Stabil szék",
+        "MAT": "Tornaszőnyeg",
+        "BIKE": "Kerékpár",
+        "STEP": "Lépcsőfok",
+        "PULL_UP_BAR": "Húzódzkodórúd"
+      }
+    },
+    "health": {
+      "intro": "Tíz rövid kérdés. A válaszok csak a terhelést szabják meg, hozzáférést nem vesznek el. A válaszokból csak a beállítást tároljuk, a szöveget nem.",
+      "yes": "Igen",
+      "no": "Nem",
+      "skip": "Kihagyom",
+      "skipped": "Kihagytad. A hét óvatos beállítással készül, és később még megkérdezzük.",
+      "skipped_formal": "Kihagyta. A hét óvatos beállítással készül, és később még megkérdezzük.",
+      "answerAfterAll": "Mégis válaszolok",
+      "remaining": "Még {{count}} kérdés",
+      "q": {
+        "chestPain": "Éreztél az elmúlt fél évben mellkasi fájdalmat vagy szorítást?",
+        "chestPain_formal": "Érzett az elmúlt fél évben mellkasi fájdalmat vagy szorítást?",
+        "fainting": "Szédültél vagy ájultál el az elmúlt fél évben?",
+        "fainting_formal": "Szédült vagy ájult el az elmúlt fél évben?",
+        "breathlessAtRest": "Nyugalomban is nehezen kapsz levegőt?",
+        "breathlessAtRest_formal": "Nyugalomban is nehezen kap levegőt?",
+        "knownDisease": "Van ismert szív-, tüdő- vagy anyagcsere-betegséged (például cukorbetegség)?",
+        "knownDisease_formal": "Van ismert szív-, tüdő- vagy anyagcsere-betegsége (például cukorbetegség)?",
+        "fellOnce": "Elestél az elmúlt egy évben?",
+        "fellOnce_formal": "Elesett az elmúlt egy évben?",
+        "fellTwice": "Kétszer vagy többször is elestél az elmúlt egy évben?",
+        "fellTwice_formal": "Kétszer vagy többször is elesett az elmúlt egy évben?",
+        "chairStandNoHands": "Fel tudsz állni a székről úgy, hogy nem támaszkodsz a kezedre?",
+        "chairStandNoHands_formal": "Fel tud állni a székről úgy, hogy nem támaszkodik a kezére?",
+        "painAvoidsMovement": "Van olyan fájdalmad mozgás közben, ami miatt kerülsz bizonyos mozdulatokat?",
+        "painAvoidsMovement_formal": "Van olyan fájdalma mozgás közben, ami miatt kerül bizonyos mozdulatokat?",
+        "betaBlockerOrInsulin": "Szedsz béta-blokkolót vagy inzulint?",
+        "betaBlockerOrInsulin_formal": "Szed béta-blokkolót vagy inzulint?",
+        "doctorSaidSupervised": "Mondta már az orvosod, hogy csak felügyelet mellett mozogj?",
+        "doctorSaidSupervised_formal": "Mondta már az orvosa, hogy csak felügyelet mellett mozogjon?"
+      }
+    },
+    "result": {
+      "building": "Készül a heted…",
+      "building_formal": "Készül a hete…",
+      "ready": "Kész a heted.",
+      "ready_formal": "Kész a hete.",
+      "firstToday": "Az első alkalom ma: {{modality}}, {{minutes}} perc.",
+      "noFirst": "Az első alkalom a következő napok egyikén vár.",
+      "trackA": "Ülő alkalmakkal kezdünk. Beszélj a háziorvosoddal, mielőtt elkezded.",
+      "trackA_formal": "Ülő alkalmakkal kezdünk. Beszéljen a háziorvosával, mielőtt elkezdi.",
+      "trackB": "Könnyű, támogatott héttel kezdünk. Az erősebb alkalmak akkor nyílnak meg, ha megerősíted: „Megbeszéltem az orvosommal”.",
+      "trackB_formal": "Könnyű, támogatott héttel kezdünk. Az erősebb alkalmak akkor nyílnak meg, ha megerősíti: „Megbeszéltem az orvosommal”.",
+      "hrOff": "Pulzuscélok nélkül dolgozunk: a tempót a légzés és az érzés mutatja.",
+      "weekTitle": "A heted egy képernyőn",
+      "weekTitle_formal": "A hete egy képernyőn",
+      "failed": "A hét most nem készült el. Próbáld újra.",
+      "failed_formal": "A hét most nem készült el. Próbálja újra."
+    }
+  },
+  "today": {
+    "title": "Ma",
+    "restDay": "Pihenőnap",
+    "tomorrow": "Holnap: {{line}}",
+    "start": "Kezdés",
+    "other": "Másikat kérek",
+    "notToday": "Ma nem megy",
+    "notTodayQuestion": "Mi lenne jó?",
+    "shorter": "Csak rövidebbet",
+    "later": "Máskor",
+    "unwell": "Nem vagyok jól",
+    "empty": "Ma nincs tervezett alkalmad.",
+    "empty_formal": "Ma nincs tervezett alkalma.",
+    "gapLine": "Kimaradt. A hét megy tovább.",
+    "firstOffer": "Első alkalom ma: {{minutes}} perc.",
+    "swapped": "Megvan, másik alkalom került mára.",
+    "moved": "Rendben, a hét igazodik.",
+    "unwellSet": "Rendben, a hét vár, amíg jobban leszel.",
+    "unwellSet_formal": "Rendben, a hét vár, amíg jobban lesz.",
+    "sessionLabel": "{{modality}} · {{minutes}} perc",
+    "lifeState": {
+      "SICK": "Most betegen pihensz. A hét vár.",
+      "SICK_formal": "Most betegen pihen. A hét vár.",
+      "INJURED": "Sérülés után óvatosan. A hét vár.",
+      "BREAK": "Szünet. Amikor jó, folytatjuk.",
+      "TRAVEL": "Úton vagy. A hét vár.",
+      "TRAVEL_formal": "Úton van. A hét vár."
+    },
+    "fallButton": "Elestem",
+    "unplanned": "Mást mozogtam",
+    "gap": {
+      "title": "Jó újra látni.",
+      "offer": "Öt perc is számít. Kezdjük azzal?",
+      "cta": "Öt perc"
+    },
+    "diff": {
+      "title": "Változás a héten",
+      "ok": "Rendben",
+      "decline": "Inkább hagyjuk ki",
+      "why": "Miért?",
+      "accepted": "Rendben, a hét igazodik.",
+      "declined": "Marad, ahogy volt."
+    },
+    "selfTest": {
+      "title": "30 másodperces felállás-teszt",
+      "how": "Széket a falhoz, karok keresztben a mellkason. 30 másodperc alatt hányszor sikerül felállni és visszaülni?",
+      "input": "Felállások száma",
+      "save": "Rögzítem",
+      "saved": "Rögzítve.",
+      "later": "Majd máskor",
+      "progressLine": "{{weeks}} hete {{previous}} álltál fel, ma {{latest}}.",
+      "progressLine_formal": "{{weeks}} hete {{previous}} állt fel, ma {{latest}}."
+    },
+    "screeningPending": {
+      "title": "Néhány kérdés az egészségről",
+      "body": "A hét óvatos beállítással készült. Ha válaszolsz, pontosabban igazodik hozzád.",
+      "body_formal": "A hét óvatos beállítással készült. Ha válaszol, pontosabban igazodik Önhöz.",
+      "cta": "Válaszolok"
+    },
+    "firstOfferTitle": "Első alkalom",
+    "restTomorrow": "Pihenőnap. Holnap: {{line}}"
+  },
+  "checkin": {
+    "title": "Hogy vagy ma?",
+    "title_formal": "Hogy van ma?",
+    "feeling": {
+      "q": "Milyen ma a közérzet?",
+      "good": "Jó",
+      "average": "Átlagos",
+      "tired": "Fáradt"
+    },
+    "soreness": {
+      "q": "Izomláz, fájdalom?",
+      "none": "Nincs",
+      "mild": "Enyhe",
+      "strong": "Erős"
+    },
+    "sleep": {
+      "q": "Milyen volt az alvás?",
+      "good": "Jó",
+      "medium": "Közepes",
+      "poor": "Rossz"
+    },
+    "sick": "Beteg vagyok",
+    "dismiss": "Most nem",
+    "ok": "Rendben",
+    "keepOriginal": "Marad az eredeti",
+    "why": "Miért?",
+    "unchanged": "A mai terv marad.",
+    "light": {
+      "GREEN": "Zöld: mehet a terv",
+      "AMBER": "Sárga: könnyebb nap",
+      "RED": "Piros: ma pihenő",
+      "ILL": "Betegség: a hét vár"
+    },
+    "regionLabel": "Reggeli bejelentkezés"
+  },
+  "player": {
+    "title": "Alkalom",
+    "stopRule": "Hagyd abba, ha szédülsz, mellkasi fájdalmat érzel, vagy szokatlanul nehezen kapsz levegőt.",
+    "stopRule_formal": "Hagyja abba, ha szédül, mellkasi fájdalmat érez, vagy szokatlanul nehezen kap levegőt.",
+    "next": "Tovább",
+    "previous": "Előző",
+    "pause": "Szünet",
+    "resume": "Folytatás",
+    "shorter": "Rövidebbet kérek",
+    "report": "Hibás a bemutató",
+    "exit": "Kilépés",
+    "stop": "Abbahagyom",
+    "stepCount": "{{index}} / {{total}}",
+    "loading": "Készül az alkalom…",
+    "error": "Az alkalom most nem nyílik meg. Próbáld újra.",
+    "error_formal": "Az alkalom most nem nyílik meg. Próbálja újra.",
+    "offlineReady": "Elérhető internet nélkül is.",
+    "dials": {
+      "title": "Mielőtt elkezded",
+      "title_formal": "Mielőtt elkezdi",
+      "hint": "Négy dolog állítható. Ha jó így, mehet.",
+      "hint_formal": "Négy dolog állítható. Ha jó így, mehet.",
+      "minutes": "Mennyi időd van?",
+      "minutes_formal": "Mennyi ideje van?",
+      "equipment": "Mi van kéznél?",
+      "focus": "Mire figyeljünk?",
+      "demonstrator": "Ki mutassa?",
+      "start": "Kezdjük",
+      "skip": "Jó így, mehet",
+      "focusOptions": {
+        "DEFAULT": "Ahogy terveztük",
+        "LOWER_BODY": "Láb",
+        "UPPER_BODY": "Kar és hát",
+        "BALANCE": "Egyensúly",
+        "MOBILITY": "Lazítás",
+        "CORE": "Törzs"
+      },
+      "equipmentOptions": {
+        "NONE": "Semmi",
+        "DUMBBELLS": "Kézisúlyzó",
+        "BANDS": "Gumiszalag",
+        "CHAIR": "Szék",
+        "MAT": "Tornaszőnyeg",
+        "BIKE": "Kerékpár"
+      }
+    },
+    "fit": {
+      "download": "Letöltés az órára (.FIT)",
+      "error": "A fájl most nem készült el — egy másodperc."
+    },
+    "setup": {
+      "title": "Így készülj elő",
+      "title_formal": "Így készüljön elő",
+      "line": "Állítsd a telefont mellkasmagasságba, 1,5–2 méterre magadtól, hogy lásd a bemutatót.",
+      "line_formal": "Állítsa a telefont mellkasmagasságba, 1,5–2 méterre magától, hogy lássa a bemutatót.",
+      "support": "A konyhapult vagy egy stabil szék legyen kéznél.",
+      "ready": "Készen állok"
+    },
+    "shortened": "Rövidebb lett: a nem kötelező részek kimaradnak.",
+    "reducedMotion": "Állóképek, mozgás nélkül.",
+    "paused": "Szünetel",
+    "media": {
+      "startPose": "Kezdő állás",
+      "endPose": "Záró állás",
+      "alt": "Bemutató: {{title}}",
+      "textOnly": "Szöveges útmutató",
+      "familyFigure": "Bogyó mutatja"
+    },
+    "cues": "Mire figyelj",
+    "cues_formal": "Mire figyeljen",
+    "faults": "Gyakori hibák",
+    "card": {
+      "target": "Cél: {{sets}} × {{reps}}",
+      "targetSeconds": "Cél: {{sets}} × {{seconds}} mp",
+      "targetWeight": "{{kg}} kg",
+      "setRow": "{{index}}. sorozat",
+      "weightKg": "Súly (kg)",
+      "reps": "Ismétlés",
+      "seconds": "Másodperc",
+      "setDone": "Kész",
+      "setUndo": "Mégsem",
+      "lastResults": "Utoljára",
+      "rest": "Pihenő",
+      "restSkip": "Mehet tovább",
+      "swap": "Másik gyakorlatot",
+      "swapTitle": "Helyette",
+      "swapEmpty": "Most nincs helyettesítő gyakorlat.",
+      "swapped": "Megvan, cseréltük.",
+      "feedbackQ": "Milyen volt?",
+      "feedback": {
+        "EASY": "Sokkal több is ment volna",
+        "RIGHT": "Pont jó volt",
+        "HARD": "Nem ment végig"
+      },
+      "startingLoadQ": "Mennyit bírtál volna még?",
+      "startingLoadQ_formal": "Mennyit tudott volna még?",
+      "startingLoadHint": "Ismétlésben, az utolsó sorozat után.",
+      "sixPlus": "6+"
+    },
+    "flow": {
+      "count": "Számolj: {{count}}",
+      "count_formal": "Számoljon: {{count}}",
+      "seconds": "{{count}} másodperc",
+      "easier": "Könnyebbet",
+      "harder": "Nehezebbet",
+      "switchedEasier": "Megvan, a könnyebb változat.",
+      "switchedHarder": "Megvan, a nehezebb változat.",
+      "tapWhenDone": "Ha megvan, koppints a Tovább gombra.",
+      "tapWhenDone_formal": "Ha megvan, koppintson a Tovább gombra."
+    },
+    "target": {
+      "elapsed": "Eltelt idő",
+      "segments": "Szakaszok",
+      "band": {
+        "EASY": "könnyű",
+        "MODERATE": "közepes",
+        "HARD": "nehéz"
+      },
+      "talk": {
+        "EASY": "Végig tudsz beszélgetni.",
+        "EASY_formal": "Végig tud beszélgetni.",
+        "MODERATE": "Rövid mondatok mennek.",
+        "HARD": "Csak pár szó."
+      },
+      "cueLabel": "Hangos jelzés"
+    },
+    "drill": {
+      "task": "Feladat",
+      "diagramAlt": "A pálya elrendezése felülről",
+      "selfScoreQ": "Hogy ment?",
+      "selfScoreHint": "1 = nehezen, 5 = simán"
+    },
+    "entry": {
+      "when": "Mikor",
+      "where": "Hol",
+      "done": "Megvolt",
+      "hint": "Ha megvolt, egy koppintás, majd az erősség megadása.",
+      "noDetails": "Nincs megadott időpont."
+    },
+    "poolside": {
+      "title": "Medenceparti kártya",
+      "hint": "Nyomtasd ki, a telefon maradhat a szekrényben.",
+      "hint_formal": "Nyomtassa ki, a telefon maradhat a szekrényben.",
+      "print": "Nyomtatás",
+      "done": "Megvolt"
+    },
+    "completion": {
+      "effortQ": "Milyen nehéz volt?",
+      "anchorEasy": "könnyű",
+      "anchorMid": "közepes",
+      "anchorHard": "nagyon nehéz",
+      "effortValue": "{{value}} / 10",
+      "comfortQ": "Fájt valami közben?",
+      "comfort": {
+        "NO": "Nem",
+        "LITTLE": "Kicsit",
+        "YES": "Igen"
+      },
+      "whereQ": "Hol?",
+      "region": {
+        "NECK_SHOULDER": "Nyak, váll",
+        "BACK": "Hát",
+        "HIP": "Csípő",
+        "KNEE": "Térd",
+        "ANKLE_FOOT": "Boka, láb",
+        "ARM_WRIST": "Kar, csukló"
+      },
+      "bodyMapLabel": "Testtérkép, hat terület",
+      "done": "Kész",
+      "saved": "Megvolt. Ma ennyi elég.",
+      "saved_formal": "Megvolt. Ma ennyi elég.",
+      "queued": "Elmentve. Amint lesz internet, elküldjük.",
+      "backHome": "Vissza a mai naphoz",
+      "durationLine": "{{minutes}} perc"
+    },
+    "lastStep": "Utolsó lépés",
+    "finish": "Befejezem",
+    "resumeLine": "Folytatjuk, ahol abbahagytad.",
+    "resumeLine_formal": "Folytatjuk, ahol abbahagyta."
+  },
+  "week": {
+    "title": "Hét",
+    "subtitle": "A heted egy képernyőn.",
+    "subtitle_formal": "A hete egy képernyőn.",
+    "empty": "Erre a hétre még nincs terv.",
+    "target": "{{done}} / {{planned}} alkalom",
+    "regenerate": "Újratervezés",
+    "targetLine": "{{done}} / {{planned}} ezen a héten",
+    "reserveRule": "Eggyel kevesebb is aktív hétnek számít.",
+    "activeWeek": "Aktív hét",
+    "restDay": "Pihenőnap",
+    "fixedClass": "Fix óra",
+    "intensity": {
+      "easy": "könnyű",
+      "moderate": "közepes",
+      "hard": "kemény"
+    },
+    "status": {
+      "PLANNED": "Tervezett",
+      "DONE": "Megvolt",
+      "PLAN_B": "Rövid változat megvolt",
+      "MISSED": "Kimaradt",
+      "ADDED": "Hozzáadva",
+      "MOVED": "Áthelyezve",
+      "DROPPED": "Kimaradt"
+    },
+    "prev": "Előző hét",
+    "next": "Következő hét",
+    "thisWeek": "Ez a hét",
+    "today": "Ma",
+    "dragHint": "Fogd meg a kártyát, és húzd másik napra. Billentyűzettel: Műveletek → Másik napra.",
+    "dragHint_formal": "Fogja meg a kártyát, és húzza másik napra. Billentyűzettel: Műveletek → Másik napra.",
+    "moved": "Áthelyezve.",
+    "refused": "Nem lehet: {{reason}}",
+    "refusedGeneric": "Ez a nap most nem jó ennek az alkalomnak.",
+    "actions": "Műveletek",
+    "moveTo": "Másik napra",
+    "moveToDay": "Áthelyezés ide: {{day}}",
+    "swapTitle": "Másikat kérek",
+    "swapHint": "Ugyanilyen jellegűek:",
+    "swapOther": "Másik változat ugyanebből",
+    "swapNone": "Ehhez most nincs másik mozgásforma.",
+    "swapped": "Kicserélve.",
+    "notToday": "Ma nem megy",
+    "notTodayQuestion": "Mi lenne jó?",
+    "shorter": "Csak rövidebbet",
+    "later": "Máskor",
+    "unwell": "Nem vagyok jól",
+    "start": "Kezdés",
+    "regenerateHint": "Ha változott, mikor érsz rá, kérj új hetet. Először javaslatot kapsz, semmi nem változik magától.",
+    "regenerateHint_formal": "Ha változott, mikor ér rá, kérjen új hetet. Először javaslatot kap, semmi nem változik magától.",
+    "regenerateNoChange": "Nincs változás, a hét marad.",
+    "chipLabel": "{{modality}}, {{minutes}} perc, {{intensity}}",
+    "dayLabel": "{{weekday}}, {{date}}"
+  },
+  "library": {
+    "title": "Gyakorlatok",
+    "subtitle": "Ellenőrzött bemutatók, a választott bemutatóddal.",
+    "subtitle_formal": "Ellenőrzött bemutatók, a választott bemutatójával.",
+    "empty": "Ehhez a szűréshez nincs gyakorlat.",
+    "filterPack": "Csomag",
+    "filterLevel": "Szint",
+    "all": "Mind",
+    "detail": "Bemutató",
+    "cues": "Mire figyelj",
+    "cues_formal": "Mire figyeljen",
+    "faults": "Gyakori hibák",
+    "textOnly": "Szöveges útmutató, kép nélkül.",
+    "levelLabel": "{{level}} szint",
+    "open": "Megnézem",
+    "equipment": "Felszerelés",
+    "noEquipment": "Felszerelés nélkül",
+    "startPose": "Kezdő állás",
+    "endPose": "Záró állás"
+  },
+  "progress": {
+    "title": "Haladás",
+    "subtitle": "Aktív hetek, önellenőrzések, szintek.",
+    "empty": "Az első alkalom után itt látod a haladást.",
+    "empty_formal": "Az első alkalom után itt látja a haladást.",
+    "activeWeeks": "{{count}} aktív hét az elmúlt 12-ből",
+    "strip": {
+      "title": "Az elmúlt 12 hét",
+      "ACTIVE": "aktív",
+      "RESERVE": "tartalékkal aktív",
+      "INACTIVE": "kimaradt",
+      "FUTURE": "még jön",
+      "cell": "{{date}}: {{mark}}, {{done}} / {{planned}}",
+      "legend": "Aktív: megvolt a terv, vagy eggyel kevesebb."
+    },
+    "selfTests": {
+      "title": "Felállás-teszt",
+      "empty": "Még nincs eredmény. A Ma oldalon négyhetente kérjük.",
+      "date": "Dátum",
+      "value": "Eredmény",
+      "kind": {
+        "SIT_TO_STAND_30S": "30 mp felállás",
+        "SINGLE_LEG_STAND": "Egy lábon állás (mp)",
+        "WALK_6MIN": "6 perces séta (m)",
+        "OTHER": "Egyéb"
+      },
+      "chartLabel": "Felállások száma az idő mentén"
+    },
+    "levels": {
+      "title": "Hol tartasz",
+      "title_formal": "Hol tart",
+      "none": "Az első hetek után jelenik meg.",
+      "supported": {
+        "L0": "Ülve — biztos alap",
+        "L1": "Kapaszkodva — biztosabb állás",
+        "L2": "Könnyű támasszal — biztosabb járás",
+        "L3": "Támasz nélkül — erősebb láb, szabad lépések"
+      },
+      "endurance": {
+        "W": "Séta — kényelmes tempó",
+        "RW": "Séta és futás váltva",
+        "R1": "Folyamatos futás",
+        "R2": "Futás változó tempóval"
+      },
+      "strength": {
+        "BEGINNER": "Erősítés — az alapok",
+        "INTERMEDIATE": "Erősítés — erősebb láb, erősebb hát",
+        "ADVANCED": "Erősítés — biztos technika, nagyobb terhelés"
+      }
+    },
+    "load": {
+      "title": "Terhelés az elmúlt hetekben",
+      "load": "terhelés",
+      "fitness": "edzettség",
+      "fatigue": "fáradtság",
+      "form": "forma",
+      "locked": "Hat hét után jelenik meg.",
+      "hint": "Nem pontszám: azt mutatja, hogyan oszlott el a munka.",
+      "chartLabel": "Terhelés, edzettség, fáradtság és forma hetente"
+    },
+    "goals": {
+      "title": "Cél",
+      "open": "Nézzük meg, mennyi megy ma. Nincs mihez mérni, csak a saját tempódhoz.",
+      "open_formal": "Nézzük meg, mennyi megy ma. Nincs mihez mérni, csak a saját tempójához.",
+      "own": "A célok a saját előző heteidből jönnek. Senki máshoz nem mérünk.",
+      "own_formal": "A célok a saját előző heteiből jönnek. Senki máshoz nem mérünk."
+    }
+  },
+  "helper": {
+    "title": "Segítő",
+    "subtitle": "Akinek segítesz, és aki neked segít.",
+    "subtitle_formal": "Akinek segít, és aki Önnek segít.",
+    "empty": "Még nincs összekapcsolt segítő.",
+    "asHelper": "Akinek segítesz",
+    "asHelper_formal": "Akinek segít",
+    "asHelped": "Aki neked segít",
+    "asHelped_formal": "Aki Önnek segít",
+    "noChat": "Üzenetváltás nincs, csak a három biztatás.",
+    "invite": {
+      "title": "Új segített személy",
+      "hint": "Ő a saját készülékén fogadja el, és bármikor visszavonhatja.",
+      "email": "E-mail-cím",
+      "member": "Családtag",
+      "memberPlaceholder": "Válassz családtagot",
+      "or": "vagy",
+      "submit": "Meghívás",
+      "sent": "Meghívó elküldve. Ő fogadja el a saját készülékén."
+    },
+    "pending": "Várunk a hozzájárulására.",
+    "someone": "Segített személy",
+    "summary": {
+      "title": "Ez a hét",
+      "done": "{{done}} / {{planned}} alkalom megvolt",
+      "lastSelfTest": "Utolsó önellenőrzés: {{value}} felállás ({{date}})",
+      "noSelfTest": "Még nincs önellenőrzés.",
+      "fallYes": "„Elestem” megnyomva: igen",
+      "fallNo": "„Elestem” megnyomva: nem",
+      "notConsented": "Amíg nem járul hozzá, nem látsz semmit.",
+      "notConsented_formal": "Amíg nem járul hozzá, nem lát semmit."
+    },
+    "encourage": {
+      "title": "Küldj egy biztatást",
+      "title_formal": "Küldjön egy biztatást",
+      "ENC_PROUD": "Büszke vagyok rád.",
+      "ENC_KEEP_GOING": "Csak így tovább, szép lassan.",
+      "ENC_SEE_YOU": "Jövő héten találkozunk, addig is jó mozgást.",
+      "sent": "Elküldve."
+    },
+    "logOnBehalf": {
+      "title": "Megvolt, én rögzítem",
+      "pick": "Melyik alkalom?",
+      "submit": "Rögzítem",
+      "saved": "Rögzítve.",
+      "none": "Ezen a héten nincs nyitott alkalom."
+    },
+    "sheetFor": "Heti lap nyomtatása",
+    "consent": {
+      "request": "{{name}} szeretné látni a heti összesítődet: hány alkalom volt meg, az utolsó önellenőrzés, és hogy megnyomtad-e az „Elestem” gombot. Mást nem.",
+      "request_formal": "{{name}} szeretné látni a heti összesítőjét: hány alkalom volt meg, az utolsó önellenőrzés, és hogy megnyomta-e az „Elestem” gombot. Mást nem.",
+      "accept": "Elfogadom",
+      "accepted": "Rendben, mostantól látja a heti összesítőt.",
+      "active": "Látja a heti összesítőt.",
+      "revoke": "Visszavonom",
+      "revoked": "Visszavonva. A segítő mostantól nem lát semmit."
+    }
+  },
+  "sheet": {
+    "title": "Heti lap",
+    "subtitle": "Egy A4-es oldal a hűtőre.",
+    "empty": "Erre a hétre még nincs nyomtatható lap.",
+    "print": "Nyomtatás",
+    "forLabel": "{{name}} heti lapja",
+    "weekOf": "{{start}} hete",
+    "restDay": "Pihenőnap",
+    "tick": "Megvolt",
+    "noExercises": "Egy koppintás a telefonon, vagy pipa ide.",
+    "footer": "Kalmio Move · A bemutatókat gyógytornász ellenőrizte."
+  },
+  "devices": {
+    "title": "Eszközök és naptár",
+    "subtitle": "Óra, naptár, exportok.",
+    "empty": "Még nincs összekapcsolt eszköz.",
+    "neverRequired": "Eszköz nélkül is minden működik. Az óra és a naptár csak kényelem.",
+    "garmin": {
+      "title": "Garmin óra",
+      "testersLine": "A Garmin-kapcsolat most csak a meghívott tesztfiókoknak elérhető.",
+      "email": "Garmin e-mail-cím",
+      "password": "Garmin jelszó",
+      "passwordNote": "A jelszót nem tároljuk a készüléken.",
+      "connect": "Összekapcsolás",
+      "connected": "Összekapcsolva.",
+      "mfaTitle": "Garmin-kód",
+      "mfaHint": "A Garmin küldött egy kódot. Írd be ide.",
+      "mfaHint_formal": "A Garmin küldött egy kódot. Írja be ide.",
+      "mfaCode": "Kód",
+      "confirm": "Megerősítés",
+      "status": {
+        "CONNECTED": "Összekapcsolva",
+        "MFA_REQUIRED": "Kódra vár",
+        "DISCONNECTED": "Nincs összekapcsolva",
+        "ERROR": "Hiba a kapcsolatban"
+      },
+      "lastSync": "Utolsó szinkron: {{when}}",
+      "neverSynced": "Még nem volt szinkron.",
+      "syncNow": "Szinkronizálás most",
+      "synced": "Szinkron elindítva.",
+      "disconnect": "Leválasztás",
+      "disconnected": "Leválasztva."
+    },
+    "calendar": {
+      "title": "Naptár",
+      "hint": "Add hozzá ezt a linket a naptáradhoz, az alkalmak leírásával együtt.",
+      "hint_formal": "Adja hozzá ezt a linket a naptárához, az alkalmak leírásával együtt.",
+      "copy": "Link másolása",
+      "copied": "Kimásolva.",
+      "rotate": "Új link",
+      "rotated": "Új link készült, a régi nem működik többé.",
+      "none": "Még nincs naptárlink.",
+      "create": "Link kérése"
+    },
+    "fit": {
+      "title": "Letöltés az órára",
+      "hint": "A séta, a futás és az erősítés alkalmai .FIT fájlként letölthetők a mai napra és a hétre.",
+      "download": "Letöltés az órára (.FIT)"
+    }
+  },
+  "settings": {
+    "title": "Mozgás beállításai",
+    "subtitle": "Ritmus, felszerelés, bemutató, betűméret.",
+    "demonstrator": {
+      "title": "Bemutató",
+      "hint": "Ki mutassa a gyakorlatokat? Mindegyik bemutató MI által készített, ellenőrzött kép.",
+      "choose": "Ezt választom",
+      "chosen": "Kiválasztva",
+      "noSheet": "Még nincs kép",
+      "empty": "Még nincs elérhető bemutató."
+    },
+    "textSize": {
+      "title": "Betűméret",
+      "hint": "A nagy betűméret az egész Mozgás részben érvényes.",
+      "NORMAL": "Normál",
+      "LARGE": "Nagy"
+    },
+    "sections": {
+      "rhythm": "Heti ritmus",
+      "equipment": "Felszerelés otthon",
+      "limits": "Kímélendő mozgások",
+      "devices": "Eszközök és naptár",
+      "helper": "Segítő",
+      "health": "Egészség",
+      "lifeState": "Élethelyzet",
+      "notifications": "Értesítés és megszólítás",
+      "family": "Közös 10 perc"
+    },
+    "saved": "Elmentve.",
+    "error": "Most nem sikerült — egy másodperc.",
+    "rhythm": {
+      "modalities": "Mozgásformák sorrendben",
+      "modalitiesHint": "Az első a legfontosabb; a hét ehhez igazodik.",
+      "up": "Előrébb",
+      "down": "Hátrébb",
+      "remove": "Eltávolítás",
+      "add": "Hozzáadás",
+      "addLabel": "Új mozgásforma",
+      "days": "Napok száma hetente",
+      "weekdays": "Melyik napokon?",
+      "weekdaysHint": "Üresen: bármelyik nap jó.",
+      "minutes": "Percek alkalmanként",
+      "fixed": "Fix órák",
+      "fixedEmpty": "Nincs fix óra.",
+      "regenerateHint": "Változás után a Hét oldalon kérhetsz újratervezést.",
+      "regenerateHint_formal": "Változás után a Hét oldalon kérhet újratervezést."
+    },
+    "equipment": {
+      "hint": "Ami otthon van. A súlyok az erősítés kiinduló terhelését adják.",
+      "dumbbells": "Kézisúlyzók (kg)",
+      "dumbbellsHint": "Jelöld, ami van.",
+      "dumbbellsHint_formal": "Jelölje, ami van.",
+      "bands": "Gumiszalag erőssége",
+      "band": {
+        "LIGHT": "Könnyű",
+        "MEDIUM": "Közepes",
+        "HEAVY": "Erős"
+      }
+    },
+    "limits": {
+      "hint": "Mondd el a saját szavaiddal, mit kímélünk. A gyakorlatok ehhez igazodnak.",
+      "hint_formal": "Mondja el a saját szavaival, mit kímélünk. A gyakorlatok ehhez igazodnak.",
+      "add": "Hozzáadás",
+      "pick": "Válassz egy mondatot",
+      "pick_formal": "Válasszon egy mondatot",
+      "remove": "Törlés",
+      "empty": "Nincs kímélendő mozgás.",
+      "statements": {
+        "kneeling": "Térdelni fáj",
+        "floor": "Nehéz lemenni a földre és felállni",
+        "overhead": "Fej fölé emelni fáj",
+        "bending": "Előrehajolni fáj",
+        "jumping": "Ugrálni nem jó",
+        "oneLeg": "Egy lábon állni bizonytalan",
+        "grip": "Nehéz erősen fogni",
+        "wrist": "A csuklómra nehezedni fáj",
+        "neck": "A nyakamat forgatni fáj",
+        "breath": "Nem jó visszatartani a levegőt"
+      },
+      "source": {
+        "SCREENING": "az egészségügyi kérdésekből",
+        "USER": "te adtad meg",
+        "USER_formal": "Ön adta meg",
+        "HELPER": "a segítő adta meg",
+        "FALL": "esés után"
+      }
+    },
+    "register": {
+      "title": "Megszólítás",
+      "hint": "Hogyan szólítsunk?",
+      "FORMAL": "Ön",
+      "INFORMAL": "Te"
+    },
+    "push": {
+      "title": "Napi értesítés",
+      "hint": "Legfeljebb naponta egy, az általad választott időben. Alkalom után csend.",
+      "hint_formal": "Legfeljebb naponta egy, az Ön által választott időben. Alkalom után csend.",
+      "off": "Kikapcsolva",
+      "on": "Bekapcsolva",
+      "time": "Időpont"
+    },
+    "hr": {
+      "title": "Pulzuscélok",
+      "hint": "Először az érzés és a beszédteszt. A pulzuscél választható.",
+      "on": "Be",
+      "off": "Ki"
+    },
+    "family": {
+      "hint": "A gyerekek életkora, akikkel együtt mozogtok. Játékok 3–8, ügyességi feladatok 9–12 éveseknek.",
+      "hint_formal": "A gyerekek életkora, akikkel együtt mozognak. Játékok 3–8, ügyességi feladatok 9–12 éveseknek.",
+      "add": "Életkor hozzáadása",
+      "ageLabel": "Életkor",
+      "age": "{{age}} éves",
+      "remove": "Eltávolítás",
+      "empty": "Nincs megadva életkor."
+    },
+    "health": {
+      "track": "Jelenlegi beállítás: {{track}}",
+      "trackName": {
+        "A": "ülő alkalmak",
+        "B": "könnyű, támogatott hét",
+        "C": "nincs korlát"
+      },
+      "doctor": "Megbeszéltem az orvosommal",
+      "doctorHint": "Ha megerősíted, az erősebb alkalmak is megnyílnak.",
+      "doctorHint_formal": "Ha megerősíti, az erősebb alkalmak is megnyílnak.",
+      "doctorDone": "Megerősítve.",
+      "reanswer": "Kérdések újra",
+      "reanswerHint": "Esés vagy betegség után érdemes újra válaszolni.",
+      "saved": "Köszönjük. A hét ehhez igazodik.",
+      "hrOff": "Pulzuscélok kikapcsolva a válaszok alapján."
+    },
+    "devicesLink": "Eszközök és naptár megnyitása",
+    "helperLink": "Segítő oldal megnyitása"
+  },
+  "review": {
+    "menuLabel": "Mozgásbemutatók",
+    "title": "Bemutatók ellenőrzése",
+    "subtitle": "Egy kép, mellette a kameraterv.",
+    "keyboardHint": "A: elfogad · R: elutasít · 1–6: indok · Enter: megerősít · N: kihagy · ←: vissza",
+    "count": "{{index}} / {{total}}",
+    "pendingCount": "{{count}} függőben",
+    "filters": {
+      "pack": "Csomag",
+      "character": "Bemutató",
+      "all": "Mind"
+    },
+    "approve": "Elfogad",
+    "reject": "Elutasít",
+    "skip": "Kihagy",
+    "back": "Vissza",
+    "confirm": "Megerősít",
+    "cancel": "Mégse",
+    "reasonTitle": "Elutasítás indoka",
+    "notePlaceholder": "Megjegyzés (nem kötelező)",
+    "reasons": {
+      "WRONG_JOINT_POSITION": "Rossz ízületi helyzet",
+      "WRONG_SUPPORT": "Rossz támasz",
+      "ANATOMY_ERROR": "Anatómiai hiba",
+      "EQUIPMENT_ERROR": "Felszerelési hiba",
+      "UNSAFE_RANGE": "Nem biztonságos mozgástartomány",
+      "STYLE_DRIFT": "Stíluseltérés"
+    },
+    "empty": "Nincs több ellenőrizendő bemutató.",
+    "startStill": "Kezdő állás",
+    "endStill": "Záró állás",
+    "shotCard": {
+      "title": "Kameraterv",
+      "poses": "Pózok",
+      "start": "Kezdő",
+      "end": "Záró",
+      "camera": "Kamera",
+      "checkpoints": "Ellenőrzőpontok",
+      "faults": "Gyakori hibák",
+      "cues": "Utasítások",
+      "formal": "Önöző",
+      "informal": "Tegező",
+      "equipment": "Felszerelés",
+      "other": "Egyéb"
+    },
+    "meta": {
+      "pack": "Csomag",
+      "character": "Bemutató",
+      "type": "Típus",
+      "attempt": "{{count}}. próbálkozás",
+      "version": "Kameraterv v{{version}}",
+      "reports": "{{count}} bejelentés",
+      "model": "Modell"
+    },
+    "approved": "Elfogadva.",
+    "rejected": "Elutasítva.",
+    "error": "Most nem sikerült — egy másodperc."
+  },
+  "log": {
+    "title": "Mást mozogtam",
+    "subtitle": "Beleszámít a hétbe.",
+    "modality": "Mit?",
+    "minutes": "Hány perc?",
+    "effort": "Milyen nehéz volt?",
+    "date": "Mikor?",
+    "submit": "Rögzítem",
+    "saved": "Rögzítve. Beleszámít a hétbe.",
+    "noRaiseLine": "Ettől a következő napok terve nem lesz nehezebb.",
+    "entryDoneSaved": "Megvolt, rögzítve.",
+    "loadingModalities": "Mozgásformák betöltése…"
+  },
+  "family": {
+    "title": "Közös 10 perc",
+    "subtitle": "A gyerekekkel együtt, Bogyó mutatja.",
+    "start": "Kezdjük",
+    "empty": "Ma nincs közös alkalom.",
+    "figureLine": "A gyakorlatokat a stilizált figura mutatja.",
+    "unitMinutes": "{{count}} perc",
+    "kind": {
+      "GAME": "Játék",
+      "CHALLENGE": "Ügyességi feladat",
+      "GRANDPARENT": "Nagyszülővel"
+    }
+  },
+  "report": {
+    "button": "Hibás a bemutató",
+    "title": "Mi a gond a bemutatóval?",
+    "note": "Megjegyzés (nem kötelező)",
+    "submit": "Elküldöm",
+    "sent": "Köszönjük, megnézzük."
+  },
+  "fall": {
+    "title": "Elestél?",
+    "title_formal": "Elesett?",
+    "intro": "Két kérdés, aztán a hét ehhez igazodik.",
+    "hurt": "Megütötted magad?",
+    "hurt_formal": "Megütötte magát?",
+    "doctor": "Jártál orvosnál azóta?",
+    "doctor_formal": "Járt orvosnál azóta?",
+    "yes": "Igen",
+    "no": "Nem",
+    "send": "Elküldöm",
+    "done": "Rendben. A hét egy fokkal több támasszal folytatódik, és néhány egészségügyi kérdést újra felteszünk.",
+    "paused": "A hét addig vár, amíg orvos meg nem vizsgál. Ha megbeszélted, jelezd a beállításokban.",
+    "paused_formal": "A hét addig vár, amíg orvos meg nem vizsgálja. Ha megbeszélte, jelezze a beállításokban.",
+    "rescreenCta": "Egészségügyi kérdések"
+  },
+  "lifeState": {
+    "question": "Hogy vagy? Visszatérjünk?",
+    "question_formal": "Hogy van? Visszatérjünk?",
+    "return": "Visszatérünk",
+    "notYet": "Még nem",
+    "until": "Visszatérés: {{date}}",
+    "travelNote": "Útközben felszerelés nélküli hét jön.",
+    "feverQuestion": "Volt lázad vagy mellkasi tüneted?",
+    "feverQuestion_formal": "Volt láza vagy mellkasi tünete?",
+    "rescreenFirst": "Előbb néhány egészségügyi kérdés, aztán indulunk.",
+    "returned": "Jó újra látni. A hét könnyebben indul.",
+    "title": "Élethelyzet",
+    "hint": "Ha beteg vagy, megsérültél vagy utazol, a hét vár. Emlékeztetőt nem küldünk.",
+    "hint_formal": "Ha beteg, megsérült vagy utazik, a hét vár. Emlékeztetőt nem küldünk.",
+    "SICK": "Beteg vagyok",
+    "INJURED": "Megsérültem",
+    "BREAK": "Szünetet tartok",
+    "TRAVEL": "Elutazom",
+    "ACTIVE": "Megy a hét",
+    "from": "Mettől?",
+    "to": "Meddig?",
+    "set": "Beállítom",
+    "current": "Most: {{state}}",
+    "clear": "Visszatérek",
+    "saved": "Rendben, a hét vár.",
+    "cleared": "Jó újra látni. A hét könnyebben indul."
+  }
+}

@@ -10,10 +10,11 @@
  */
 import { useRef, useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck, Network } from 'lucide-react'
+import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck, Network, ScanEye } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
+import { useMoveStatus } from '@/features/move'
 
 interface AdminPopupMenuProps {
   /** Called when the user navigates — callers may close an outer overflow panel. */
@@ -35,9 +36,14 @@ const ADMIN_ITEMS = [
   { to: '/app/admin/retail/providers', icon: Truck, labelKey: 'admin.popup.retailProviders' },
 ] as const
 
+// Kalmio Move review queue — shown only while the movement gate is on for the
+// caller, so a disabled flag leaves no trace of Move anywhere (D8 invariant).
+const MOVE_ADMIN_ITEM = { to: '/app/admin/move/review', icon: ScanEye, labelKey: 'move:review.menuLabel' } as const
+
 export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMenuProps) {
   const { t } = useTranslation()
   const isAdmin = useAuthStore((s) => s.isAdmin)
+  const { status: moveStatus } = useMoveStatus()
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -117,7 +123,7 @@ export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMe
                 : 'bottom-full mb-2 left-4 right-4'
             )}
           >
-            {ADMIN_ITEMS.map(({ to, icon: Icon, labelKey }) => (
+            {[...ADMIN_ITEMS, ...(moveStatus.enabled ? [MOVE_ADMIN_ITEM] : [])].map(({ to, icon: Icon, labelKey }) => (
               <NavLink
                 key={to}
                 to={to}

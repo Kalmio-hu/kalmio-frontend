@@ -60,6 +60,9 @@ import { CookMode } from '@/pages/CookMode'
 import { RetailConnectCallback } from '@/pages/RetailConnectCallback'
 import { RecipeDetail } from '@/pages/RecipeDetail'
 import { CraftConference } from '@/pages/CraftConference'
+import { MoveReviewQueue } from '@/pages/admin/MoveReviewQueue'
+// Kalmio Move — loaded on demand through the feature index only (movement-prd.md D8).
+import { MoveRoutes, MoveStartRoute, MovePlayerRoute, MoveLandingRoute } from '@/features/move'
 
 // _preview pages — lazy-loaded and only registered as routes in DEV.
 // Vite's dead-code elimination ensures they are absent from production chunks.
@@ -165,6 +168,8 @@ export default function App() {
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            {/* Kalmio Move public landing — leads straight into /app/move/start (D8 rule 9) */}
+            <Route path="/move" element={<MoveLandingRoute />} />
             {/* Guest-first Founding Member checkout — PUBLIC. A visitor pays before
                 creating an account; the payment is claimed after they register. */}
             <Route path="/founding-member" element={<GuestFoundingMember />} />
@@ -179,6 +184,10 @@ export default function App() {
               <Route path="/app/onboarding" element={<OnboardingShell />} />
               {/* Conversational onboarding alternative — E11.7, premium-only */}
               <Route path="/app/onboarding/conversational" element={<ConversationalOnboarding />} />
+              {/* Kalmio Move start flow and full-screen player — OUTSIDE OnboardingGate's
+                  nutrition logic and outside both shells (movement-build-contract.md §2). */}
+              <Route path="/app/move/start" element={<MoveStartRoute />} />
+              <Route path="/app/move/session/:sessionId" element={<MovePlayerRoute />} />
               {/* OnboardingGate — redirects first-time users to /app/onboarding.
                   Passes through for users who have completed or skipped onboarding.
                   See src/components/OnboardingGate.tsx — KALMIO-45. */}
@@ -187,6 +196,9 @@ export default function App() {
                     pixel for the phone-propped-in-the-kitchen experience. */}
                 <Route path="/app/recipes/:id/cook" element={<CookMode />} />
                 <Route path="/app/retail/connect/callback" element={<RetailConnectCallback />} />
+                {/* Kalmio Move space — its own shell with four destinations (D8 rule 2).
+                    The gate always lets /app/move/* through. */}
+                <Route path="/app/move/*" element={<MoveRoutes />} />
                 <Route path="/app" element={<AppShell />}>
                   <Route index element={<Dashboard />} />
                   {/* Recipe detail page — must appear before the list route so
@@ -241,6 +253,8 @@ export default function App() {
                     {/* Retail routes moved under admin (KALMIO-305) */}
                     <Route path="admin/retail/products" element={<RetailProducts />} />
                     <Route path="admin/retail/providers" element={<RetailProviders />} />
+                    {/* Kalmio Move demonstration review queue (movement-prd.md §12.4) */}
+                    <Route path="admin/move/review" element={<MoveReviewQueue />} />
                   </Route>
                 </Route>
               </Route>

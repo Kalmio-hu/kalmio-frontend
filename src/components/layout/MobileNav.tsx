@@ -15,6 +15,7 @@ import {
   Star,
   Trees,
   UserRound,
+  Footprints,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
@@ -24,6 +25,7 @@ import { FeedbackPanel } from '@/components/FeedbackPanel'
 import { feedbackService } from '@/services/feedback'
 import { usersService, USERS_ME_QUERY_KEY, USERS_STAGE_QUERY_KEY } from '@/services/users'
 import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
+import { useMoveStatus, MOVE_ACCENT } from '@/features/move'
 
 // Overflow routes — for checking active state of the "Több" trigger
 // Calendar + Grooming removed per KALMIO-332; fridge added (moves from primary to overflow)
@@ -68,6 +70,11 @@ export function MobileNav() {
 
   const isGraduated =
     stageData?.currentStage === 'FIATAL' || stageData?.currentStage === 'TERMO'
+
+  // Kalmio Move entry: one line, only while the gate is on and Move is not yet
+  // started (D8 rule 4). Both active → the Header switcher is the entry.
+  const { status: moveStatus } = useMoveStatus()
+  const showMoveEntry = moveStatus.enabled && !moveStatus.spaceActive
 
   // Close overflow when clicking outside
   useEffect(() => {
@@ -195,6 +202,20 @@ export function MobileNav() {
               <Settings className="h-5 w-5 shrink-0" />
               {t('nav.settings')}
             </NavLink>
+
+            {/* Mozgás — Kalmio Move start, only until the space is active */}
+            {showMoveEntry && (
+              <NavLink
+                to="/app/move/start"
+                role="menuitem"
+                onClick={() => setOverflowOpen(false)}
+                className={({ isActive }) => overflowItemClass(isActive)}
+                style={{ color: MOVE_ACCENT }}
+              >
+                <Footprints className="h-5 w-5 shrink-0" aria-hidden />
+                {t('move:nav.enterMove')}
+              </NavLink>
+            )}
 
             {/* Grove — graduated users only */}
             {isGraduated && (

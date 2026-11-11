@@ -36,6 +36,8 @@ import { useAuthStore } from '@/store/auth'
 import { todayIsoLocal, addDaysIsoLocal } from '@/lib/utils'
 import { PermissionPromptDialog } from '@/components/notification/PermissionPromptDialog'
 import { notificationService } from '@/services/notificationService'
+// Kalmio Move: the one movement card on the shared "Ma" screen (movement-prd.md §10)
+import { MoveTodayBlock, useMoveStatus } from '@/features/move'
 
 // ── View preference persistence ─────────────────────────────────────────────
 
@@ -201,12 +203,17 @@ export function Dashboard() {
   const planQueriesLoading = activePlanLoading || plannedMealsLoading
   const hasActivePlan = activePlan != null
 
+  // Kalmio Move: a Move-only member has no plan but still needs the dashboard
+  // payload for the movement block, so the query is on whenever Move is active.
+  const { status: moveStatus } = useMoveStatus()
+  const moveActive = moveStatus.enabled && moveStatus.spaceActive
+
   // DashboardDto — single endpoint for meals, prep tasks, plan glance, flags.
   const { data: dashboardData } = useQuery({
     queryKey: ['dashboard', today],
     queryFn: () => dashboardService.get(today),
     staleTime: 30_000,
-    enabled: hasActivePlan,
+    enabled: hasActivePlan || moveActive,
   })
 
   const { data: dashboardState } = useQuery({
@@ -304,6 +311,14 @@ export function Dashboard() {
       {/* ── Daily view ──────────────────────────────────────────────────────── */}
       {view === 'daily' && (
         <>
+          {/* Kalmio Move — morning check-in strip and today card, first on the
+              timeline (PRD §10). Renders nothing unless dashboard.movement is present. */}
+          {moveActive && dashboardData?.movement != null && (
+            <div className="px-4 pt-4 pb-2">
+              <MoveTodayBlock movement={dashboardData.movement} />
+            </div>
+          )}
+
           {/* Body data hint — collapsible, shown when body data is entirely missing */}
           {bodyDataIncomplete && <BodyDataHintCard userId={userId} />}
 

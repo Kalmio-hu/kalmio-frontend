@@ -1,0 +1,991 @@
+{
+  "brand": {
+    "name": "Kalmio Move",
+    "suffix": "Move",
+    "aiLabel": "AI-generated demonstration",
+    "reviewedLine": "The demonstrations were checked by a physiotherapist."
+  },
+  "common": {
+    "loading": "One moment…",
+    "error": "That did not work just now — one second.",
+    "retry": "Try again",
+    "back": "Back",
+    "save": "Save",
+    "saved": "Saved.",
+    "cancel": "Cancel",
+    "close": "Close",
+    "minutes": "{{count}} min",
+    "inProgress": "This part is still being built."
+  },
+  "nav": {
+    "today": "Today",
+    "week": "Week",
+    "library": "Exercises",
+    "progress": "Progress",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "enterMove": "Movement",
+    "enterMoveHint": "Three times a week, 15 minutes, at home.",
+    "mainLabel": "Movement menu"
+  },
+  "switcher": {
+    "label": "Switch area",
+    "nutrition": "Food",
+    "move": "Movement"
+  },
+  "landing": {
+    "title": "Kalmio Move",
+    "tagline": "Three times a week, 15 minutes, at home.",
+    "lead": "Short, guided movement in your own living room. No membership, no equipment, no rush.",
+    "what": {
+      "title": "What is it?",
+      "body": "Kalmio Move plans a few short sessions a week for you: walking, strength, stretching or chair exercises, whatever suits you. Every session is a series of steps, one instruction and one demonstration at a time."
+    },
+    "safety": {
+      "title": "Safety first",
+      "body": "We start with ten short questions and the week adapts to them. The rule is on every screen: stop if you feel dizzy, feel chest pain, or find it unusually hard to breathe."
+    },
+    "points": {
+      "home": "At home, at your own pace",
+      "short": "Fifteen minutes count",
+      "plain": "Plain words, one instruction at a time"
+    },
+    "cta": "Let's start",
+    "signInHint": "After signing in, set-up takes about a minute."
+  },
+  "start": {
+    "title": "Let's start",
+    "subtitle": "Seven short steps and you have a first session today.",
+    "subtitle_formal": "Seven short steps and you will have a first session today.",
+    "exit": "Back",
+    "steps": {
+      "forWhom": "Who is it for?",
+      "modalities": "What do you enjoy, or what would you try?",
+      "modalities_formal": "What do you enjoy, or what would you try?",
+      "schedule": "How often and how long?",
+      "equipment": "What do you have at home?",
+      "health": "A few health questions",
+      "result": "Your week",
+      "result_formal": "Your week"
+    },
+    "cta": "Let's start",
+    "alreadyActive": "Movement is already set up.",
+    "goToToday": "Go to today",
+    "forWhom": {
+      "self": "For myself",
+      "other": "I am setting it up for someone else",
+      "hint": "When you set it up for someone else, the wording becomes formal.",
+      "helperNote": "You fill it in together, on their phone or yours. They get the simplest view: large text, one instruction at a time. You see the weekly summary only with their consent.",
+      "memberLabel": "For whom?",
+      "memberHint": "Pick a family member, or link up later on the Helper page.",
+      "memberNone": "Link up later"
+    },
+    "next": "Next",
+    "back": "Back",
+    "later": "Later",
+    "stepOf": "Step {{index}} of {{total}}",
+    "underage": {
+      "title": "This part is for adults.",
+      "body": "Children appear on the parent's plan as a shared session: \"Shared 10 minutes\". The parent finds it in their own Move section.",
+      "back": "Back"
+    },
+    "modalities": {
+      "hint": "Pick as many as you like. The picture is enough.",
+      "hint_formal": "Pick as many as you like. The picture is enough.",
+      "recommend": "I don't know, suggest something",
+      "recommended": "Our suggestion to begin with. You can change it any time.",
+      "recommended_formal": "Our suggestion to begin with. You can change it any time.",
+      "singleRole": "Two short strength sessions a week add a lot to this. Shall I put them in?",
+      "singleRoleAdd": "Yes, put them in",
+      "singleRoleAdd_formal": "Yes, put them in",
+      "empty": "We could not load the activities right now.",
+      "picked": "{{count}} picked"
+    },
+    "schedule": {
+      "days": "How many days a week?",
+      "daysValue": "{{count}} days",
+      "minutes": "How long per session?",
+      "fixedTitle": "Fixed classes (optional)",
+      "fixedHint": "Yoga, swimming, team practice — anything on a set day at a set time. The week is built around them.",
+      "fixedAdd": "Add a fixed class",
+      "fixedName": "What is it?",
+      "fixedWeekday": "Which day?",
+      "fixedTime": "When does it start?",
+      "fixedDuration": "How long?",
+      "fixedSave": "Add",
+      "fixedRemove": "Remove",
+      "fixedLater": "You can add these later in settings.",
+      "fixedLater_formal": "You can add these later in settings.",
+      "fixedLine": "{{name}} · {{weekday}} {{time}} · {{minutes}} min"
+    },
+    "equipment": {
+      "hint": "What you have at home. Weights are asked at the first strength session.",
+      "items": {
+        "NONE": "Nothing",
+        "DUMBBELLS": "Dumbbells",
+        "BANDS": "Resistance bands",
+        "CHAIR": "A sturdy chair",
+        "MAT": "A mat",
+        "BIKE": "A bike",
+        "STEP": "A stair step",
+        "PULL_UP_BAR": "A pull-up bar"
+      }
+    },
+    "health": {
+      "intro": "Ten short questions. The answers only set the intensity; they never take access away. We store only the resulting setting, not the answers.",
+      "yes": "Yes",
+      "no": "No",
+      "skip": "Skip",
+      "skipped": "Skipped. The week is built cautiously and we will ask again later.",
+      "skipped_formal": "Skipped. The week is built cautiously and we will ask again later.",
+      "answerAfterAll": "Answer after all",
+      "remaining": "{{count}} questions left",
+      "q": {
+        "chestPain": "In the last six months, have you felt chest pain or tightness?",
+        "chestPain_formal": "In the last six months, have you felt chest pain or tightness?",
+        "fainting": "In the last six months, have you felt faint or fainted?",
+        "fainting_formal": "In the last six months, have you felt faint or fainted?",
+        "breathlessAtRest": "Are you short of breath even at rest?",
+        "breathlessAtRest_formal": "Are you short of breath even at rest?",
+        "knownDisease": "Do you have a known heart, lung or metabolic condition (for example diabetes)?",
+        "knownDisease_formal": "Do you have a known heart, lung or metabolic condition (for example diabetes)?",
+        "fellOnce": "Have you fallen in the last year?",
+        "fellOnce_formal": "Have you fallen in the last year?",
+        "fellTwice": "Have you fallen twice or more in the last year?",
+        "fellTwice_formal": "Have you fallen twice or more in the last year?",
+        "chairStandNoHands": "Can you stand up from a chair without using your hands?",
+        "chairStandNoHands_formal": "Can you stand up from a chair without using your hands?",
+        "painAvoidsMovement": "Is there pain during movement that makes you avoid certain movements?",
+        "painAvoidsMovement_formal": "Is there pain during movement that makes you avoid certain movements?",
+        "betaBlockerOrInsulin": "Do you take a beta blocker or insulin?",
+        "betaBlockerOrInsulin_formal": "Do you take a beta blocker or insulin?",
+        "doctorSaidSupervised": "Has a doctor told you to exercise only under supervision?",
+        "doctorSaidSupervised_formal": "Has a doctor told you to exercise only under supervision?"
+      }
+    },
+    "result": {
+      "building": "Building your week…",
+      "building_formal": "Building your week…",
+      "ready": "Your week is ready.",
+      "ready_formal": "Your week is ready.",
+      "firstToday": "First session today: {{modality}}, {{minutes}} min.",
+      "noFirst": "Your first session is waiting on one of the next days.",
+      "trackA": "We start with seated sessions. Talk to your GP before you begin.",
+      "trackA_formal": "We start with seated sessions. Talk to your GP before you begin.",
+      "trackB": "We start with a light, supported week. Harder sessions open once you confirm \"I have discussed it with my doctor\".",
+      "trackB_formal": "We start with a light, supported week. Harder sessions open once you confirm \"I have discussed it with my doctor\".",
+      "hrOff": "We work without heart-rate targets: breathing and how you feel set the pace.",
+      "weekTitle": "Your week on one screen",
+      "weekTitle_formal": "Your week on one screen",
+      "failed": "The week could not be built right now. Please try again.",
+      "failed_formal": "The week could not be built right now. Please try again."
+    }
+  },
+  "today": {
+    "title": "Today",
+    "restDay": "Rest day",
+    "tomorrow": "Tomorrow: {{line}}",
+    "start": "Start",
+    "other": "Something else",
+    "notToday": "Not today",
+    "notTodayQuestion": "What would work?",
+    "shorter": "Just a shorter one",
+    "later": "Another time",
+    "unwell": "I am not feeling well",
+    "empty": "No session planned for today.",
+    "empty_formal": "No session planned for today.",
+    "gapLine": "Missed. The week goes on.",
+    "firstOffer": "First session today: {{minutes}} minutes.",
+    "swapped": "Done, another session is on for today.",
+    "moved": "All right, the week adjusts.",
+    "unwellSet": "All right, the week waits until you feel better.",
+    "unwellSet_formal": "All right, the week waits until you feel better.",
+    "sessionLabel": "{{modality}} · {{minutes}} min",
+    "lifeState": {
+      "SICK": "You are resting while ill. The week waits.",
+      "SICK_formal": "You are resting while ill. The week waits.",
+      "INJURED": "Easy after an injury. The week waits.",
+      "BREAK": "On a break. We continue when it suits you.",
+      "TRAVEL": "You are travelling. The week waits.",
+      "TRAVEL_formal": "You are travelling. The week waits."
+    },
+    "fallButton": "I fell",
+    "unplanned": "I moved differently",
+    "gap": {
+      "title": "Good to see you again.",
+      "offer": "Five minutes count too. Shall we start with that?",
+      "cta": "Five minutes"
+    },
+    "diff": {
+      "title": "A change this week",
+      "ok": "OK",
+      "decline": "Rather skip it",
+      "why": "Why?",
+      "accepted": "Done, the week adjusts.",
+      "declined": "Kept as it was."
+    },
+    "selfTest": {
+      "title": "30-second chair stand",
+      "how": "Chair against a wall, arms crossed on the chest. How many times can you stand up and sit back down in 30 seconds?",
+      "input": "Number of stands",
+      "save": "Save",
+      "saved": "Saved.",
+      "later": "Another time",
+      "progressLine": "{{weeks}} weeks ago you stood up {{previous}}, today {{latest}}.",
+      "progressLine_formal": "{{weeks}} weeks ago you stood up {{previous}}, today {{latest}}."
+    },
+    "screeningPending": {
+      "title": "A few questions about your health",
+      "body": "The week was built cautiously. If you answer, it fits you more closely.",
+      "body_formal": "The week was built cautiously. If you answer, it fits you more closely.",
+      "cta": "Answer now"
+    },
+    "firstOfferTitle": "First session",
+    "restTomorrow": "Rest day. Tomorrow: {{line}}"
+  },
+  "checkin": {
+    "title": "How are you today?",
+    "title_formal": "How are you today?",
+    "feeling": {
+      "q": "How do you feel today?",
+      "good": "Good",
+      "average": "Average",
+      "tired": "Tired"
+    },
+    "soreness": {
+      "q": "Soreness or pain?",
+      "none": "None",
+      "mild": "Mild",
+      "strong": "Strong"
+    },
+    "sleep": {
+      "q": "How was your sleep?",
+      "good": "Good",
+      "medium": "So-so",
+      "poor": "Poor"
+    },
+    "sick": "I am ill",
+    "dismiss": "Not now",
+    "ok": "All right",
+    "keepOriginal": "Keep the original",
+    "why": "Why?",
+    "unchanged": "Today's plan stays.",
+    "light": {
+      "GREEN": "Green: the plan stands",
+      "AMBER": "Amber: an easier day",
+      "RED": "Red: rest today",
+      "ILL": "Ill: the week waits"
+    },
+    "regionLabel": "Morning check-in"
+  },
+  "player": {
+    "title": "Session",
+    "stopRule": "Stop if you feel dizzy, feel chest pain, or find it unusually hard to breathe.",
+    "stopRule_formal": "Stop if you feel dizzy, feel chest pain, or find it unusually hard to breathe.",
+    "next": "Next",
+    "previous": "Previous",
+    "pause": "Pause",
+    "resume": "Resume",
+    "shorter": "Make it shorter",
+    "report": "Demonstration looks wrong",
+    "exit": "Exit",
+    "stop": "Stop here",
+    "stepCount": "{{index}} / {{total}}",
+    "loading": "Preparing the session…",
+    "error": "The session will not open right now. Please try again.",
+    "error_formal": "The session will not open right now. Please try again.",
+    "offlineReady": "Available offline too.",
+    "dials": {
+      "title": "Before you start",
+      "title_formal": "Before you start",
+      "hint": "Four things you can set. If it looks right, go ahead.",
+      "hint_formal": "Four things you can set. If it looks right, go ahead.",
+      "minutes": "How much time do you have?",
+      "minutes_formal": "How much time do you have?",
+      "equipment": "What is at hand?",
+      "focus": "What should we focus on?",
+      "demonstrator": "Who should demonstrate?",
+      "start": "Let's start",
+      "skip": "Looks right, go",
+      "focusOptions": {
+        "DEFAULT": "As planned",
+        "LOWER_BODY": "Legs",
+        "UPPER_BODY": "Arms and back",
+        "BALANCE": "Balance",
+        "MOBILITY": "Mobility",
+        "CORE": "Core"
+      },
+      "equipmentOptions": {
+        "NONE": "Nothing",
+        "DUMBBELLS": "Dumbbells",
+        "BANDS": "Bands",
+        "CHAIR": "Chair",
+        "MAT": "Mat",
+        "BIKE": "Bike"
+      }
+    },
+    "fit": {
+      "download": "Download to watch (.FIT)",
+      "error": "The file is not ready just now — one second."
+    },
+    "setup": {
+      "title": "Set yourself up",
+      "title_formal": "Set yourself up",
+      "line": "Prop the phone 1.5–2 metres away at chest height so you can see the demonstration.",
+      "line_formal": "Prop the phone 1.5–2 metres away at chest height so you can see the demonstration.",
+      "support": "Keep the kitchen counter or a steady chair within reach.",
+      "ready": "I am ready"
+    },
+    "shortened": "Shorter now: the optional parts are left out.",
+    "reducedMotion": "Stills only, no motion.",
+    "paused": "Paused",
+    "media": {
+      "startPose": "Start position",
+      "endPose": "End position",
+      "alt": "Demonstration: {{title}}",
+      "textOnly": "Text guide",
+      "familyFigure": "Shown by Bogyó"
+    },
+    "cues": "Watch for",
+    "cues_formal": "Watch for",
+    "faults": "Common faults",
+    "card": {
+      "target": "Target: {{sets}} × {{reps}}",
+      "targetSeconds": "Target: {{sets}} × {{seconds}} s",
+      "targetWeight": "{{kg}} kg",
+      "setRow": "Set {{index}}",
+      "weightKg": "Weight (kg)",
+      "reps": "Reps",
+      "seconds": "Seconds",
+      "setDone": "Done",
+      "setUndo": "Undo",
+      "lastResults": "Last time",
+      "rest": "Rest",
+      "restSkip": "Go on",
+      "swap": "Another exercise",
+      "swapTitle": "Instead",
+      "swapEmpty": "No substitute right now.",
+      "swapped": "Done, swapped.",
+      "feedbackQ": "How was it?",
+      "feedback": {
+        "EASY": "Could have done much more",
+        "RIGHT": "Just right",
+        "HARD": "Could not finish"
+      },
+      "startingLoadQ": "How many more could you have done?",
+      "startingLoadQ_formal": "How many more could you have done?",
+      "startingLoadHint": "In repetitions, after the last set.",
+      "sixPlus": "6+"
+    },
+    "flow": {
+      "count": "Count: {{count}}",
+      "count_formal": "Count: {{count}}",
+      "seconds": "{{count}} seconds",
+      "easier": "Easier",
+      "harder": "Harder",
+      "switchedEasier": "Done, the easier version.",
+      "switchedHarder": "Done, the harder version.",
+      "tapWhenDone": "When done, tap Next.",
+      "tapWhenDone_formal": "When done, tap Next."
+    },
+    "target": {
+      "elapsed": "Elapsed",
+      "segments": "Segments",
+      "band": {
+        "EASY": "easy",
+        "MODERATE": "moderate",
+        "HARD": "hard"
+      },
+      "talk": {
+        "EASY": "You can hold a conversation.",
+        "EASY_formal": "You can hold a conversation.",
+        "MODERATE": "Short sentences work.",
+        "HARD": "Only a few words."
+      },
+      "cueLabel": "Spoken cue"
+    },
+    "drill": {
+      "task": "Task",
+      "diagramAlt": "Set-up from above",
+      "selfScoreQ": "How did it go?",
+      "selfScoreHint": "1 = hard going, 5 = smooth"
+    },
+    "entry": {
+      "when": "When",
+      "where": "Where",
+      "done": "Done",
+      "hint": "When it is done, one tap and the effort.",
+      "noDetails": "No time set."
+    },
+    "poolside": {
+      "title": "Poolside card",
+      "hint": "Print it; the phone can stay in the locker.",
+      "hint_formal": "Print it; the phone can stay in the locker.",
+      "print": "Print",
+      "done": "Done"
+    },
+    "completion": {
+      "effortQ": "How hard was it?",
+      "anchorEasy": "easy",
+      "anchorMid": "moderate",
+      "anchorHard": "very hard",
+      "effortValue": "{{value}} / 10",
+      "comfortQ": "Did anything hurt during it?",
+      "comfort": {
+        "NO": "No",
+        "LITTLE": "A little",
+        "YES": "Yes"
+      },
+      "whereQ": "Where?",
+      "region": {
+        "NECK_SHOULDER": "Neck, shoulder",
+        "BACK": "Back",
+        "HIP": "Hip",
+        "KNEE": "Knee",
+        "ANKLE_FOOT": "Ankle, foot",
+        "ARM_WRIST": "Arm, wrist"
+      },
+      "bodyMapLabel": "Body map, six regions",
+      "done": "Done",
+      "saved": "Done. That is enough for today.",
+      "saved_formal": "Done. That is enough for today.",
+      "queued": "Saved. It will be sent once you are back online.",
+      "backHome": "Back to today",
+      "durationLine": "{{minutes}} min"
+    },
+    "lastStep": "Last step",
+    "finish": "Finish",
+    "resumeLine": "Picking up where you left off.",
+    "resumeLine_formal": "Picking up where you left off."
+  },
+  "week": {
+    "title": "Week",
+    "subtitle": "Your week on one screen.",
+    "subtitle_formal": "Your week on one screen.",
+    "empty": "No plan for this week yet.",
+    "target": "{{done}} / {{planned}} sessions",
+    "regenerate": "Replan",
+    "targetLine": "{{done}} / {{planned}} this week",
+    "reserveRule": "One fewer still counts as an active week.",
+    "activeWeek": "Active week",
+    "restDay": "Rest day",
+    "fixedClass": "Fixed class",
+    "intensity": {
+      "easy": "easy",
+      "moderate": "moderate",
+      "hard": "hard"
+    },
+    "status": {
+      "PLANNED": "Planned",
+      "DONE": "Done",
+      "PLAN_B": "Short version done",
+      "MISSED": "Skipped",
+      "ADDED": "Added",
+      "MOVED": "Moved",
+      "DROPPED": "Skipped"
+    },
+    "prev": "Previous week",
+    "next": "Next week",
+    "thisWeek": "This week",
+    "today": "Today",
+    "dragHint": "Grab a card and drag it to another day. With a keyboard: Actions → Another day.",
+    "dragHint_formal": "Grab a card and drag it to another day. With a keyboard: Actions → Another day.",
+    "moved": "Moved.",
+    "refused": "Not possible: {{reason}}",
+    "refusedGeneric": "That day does not suit this session right now.",
+    "actions": "Actions",
+    "moveTo": "Another day",
+    "moveToDay": "Move to {{day}}",
+    "swapTitle": "Something else",
+    "swapHint": "These are of the same kind:",
+    "swapOther": "Another variant of the same",
+    "swapNone": "No other activity fits here right now.",
+    "swapped": "Swapped.",
+    "notToday": "Not today",
+    "notTodayQuestion": "What would work?",
+    "shorter": "Just a shorter one",
+    "later": "Another time",
+    "unwell": "I'm not well",
+    "start": "Start",
+    "regenerateHint": "If your availability changed, ask for a new week. You get a proposal first; nothing changes on its own.",
+    "regenerateHint_formal": "If your availability changed, ask for a new week. You get a proposal first; nothing changes on its own.",
+    "regenerateNoChange": "No change, the week stays.",
+    "chipLabel": "{{modality}}, {{minutes}} min, {{intensity}}",
+    "dayLabel": "{{weekday}}, {{date}}"
+  },
+  "library": {
+    "title": "Exercises",
+    "subtitle": "Checked demonstrations, with your chosen demonstrator.",
+    "subtitle_formal": "Checked demonstrations, with your chosen demonstrator.",
+    "empty": "No exercises for this filter.",
+    "filterPack": "Pack",
+    "filterLevel": "Level",
+    "all": "All",
+    "detail": "Demonstration",
+    "cues": "Watch for",
+    "cues_formal": "Watch for",
+    "faults": "Common faults",
+    "textOnly": "Text guide, no image.",
+    "levelLabel": "Level {{level}}",
+    "open": "Open",
+    "equipment": "Equipment",
+    "noEquipment": "No equipment",
+    "startPose": "Start position",
+    "endPose": "End position"
+  },
+  "progress": {
+    "title": "Progress",
+    "subtitle": "Active weeks, self-checks, levels.",
+    "empty": "Your progress appears here after the first session.",
+    "empty_formal": "Your progress appears here after the first session.",
+    "activeWeeks": "{{count}} active weeks of the last 12",
+    "strip": {
+      "title": "The last 12 weeks",
+      "ACTIVE": "active",
+      "RESERVE": "active with reserve",
+      "INACTIVE": "skipped",
+      "FUTURE": "ahead",
+      "cell": "{{date}}: {{mark}}, {{done}} / {{planned}}",
+      "legend": "Active: the plan was done, or one fewer."
+    },
+    "selfTests": {
+      "title": "Chair stand",
+      "empty": "No result yet. We ask every four weeks on the Today page.",
+      "date": "Date",
+      "value": "Result",
+      "kind": {
+        "SIT_TO_STAND_30S": "30 s chair stand",
+        "SINGLE_LEG_STAND": "Single-leg stand (s)",
+        "WALK_6MIN": "6-minute walk (m)",
+        "OTHER": "Other"
+      },
+      "chartLabel": "Chair stands over time"
+    },
+    "levels": {
+      "title": "Where you are",
+      "title_formal": "Where you are",
+      "none": "Appears after the first weeks.",
+      "supported": {
+        "L0": "Seated — a steady base",
+        "L1": "Holding on — steadier standing",
+        "L2": "Light support — steadier walking",
+        "L3": "No support — stronger legs, free steps"
+      },
+      "endurance": {
+        "W": "Walking — a comfortable pace",
+        "RW": "Walking and running in turns",
+        "R1": "Continuous running",
+        "R2": "Running with changing pace"
+      },
+      "strength": {
+        "BEGINNER": "Strength — the basics",
+        "INTERMEDIATE": "Strength — stronger legs, stronger back",
+        "ADVANCED": "Strength — solid technique, more load"
+      }
+    },
+    "load": {
+      "title": "Load over the last weeks",
+      "load": "load",
+      "fitness": "fitness",
+      "fatigue": "fatigue",
+      "form": "form",
+      "locked": "Appears after six weeks.",
+      "hint": "Not a score: it shows how the work was spread.",
+      "chartLabel": "Load, fitness, fatigue and form by week"
+    },
+    "goals": {
+      "title": "Goal",
+      "open": "Let's see how much goes today. Nothing to measure against but your own pace.",
+      "open_formal": "Let's see how much goes today. Nothing to measure against but your own pace.",
+      "own": "Targets come from your own previous weeks. Nobody is compared with anyone else.",
+      "own_formal": "Targets come from your own previous weeks. Nobody is compared with anyone else."
+    }
+  },
+  "helper": {
+    "title": "Helper",
+    "subtitle": "Who you help, and who helps you.",
+    "subtitle_formal": "Who you help, and who helps you.",
+    "empty": "No helper linked yet.",
+    "asHelper": "Who you help",
+    "asHelper_formal": "Who you help",
+    "asHelped": "Who helps you",
+    "asHelped_formal": "Who helps you",
+    "noChat": "No messaging, only the three encouragements.",
+    "invite": {
+      "title": "New person to help",
+      "hint": "They accept on their own device and can withdraw at any time.",
+      "email": "Email address",
+      "member": "Family member",
+      "memberPlaceholder": "Choose a family member",
+      "or": "or",
+      "submit": "Invite",
+      "sent": "Invitation sent. They accept it on their own device."
+    },
+    "pending": "Waiting for their consent.",
+    "someone": "Person you help",
+    "summary": {
+      "title": "This week",
+      "done": "{{done}} / {{planned}} sessions done",
+      "lastSelfTest": "Last self-test: {{value}} stands ({{date}})",
+      "noSelfTest": "No self-test yet.",
+      "fallYes": "\"I fell\" pressed: yes",
+      "fallNo": "\"I fell\" pressed: no",
+      "notConsented": "Until they consent, you see nothing.",
+      "notConsented_formal": "Until they consent, you see nothing."
+    },
+    "encourage": {
+      "title": "Send an encouragement",
+      "title_formal": "Send an encouragement",
+      "ENC_PROUD": "Büszke vagyok rád. (I am proud of you.)",
+      "ENC_KEEP_GOING": "Csak így tovább, szép lassan. (Keep going, nice and slow.)",
+      "ENC_SEE_YOU": "Jövő héten találkozunk, addig is jó mozgást. (See you next week, enjoy moving until then.)",
+      "sent": "Sent."
+    },
+    "logOnBehalf": {
+      "title": "Done, I will log it",
+      "pick": "Which session?",
+      "submit": "Log it",
+      "saved": "Logged.",
+      "none": "No open session this week."
+    },
+    "sheetFor": "Print the weekly sheet",
+    "consent": {
+      "request": "{{name}} would like to see your weekly summary: sessions done, the last self-test, and whether you pressed \"I fell\". Nothing else.",
+      "request_formal": "{{name}} would like to see your weekly summary: sessions done, the last self-test, and whether you pressed \"I fell\". Nothing else.",
+      "accept": "Accept",
+      "accepted": "All right, they now see the weekly summary.",
+      "active": "Sees the weekly summary.",
+      "revoke": "Withdraw",
+      "revoked": "Withdrawn. The helper sees nothing from now on."
+    }
+  },
+  "sheet": {
+    "title": "Weekly sheet",
+    "subtitle": "One A4 page for the fridge door.",
+    "empty": "No printable sheet for this week yet.",
+    "print": "Print",
+    "forLabel": "{{name}}'s weekly sheet",
+    "weekOf": "Week of {{start}}",
+    "restDay": "Rest day",
+    "tick": "Done",
+    "noExercises": "One tap on the phone, or a tick here.",
+    "footer": "Kalmio Move · demonstrations checked by a physiotherapist."
+  },
+  "devices": {
+    "title": "Devices and calendar",
+    "subtitle": "Watch, calendar, exports.",
+    "empty": "No device connected yet.",
+    "neverRequired": "Everything works without a device. The watch and the calendar are a convenience.",
+    "garmin": {
+      "title": "Garmin watch",
+      "testersLine": "The Garmin connection is available to invited test accounts only for now.",
+      "email": "Garmin email",
+      "password": "Garmin password",
+      "passwordNote": "The password is not kept on the device.",
+      "connect": "Connect",
+      "connected": "Connected.",
+      "mfaTitle": "Garmin code",
+      "mfaHint": "Garmin sent you a code. Enter it here.",
+      "mfaHint_formal": "Garmin sent you a code. Enter it here.",
+      "mfaCode": "Code",
+      "confirm": "Confirm",
+      "status": {
+        "CONNECTED": "Connected",
+        "MFA_REQUIRED": "Waiting for a code",
+        "DISCONNECTED": "Not connected",
+        "ERROR": "Connection error"
+      },
+      "lastSync": "Last sync: {{when}}",
+      "neverSynced": "No sync yet.",
+      "syncNow": "Sync now",
+      "synced": "Sync started.",
+      "disconnect": "Disconnect",
+      "disconnected": "Disconnected."
+    },
+    "calendar": {
+      "title": "Calendar",
+      "hint": "Add this link to your calendar; the session text is in each event.",
+      "hint_formal": "Add this link to your calendar; the session text is in each event.",
+      "copy": "Copy link",
+      "copied": "Copied.",
+      "rotate": "New link",
+      "rotated": "New link created; the old one no longer works.",
+      "none": "No calendar link yet.",
+      "create": "Get a link"
+    },
+    "fit": {
+      "title": "Download to watch",
+      "hint": "Every walking, running and strength session can be downloaded as a .FIT file from today and the week.",
+      "download": "Download to watch (.FIT)"
+    }
+  },
+  "settings": {
+    "title": "Movement settings",
+    "subtitle": "Rhythm, equipment, demonstrator, text size.",
+    "demonstrator": {
+      "title": "Demonstrator",
+      "hint": "Who should show the exercises? Every demonstrator is an AI-generated, checked image.",
+      "choose": "Choose",
+      "chosen": "Chosen",
+      "noSheet": "No image yet",
+      "empty": "No demonstrator available yet."
+    },
+    "textSize": {
+      "title": "Text size",
+      "hint": "Large text applies to the whole Movement section.",
+      "NORMAL": "Normal",
+      "LARGE": "Large"
+    },
+    "sections": {
+      "rhythm": "Weekly rhythm",
+      "equipment": "Equipment at home",
+      "limits": "Movements to go easy on",
+      "devices": "Devices and calendar",
+      "helper": "Helper",
+      "health": "Health",
+      "lifeState": "Life state",
+      "notifications": "Notification and address",
+      "family": "Shared 10 minutes"
+    },
+    "saved": "Saved.",
+    "error": "That did not work just now — one second.",
+    "rhythm": {
+      "modalities": "Activities in order",
+      "modalitiesHint": "The first matters most; the week follows it.",
+      "up": "Move up",
+      "down": "Move down",
+      "remove": "Remove",
+      "add": "Add",
+      "addLabel": "New activity",
+      "days": "Days per week",
+      "weekdays": "Which days?",
+      "weekdaysHint": "Empty: any day is fine.",
+      "minutes": "Minutes per session",
+      "fixed": "Fixed classes",
+      "fixedEmpty": "No fixed classes.",
+      "regenerateHint": "After a change, ask for a new week on the Week page.",
+      "regenerateHint_formal": "After a change, ask for a new week on the Week page."
+    },
+    "equipment": {
+      "hint": "What you have at home. Weights set the starting load for strength work.",
+      "dumbbells": "Dumbbells (kg)",
+      "dumbbellsHint": "Tick what you have.",
+      "dumbbellsHint_formal": "Tick what you have.",
+      "bands": "Band strength",
+      "band": {
+        "LIGHT": "Light",
+        "MEDIUM": "Medium",
+        "HEAVY": "Heavy"
+      }
+    },
+    "limits": {
+      "hint": "Tell us in your own words what to spare. The exercises follow it.",
+      "hint_formal": "Tell us in your own words what to spare. The exercises follow it.",
+      "add": "Add",
+      "pick": "Pick a sentence",
+      "pick_formal": "Pick a sentence",
+      "remove": "Remove",
+      "empty": "Nothing to spare.",
+      "statements": {
+        "kneeling": "Kneeling hurts",
+        "floor": "Getting down to the floor and up is hard",
+        "overhead": "Lifting overhead hurts",
+        "bending": "Bending forward hurts",
+        "jumping": "Jumping is not good for me",
+        "oneLeg": "Standing on one leg feels unsteady",
+        "grip": "Gripping hard is difficult",
+        "wrist": "Weight on my wrists hurts",
+        "neck": "Turning my neck hurts",
+        "breath": "Holding my breath is not good for me"
+      },
+      "source": {
+        "SCREENING": "from the health questions",
+        "USER": "you added it",
+        "USER_formal": "you added it",
+        "HELPER": "the helper added it",
+        "FALL": "after a fall"
+      }
+    },
+    "register": {
+      "title": "Form of address",
+      "hint": "How should we address you?",
+      "FORMAL": "Formal",
+      "INFORMAL": "Informal"
+    },
+    "push": {
+      "title": "Daily notification",
+      "hint": "At most one a day, at the time you choose. Silent after a session is done.",
+      "hint_formal": "At most one a day, at the time you choose. Silent after a session is done.",
+      "off": "Off",
+      "on": "On",
+      "time": "Time"
+    },
+    "hr": {
+      "title": "Heart-rate targets",
+      "hint": "Feel and the talk test come first. Heart-rate targets are optional.",
+      "on": "On",
+      "off": "Off"
+    },
+    "family": {
+      "hint": "The ages of the children you move with. Games for 3–8, skill challenges for 9–12.",
+      "hint_formal": "The ages of the children you move with. Games for 3–8, skill challenges for 9–12.",
+      "add": "Add an age",
+      "ageLabel": "Age",
+      "age": "{{age}} years old",
+      "remove": "Remove",
+      "empty": "No ages given."
+    },
+    "health": {
+      "track": "Current setting: {{track}}",
+      "trackName": {
+        "A": "seated sessions",
+        "B": "a light, supported week",
+        "C": "no limit"
+      },
+      "doctor": "I have discussed it with my doctor",
+      "doctorHint": "Once confirmed, the harder sessions open too.",
+      "doctorHint_formal": "Once confirmed, the harder sessions open too.",
+      "doctorDone": "Confirmed.",
+      "reanswer": "Answer again",
+      "reanswerHint": "After a fall or an illness it is worth answering again.",
+      "saved": "Thank you. The week follows it.",
+      "hrOff": "Heart-rate targets are off based on the answers."
+    },
+    "devicesLink": "Open devices and calendar",
+    "helperLink": "Open the Helper page"
+  },
+  "review": {
+    "menuLabel": "Movement demos",
+    "title": "Demonstration review",
+    "subtitle": "One image, its shot card beside it.",
+    "keyboardHint": "A: approve · R: reject · 1–6: reason · Enter: confirm · N: skip · ←: back",
+    "count": "{{index}} / {{total}}",
+    "pendingCount": "{{count}} pending",
+    "filters": {
+      "pack": "Pack",
+      "character": "Demonstrator",
+      "all": "All"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "skip": "Skip",
+    "back": "Back",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "reasonTitle": "Reason for rejection",
+    "notePlaceholder": "Note (optional)",
+    "reasons": {
+      "WRONG_JOINT_POSITION": "Wrong joint position",
+      "WRONG_SUPPORT": "Wrong support",
+      "ANATOMY_ERROR": "Anatomy error",
+      "EQUIPMENT_ERROR": "Equipment error",
+      "UNSAFE_RANGE": "Unsafe range",
+      "STYLE_DRIFT": "Style drift"
+    },
+    "empty": "Nothing left to review.",
+    "startStill": "Start position",
+    "endStill": "End position",
+    "shotCard": {
+      "title": "Shot card",
+      "poses": "Poses",
+      "start": "Start",
+      "end": "End",
+      "camera": "Camera",
+      "checkpoints": "Checkpoints",
+      "faults": "Typical faults",
+      "cues": "Cues",
+      "formal": "Formal",
+      "informal": "Informal",
+      "equipment": "Equipment",
+      "other": "Other"
+    },
+    "meta": {
+      "pack": "Pack",
+      "character": "Demonstrator",
+      "type": "Type",
+      "attempt": "Attempt {{count}}",
+      "version": "Card v{{version}}",
+      "reports": "{{count}} reports",
+      "model": "Model"
+    },
+    "approved": "Approved.",
+    "rejected": "Rejected.",
+    "error": "That did not work just now — one second."
+  },
+  "log": {
+    "title": "I did something else",
+    "subtitle": "It counts toward the week.",
+    "modality": "What?",
+    "minutes": "How many minutes?",
+    "effort": "How hard was it?",
+    "date": "When?",
+    "submit": "Log it",
+    "saved": "Logged. It counts toward the week.",
+    "noRaiseLine": "This never makes the next days harder.",
+    "entryDoneSaved": "Done, logged.",
+    "loadingModalities": "Loading activities…"
+  },
+  "family": {
+    "title": "Shared 10 minutes",
+    "subtitle": "Together with the children, shown by Bogyó.",
+    "start": "Let's start",
+    "empty": "No shared session today.",
+    "figureLine": "The exercises are shown by the stylised figure.",
+    "unitMinutes": "{{count}} min",
+    "kind": {
+      "GAME": "Game",
+      "CHALLENGE": "Skill challenge",
+      "GRANDPARENT": "With a grandparent"
+    }
+  },
+  "report": {
+    "button": "Demonstration looks wrong",
+    "title": "What is wrong with the demonstration?",
+    "note": "Note (optional)",
+    "submit": "Send",
+    "sent": "Thank you, we will look at it."
+  },
+  "fall": {
+    "title": "Did you fall?",
+    "title_formal": "Did you fall?",
+    "intro": "Two questions, then the week adjusts.",
+    "hurt": "Are you hurt?",
+    "hurt_formal": "Are you hurt?",
+    "doctor": "Have you seen a doctor since?",
+    "doctor_formal": "Have you seen a doctor since?",
+    "yes": "Yes",
+    "no": "No",
+    "send": "Send",
+    "done": "All right. The week continues with one step more support, and we will ask a few health questions again.",
+    "paused": "Until a doctor has seen you, the week waits. Once discussed, confirm it in settings.",
+    "paused_formal": "Until a doctor has seen you, the week waits. Once discussed, confirm it in settings.",
+    "rescreenCta": "Health questions"
+  },
+  "lifeState": {
+    "question": "How are you? Shall we return?",
+    "question_formal": "How are you? Shall we return?",
+    "return": "Let's return",
+    "notYet": "Not yet",
+    "until": "Back on: {{date}}",
+    "travelNote": "A no-equipment week while travelling.",
+    "feverQuestion": "Did you have a fever or chest symptoms?",
+    "feverQuestion_formal": "Did you have a fever or chest symptoms?",
+    "rescreenFirst": "A few health questions first, then we go.",
+    "returned": "Good to see you again. The week starts lighter.",
+    "title": "Life state",
+    "hint": "If you are ill, injured or travelling, the week waits. We send no reminders.",
+    "hint_formal": "If you are ill, injured or travelling, the week waits. We send no reminders.",
+    "SICK": "I am ill",
+    "INJURED": "I am injured",
+    "BREAK": "Taking a break",
+    "TRAVEL": "Travelling",
+    "ACTIVE": "The week is on",
+    "from": "From?",
+    "to": "Until?",
+    "set": "Set",
+    "current": "Now: {{state}}",
+    "clear": "I'm back",
+    "saved": "All right, the week waits.",
+    "cleared": "Good to see you again. The week starts lighter."
+  }
+}
