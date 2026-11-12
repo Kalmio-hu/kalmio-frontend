@@ -36,6 +36,7 @@ const OVERFLOW_ROUTES = [
   '/app/family',
   '/app/settings',
   '/app/profile',
+  '/app/premium',
   '/app/founding-member',
   '/app/grove',
   '/app/admin',
@@ -230,10 +231,10 @@ export function MobileNav() {
               </NavLink>
             )}
 
-            {/* Founding Member — for non-founding-member users */}
+            {/* Prémium — upgrade entry for users without the lifetime Founding Member tier */}
             {!me?.foundingMember && (
               <NavLink
-                to="/app/founding-member"
+                to="/app/premium"
                 role="menuitem"
                 onClick={() => setOverflowOpen(false)}
                 className={({ isActive }) =>
@@ -244,7 +245,7 @@ export function MobileNav() {
                 }
               >
                 <Star className="h-5 w-5 shrink-0" />
-                {t('nav.foundingMember')}
+                {t('nav.premium')}
               </NavLink>
             )}
 

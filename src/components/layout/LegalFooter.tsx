@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { resetConsent } from '@/lib/analytics'
+import { openCookieSettings } from '@/lib/consent'
 import { PaymentMethods } from '@/components/PaymentMethods'
 
 interface Props {
@@ -11,8 +11,7 @@ export function LegalFooter({ variant = 'light' }: Props) {
   const { t } = useTranslation()
 
   function handleCookieSettings() {
-    resetConsent()
-    window.location.reload()
+    openCookieSettings()
   }
 
   if (variant === 'dark') {

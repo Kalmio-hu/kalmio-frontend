@@ -15,6 +15,34 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Kalmio" />
     <title>Kalmio – Egészséges étkezés. Matek, nem mágia.</title>
+    <!-- Barion Pixel (Base) — docs.barion.com "Implementing the Base Barion Pixel".
+         Loaded on every page regardless of consent: fraud prevention, legitimate interest.
+         The id comes from VITE_BARION_PIXEL_ID (Vite HTML env replacement): the live id via
+         .env.production, the sandbox (BPT-…) id via .env.local. The Full events and the
+         marketing consent are sent from src/lib/barionPixel.ts. -->
+    <script>
+      // Create BP element on the window
+      window["bp"] = window["bp"] || function () {
+        (window["bp"].q = window["bp"].q || []).push(arguments);
+      };
+      window["bp"].l = 1 * new Date();
+
+      // Insert a script tag on the top of the head to load bp.js
+      var scriptElement = document.createElement("script");
+      var firstScript = document.getElementsByTagName("script")[0];
+      scriptElement.async = true;
+      scriptElement.src = 'https://pixel.barion.com/bp.js';
+      firstScript.parentNode.insertBefore(scriptElement, firstScript);
+      window['barion_pixel_id'] = '%VITE_BARION_PIXEL_ID%';
+      // Unreplaced placeholder (env var missing at build time) → the live pixel id.
+      if (window['barion_pixel_id'].charAt(0) === '%') window['barion_pixel_id'] = 'BP-CLnSC8PA8g-FB';
+
+      // Send init event
+      bp('init', 'addBarionPixelId', window['barion_pixel_id']);
+    </script>
+    <noscript>
+      <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=%VITE_BARION_PIXEL_ID%&ev=contentView&noscript=1">
+    </noscript>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

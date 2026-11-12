@@ -149,12 +149,12 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Footer — Founding Member entry + utility controls */}
+      {/* Footer — Prémium entry + utility controls */}
       <div className="border-t border-white/10">
-        {/* Founding Member — for non-founding-member users as an upgrade prompt */}
+        {/* Prémium — upgrade entry for users without the lifetime Founding Member tier */}
         {!me?.foundingMember && (
           <NavLink
-            to="/app/founding-member"
+            to="/app/premium"
             className={({ isActive }) =>
               cn(
                 'flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-b border-white/10',
@@ -163,7 +163,7 @@ export function Sidebar() {
             }
           >
             <Star className="h-4 w-4 shrink-0" aria-hidden="true" />
-            {t('nav.foundingMember')}
+            {t('nav.premium')}
           </NavLink>
         )}
 

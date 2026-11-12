@@ -22,6 +22,7 @@ import { UserManagement } from '@/pages/admin/UserManagement'
 import { IpVault } from '@/pages/admin/IpVault'
 import { ContentReview } from '@/pages/admin/ContentReview'
 import { RecipeFamilies } from '@/pages/admin/RecipeFamilies'
+import { TransferOrders } from '@/pages/admin/TransferOrders'
 import { InvestorVault } from '@/pages/InvestorVault'
 import { Valuation } from '@/pages/Valuation'
 import { CaptainsBridge } from '@/pages/CaptainsBridge'
@@ -37,12 +38,13 @@ import { usersService } from '@/services/users'
 import { Toaster } from '@/components/ui/toast'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { CookieConsent } from '@/components/CookieConsent'
-import { BarionPixel } from '@/components/BarionPixel'
+import { BarionIdentity } from '@/components/BarionIdentity'
 import { initAnalytics, identify, resetIdentity, registerSuperProperties, pageView } from '@/lib/analytics'
 import { useDocumentTitle } from '@/hooks/useDocumentTitle'
 import { Grove } from '@/pages/Grove'
 import { FoundingMember } from '@/pages/FoundingMember'
-import { FoundingMemberSuccess } from '@/pages/FoundingMemberSuccess'
+import { Premium } from '@/pages/Premium'
+import { PremiumSuccess } from '@/pages/PremiumSuccess'
 import { GuestFoundingMember } from '@/pages/GuestFoundingMember'
 import { GuestFoundingMemberSuccess } from '@/pages/GuestFoundingMemberSuccess'
 import { GuestFoundingMemberClaim } from '@/pages/GuestFoundingMemberClaim'
@@ -157,11 +159,11 @@ export default function App() {
     <>
       <Toaster />
       <OfflineBanner />
-      <BarionPixel />
       <BrowserRouter>
         <PageViewTracker />
         <CookieConsent />
         <AuthProvider>
+          <BarionIdentity />
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<Auth />} />
@@ -170,9 +172,11 @@ export default function App() {
             <Route path="/terms" element={<Terms />} />
             {/* Kalmio Move public landing — leads straight into /app/move/start (D8 rule 9) */}
             <Route path="/move" element={<MoveLandingRoute />} />
-            {/* Guest-first Founding Member checkout — PUBLIC. A visitor pays before
-                creating an account; the payment is claimed after they register. */}
+            {/* Guest Founding Member order — PUBLIC, bank transfer only. The confirmed
+                order is claimed after the buyer registers. */}
             <Route path="/founding-member" element={<GuestFoundingMember />} />
+            {/* Legacy guest Barion return page — kept for sessions started before the
+                switch to bank transfer and for links in sent emails. */}
             <Route path="/founding-member/success" element={<GuestFoundingMemberSuccess />} />
             <Route element={<ProtectedRoute />}>
               {/* Claim a settled guest payment. OUTSIDE OnboardingGate so a brand-new
@@ -221,8 +225,12 @@ export default function App() {
                       Legacy bookmarks land on the Diet tab. */}
                   <Route path="preferences" element={<Navigate to="/app/profile?tab=diet" replace />} />
                   <Route path="grove" element={<Grove />} />
+                  {/* Kalmio Prémium — Barion recurring card subscription */}
+                  <Route path="premium" element={<Premium />} />
+                  <Route path="premium/success" element={<PremiumSuccess />} />
+                  {/* Founding Member — bank transfer only; the Barion success page is gone */}
                   <Route path="founding-member" element={<FoundingMember />} />
-                  <Route path="founding-member/success" element={<FoundingMemberSuccess />} />
+                  <Route path="founding-member/success" element={<Navigate to="/app/founding-member" replace />} />
                   <Route path="family" element={<Family />} />
                   {/* The cart is the shopping list — one surface (KALMIO consolidation) */}
                   <Route path="cart" element={<Navigate to="/app/shopping-list" replace />} />
@@ -255,6 +263,8 @@ export default function App() {
                     <Route path="admin/retail/providers" element={<RetailProviders />} />
                     {/* Kalmio Move demonstration review queue (movement-prd.md §12.4) */}
                     <Route path="admin/move/review" element={<MoveReviewQueue />} />
+                    {/* Founding Member bank-transfer orders — confirm / cancel */}
+                    <Route path="admin/founding-member/transfers" element={<TransferOrders />} />
                   </Route>
                 </Route>
               </Route>

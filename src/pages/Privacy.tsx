@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
@@ -35,6 +36,15 @@ function PrivacyHu() {
           <strong>Analitika és termékfejlesztés</strong> — az érintett hozzájárulása alapján (GDPR 6. cikk (1) bekezdés a) pont), kizárólag az analitikai sütikhez való hozzájárulás esetén.
         </li>
         <li>
+          <strong>Fizetés, előfizetés-kezelés és számlázás</strong> — a szerződés teljesítése (GDPR 6. cikk (1) bekezdés b) pont), a számviteli bizonylatok megőrzése tekintetében jogi kötelezettség (GDPR 6. cikk (1) bekezdés c) pont).
+        </li>
+        <li>
+          <strong>Csalásmegelőzés (Barion Pixel alapfunkció)</strong> — az adatkezelő és a Barion Payment Zrt. jogos érdeke a fizetési csalások megelőzéséhez (GDPR 6. cikk (1) bekezdés f) pont).
+        </li>
+        <li>
+          <strong>Marketing és személyre szabott ajánlatok (Barion Pixel teljes funkció)</strong> — az érintett hozzájárulása alapján (GDPR 6. cikk (1) bekezdés a) pont), kizárólag a marketing sütikhez való hozzájárulás esetén.
+        </li>
+        <li>
           <strong>Jogi kötelezettségek teljesítése</strong> — GDPR 6. cikk (1) bekezdés c) pont.
         </li>
       </ul>
@@ -48,6 +58,7 @@ function PrivacyHu() {
         <li><strong>Generált és elmentett étrendek:</strong> az alkalmazás által javasolt, illetve a felhasználó által elfogadott heti étrendek, étkezési tervek.</li>
         <li><strong>Fogyasztott ételek:</strong> az érintett által manuálisan naplózott étkezések és tápanyagadatok.</li>
         <li><strong>Technikai adatok:</strong> IP-cím, böngésző típusa, eszközinformáció — kizárólag az analitika hozzájárulása esetén, pszeudoanonimizált formában.</li>
+        <li><strong>Fizetési és számlázási adatok:</strong> számlázási név és cím, a megrendelések és fizetések adatai (összeg, időpont, állapot, átutalási közlemény), az ismétlődő terheléshez a Barion által kiadott azonosító és a bankkártya maszkolt adatai (típus, utolsó négy számjegy, lejárat). A teljes kártyaszámot nem kezeljük.</li>
       </ul>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">4. Adatmegőrzési idő</h2>
@@ -71,15 +82,15 @@ function PrivacyHu() {
           <strong>PostHog Inc.</strong> (analitika) — Kizárólag az analitikai sütikhez való hozzájárulás esetén. PII-mentes, pszeudoanonimizált eseményadatokat gyűjtünk a termékfejlesztés céljából. Adatközpont: EU. Részletek: <a href="https://posthog.com/privacy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
         </li>
         <li>
-          <strong>Barion Payment Zrt.</strong> (fizetési szolgáltató) — A bankkártyás és Barion-tárcás fizetések lebonyolítása, valamint csalásmegelőzés (Barion Pixel) céljából. A fizetéshez és a csalásmegelőzéshez szükséges adatokat (pl. e-mail, fizetési és tranzakciós adatok, böngészési események) közvetlenül a Barion kezeli; a teljes bankkártyaszámhoz a Kalmio nem fér hozzá. A Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt áll (engedélyszám: H-EN-I-1064/2013). Adatközpont: EU (Magyarország). Részletek: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/hu/adatvedelmi-tajekoztato</a>.
+          <strong>Barion Payment Zrt.</strong> (fizetési szolgáltató) — A Kalmio Prémium előfizetés bankkártyás és ismétlődő (regisztrált kártyás) fizetéseinek lebonyolítása, a csalásmegelőzés (Barion Pixel alapfunkció), valamint – kizárólag a marketing sütikhez adott hozzájárulás esetén – a tartalmak, ajánlatok és hirdetések személyre szabása (Barion Pixel teljes funkció) céljából. A fizetéshez és a csalásmegelőzéshez szükséges adatokat (pl. e-mail, fizetési és tranzakciós adatok, böngészési események) közvetlenül a Barion kezeli; a teljes bankkártyaszámhoz a Kalmio nem fér hozzá. A Barion a Barion Pixel működtetéséhez az alábbi adatfeldolgozókat veszi igénybe: DataMe Kft., Dentsu Hungary Kft., Sales Contact Kft., WPP Media Hungary Kft. A Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt áll (engedélyszám: H-EN-I-1064/2013). Adatközpont: EU (Magyarország). Részletek: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/hu/adatvedelmi-tajekoztato</a>.
         </li>
       </ul>
       <p className="mt-3">
         Az általunk igénybe vett adatfeldolgozók GDPR 28. cikknek megfelelő adatfeldolgozói feltételeket tesznek közzé (pl. Supabase DPA, Microsoft Online Services Terms, PostHog DPA). Az adatfeldolgozók önállóan nem jogosultak az adatokat kezelni.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">6. Sütik (cookie-k)</h2>
-      <p>A Kalmio az alábbi sütiket alkalmazza:</p>
+      <h2 id="cookies" className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3 scroll-mt-20">6. Sütik (cookie-k)</h2>
+      <p>A Kalmio a sütiket három kategóriába sorolja. A <strong>szükséges</strong> sütik a weboldal működéséhez és a fizetési csalások megelőzéséhez kellenek, ezért nem kapcsolhatók ki. A <strong>statisztikai</strong> és a <strong>marketing</strong> sütiket csak a hozzájárulásoddal használjuk. A hozzájárulást 12 hónap elteltével ismét kérjük. Az alábbi sütiket és hasonló technológiákat alkalmazzuk:</p>
       <div className="overflow-x-auto mt-3">
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -98,20 +109,47 @@ function PrivacyHu() {
               <td className="px-3 py-2 border border-[#1A1A1A]/10">Nyelvi beállítás megőrzése</td>
             </tr>
             <tr>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">kalmio-analytics-consent</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Szükséges</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">visszavonásig</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Analitikai hozzájárulás állapota</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">kalmio-cookie-consent</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Szükséges (helyi tároló)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">12 hónap</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">A sütibeállítások (statisztika, marketing) és a döntés időpontja</td>
             </tr>
             <tr>
               <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ph_*</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Analitika (hozzájárulás alapján)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Statisztika (hozzájárulás alapján)</td>
               <td className="px-3 py-2 border border-[#1A1A1A]/10">1 év</td>
               <td className="px-3 py-2 border border-[#1A1A1A]/10">PostHog munkamenet-azonosító (pszeudoanonimizált)</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ba_vid, ba_vid.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Szükséges (csalásmegelőzés) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">1,5 év</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">A Barion Pixel látogatóazonosítója a fizetési csalások megelőzéséhez</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ba_sid, ba_sid.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Szükséges (csalásmegelőzés) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">30 perc</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">A Barion Pixel munkamenet-azonosítója a fizetési csalások megelőzéséhez</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">BarionMarketingConsent.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Marketing (hozzájárulás alapján) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">a Barion tájékoztatója szerint</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">A marketing célú hozzájárulásod állapota a Barion Pixel számára</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">a Barion média-, hirdető- és elemzőpartnereinek sütijei</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Marketing (hozzájárulás alapján)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">a partnerek tájékoztatója szerint</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Tartalmak, ajánlatok és hirdetések személyre szabása; kizárólag a marketing sütikhez adott hozzájárulás esetén</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <p className="mt-3 text-sm">
+        A Barion Pixel alapfunkciója (a <span className="font-mono text-xs">ba_vid</span> és a <span className="font-mono text-xs">ba_sid</span> sütik) csalásmegelőzési célból, jogos érdek alapján minden oldalon működik. A marketing célú teljes funkciót, a <span className="font-mono text-xs">BarionMarketingConsent</span> sütit és a Barion partnereinek sütijeit csak akkor használjuk, ha a sütibeállításokban a marketing kategóriához hozzájárultál; a hozzájárulásod vagy annak elutasítása a Barion részére is továbbításra kerül. A Barion a Barion Pixel működtetéséhez a DataMe Kft., a Dentsu Hungary Kft., a Sales Contact Kft. és a WPP Media Hungary Kft. adatfeldolgozókat veszi igénybe.
+      </p>
       <p className="mt-3 text-sm">
         A sütibeállítások bármikor módosíthatók az oldal láblécében található „Sütibeállítások" linkkel.
       </p>
@@ -147,7 +185,7 @@ function PrivacyHu() {
         <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        Ez a tájékoztató legutóbb 2026. január 1-jén frissült. A változásokról az aktív felhasználókat e-mailben értesítjük.
+        Ez a tájékoztató legutóbb 2026. november 12-én frissült. A változásokról az aktív felhasználókat e-mailben értesítjük.
       </p>
     </div>
   )
@@ -186,6 +224,15 @@ function PrivacyEn() {
           <strong>Analytics and product improvement</strong> — consent (GDPR Art. 6(1)(a)), only where the user has accepted analytics cookies.
         </li>
         <li>
+          <strong>Payments, subscription management and invoicing</strong> — performance of a contract (GDPR Art. 6(1)(b)); retention of accounting records as a legal obligation (GDPR Art. 6(1)(c)).
+        </li>
+        <li>
+          <strong>Fraud prevention (Barion Pixel base function)</strong> — the legitimate interest of the controller and of Barion Payment Zrt. in preventing payment fraud (GDPR Art. 6(1)(f)).
+        </li>
+        <li>
+          <strong>Marketing and personalised offers (Barion Pixel full function)</strong> — consent (GDPR Art. 6(1)(a)), only where the user has accepted marketing cookies.
+        </li>
+        <li>
           <strong>Compliance with legal obligations</strong> — GDPR Art. 6(1)(c).
         </li>
       </ul>
@@ -199,6 +246,7 @@ function PrivacyEn() {
         <li><strong>Meal plans:</strong> generated and saved weekly plans, meal schedules.</li>
         <li><strong>Logged meals:</strong> meals and nutritional data manually logged by the user.</li>
         <li><strong>Technical data:</strong> IP address, browser type, device information — only with analytics consent, in pseudonymised form.</li>
+        <li><strong>Payment and billing data:</strong> billing name and address, order and payment details (amount, time, status, transfer reference), and for recurring charges the identifier issued by Barion and the card's masked details (type, last four digits, expiry). We never process the full card number.</li>
       </ul>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">4. Retention Period</h2>
@@ -222,15 +270,15 @@ function PrivacyEn() {
           <strong>PostHog Inc.</strong> (analytics) — Only where the user has consented to analytics cookies. We collect pseudonymised, PII-free event data for product improvement. Data centre: EU. Details: <a href="https://posthog.com/privacy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">posthog.com/privacy</a>.
         </li>
         <li>
-          <strong>Barion Payment Zrt.</strong> (payment provider) — For processing card and Barion-wallet payments and for fraud prevention (Barion Pixel). The data needed for payment and fraud prevention (e.g. email, payment and transaction data, browsing events) is handled directly by Barion; Kalmio never has access to the full card number. Barion Payment Zrt. is supervised by the National Bank of Hungary (licence number H-EN-I-1064/2013). Data centre: EU (Hungary). Details: <a href="https://www.barion.com/en/privacy-policy/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/en/privacy-policy</a>.
+          <strong>Barion Payment Zrt.</strong> (payment provider) — For processing the card and recurring (registered-card) payments of the Kalmio Premium subscription, for fraud prevention (Barion Pixel base function) and — only where the user has consented to marketing cookies — for personalising content, offers and ads (Barion Pixel full function). The data needed for payment and fraud prevention (e.g. email, payment and transaction data, browsing events) is handled directly by Barion; Kalmio never has access to the full card number. To operate the Barion Pixel, Barion engages the following processors: DataMe Kft., Dentsu Hungary Kft., Sales Contact Kft., WPP Media Hungary Kft. Barion Payment Zrt. is supervised by the National Bank of Hungary (licence number H-EN-I-1064/2013). Data centre: EU (Hungary). Details: <a href="https://www.barion.com/en/privacy-policy/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/en/privacy-policy</a>.
         </li>
       </ul>
       <p className="mt-3">
         Each processor publishes GDPR Art. 28-compliant data processing terms (e.g. Supabase DPA, Microsoft Online Services Terms, PostHog DPA). Processors may not process data for their own purposes.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">6. Cookies</h2>
-      <p>Kalmio uses the following cookies:</p>
+      <h2 id="cookies" className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3 scroll-mt-20">6. Cookies</h2>
+      <p>Kalmio groups cookies into three categories. <strong>Necessary</strong> cookies are needed to run the website and to prevent payment fraud, so they cannot be switched off. <strong>Statistics</strong> and <strong>marketing</strong> cookies are used only with your consent, which we ask for again after 12 months. We use the following cookies and similar technologies:</p>
       <div className="overflow-x-auto mt-3">
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -249,20 +297,47 @@ function PrivacyEn() {
               <td className="px-3 py-2 border border-[#1A1A1A]/10">Remembers language preference</td>
             </tr>
             <tr>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">kalmio-analytics-consent</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Necessary</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Until revoked</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Stores analytics consent decision</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">kalmio-cookie-consent</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Necessary (local storage)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">12 months</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Stores your cookie settings (statistics, marketing) and when you chose them</td>
             </tr>
             <tr>
               <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ph_*</td>
-              <td className="px-3 py-2 border border-[#1A1A1A]/10">Analytics (consent-gated)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Statistics (consent-gated)</td>
               <td className="px-3 py-2 border border-[#1A1A1A]/10">1 year</td>
               <td className="px-3 py-2 border border-[#1A1A1A]/10">PostHog session identifier (pseudonymised)</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ba_vid, ba_vid.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Necessary (fraud prevention) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">1.5 years</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Barion Pixel visitor identifier for preventing payment fraud</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">ba_sid, ba_sid.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Necessary (fraud prevention) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">30 minutes</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Barion Pixel session identifier for preventing payment fraud</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">BarionMarketingConsent.xxx</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Marketing (consent-gated) — Barion Payment Zrt.</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">As set out in Barion's notice</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Records your marketing consent for the Barion Pixel</td>
+            </tr>
+            <tr>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10 font-mono text-xs">cookies of Barion's media, advertising and analytics partners</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Marketing (consent-gated)</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">As set out in the partners' notices</td>
+              <td className="px-3 py-2 border border-[#1A1A1A]/10">Personalising content, offers and ads; only with consent to marketing cookies</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <p className="mt-3 text-sm">
+        The Barion Pixel base function (the <span className="font-mono text-xs">ba_vid</span> and <span className="font-mono text-xs">ba_sid</span> cookies) runs on every page for fraud prevention, based on legitimate interest. The full marketing function, the <span className="font-mono text-xs">BarionMarketingConsent</span> cookie and the cookies of Barion's partners are used only if you have consented to the marketing category in the cookie settings; your consent or refusal is also passed on to Barion. To operate the Barion Pixel, Barion engages DataMe Kft., Dentsu Hungary Kft., Sales Contact Kft. and WPP Media Hungary Kft. as processors.
+      </p>
       <p className="mt-3 text-sm">
         Cookie preferences can be changed at any time via the "Cookie settings" link in the page footer.
       </p>
@@ -298,7 +373,7 @@ function PrivacyEn() {
         <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        This notice was last updated on 1 January 2026. Active users will be notified by email of material changes.
+        This notice was last updated on 12 November 2026. Active users will be notified by email of material changes.
       </p>
     </div>
   )
@@ -307,6 +382,12 @@ function PrivacyEn() {
 export function Privacy() {
   const { i18n } = useTranslation()
   const isHu = i18n.language?.startsWith('hu') ?? true
+  const { hash } = useLocation()
+
+  // /privacy#cookies (the cookie banner's "süti tájékoztató" link) → jump to the cookie section.
+  useEffect(() => {
+    if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  }, [hash, isHu])
 
   return (
     <div className="min-h-screen bg-[#F9F7F2]">

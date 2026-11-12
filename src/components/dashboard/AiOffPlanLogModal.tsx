@@ -771,7 +771,7 @@ function ErrorBlock({ errorKey }: { errorKey: ErrorKey }) {
         <p className="font-medium">{t('dashboard.aiOffPlan.errors.premiumTitle')}</p>
         <p className="mt-1 text-gray-600">{t('dashboard.aiOffPlan.errors.premiumDescription')}</p>
         <Link
-          to="/app/founding-member"
+          to="/app/premium"
           className="mt-2 inline-block text-sm text-[#F28C28] underline underline-offset-2 hover:text-[#d97a20]"
         >
           {t('dashboard.aiOffPlan.errors.premiumCta')}

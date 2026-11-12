@@ -1,11 +1,14 @@
 /**
- * GuestFoundingMemberSuccess — public return page after a guest Barion checkout.
+ * GuestFoundingMemberSuccess — LEGACY public return page of the guest Barion checkout.
  *
- * Mounted at /founding-member/success (PUBLIC). Barion redirects the buyer here after
- * the hosted payment page completes. The buyer still has no account at this point.
+ * Mounted at /founding-member/success (PUBLIC). The Founding Member tier is no longer sold
+ * through Barion (bank transfer only since 2026-11-12), but payments started before the switch
+ * and links in sent emails still land here, so the page keeps settling and claiming them.
+ * It also works for a confirmed guest transfer order when `?paymentId=` is given.
  *
  * Strategy:
- *   - Read the paymentId stashed in sessionStorage before the Barion redirect.
+ *   - Read the paymentId from the URL (`?paymentId=`, Barion appends it) or from the value
+ *     stashed in sessionStorage before the Barion redirect.
  *   - Poll GET /api/founding-member/guest-payment-status until it reports SUCCEEDED
  *     (the server-to-server webhook may land a moment after the browser redirect).
  *   - On SUCCEEDED: prompt the buyer to create an account. The CTA routes through
@@ -16,13 +19,13 @@
  */
 
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { foundingMemberService } from '@/services/foundingMember'
 import { useAuthStore } from '@/store/auth'
-import { PENDING_FM_PAYMENT_KEY } from '@/pages/GuestFoundingMember'
+import { PENDING_FM_PAYMENT_KEY } from '@/lib/guestTransferOrder'
 
 const POLL_INTERVAL_MS = 3_000
 const POLL_TIMEOUT_MS = 45_000
@@ -31,8 +34,13 @@ export function GuestFoundingMemberSuccess() {
   const { t } = useTranslation()
   const session = useAuthStore((s) => s.session)
 
-  // Read once on mount — the value persists across the Barion round-trip.
-  const paymentId = useMemo(() => sessionStorage.getItem(PENDING_FM_PAYMENT_KEY), [])
+  const [params] = useSearchParams()
+  const urlPaymentId = params.get('paymentId')
+  // Read once on mount — the stashed value persists across the Barion round-trip.
+  const paymentId = useMemo(
+    () => urlPaymentId ?? sessionStorage.getItem(PENDING_FM_PAYMENT_KEY),
+    [urlPaymentId],
+  )
   const [isPolling, setIsPolling] = useState(true)
 
   useEffect(() => {

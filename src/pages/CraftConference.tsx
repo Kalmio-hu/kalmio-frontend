@@ -2,7 +2,7 @@
  * CraftConference — /craft
  *
  * Public landing page for Craft Conference 2026 networking.
- * Goal: convert conference attendees into Founding Members via Barion checkout.
+ * Goal: convert conference attendees into Founding Members (bank-transfer order).
  * Flow: unauthenticated → /auth?next=/app/founding-member, authenticated → /app/founding-member.
  */
 

@@ -38,6 +38,7 @@ import { usersService, type UpdateSettingsRequest, USERS_ME_QUERY_KEY, USERS_STA
 import { notificationService, NOTIFICATION_PREFS_QUERY_KEY } from '@/services/notificationService'
 import { DiofaNameField } from '@/components/settings/DiofaNameField'
 import { RetailProvidersSection } from '@/components/settings/RetailProvidersSection'
+import { SubscriptionSection } from '@/components/settings/SubscriptionSection'
 import { listPasskeys, registerPasskey, deletePasskey, type PasskeyInfo } from '@/services/passkey'
 import { apiKeysService, type ApiKey, type ApiKeyCreated } from '@/services/apiKeys'
 import { useAuthStore } from '@/store/auth'
@@ -839,7 +840,9 @@ export function Settings() {
                 </Tooltip>
               </TooltipProvider>
             ) : (
-              <p className="text-sm text-gray-500">{t('settings.status.freeTier')}</p>
+              <p className="text-sm text-gray-500">
+                {settings?.isPremium ? t('settings.status.premiumTier') : t('settings.status.freeTier')}
+              </p>
             )}
 
             {/* Member since */}
@@ -860,6 +863,9 @@ export function Settings() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Card 4b — Kalmio Prémium subscription */}
+      <SubscriptionSection isFoundingMember={!!settings?.foundingMember} />
 
       {/* Card 5 — Notifications (KALMIO-316) */}
       <div className="space-y-4 max-w-lg mt-6">

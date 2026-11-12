@@ -1,22 +1,21 @@
 /**
- * foundingMember service — KALMIO-20 / KALMIO-292
+ * foundingMember service — KALMIO-20 / KALMIO-292, bank transfer since 2026-11-12.
+ *
+ * Barion does not provide a gateway for the lifetime tier, so the Founding Member
+ * membership is sold by bank transfer only (docs/product/payments-subscriptions.md §2).
  *
  * Backend endpoints:
- *   GET  /api/founding-member/availability — public, no auth required.
- *        Returns { cap, soldCount, remaining, price, currency }.
- *        Cache-Control max-age=30 on the server side.
- *   POST /api/founding-member/checkout              — authenticated.
- *   POST /api/founding-member/checkout/preview?token — vault token, no session needed.
- *        Both initiate a Barion payment session and return { paymentId, gatewayUrl }.
+ *   GET  /api/founding-member/availability          — public; { cap, soldCount, remaining, price, currency }.
+ *   POST /api/founding-member/transfer-order        — user; { billingInfo } → TransferOrderDto (open order if one exists).
+ *   GET  /api/founding-member/transfer-order        — user; latest open or paid order, 204 when none.
+ *   POST /api/founding-member/transfer-order/guest  — public; { email, billingInfo } → TransferOrderDto.
+ *   GET  /api/founding-member/guest-payment-status  — public; legacy guest sessions and confirmed guest orders.
+ *   POST /api/founding-member/claim                 — user; binds a settled guest order to the account.
+ *   GET  /api/founding-member/unclaimed             — user; a settled guest order matching the user's email.
  */
 
 import { api } from '@/lib/api'
-import type {
-  BillingInfo,
-  FoundingMemberAvailability,
-  FoundingMemberCheckoutRequest,
-  FoundingMemberCheckoutResponse,
-} from '@/types'
+import type { BillingInfo, FoundingMemberAvailability, TransferOrderDto } from '@/types'
 
 async function getAvailability(): Promise<FoundingMemberAvailability> {
   const res = await api.get<FoundingMemberAvailability>('/api/founding-member/availability')
@@ -24,56 +23,38 @@ async function getAvailability(): Promise<FoundingMemberAvailability> {
 }
 
 /**
- * Initiates a Barion checkout session for the authenticated user.
+ * Places (or returns the already open) bank-transfer order for the signed-in user.
+ * The backend issues a díjbekérő (proforma) and emails it.
  *
- * @param redirectUrl  The frontend success page URL Barion redirects to after payment.
- *                     Must be an absolute URL reachable by Barion's servers.
- * @param billingInfo  Billing address for the NAV e-invoice (e-számla).
- * @returns `{ paymentId, gatewayUrl }` — redirect the user to `gatewayUrl` immediately.
- * @throws HTTP 409 when all founding-member slots are already taken (cap reached).
- *
- * No idempotency key: payment/checkout initiation must always create a fresh Barion
- * session. A deduplicated response could return a stale gatewayUrl from a prior
- * abandoned session, which Barion would reject or associate with the wrong attempt.
- */
-async function checkout(
-  redirectUrl: string,
-  billingInfo: BillingInfo,
-  previewToken?: string,
-): Promise<FoundingMemberCheckoutResponse> {
-  const body: FoundingMemberCheckoutRequest = { redirectUrl, billingInfo }
-  const url = previewToken
-    ? `/api/founding-member/checkout/preview?token=${encodeURIComponent(previewToken)}`
-    : '/api/founding-member/checkout'
-  const res = await api.post<FoundingMemberCheckoutResponse>(url, body)
-  return res.data
-}
-
-/**
- * Initiates a guest Barion checkout — no account required. The buyer pays first and
- * claims founding-member status after registering. The email is stored server-side so a
- * paid-but-unclaimed payment can be recovered.
- *
- * @param email       Buyer email (Barion also collects its own billing email separately).
- * @param redirectUrl Absolute success-page URL Barion redirects to after payment.
- * @param billingInfo Billing address for the NAV e-invoice (e-számla).
- * @returns `{ paymentId, gatewayUrl }` — store `paymentId` client-side, redirect to `gatewayUrl`.
  * @throws HTTP 409 when all founding-member slots are taken.
  */
-async function checkoutGuest(
-  email: string,
-  redirectUrl: string,
-  billingInfo: BillingInfo,
-): Promise<FoundingMemberCheckoutResponse> {
-  const res = await api.post<FoundingMemberCheckoutResponse>(
-    '/api/founding-member/checkout/guest',
-    { email, redirectUrl, billingInfo },
-  )
+async function createTransferOrder(billingInfo: BillingInfo): Promise<TransferOrderDto> {
+  const res = await api.post<TransferOrderDto>('/api/founding-member/transfer-order', { billingInfo })
+  return res.data
+}
+
+/** The signed-in user's latest open or paid transfer order, or null (HTTP 204) when there is none. */
+async function getTransferOrder(): Promise<TransferOrderDto | null> {
+  const res = await api.get<TransferOrderDto | ''>('/api/founding-member/transfer-order')
+  if (res.status === 204 || !res.data) return null
   return res.data
 }
 
 /**
- * Polls the coarse status of a guest checkout session. Returns 'PENDING' | 'SUCCEEDED' | 'FAILED'.
+ * Places a bank-transfer order without an account. Once the transfer is confirmed the
+ * buyer registers and claims the order with its `paymentId` (the same claim flow as a
+ * legacy guest Barion payment).
+ *
+ * @throws HTTP 409 when all founding-member slots are taken.
+ */
+async function createGuestTransferOrder(email: string, billingInfo: BillingInfo): Promise<TransferOrderDto> {
+  const res = await api.post<TransferOrderDto>('/api/founding-member/transfer-order/guest', { email, billingInfo })
+  return res.data
+}
+
+/**
+ * Coarse status of a guest order. Returns 'PENDING' | 'SUCCEEDED' | 'FAILED'.
+ * Kept for legacy guest Barion sessions and used to check a stored guest transfer order.
  * @throws HTTP 404 when no guest session exists for this paymentId.
  */
 async function getGuestPaymentStatus(paymentId: string): Promise<{ status: string }> {
@@ -85,30 +66,33 @@ async function getGuestPaymentStatus(paymentId: string): Promise<{ status: strin
 }
 
 /**
- * Claims a settled guest payment for the now-authenticated user, granting founding-member
- * status and binding the payment to their account.
+ * Claims a settled guest order for the now-authenticated user, granting founding-member
+ * status and binding the order to their account.
  *
- * @throws HTTP 404 when there is no unclaimed guest payment for this paymentId.
- * @throws HTTP 409 when the payment has not settled yet, or all slots are taken.
+ * @throws HTTP 404 when there is no unclaimed guest order for this paymentId.
+ * @throws HTTP 409 when the order has not settled yet, or all slots are taken.
  */
 async function claimPayment(paymentId: string): Promise<void> {
   await api.post('/api/founding-member/claim', { paymentId })
 }
 
 /**
- * Returns the paymentId of a settled guest payment matching the logged-in user's email that
- * hasn't been claimed yet (e.g. the claim link was lost), or null if there's nothing to
- * recover. Lets the buy page offer to activate an existing payment instead of charging again.
+ * Returns the paymentId of a settled guest order matching the logged-in user's email that
+ * hasn't been claimed yet, or null if there's nothing to recover. Lets the buy page offer to
+ * activate an existing order instead of ordering again.
  */
 async function getUnclaimed(): Promise<{ paymentId: string | null }> {
   const res = await api.get<{ paymentId: string | null }>('/api/founding-member/unclaimed')
   return res.data
 }
 
+export const FOUNDING_MEMBER_TRANSFER_ORDER_QUERY_KEY = ['founding-member', 'transfer-order'] as const
+
 export const foundingMemberService = {
   getAvailability,
-  checkout,
-  checkoutGuest,
+  createTransferOrder,
+  getTransferOrder,
+  createGuestTransferOrder,
   getGuestPaymentStatus,
   claimPayment,
   getUnclaimed,

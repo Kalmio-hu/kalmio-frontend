@@ -30,7 +30,7 @@
 
 import { useEffect, useState } from 'react'
 import posthog from 'posthog-js'
-import { getConsent } from './analytics'
+import { hasStatisticsConsent } from './consent'
 
 // ── Compile-time defaults ─────────────────────────────────────────────────────
 // Flags not present in this map default to false when PostHog is unavailable.
@@ -51,7 +51,7 @@ const FLAG_DEFAULTS: Record<string, string | boolean> = {
  * Mirrors the `isReady()` check in `analytics.ts`.
  */
 function isReady(): boolean {
-  return getConsent() === 'accepted' && !!posthog.__loaded
+  return hasStatisticsConsent() && !!posthog.__loaded
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────

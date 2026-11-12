@@ -21,9 +21,9 @@
     "preferences": "Beállításaim",
     "calendar": "Naptár",
     "grooming": "Hűtő ritmusa",
-    "foundingMember": "Alapító tagság",
     "grove": "Erdő",
-    "profile": "Profil"
+    "profile": "Profil",
+    "premium": "Prémium"
   },
   "common": {
     "loading": "Egy pillanat…",
@@ -185,8 +185,8 @@
       },
       "errors": {
         "premiumTitle": "Ez egy prémium funkció",
-        "premiumDescription": "Az AI-asszisztens naplózás az Alapító Tag csomag része.",
-        "premiumCta": "Alapító Tag információk",
+        "premiumDescription": "Az AI-asszisztens naplózás a Kalmio Prémium része.",
+        "premiumCta": "Prémium csomagok",
         "rateLimitText": "Túl gyors a tempó — várj egy percet, és próbáld újra.",
         "rateLimitPhoto": "Túl sok fotó az elmúlt órában — várj egy órát, és próbáld újra.",
         "tooLarge": "A fájl túl nagy. Hang: max 25 MB, kép: max 5 MB.",
@@ -507,8 +507,8 @@
       "askSubmit": "Kérdés küldése",
       "thinking": "Gondolkodom…",
       "errors": {
-        "premium": "A főzési asszisztens az Alapító Tagság része. Aktiválás után minden recept mellett kéznél van.",
-        "premiumCta": "Alapító tagság",
+        "premium": "A főzési asszisztens a Kalmio Prémium része. Aktiválás után minden recept mellett kéznél van.",
+        "premiumCta": "Kalmio Prémium",
         "rateLimit": "Pillanat — túl gyorsan érkeznek a kérdések. Próbáld újra egy perc múlva.",
         "configuration": "A főzési asszisztens átmenetileg nem érhető el. Próbáld újra később.",
         "generic": "Most nem sikerült válaszolnom. Próbáld újra egy pillanat múlva."
@@ -923,7 +923,8 @@
     "status": {
       "title": "Fiók állapota",
       "memberSince": "Tagság kezdete:",
-      "freeTier": "Ingyenes hozzáférés"
+      "freeTier": "Ingyenes hozzáférés",
+      "premiumTier": "Prémium hozzáférés"
     },
     "foundingMemberBadge": {
       "label": "Alapító tag",
@@ -1076,6 +1077,57 @@
       "lunch": "Ebédhez leves is",
       "dinner": "Vacsorához leves is",
       "note": "Az egytálételnek számító levesek (gulyás, bableves, főzelék) egyfogásos étkezésként is bekerülhetnek."
+    },
+    "subscription": {
+      "title": "Kalmio Prémium előfizetés",
+      "none": "Nincs előfizetésed. A Prémium a teljes AI-asszisztenst adja hozzá az ingyenes alapokhoz.",
+      "subscribe": "Csomagok megtekintése",
+      "subscribeAgain": "Újra előfizetek",
+      "plan": {
+        "MONTHLY": "Havi előfizetés",
+        "YEARLY": "Éves előfizetés"
+      },
+      "price": {
+        "MONTHLY": "{{price, number}} Ft / hó",
+        "YEARLY": "{{price, number}} Ft / év"
+      },
+      "status": {
+        "PENDING": "Függőben",
+        "ACTIVE": "Aktív",
+        "PAST_DUE": "Elmaradt díj",
+        "CANCELLED": "Lemondva",
+        "EXPIRED": "Lejárt",
+        "FAILED": "Sikertelen",
+        "CANCELLING": "Lemondva"
+      },
+      "nextCharge": "Következő terhelés: {{date}}, {{price, number}} Ft.",
+      "endsOn": "Lemondtad. A prémium a jelenlegi időszak végéig él: {{date}}.",
+      "ended": "Az előfizetésed lejárt: {{date}}.",
+      "pending": "A fizetés visszaigazolására várunk.",
+      "pastDue": "A legutóbbi terhelés nem sikerült. Néhány napon belül újra megpróbáljuk; a prémium addig is megmarad, legfeljebb eddig: {{date}}. Ha inkább másik kártyával rendeznéd, most megteheted.",
+      "payOverdue": "Fizetés másik kártyával",
+      "resume": "Előfizetés folytatása",
+      "cancel": "Előfizetés lemondása",
+      "cancelConfirm": "Biztosan lemondod? Több terhelés nem lesz, a prémium a jelenlegi időszak végéig megmarad: {{date}}.",
+      "cancelConfirmCta": "Lemondom",
+      "keep": "Megtartom",
+      "cancelled": "Lemondtad az előfizetést. A prémium eddig marad meg: {{date}}.",
+      "resumed": "Az előfizetésed folytatódik.",
+      "actionError": "Ez most nem sikerült. Próbáld újra pár másodperc múlva.",
+      "history": "Fizetések",
+      "amount": "{{price, number}} Ft",
+      "kind": {
+        "INITIAL": "Első díj",
+        "RENEWAL": "Megújítás",
+        "CARD_UPDATE": "Kártyacsere"
+      },
+      "paymentStatus": {
+        "PENDING": "Függőben",
+        "SUCCEEDED": "Sikeres",
+        "FAILED": "Sikertelen",
+        "REFUNDED": "Visszatérítve"
+      },
+      "invoice": "Számla"
     }
   },
   "impersonation": {
@@ -1091,7 +1143,8 @@
       "contentReview": "Tartalomjóváhagyás",
       "recipeFamilies": "Receptcsaládok",
       "retailProducts": "Bolti termékek",
-      "retailProviders": "Bolti forgalmazók"
+      "retailProviders": "Bolti forgalmazók",
+      "transferOrders": "Átutalásos rendelések"
     },
     "stats": {
       "totalRealUsers": "Valódi felhasználók",
@@ -1163,6 +1216,39 @@
         "unassignSuccess": "Eltávolítva a receptcsaládból.",
         "unassignError": "Nem sikerült eltávolítani."
       }
+    },
+    "transferOrders": {
+      "title": "Átutalásos rendelések",
+      "subtitle": "Alapító tagság banki átutalással. A bankszámlakivonat közleménye alapján erősítsd meg a jóváírt utalásokat.",
+      "filterLabel": "Szűrés állapot szerint",
+      "filter": {
+        "PENDING": "Függőben",
+        "SUCCEEDED": "Jóváírva",
+        "CANCELLED": "Törölve",
+        "EXPIRED": "Lejárt",
+        "ALL": "Összes"
+      },
+      "status": {
+        "PENDING": "Függőben",
+        "SUCCEEDED": "Jóváírva",
+        "CANCELLED": "Törölve",
+        "EXPIRED": "Lejárt"
+      },
+      "meta": "{{amount, number}} Ft · leadva: {{created}} · határidő: {{due}}",
+      "account": "Fiókhoz kötött rendelés",
+      "guest": "Vendégrendelés (beváltás regisztrációkor)",
+      "confirmedAt": "megerősítve: {{date}}",
+      "confirm": "Utalás megérkezett",
+      "cancel": "Törlés",
+      "confirmPrompt": "Megerősíted, hogy a(z) {{reference}} közleményű, {{amount, number}} Ft-os utalás megérkezett? A tagság aktiválódik, és kiállítjuk a számlát.",
+      "cancelPrompt": "Biztosan törlöd a(z) {{reference}} rendelést? A lefoglalt hely felszabadul.",
+      "confirmYes": "Igen, megérkezett",
+      "cancelYes": "Igen, törlöm",
+      "confirmed": "{{reference}} megerősítve.",
+      "cancelled": "{{reference}} törölve.",
+      "actionError": "Nem sikerült. Próbáld újra.",
+      "loadError": "Nem sikerült betölteni a rendeléseket.",
+      "empty": "Nincs rendelés ebben az állapotban."
     }
   },
   "aiImport": {
@@ -1217,8 +1303,8 @@
     },
     "errors": {
       "premiumTitle": "Ez prémium funkció",
-      "premiumDescription": "Az AI-receptimport az Alapító Tag csomag része.",
-      "premiumCta": "Alapító Tag leszek",
+      "premiumDescription": "Az AI-receptimport a Kalmio Prémium része.",
+      "premiumCta": "Prémium csomagok",
       "rateLimitText": "Túl sok importálási kérés. Próbáld újra egy perc múlva.",
       "rateLimitPhoto": "Túl sok digitalizálási kérés. Próbáld újra egy perc múlva.",
       "monthlyQuota": "Elérted a havi receptimportálási kereted. A keret jövő hónapban megújul.",
@@ -1772,8 +1858,8 @@
       "loading": "Egy pillanat — összegyűjtöm az indoklást.",
       "startCooking": "Főzés indítása",
       "errors": {
-        "premium": "A „Miért ezt?\" indoklás az Alapító Tag csomag része. Aktiválás után minden étkezésnél elérhető.",
-        "premiumCta": "Alapító Tag",
+        "premium": "A „Miért ezt?” indoklás a Kalmio Prémium része. Aktiválás után minden étkezésnél elérhető.",
+        "premiumCta": "Kalmio Prémium",
         "rateLimit": "Most kicsit sok kérdés érkezett — próbáld újra egy perc múlva.",
         "notFound": "Ez az étkezés már nem érhető el.",
         "generic": "Most nem tudtam előkészíteni az indoklást.",
@@ -2280,10 +2366,27 @@
     "impressum": "Impresszum"
   },
   "consent": {
-    "body": "Ez az oldal sütiket használ a zavartalan működéshez és a névtelen látogatottsági méréshez. Az adatkezelésről részletesen az Adatkezelési tájékoztatóban olvashatsz.",
+    "body": "Sütiket és más technológiát használunk a weboldal működéséhez, statisztikához, a tartalmak és hirdetések, ajánlatok személyre szabásához, és az így gyűjtött adatok média-, hirdető- és elemző partnereinkkel történő megosztásához. Partnereink ezeket kombinálhatják más adatokkal is. Az „Elfogadom” gombra kattintással hozzájárulsz mindezekhez. A hozzájárulásod tartalmát a „További beállítások” gomb alatt állíthatod be, amit bármikor módosíthatsz. <cookies>Részletes süti tájékoztató</cookies> és <privacy>adatvédelmi tájékoztató</privacy>.",
     "accept": "Elfogadom",
     "decline": "Elutasítom",
-    "learnMore": "Adatkezelési tájékoztató"
+    "moreSettings": "További beállítások",
+    "save": "Beállítások mentése",
+    "settingsTitle": "Sütibeállítások",
+    "alwaysOn": "Mindig aktív",
+    "categories": {
+      "necessary": {
+        "title": "Szükséges",
+        "description": "A bejelentkezéshez, a nyelvi beállításhoz, a hozzájárulásod megőrzéséhez és a Barion csalásmegelőzéséhez kellenek. Nem kapcsolhatók ki."
+      },
+      "statistics": {
+        "title": "Statisztika",
+        "description": "Pszeudonimizált használati adatok a PostHog segítségével, hogy lássuk, mit érdemes fejleszteni."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "A Barion, valamint média-, hirdető- és elemzőpartnerei sütijei a tartalmak, ajánlatok és hirdetések személyre szabásához."
+      }
+    }
   },
   "teachOnReturn": {
     "subtle": "Pár nap kimaradt — a talajod alig változott.",
@@ -2333,9 +2436,6 @@
       "sub": "Egyszer fizetsz, örökre a tiéd minden prémium funkció — a mostani és a jövőbeniek is.",
       "priceLine": "{{price, number}} Ft — egyszeri díj.",
       "remainingLine": "Még {{remaining}} hely az első 1000-ből.",
-      "cta": "Vásárlás",
-      "ctaLoading": "Átirányítás a fizetéshez…",
-      "ctaSoldOut": "Elkelt",
       "soldOutTitle": "Minden alapítói hely elkelt.",
       "soldOutSub": "Köszönjük az érdeklődést. A prémium hamarosan szélesebb körben is elérhető lesz.",
       "alreadyMember": "Már alapító tag vagy. Köszönjük, hogy elsőként hittél bennünk.",
@@ -2345,19 +2445,23 @@
         "activating": "Aktiválás folyamatban…",
         "error": "Nem sikerült aktiválni. Próbáld újra pár másodperc múlva, vagy írj nekünk."
       },
-      "errors": {
-        "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium hamarosan más formában is elérhető lesz.",
-        "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
-      },
       "loading": "Pillanat, ellenőrizzük a maradék helyeket…"
     },
-    "success": {
-      "title": "Köszönjük.",
-      "waiting": "Megérkezett a fizetésed visszaigazolása. Pár másodpercen belül aktiváljuk a hozzáférésed.",
-      "granted": "Alapító tag vagy. Minden prémium funkció a tiéd, most és a jövőben.",
-      "slow": "A bankod kicsit lassabban válaszol. Maradj itt — amint visszaigazolja a tranzakciót, frissítjük.",
-      "refresh": "Frissítés",
-      "backToApp": "Vissza az alkalmazásba"
+    "transfer": {
+      "onlyByTransfer": "Kizárólag banki átutalással fizethető.",
+      "howItWorks": "Átutalással fizetsz: a megrendelés után elküldjük a díjbekérőt, és amint az összeg megérkezik a számlánkra, aktiváljuk az alapító tagságod. Erről e-mailben értesítünk.",
+      "cta": "Megrendelem átutalással",
+      "submit": "Megrendelés leadása",
+      "submitting": "Megrendelés rögzítése…",
+      "afterOrderNote": "A megrendelés nyolc napig foglalja a helyed. Ha addig nem érkezik meg az utalás, a hely felszabadul.",
+      "pendingTitle": "Megkaptuk a megrendelésed.",
+      "pendingBody": "Amint az utalás megérkezik a számlánkra, aktiváljuk az alapító tagságod, és e-mailben értesítünk. Ez általában egy-két munkanap.",
+      "lapsed": "A korábbi, {{reference}} azonosítójú megrendelésed lezárult. Ha továbbra is szeretnéd, adj le újat.",
+      "subscriptionAlternative": "Inkább havonta fizetnél? Kalmio Prémium előfizetés",
+      "errors": {
+        "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium funkciókat Kalmio Prémium előfizetéssel továbbra is eléred.",
+        "generic": "Nem sikerült rögzíteni a megrendelést. Próbáld újra pár másodperc múlva."
+      }
     }
   },
   "payments": {
@@ -2399,22 +2503,27 @@
         "city": "Kérlek, add meg a várost.",
         "address": "Kérlek, add meg a címet."
       }
-    }
+    },
+    "startNowWaiveWithdrawal": "Kérem a szolgáltatás azonnali megkezdését, és tudomásul veszem, hogy ezzel elveszítem az elállási jogomat."
   },
   "guestFoundingMember": {
     "email": {
       "label": "E-mail-cím",
       "placeholder": "te@pelda.hu"
     },
-    "cta": "Fizetés és helyem lefoglalása",
-    "trust": "Biztonságos fizetés a Barionon keresztül.",
-    "afterPaymentNote": "Először a fizetés, utána pár másodperc alatt létrehozod a fiókod. Így biztosan a tiéd marad a hely.",
     "loggedInNote": "Már be vagy jelentkezve. A meglévő fiókoddal egy lépéssel gyorsabb a folyamat.",
-    "loggedInCta": "Tovább a vásárláshoz",
+    "loggedInCta": "Tovább a megrendeléshez",
     "errors": {
       "email": "Kérlek, adj meg egy érvényes e-mail-címet.",
       "capReached": "Időközben elkelt az utolsó alapítói hely. A prémium hamarosan más formában is elérhető lesz.",
-      "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
+      "generic": "Nem sikerült rögzíteni a megrendelést. Próbáld újra pár másodperc múlva."
+    },
+    "afterOrderNote": "A díjbekérőt erre az e-mail-címre küldjük. Amint az utalás megérkezik, ezzel a címmel hozod létre a fiókod, és aktiváljuk a tagságod.",
+    "transfer": {
+      "pendingBody": "Amint az utalás megérkezik a számlánkra, e-mailt küldünk a(z) {{email}} címre. Utána ezzel a címmel hozod létre a fiókod, és aktiváljuk az alapító tagságod.",
+      "confirmedTitle": "Megérkezett az utalásod.",
+      "confirmedBody": "Köszönjük. Hozd létre a fiókod a(z) {{email}} címmel, és aktiváljuk az alapító tagságod.",
+      "startOver": "Másik megrendelést adok le"
     }
   },
   "guestFoundingMemberSuccess": {
@@ -2543,17 +2652,17 @@
     },
     "aiOffPlanLocked": {
       "buttonLabel": "AI-val rögzítek",
-      "ariaLabel": "AI-naplózás — Alapító Tag funkció",
+      "ariaLabel": "AI-naplózás — Prémium funkció",
       "badge": "Prémium"
     },
     "rationaleLocked": {
-      "ariaLabel": "Miért ezt? — Alapító Tag funkció",
-      "teaser": "Részletes magyarázat Alapító Tag előfizetőknek.",
-      "cta": "Alapító tagság"
+      "ariaLabel": "Miért ezt? — Prémium funkció",
+      "teaser": "Részletes magyarázat Prémium előfizetőknek és alapító tagoknak.",
+      "cta": "Kalmio Prémium"
     },
     "features": {
       "title": "Mit nyit meg a prémium",
-      "subtitle": "Az alapok mindig ingyenesek maradnak. Az Alapító tagság a teljes AI-asszisztenst adja hozzá.",
+      "subtitle": "Az alapok mindig ingyenesek maradnak. A Prémium, előfizetéssel vagy alapító tagként, a teljes AI-asszisztenst adja hozzá.",
       "ariaLabel": "Prémium funkciók",
       "items": {
         "recipeImport": {
@@ -3582,5 +3691,92 @@
     "success": "A {{provider}}-fiókod össze van kötve.",
     "error": "Az összekötés nem sikerült. Próbáld újra a Beállításokból.",
     "back": "Vissza a bevásárlólistához"
+  },
+  "premiumPage": {
+    "label": "Kalmio Prémium",
+    "headline": "A teljes asszisztens, havonta vagy évente.",
+    "sub": "Az alapok ingyenesek maradnak. A Prémium hozzáadja az AI-asszisztenst: receptimport, blokkbeolvasás, főzési segítség és a terv alakítása beszélgetve.",
+    "choose": "Ezt választom",
+    "backToApp": "Vissza az alkalmazásba",
+    "comingSoon": "A Kalmio Prémium hamarosan elérhető.",
+    "plans": {
+      "MONTHLY": {
+        "name": "Havi",
+        "short": "havi",
+        "price": "{{price, number}} Ft / hó",
+        "note": "Havonta megújul, bármikor lemondható."
+      },
+      "YEARLY": {
+        "name": "Éves",
+        "short": "éves",
+        "price": "{{price, number}} Ft / év",
+        "note": "Havi {{perMonth, number}} Ft-nak felel meg, {{percent}}% megtakarítás a havi díjhoz képest.",
+        "badge": "Kedvezőbb"
+      }
+    },
+    "founding": {
+      "title": "Alapító tagság",
+      "price": "{{price, number}} Ft — egyszeri díj, élethosszig",
+      "note": "Kizárólag banki átutalással.",
+      "noteRemaining": "Kizárólag banki átutalással. Még {{remaining}} hely az első 1000-ből.",
+      "soldOut": "Minden alapítói hely elkelt.",
+      "cta": "Részletek"
+    },
+    "foundingMember": {
+      "title": "Alapító tag vagy.",
+      "body": "Minden prémium funkció örökre a tiéd, előfizetésre nincs szükséged."
+    },
+    "subscribed": {
+      "title": "Már előfizetsz.",
+      "body": "A Kalmio Prémium előfizetésed ({{plan}}) él. A kártyát, a fizetéseket és a lemondást a Beállításokban kezelheted.",
+      "manage": "Előfizetés kezelése"
+    },
+    "checkout": {
+      "back": "Másik csomag",
+      "title": "Előfizetés",
+      "renewal": {
+        "MONTHLY": "Az első hónap díját most fizeted. Utána a Barion havonta automatikusan terheli a {{price, number}} Ft-ot a regisztrált kártyádra, amíg le nem mondod. Lemondás után az aktuális hónap végéig megmarad a hozzáférésed.",
+        "YEARLY": "Az első év díját most fizeted. Utána a Barion évente automatikusan terheli a {{price, number}} Ft-ot a regisztrált kártyádra, amíg le nem mondod. Lemondás után az aktuális év végéig megmarad a hozzáférésed."
+      },
+      "cta": "Tovább a fizetéshez",
+      "ctaLoading": "Átirányítás a Barionhoz…",
+      "secureNote": "A kártyaadatokat a Barion biztonságos fizetőoldalán adod meg; ezeket mi nem látjuk és nem tároljuk.",
+      "errors": {
+        "exists": "Már van élő előfizetésed. A Beállításokban kezelheted.",
+        "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
+      }
+    }
+  },
+  "premiumSuccess": {
+    "title": "Egy pillanat.",
+    "verifying": "Ellenőrizzük a fizetésed visszaigazolását…",
+    "succeededTitle": "Köszönjük.",
+    "succeeded": "A Kalmio Prémium aktív. Minden prémium funkció a rendelkezésedre áll.",
+    "overdueSucceeded": "Rendeztük az elmaradt díjat. Az előfizetésed újra rendben van.",
+    "failedTitle": "A fizetés nem ment végbe.",
+    "failed": "Nem terheltünk meg semmivel. Próbáld újra, akár másik kártyával.",
+    "tryAgain": "Újra megpróbálom",
+    "slow": "A bankod kicsit lassabban válaszol. Maradj itt — amint visszaigazolja a tranzakciót, frissítjük.",
+    "refresh": "Frissítés",
+    "unknown": "Ehhez az oldalhoz nem találunk fizetést. Az előfizetésed állapotát a Beállításokban látod.",
+    "toSettings": "Előfizetés a Beállításokban",
+    "toApp": "Tovább az alkalmazásba"
+  },
+  "transferOrder": {
+    "title": "Utalási adatok",
+    "intro": "Kérjük, az alábbi adatokkal utald el a díjat. A díjbekérőt e-mailben is elküldtük.",
+    "beneficiary": "Kedvezményezett",
+    "accountNumber": "Számlaszám",
+    "iban": "IBAN",
+    "amount": "Összeg",
+    "amountValue": "{{amount, number}} Ft",
+    "reference": "Közlemény",
+    "dueDate": "Fizetési határidő",
+    "referenceNote": "A közleménybe pontosan ezt írd: ebből azonosítjuk az utalásod.",
+    "accountPending": "A bankszámlaszámot a díjbekérőn találod, amelyet e-mailben elküldtünk.",
+    "proforma": "Díjbekérő megnyitása",
+    "copy": "Másolás",
+    "copied": "Másolva",
+    "copyAria": "{{label}} másolása"
   }
 }

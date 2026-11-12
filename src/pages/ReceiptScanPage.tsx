@@ -65,7 +65,7 @@ export default function ReceiptScanPage() {
         if (isPremium) {
           toast({ title: t('shopping.receipt.premiumRequired'), variant: 'destructive' })
         } else {
-          navigate('/app/founding-member')
+          navigate('/app/premium')
         }
       } else if (status === 429) {
         toast({ title: t('shopping.receipt.rateLimited'), variant: 'destructive' })

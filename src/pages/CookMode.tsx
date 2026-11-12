@@ -549,7 +549,7 @@ function ErrorBubble({ errorKey }: { errorKey: ErrorKey }) {
       <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-[#FFF3E5] px-3 py-2 text-xs text-[#6b4a1a] ring-1 ring-[#F1E4D2]">
         <p className="leading-relaxed">{t('recipes.cookMode.errors.premium')}</p>
         <Link
-          to="/app/founding-member"
+          to="/app/premium"
           className="mt-1 inline-block font-semibold text-[#B86C1B] underline-offset-2 hover:underline"
         >
           {t('recipes.cookMode.errors.premiumCta')} →

@@ -168,7 +168,7 @@ function RationaleError({
           {t('plan.rationale.errors.premium')}
         </p>
         <Link
-          to="/app/founding-member"
+          to="/app/premium"
           className="inline-flex items-center rounded-lg bg-[#F28C28] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#d9761e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F28C28] focus-visible:ring-offset-1"
         >
           {t('plan.rationale.errors.premiumCta')}

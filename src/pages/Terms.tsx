@@ -95,24 +95,55 @@ function TermsHu() {
         A fogyasztók a jogvitákat alternatív vitarendezési fórumon (online vitarendezési platform: <a href="https://ec.europa.eu/consumers/odr" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>) is rendezhetik.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Fizetés, teljesítés és csalásmegelőzés</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Kalmio Prémium előfizetés</h2>
       <p>
-        Az Alapító tagság egyszeri díjas, digitális szolgáltatás. A vásárlás a weboldalon történik; a megrendelés véglegesítésének előfeltétele a jelen feltételek elfogadása.
+        A Kalmio Prémium a prémium funkciókhoz (különösen az AI-alapú funkciókhoz) hozzáférést biztosító, határozatlan időre szóló, időszakonként ismétlődő díjas digitális szolgáltatás. Az előfizetés a weboldalon, a számlázási adatok megadásával, jelen feltételek elfogadásával és az első díj megfizetésével jön létre.
       </p>
       <p className="mt-3">
-        <strong>Fizetési mód.</strong> Az online bankkártyás fizetések a Barion rendszerén keresztül valósulnak meg (elfogadott kártyatípusok: Visa, Mastercard, Maestro), illetve Barion-tárcával is fizethetsz. A bankkártya adatait a Barion kezeli, azokhoz a Kalmio (Hard Rock Coders Kft.) nem fér hozzá. A szolgáltatást nyújtó Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt álló intézmény, engedélyének száma: H-EN-I-1064/2013.
+        <strong>Díjak.</strong> Havi előfizetés: 1 990 Ft/hó; éves előfizetés: 14 990 Ft/év. A feltüntetett árak a fizetendő teljes (bruttó) összeget tartalmazzák. A már megkötött előfizetés díja a futamideje alatt nem emelkedik: a megújuló terhelés összege nem haladja meg az első díjat.
       </p>
       <p className="mt-3">
-        <strong>Teljesítés ideje.</strong> Az Alapító tagság digitális szolgáltatás, fizikai kiszállítás nincs. A hozzáférés a sikeres fizetést követően azonnal, jellemzően néhány percen belül aktiválódik.
+        <strong>Automatikus megújulás és terhelés.</strong> Az előfizetés a választott időszak (egy hónap, illetve egy év) leteltével – lemondásig – automatikusan ugyanilyen időtartamra megújul. Az első díjat a Barion fizetőoldalán bankkártyával fizeted meg; ekkor hozzájárulsz ahhoz, hogy a Barion a kártyádat az ismétlődő díjak terheléséhez regisztrálja. A megújuló díjat az aktuális időszak lejártakor, külön jóváhagyás nélkül terheljük a regisztrált kártyára. Minden sikeres terhelésről elektronikus számlát küldünk.
       </p>
       <p className="mt-3">
-        <strong>Elállás.</strong> Olyan digitális szolgáltatás esetén, amelynek teljesítését a kifejezett, előzetes hozzájárulásoddal azonnal megkezdjük, a 45/2014. (II. 26.) Korm. rendelet szerinti 14 napos elállási jog a teljesítés megkezdése után nem gyakorolható.
+        <strong>Lemondás.</strong> Az előfizetést bármikor lemondhatod a Beállítások oldalon. A lemondás az aktuális, már kifizetett időszak végén lép hatályba: addig a prémium funkciók elérhetők maradnak, további terhelés nem történik. Az időszak végéig a lemondást visszavonhatod. A megkezdett időszak díját – a jogszabályban kötelezően előírt esetek kivételével – nem térítjük vissza.
       </p>
       <p className="mt-3">
-        <strong>Csalásmegelőzés (Barion Pixel).</strong> A weboldal csalásmegelőzési célból a Barion Pixel nevű JavaScript-kódot használja, amely a böngészési és vásárlási eseményekről adatokat továbbít a Barion Payment Zrt. részére. Erről bővebben az <Link to="/privacy" className="text-[#F28C28] hover:underline">Adatkezelési tájékoztatóban</Link> olvashatsz.
+        <strong>Sikertelen terhelés.</strong> Ha a megújuló díj terhelése nem sikerül (például lejárt vagy letiltott kártya, illetve fedezethiány miatt), a terhelést az esedékességet követő 1., 3. és 5. napon megismételjük. Az esedékességtől számított 7 napig (türelmi idő) a prémium funkciók elérhetők maradnak, és az elmaradt díjat a Beállítások oldalon másik bankkártyával is rendezheted. Ha a díj a türelmi idő végéig sem kerül megfizetésre, az előfizetés megszűnik, a fiók ingyenes hozzáférésre vált, az adataid pedig megmaradnak.
+      </p>
+      <p className="mt-3">
+        <strong>A teljesítés megkezdése és az elállási jog.</strong> A Kalmio Prémium nem tárgyi adathordozón nyújtott digitális adattartalom, amelynek teljesítését a sikeres első fizetést követően azonnal megkezdjük. A megrendeléskor kifejezetten kéred a szolgáltatás azonnali megkezdését, és tudomásul veszed, hogy ezzel elveszíted a 14 napos elállási jogodat (45/2014. (II. 26.) Korm. rendelet 29. § (1) bekezdés m) pont). E kérés és nyilatkozat nélkül az előfizetés nem rendelhető meg. A beleegyezésedet és a nyilatkozatodat a szerződés megkötését követően e-mailben visszaigazoljuk.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Kapcsolat</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Alapító tagság</h2>
+      <p>
+        Az Alapító tagság egyszeri díjért nyújtott, a szolgáltatás fennállásáig tartó hozzáférés minden prémium funkcióhoz, legfeljebb 1000 tag részére. Díja 19 900 Ft (bruttó), amelyet egyszer kell megfizetni.
+      </p>
+      <p className="mt-3">
+        <strong>Fizetés kizárólag banki átutalással.</strong> Az Alapító tagság díja kizárólag banki átutalással fizethető meg. Az Alapító tagság esetében bankkártyás fizetésre, Barion-fizetésre vagy más online fizetési módra nincs lehetőség.
+      </p>
+      <p className="mt-3">
+        <strong>A megrendelés menete.</strong> A megrendelés leadásakor (a számlázási adatok megadásával és jelen feltételek elfogadásával) díjbekérőt állítunk ki, amelyet e-mailben megküldünk. Az átutalás közleményében a megrendeléskor kapott azonosítót (KALMIO-AT-…) kell feltüntetni. A megrendelés 8 napig foglalja a helyet; ha a díj ez idő alatt nem érkezik meg, a megrendelés lejár, és a hely felszabadul. A díj megfizetéséig a megrendelés következmények nélkül, egyszerűen az átutalás elmaradásával lemondható.
+      </p>
+      <p className="mt-3">
+        <strong>Teljesítés.</strong> A tagságot azt követően aktiváljuk, hogy az átutalt összeg a bankszámlánkon jóváírásra került; a jóváírást kézzel ellenőrizzük, ezért ez jellemzően egy-két munkanapot vesz igénybe. Az aktiválásról e-mailben értesítünk, és kiállítjuk a végszámlát. Ha a megrendelést fiók nélkül adtad le, a tagság a megrendeléskor megadott e-mail-címmel létrehozott fiókhoz kapcsolható.
+      </p>
+      <p className="mt-3">
+        <strong>Elállási jog.</strong> Az Alapító tagság megrendelésétől elállhatsz a szerződés megkötésétől (a megrendelés leadásától) számított 14 napon belül, indoklás nélkül, a privacy@kalmio.hu címre küldött nyilatkozattal. Elállás esetén a már megfizetett díjat az elállásról való tudomásszerzésünktől számított 14 napon belül visszautaljuk arra a bankszámlára, amelyről érkezett.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">11. Fizetés, számlázás és csalásmegelőzés</h2>
+      <p>
+        <strong>Bankkártyás fizetés (csak a Kalmio Prémium előfizetésnél).</strong> Az online bankkártyás fizetések a Barion rendszerén keresztül valósulnak meg (elfogadott kártyatípusok: Visa, Mastercard, Maestro). A bankkártya adatait a Barion kezeli, azokhoz a Kalmio (Hard Rock Coders Kft.) nem fér hozzá; az ismétlődő terheléshez a Barion által kiadott azonosítót és a kártya maszkolt adatait (kártyatípus, utolsó négy számjegy, lejárat) tároljuk. A szolgáltatást nyújtó Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt álló intézmény, engedélyének száma: H-EN-I-1064/2013.
+      </p>
+      <p className="mt-3">
+        <strong>Számlázás.</strong> Minden megfizetett díjról elektronikus számlát állítunk ki, amelyet e-mailben küldünk meg.
+      </p>
+      <p className="mt-3">
+        <strong>Barion Pixel.</strong> A weboldal a Barion Payment Zrt. Barion Pixel nevű eszközét használja. Az alapfunkció csalásmegelőzési célból minden oldalon működik, és a böngészési, illetve vásárlási eseményekről adatokat továbbít a Barion részére. A marketing célú (teljes) funkció csak akkor működik, ha a sütibeállításokban a marketing sütikhez hozzájárultál. Erről bővebben az <Link to="/privacy" className="text-[#F28C28] hover:underline">Adatkezelési tájékoztatóban</Link> olvashatsz.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">12. Kapcsolat</h2>
       <p>
         Hard Rock Coders Kft.<br />
         Székhely: 1163 Budapest, Veres Péter út 51.<br />
@@ -122,7 +153,7 @@ function TermsHu() {
         E-mail: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        Jelen feltételek legutóbb 2026. január 1-jén frissültek.
+        Jelen feltételek legutóbb 2026. november 12-én frissültek.
       </p>
     </div>
   )
@@ -221,24 +252,55 @@ function TermsEn() {
         Consumers may also resolve disputes through the EU online dispute resolution platform: <a href="https://ec.europa.eu/consumers/odr" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a>.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Payment, Fulfilment and Fraud Prevention</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Kalmio Premium Subscription</h2>
       <p>
-        Founding Membership is a one-off, digital service. The purchase takes place on the website; accepting these Terms is a precondition of completing the order.
+        Kalmio Premium is a digital service with a recurring fee, concluded for an indefinite period, that gives access to the premium features (in particular the AI-based features). The subscription is concluded on the website by entering your billing details, accepting these Terms and paying the first fee.
       </p>
       <p className="mt-3">
-        <strong>Payment method.</strong> Online card payments are processed through the Barion system (accepted card types: Visa, Mastercard, Maestro), or you may pay with a Barion wallet. Card details are handled by Barion and are never accessible to Kalmio (Hard Rock Coders Kft.). Barion Payment Zrt., the payment provider, is an institution supervised by the National Bank of Hungary under licence number H-EN-I-1064/2013.
+        <strong>Fees.</strong> Monthly subscription: HUF 1,990 per month; yearly subscription: HUF 14,990 per year. The prices shown are the full (gross) amounts payable. The fee of an existing subscription does not increase during its term: a renewal charge never exceeds the first fee.
       </p>
       <p className="mt-3">
-        <strong>Fulfilment time.</strong> Founding Membership is a digital service with no physical delivery. Access is activated immediately after a successful payment, typically within a few minutes.
+        <strong>Automatic renewal and charging.</strong> Until cancelled, the subscription renews automatically for the same period (one month or one year) when the chosen period ends. You pay the first fee by card on Barion's payment page and, in doing so, consent to Barion registering your card for the recurring charges. Each renewal fee is charged to the registered card when the current period ends, without separate approval. We send an electronic invoice for every successful charge.
       </p>
       <p className="mt-3">
-        <strong>Right of withdrawal.</strong> For a digital service whose performance begins immediately with your express prior consent, the 14-day right of withdrawal under Hungarian Government Decree 45/2014 (II. 26.) cannot be exercised once performance has begun.
+        <strong>Cancellation.</strong> You can cancel the subscription at any time on the Settings page. Cancellation takes effect at the end of the current, already paid period: until then the premium features remain available and no further charge is made. You can withdraw the cancellation until the period ends. Fees for a period that has begun are not refunded, except where the law requires it.
       </p>
       <p className="mt-3">
-        <strong>Fraud prevention (Barion Pixel).</strong> For fraud-prevention purposes the website uses a JavaScript snippet called the Barion Pixel, which transmits browsing and purchase events to Barion Payment Zrt. You can read more in our <Link to="/privacy" className="text-[#F28C28] hover:underline">Privacy Notice</Link>.
+        <strong>Failed charges.</strong> If a renewal charge fails (for example because the card has expired or been blocked, or for lack of funds), we retry it on the 1st, 3rd and 5th day after the due date. For 7 days from the due date (grace period) the premium features remain available, and you can settle the overdue fee with another card on the Settings page. If the fee is still unpaid at the end of the grace period, the subscription ends, the account reverts to free access and your data is kept.
+      </p>
+      <p className="mt-3">
+        <strong>Start of performance and right of withdrawal.</strong> Kalmio Premium is digital content not supplied on a tangible medium, and we begin performance immediately after the first successful payment. When ordering, you expressly request the immediate start of the service and acknowledge that you thereby lose your 14-day right of withdrawal (Hungarian Government Decree 45/2014 (II. 26.), Section 29(1)(m)). Without this request and acknowledgement the subscription cannot be ordered. We confirm your consent and acknowledgement by email after the contract is concluded.
       </p>
 
-      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Contact</h2>
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">10. Founding Membership</h2>
+      <p>
+        Founding Membership is access to every premium feature for as long as the service exists, for a one-off fee, limited to 1,000 members. The fee is HUF 19,900 (gross), payable once.
+      </p>
+      <p className="mt-3">
+        <strong>Payment by bank transfer only.</strong> The Founding Membership fee can be paid by bank transfer only. Card payment, Barion payment or any other online payment method is not available for Founding Membership.
+      </p>
+      <p className="mt-3">
+        <strong>How ordering works.</strong> When you place the order (by entering your billing details and accepting these Terms) we issue a pro forma invoice and send it by email. The transfer must carry the order reference you receive (KALMIO-AT-…) in its remittance information (közlemény). The order holds your seat for 8 days; if the fee has not arrived by then, the order lapses and the seat is released. Until the fee is paid, you can cancel the order without consequence simply by not making the transfer.
+      </p>
+      <p className="mt-3">
+        <strong>Fulfilment.</strong> We activate the membership once the transferred amount has been credited to our bank account; we check transfers manually, so this typically takes one or two business days. We notify you of the activation by email and issue the final invoice. If you ordered without an account, the membership can be linked to an account created with the email address given in the order.
+      </p>
+      <p className="mt-3">
+        <strong>Right of withdrawal.</strong> You may withdraw from a Founding Membership order within 14 days of concluding the contract (placing the order), without giving reasons, by sending a statement to privacy@kalmio.hu. If you withdraw, we refund the fee already paid within 14 days of learning of your withdrawal, to the bank account it came from.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">11. Payment, Invoicing and Fraud Prevention</h2>
+      <p>
+        <strong>Card payment (Kalmio Premium subscription only).</strong> Online card payments are processed through the Barion system (accepted card types: Visa, Mastercard, Maestro). Card details are handled by Barion and are never accessible to Kalmio (Hard Rock Coders Kft.); for the recurring charges we store the identifier issued by Barion and the card's masked details (card type, last four digits, expiry). Barion Payment Zrt., the payment provider, is an institution supervised by the National Bank of Hungary under licence number H-EN-I-1064/2013.
+      </p>
+      <p className="mt-3">
+        <strong>Invoicing.</strong> We issue an electronic invoice for every fee paid and send it by email.
+      </p>
+      <p className="mt-3">
+        <strong>Barion Pixel.</strong> The website uses the Barion Pixel of Barion Payment Zrt. Its base function runs on every page for fraud prevention and transmits browsing and purchase events to Barion. Its marketing (full) function runs only if you have consented to marketing cookies in the cookie settings. You can read more in our <Link to="/privacy" className="text-[#F28C28] hover:underline">Privacy Notice</Link>.
+      </p>
+
+      <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">12. Contact</h2>
       <p>
         Hard Rock Coders Kft.<br />
         Registered address: 1163 Budapest, Veres Péter út 51., Hungary<br />
@@ -248,7 +310,7 @@ function TermsEn() {
         Email: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        These Terms were last updated on 1 January 2026.
+        These Terms were last updated on 12 November 2026.
       </p>
     </div>
   )

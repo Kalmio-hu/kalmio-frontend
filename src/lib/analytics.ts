@@ -1,24 +1,23 @@
 import posthog from 'posthog-js'
+import { hasStatisticsConsent } from './consent'
 import type { DietaryConstraints } from '@/types'
 import type { UserMealPreferences } from '@/services/users'
 
-const CONSENT_KEY = 'kalmio-analytics-consent'
 const PH_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined
 const PH_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ?? 'https://eu.i.posthog.com'
 
-export type Consent = 'accepted' | 'declined'
+/**
+ * PostHog runs only with the cookie banner's "statistics" consent. The consent record itself
+ * lives in {@link ./consent.ts} (necessary / statistics / marketing).
+ */
 
-export function getConsent(): Consent | null {
-  return localStorage.getItem(CONSENT_KEY) as Consent | null
-}
-
-/** Returns true when PostHog is initialised and the user has consented. */
+/** Returns true when PostHog is initialised and the user has consented to statistics. */
 function isReady(): boolean {
-  return !!PH_KEY && getConsent() === 'accepted' && !!posthog.__loaded
+  return !!PH_KEY && hasStatisticsConsent() && !!posthog.__loaded
 }
 
 export function initAnalytics(): void {
-  if (!PH_KEY || getConsent() !== 'accepted') return
+  if (!PH_KEY || !hasStatisticsConsent()) return
   if (posthog.__loaded) return
   posthog.init(PH_KEY, {
     api_host: PH_HOST,
@@ -29,14 +28,17 @@ export function initAnalytics(): void {
   })
 }
 
-export function acceptAnalytics(): void {
-  localStorage.setItem(CONSENT_KEY, 'accepted')
-  initAnalytics()
-}
-
-export function declineAnalytics(): void {
-  localStorage.setItem(CONSENT_KEY, 'declined')
-  if (posthog.__loaded) posthog.opt_out_capturing()
+/**
+ * Applies the statistics decision from the cookie banner: starts PostHog (or resumes capturing)
+ * when granted, opts out when refused. Call after {@link saveConsent}.
+ */
+export function applyStatisticsConsent(granted: boolean): void {
+  if (granted) {
+    if (posthog.__loaded) posthog.opt_in_capturing()
+    else initAnalytics()
+  } else if (posthog.__loaded) {
+    posthog.opt_out_capturing()
+  }
 }
 
 export function capture(event: string, props?: Record<string, unknown>): void {
@@ -93,10 +95,6 @@ export function pageView(path: string, locale: string, isAuthenticated: boolean)
     i18n_locale: locale,
     is_authenticated: isAuthenticated,
   })
-}
-
-export function resetConsent(): void {
-  localStorage.removeItem(CONSENT_KEY)
 }
 
 // ── Cohort helpers ────────────────────────────────────────────────────────────

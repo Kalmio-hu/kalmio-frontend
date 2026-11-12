@@ -1,5 +1,5 @@
 import { api } from '@/lib/api'
-import type { RetailProvider } from '@/types'
+import type { RetailProvider, TransferOrderAdminDto, TransferOrderStatus } from '@/types'
 
 export interface RetailSyncStatus {
   running: boolean
@@ -70,4 +70,15 @@ export const adminService = {
 
   retailSyncStatus: (providerId: string) =>
     api.get<RetailSyncStatus>(`/api/admin/retail/providers/${providerId}/sync-status`).then(r => r.data),
+
+  /** GET /api/admin/founding-member/transfer-orders — Founding Member bank-transfer orders, optionally by status. */
+  listTransferOrders: (status?: TransferOrderStatus) =>
+    api.get<TransferOrderAdminDto[]>('/api/admin/founding-member/transfer-orders', { params: status ? { status } : {} }).then(r => r.data),
+
+  /** Marks the transfer as credited: grants the membership (or leaves a guest order claimable) and issues the invoice. */
+  confirmTransferOrder: (reference: string) =>
+    api.post<TransferOrderAdminDto>(`/api/admin/founding-member/transfer-orders/${encodeURIComponent(reference)}/confirm`, null, { requestIdempotencyKey: true }).then(r => r.data),
+
+  cancelTransferOrder: (reference: string) =>
+    api.post<TransferOrderAdminDto>(`/api/admin/founding-member/transfer-orders/${encodeURIComponent(reference)}/cancel`, null, { requestIdempotencyKey: true }).then(r => r.data),
 }

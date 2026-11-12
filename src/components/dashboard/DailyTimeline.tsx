@@ -630,7 +630,7 @@ function DraggableRow({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => navigate('/app/founding-member')}
+                      onClick={() => navigate('/app/premium')}
                       aria-label={t('premium.rationaleLocked.ariaLabel')}
                       title={t('premium.rationaleLocked.teaser')}
                       className="relative p-1.5 rounded-md text-gray-300 hover:text-gray-400 hover:bg-gray-200/60 transition-colors"
@@ -1109,7 +1109,7 @@ function OffPlanLogButtons({ onLog, onLogAi, isPremium }: OffPlanLogButtonsProps
         ) : (
           <button
             type="button"
-            onClick={() => navigate('/app/founding-member')}
+            onClick={() => navigate('/app/premium')}
             aria-label={t('premium.aiOffPlanLocked.ariaLabel')}
             className="w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-gray-200 bg-gray-50 py-2.5 text-[13px] font-medium text-gray-400 hover:border-gray-300 hover:bg-gray-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
           >

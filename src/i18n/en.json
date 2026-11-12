@@ -21,9 +21,9 @@
     "preferences": "My Preferences",
     "calendar": "Calendar",
     "grooming": "Fridge rhythm",
-    "foundingMember": "Founding Member",
     "grove": "Grove",
-    "profile": "Profile"
+    "profile": "Profile",
+    "premium": "Premium"
   },
   "common": {
     "loading": "One moment…",
@@ -185,8 +185,8 @@
       },
       "errors": {
         "premiumTitle": "Premium feature",
-        "premiumDescription": "AI meal logging is part of the Founding Member plan.",
-        "premiumCta": "About Founding Member",
+        "premiumDescription": "AI meal logging is part of Kalmio Premium.",
+        "premiumCta": "See Premium plans",
         "rateLimitText": "Too fast — wait a minute and try again.",
         "rateLimitPhoto": "Too many photos this hour — wait an hour and try again.",
         "tooLarge": "File too large. Audio: max 25 MB, image: max 5 MB.",
@@ -507,8 +507,8 @@
       "askSubmit": "Send question",
       "thinking": "Thinking…",
       "errors": {
-        "premium": "The cooking assistant is part of the founding membership. Activate it to have it standing by next to every recipe.",
-        "premiumCta": "Founding membership",
+        "premium": "The cooking assistant is part of Kalmio Premium. Activate it to have it standing by next to every recipe.",
+        "premiumCta": "Kalmio Premium",
         "rateLimit": "A moment — questions are coming in too quickly. Please try again in a minute.",
         "configuration": "The cooking assistant is briefly unavailable. Please try again shortly.",
         "generic": "I couldn't answer that just now. Please try again in a moment."
@@ -923,7 +923,8 @@
     "status": {
       "title": "Account status",
       "memberSince": "Member since:",
-      "freeTier": "Free access"
+      "freeTier": "Free access",
+      "premiumTier": "Premium access"
     },
     "foundingMemberBadge": {
       "label": "Founding Member",
@@ -1076,6 +1077,57 @@
       "lunch": "Soup with lunch",
       "dinner": "Soup with dinner",
       "note": "Soups that are a meal in themselves (gulyás, bean soup, főzelék) can still fill a single-course slot."
+    },
+    "subscription": {
+      "title": "Kalmio Premium subscription",
+      "none": "You have no subscription. Premium adds the full AI assistant to the free essentials.",
+      "subscribe": "See plans",
+      "subscribeAgain": "Subscribe again",
+      "plan": {
+        "MONTHLY": "Monthly subscription",
+        "YEARLY": "Yearly subscription"
+      },
+      "price": {
+        "MONTHLY": "{{price, number}} HUF / month",
+        "YEARLY": "{{price, number}} HUF / year"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "ACTIVE": "Active",
+        "PAST_DUE": "Payment overdue",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired",
+        "FAILED": "Failed",
+        "CANCELLING": "Cancelled"
+      },
+      "nextCharge": "Next charge: {{date}}, {{price, number}} HUF.",
+      "endsOn": "You have cancelled. Premium runs until the end of the current period: {{date}}.",
+      "ended": "Your subscription ended on {{date}}.",
+      "pending": "Waiting for the payment confirmation.",
+      "pastDue": "The latest charge did not go through. We will retry within a few days; premium stays on meanwhile, until {{date}} at the latest. If you prefer to settle it with another card, you can do so now.",
+      "payOverdue": "Pay with another card",
+      "resume": "Resume subscription",
+      "cancel": "Cancel subscription",
+      "cancelConfirm": "Cancel your subscription? There will be no further charges, and premium stays on until the end of the current period: {{date}}.",
+      "cancelConfirmCta": "Cancel it",
+      "keep": "Keep it",
+      "cancelled": "Subscription cancelled. Premium stays on until {{date}}.",
+      "resumed": "Your subscription continues.",
+      "actionError": "That didn’t work just now. Please try again in a few seconds.",
+      "history": "Payments",
+      "amount": "{{price, number}} HUF",
+      "kind": {
+        "INITIAL": "First payment",
+        "RENEWAL": "Renewal",
+        "CARD_UPDATE": "Card change"
+      },
+      "paymentStatus": {
+        "PENDING": "Pending",
+        "SUCCEEDED": "Paid",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded"
+      },
+      "invoice": "Invoice"
     }
   },
   "impersonation": {
@@ -1091,7 +1143,8 @@
       "contentReview": "Content Review",
       "recipeFamilies": "Recipe families",
       "retailProducts": "Retail Products",
-      "retailProviders": "Retail Providers"
+      "retailProviders": "Retail Providers",
+      "transferOrders": "Transfer orders"
     },
     "stats": {
       "totalRealUsers": "Real users",
@@ -1163,6 +1216,39 @@
         "unassignSuccess": "Removed from family.",
         "unassignError": "Failed to remove from family."
       }
+    },
+    "transferOrders": {
+      "title": "Transfer orders",
+      "subtitle": "Founding membership by bank transfer. Confirm credited transfers by matching the reference on the bank statement.",
+      "filterLabel": "Filter by status",
+      "filter": {
+        "PENDING": "Pending",
+        "SUCCEEDED": "Credited",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired",
+        "ALL": "All"
+      },
+      "status": {
+        "PENDING": "Pending",
+        "SUCCEEDED": "Credited",
+        "CANCELLED": "Cancelled",
+        "EXPIRED": "Expired"
+      },
+      "meta": "{{amount, number}} HUF · placed {{created}} · due {{due}}",
+      "account": "Account order",
+      "guest": "Guest order (claimed on registration)",
+      "confirmedAt": "confirmed {{date}}",
+      "confirm": "Transfer received",
+      "cancel": "Cancel",
+      "confirmPrompt": "Confirm that the {{amount, number}} HUF transfer with reference {{reference}} has arrived? The membership is activated and the invoice issued.",
+      "cancelPrompt": "Cancel order {{reference}}? The reserved seat is released.",
+      "confirmYes": "Yes, it arrived",
+      "cancelYes": "Yes, cancel it",
+      "confirmed": "{{reference}} confirmed.",
+      "cancelled": "{{reference}} cancelled.",
+      "actionError": "That didn’t work. Please try again.",
+      "loadError": "Could not load the orders.",
+      "empty": "No orders with this status."
     }
   },
   "aiImport": {
@@ -1217,8 +1303,8 @@
     },
     "errors": {
       "premiumTitle": "Premium feature",
-      "premiumDescription": "AI recipe import is part of the Founding Member tier.",
-      "premiumCta": "I'm a Founding Member",
+      "premiumDescription": "AI recipe import is part of Kalmio Premium.",
+      "premiumCta": "See Premium plans",
       "rateLimitText": "Too many import requests. Try again in a minute.",
       "rateLimitPhoto": "Too many digitisation requests. Try again in a minute.",
       "monthlyQuota": "You've reached this month's recipe-import limit. It resets next month.",
@@ -1772,8 +1858,8 @@
       "loading": "One moment — gathering the reasoning.",
       "startCooking": "Start cooking",
       "errors": {
-        "premium": "The \"Why this?\" reasoning is part of the founding membership. Activate it to see it under every meal.",
-        "premiumCta": "Founding membership",
+        "premium": "The \"Why this?\" reasoning is part of Kalmio Premium. Activate it to see it under every meal.",
+        "premiumCta": "Kalmio Premium",
         "rateLimit": "A few too many requests just now — please try again in a minute.",
         "notFound": "This meal is no longer available.",
         "generic": "I couldn't prepare the reasoning right now.",
@@ -2280,10 +2366,27 @@
     "impressum": "Imprint"
   },
   "consent": {
-    "body": "This site uses cookies for core functionality and anonymous analytics. See the Privacy policy for details.",
+    "body": "We use cookies and similar technologies to run the website, for statistics, to personalise content, ads and offers, and to share the data collected this way with our media, advertising and analytics partners. Our partners may combine it with other data. By clicking “Accept” you consent to all of this. You can choose what you consent to under “More settings”, and change it at any time. <cookies>Detailed cookie notice</cookies> and <privacy>privacy notice</privacy>.",
     "accept": "Accept",
     "decline": "Decline",
-    "learnMore": "Privacy policy"
+    "moreSettings": "More settings",
+    "save": "Save settings",
+    "settingsTitle": "Cookie settings",
+    "alwaysOn": "Always on",
+    "categories": {
+      "necessary": {
+        "title": "Necessary",
+        "description": "Needed for sign-in, your language setting, remembering this choice and Barion’s fraud prevention. They cannot be switched off."
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Pseudonymised usage data through PostHog, so we can see what is worth improving."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "description": "Cookies of Barion and its media, advertising and analytics partners, used to personalise content, offers and ads."
+      }
+    }
   },
   "teachOnReturn": {
     "subtle": "A couple of days passed — your soil has barely changed.",
@@ -2333,9 +2436,6 @@
       "sub": "Pay once, keep it for life — every premium feature, today and in the future.",
       "priceLine": "{{price, number}} HUF — one-time payment.",
       "remainingLine": "{{remaining}} of the first 1,000 seats still open.",
-      "cta": "Buy now",
-      "ctaLoading": "Redirecting to checkout…",
-      "ctaSoldOut": "Sold out",
       "soldOutTitle": "All founder seats are taken.",
       "soldOutSub": "Thank you for the interest. Premium will return in a different form soon.",
       "alreadyMember": "You're already a founding member. Thank you for trusting us first.",
@@ -2345,19 +2445,23 @@
         "activating": "Activating…",
         "error": "We couldn't activate it. Please try again in a few seconds, or get in touch."
       },
-      "errors": {
-        "capReached": "The last founder seat was just taken. Premium will return in a different form soon.",
-        "generic": "Could not start the payment. Please try again in a few seconds."
-      },
       "loading": "One moment — checking remaining seats…"
     },
-    "success": {
-      "title": "Thank you.",
-      "waiting": "Your payment confirmation has arrived. We're activating your access in a few seconds.",
-      "granted": "You're a founding member. Every premium feature is yours, now and in the future.",
-      "slow": "Your bank is a little slow to respond. Stay here — as soon as the transaction confirms, we'll refresh.",
-      "refresh": "Refresh",
-      "backToApp": "Back to the app"
+    "transfer": {
+      "onlyByTransfer": "Payable by bank transfer only.",
+      "howItWorks": "You pay by bank transfer: after you order we send the pro forma invoice, and as soon as the amount reaches our account we activate your founding membership and let you know by email.",
+      "cta": "Order by bank transfer",
+      "submit": "Place order",
+      "submitting": "Placing your order…",
+      "afterOrderNote": "Your order holds your seat for eight days. If the transfer has not arrived by then, the seat is released.",
+      "pendingTitle": "We have your order.",
+      "pendingBody": "As soon as the transfer reaches our account we activate your founding membership and let you know by email. This usually takes one or two business days.",
+      "lapsed": "Your earlier order {{reference}} has closed. If you would still like to join, place a new one.",
+      "subscriptionAlternative": "Prefer to pay monthly? Kalmio Premium subscription",
+      "errors": {
+        "capReached": "The last founder seat was just taken. Kalmio Premium still gives you every premium feature.",
+        "generic": "We couldn’t place the order. Please try again in a few seconds."
+      }
     }
   },
   "payments": {
@@ -2399,22 +2503,27 @@
         "city": "Please enter the city.",
         "address": "Please enter the address."
       }
-    }
+    },
+    "startNowWaiveWithdrawal": "I request that the service start immediately, and I acknowledge that I thereby lose my right of withdrawal."
   },
   "guestFoundingMember": {
     "email": {
       "label": "Email address",
       "placeholder": "you@example.com"
     },
-    "cta": "Pay and reserve my place",
-    "trust": "Secure payment via Barion.",
-    "afterPaymentNote": "Payment first, then you'll create your account in a few seconds. That way your place is secured.",
     "loggedInNote": "You're already signed in. With your existing account the process is one step faster.",
-    "loggedInCta": "Continue to checkout",
+    "loggedInCta": "Continue to the order",
     "errors": {
       "email": "Please enter a valid email address.",
       "capReached": "The last founding place sold out in the meantime. Premium will be available more widely soon.",
-      "generic": "We couldn't start the payment. Please try again in a few seconds."
+      "generic": "We couldn’t place the order. Please try again in a few seconds."
+    },
+    "afterOrderNote": "We send the pro forma invoice to this address. Once the transfer arrives you create your account with the same address and we activate your membership.",
+    "transfer": {
+      "pendingBody": "As soon as the transfer reaches our account we email {{email}}. Then you create your account with that address and we activate your founding membership.",
+      "confirmedTitle": "Your transfer has arrived.",
+      "confirmedBody": "Thank you. Create your account with {{email}} and we will activate your founding membership.",
+      "startOver": "Place a different order"
     }
   },
   "guestFoundingMemberSuccess": {
@@ -2543,17 +2652,17 @@
     },
     "aiOffPlanLocked": {
       "buttonLabel": "Log with AI",
-      "ariaLabel": "AI meal logging — Founding Member feature",
+      "ariaLabel": "AI meal logging — Premium feature",
       "badge": "Premium"
     },
     "rationaleLocked": {
-      "ariaLabel": "Why this? — Founding Member feature",
-      "teaser": "Detailed reasoning for Founding Members.",
-      "cta": "Founding membership"
+      "ariaLabel": "Why this? — Premium feature",
+      "teaser": "Detailed reasoning for Premium subscribers and founding members.",
+      "cta": "Kalmio Premium"
     },
     "features": {
       "title": "What premium unlocks",
-      "subtitle": "The essentials stay free forever. Founding membership adds the full AI assistant on top.",
+      "subtitle": "The essentials stay free forever. Premium, by subscription or as a founding member, adds the full AI assistant on top.",
       "ariaLabel": "Premium features",
       "items": {
         "recipeImport": {
@@ -3582,5 +3691,92 @@
     "success": "Your {{provider}} account is linked.",
     "error": "Linking failed. Try again from Settings.",
     "back": "Back to the shopping list"
+  },
+  "premiumPage": {
+    "label": "Kalmio Premium",
+    "headline": "The full assistant, monthly or yearly.",
+    "sub": "The essentials stay free. Premium adds the AI assistant: recipe import, receipt scanning, cooking guidance and reshaping your plan in conversation.",
+    "choose": "Choose this plan",
+    "backToApp": "Back to the app",
+    "comingSoon": "Kalmio Premium is coming soon.",
+    "plans": {
+      "MONTHLY": {
+        "name": "Monthly",
+        "short": "monthly",
+        "price": "{{price, number}} HUF / month",
+        "note": "Renews every month, cancel any time."
+      },
+      "YEARLY": {
+        "name": "Yearly",
+        "short": "yearly",
+        "price": "{{price, number}} HUF / year",
+        "note": "Works out at {{perMonth, number}} HUF a month, {{percent}}% less than paying monthly.",
+        "badge": "Better value"
+      }
+    },
+    "founding": {
+      "title": "Founding membership",
+      "price": "{{price, number}} HUF — one-time, for life",
+      "note": "By bank transfer only.",
+      "noteRemaining": "By bank transfer only. {{remaining}} of the first 1,000 seats still open.",
+      "soldOut": "All founder seats are taken.",
+      "cta": "Details"
+    },
+    "foundingMember": {
+      "title": "You are a founding member.",
+      "body": "Every premium feature is yours for life; you do not need a subscription."
+    },
+    "subscribed": {
+      "title": "You are already subscribed.",
+      "body": "Your Kalmio Premium subscription ({{plan}}) is active. Manage the card, payments and cancellation in Settings.",
+      "manage": "Manage subscription"
+    },
+    "checkout": {
+      "back": "Choose another plan",
+      "title": "Subscription",
+      "renewal": {
+        "MONTHLY": "You pay the first month now. After that Barion charges {{price, number}} HUF to your registered card every month until you cancel. After cancelling you keep access until the end of the current month.",
+        "YEARLY": "You pay the first year now. After that Barion charges {{price, number}} HUF to your registered card every year until you cancel. After cancelling you keep access until the end of the current year."
+      },
+      "cta": "Continue to payment",
+      "ctaLoading": "Redirecting to Barion…",
+      "secureNote": "You enter your card details on Barion’s secure payment page; we never see or store them.",
+      "errors": {
+        "exists": "You already have an active subscription. You can manage it in Settings.",
+        "generic": "We couldn’t start the payment. Please try again in a few seconds."
+      }
+    }
+  },
+  "premiumSuccess": {
+    "title": "One moment.",
+    "verifying": "Checking your payment confirmation…",
+    "succeededTitle": "Thank you.",
+    "succeeded": "Kalmio Premium is active. Every premium feature is at your disposal.",
+    "overdueSucceeded": "The overdue fee is settled. Your subscription is back in order.",
+    "failedTitle": "The payment did not go through.",
+    "failed": "Nothing was charged. Please try again, with another card if you like.",
+    "tryAgain": "Try again",
+    "slow": "Your bank is taking a little longer. Stay here — we’ll update as soon as it confirms the transaction.",
+    "refresh": "Refresh",
+    "unknown": "We can’t find a payment for this page. You can see your subscription in Settings.",
+    "toSettings": "Subscription in Settings",
+    "toApp": "Continue to the app"
+  },
+  "transferOrder": {
+    "title": "Transfer details",
+    "intro": "Please transfer the fee using the details below. We have also emailed you the pro forma invoice.",
+    "beneficiary": "Beneficiary",
+    "accountNumber": "Account number",
+    "iban": "IBAN",
+    "amount": "Amount",
+    "amountValue": "{{amount, number}} HUF",
+    "reference": "Reference (közlemény)",
+    "dueDate": "Payment due",
+    "referenceNote": "Use exactly this reference: it is how we match your transfer.",
+    "accountPending": "The bank account number is on the pro forma invoice we emailed you.",
+    "proforma": "Open the pro forma invoice",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyAria": "Copy {{label}}"
   }
 }

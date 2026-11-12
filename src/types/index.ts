@@ -1098,27 +1098,115 @@ export interface BillingInfo {
   address: string
 }
 
-/**
- * Request body for POST /api/founding-member/checkout.
- *
- * @property redirectUrl Public URL Barion redirects the buyer to after payment.
- *                       Must point at the FE success page.
- * @property billingInfo Billing address for the NAV e-invoice.
- */
-export interface FoundingMemberCheckoutRequest {
-  redirectUrl: string
-  billingInfo: BillingInfo
-}
+// ── Founding Member by bank transfer (payments-subscriptions.md §2) ───────────
+
+/** Lifecycle of a Founding Member bank-transfer order. */
+export type TransferOrderStatus = 'PENDING' | 'SUCCEEDED' | 'CANCELLED' | 'EXPIRED'
 
 /**
- * Response from POST /api/founding-member/checkout.
+ * A Founding Member order paid by bank transfer.
  *
- * @property paymentId  Barion payment identifier (UUID) — kept for webhook correlation.
- * @property gatewayUrl Barion-hosted payment-page URL the FE must redirect the buyer to.
+ * Returned by POST/GET /api/founding-member/transfer-order and POST …/transfer-order/guest.
+ * `reference` (KALMIO-AT-XXXXXX) is the közlemény the buyer must put on the transfer.
+ * `accountNumber` / `iban` may be null until the beneficiary account is configured server-side.
  */
-export interface FoundingMemberCheckoutResponse {
+export interface TransferOrderDto {
+  reference: string
+  paymentId: string
+  amountHuf: number
+  status: TransferOrderStatus
+  beneficiary: string
+  accountNumber: string | null
+  iban: string | null
+  /** ISO date (or date-time) by which the transfer is expected. */
+  dueDate: string
+  /** Billingo díjbekérő (proforma) URL, null until issued. */
+  proformaUrl: string | null
+  createdAt: string
+}
+
+/** Admin view of a transfer order (GET /api/admin/founding-member/transfer-orders). */
+export interface TransferOrderAdminDto extends TransferOrderDto {
+  email: string | null
+  billingName: string | null
+  userId: string | null
+  confirmedAt: string | null
+}
+
+// ── Kalmio Prémium subscriptions (payments-subscriptions.md §1) ───────────────
+
+export type SubscriptionPlanCode = 'MONTHLY' | 'YEARLY'
+
+export type SubscriptionStatus = 'PENDING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'EXPIRED' | 'FAILED'
+
+/** One plan from GET /api/billing/plans. */
+export interface BillingPlan {
+  code: SubscriptionPlanCode
+  priceHuf: number
+  interval: 'MONTH' | 'YEAR'
+}
+
+/** Response from GET /api/billing/plans (public). */
+export interface BillingPlansResponse {
+  plans: BillingPlan[]
+  foundingMember: { priceHuf: number; cap: number; remaining: number }
+  bankTransfer: { beneficiary: string; accountNumber: string | null; iban: string | null }
+}
+
+/** Masked card registered for the recurring charge, e.g. Visa •••• 0425, 12/28. */
+export interface SubscriptionCard {
+  type: string | null
+  last4: string | null
+  validThru: string | null
+}
+
+export type SubscriptionPaymentKind = 'INITIAL' | 'RENEWAL' | 'CARD_UPDATE'
+export type SubscriptionPaymentStatus = 'PENDING' | 'SUCCEEDED' | 'FAILED' | 'REFUNDED'
+
+export interface SubscriptionPaymentDto {
+  paymentId: string
+  kind: SubscriptionPaymentKind
+  amountHuf: number
+  status: SubscriptionPaymentStatus
+  createdAt: string
+  periodStart: string | null
+  periodEnd: string | null
+  invoiceUrl: string | null
+}
+
+/** GET /api/subscription (204 → no subscription), POST …/cancel, POST …/resume. */
+export interface SubscriptionDto {
+  id: string
+  plan: SubscriptionPlanCode
+  priceHuf: number
+  status: SubscriptionStatus
+  currentPeriodStart: string | null
+  currentPeriodEnd: string | null
+  cancelAtPeriodEnd: boolean
+  /** Null when cancelAtPeriodEnd or not ACTIVE. */
+  nextChargeAt: string | null
+  card: SubscriptionCard | null
+  payments: SubscriptionPaymentDto[]
+}
+
+/** Body of POST /api/subscription/checkout. Both acknowledgements must be true. */
+export interface SubscriptionCheckoutRequest {
+  plan: SubscriptionPlanCode
+  billingInfo: BillingInfo
+  redirectUrl: string
+  acceptTerms: true
+  startNowWaiveWithdrawal: true
+}
+
+/** Response of POST /api/subscription/checkout and POST /api/subscription/pay-overdue. */
+export interface BarionRedirectResponse {
   paymentId: string
   gatewayUrl: string
+}
+
+/** Response of GET /api/subscription/payments/{paymentId}/status. */
+export interface SubscriptionPaymentStatusResponse {
+  status: 'PENDING' | 'SUCCEEDED' | 'FAILED'
 }
 
 // ── Premium Grants (KALMIO-169 / KALMIO-173) ─────────────────────────────────

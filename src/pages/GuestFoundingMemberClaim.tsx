@@ -1,5 +1,6 @@
 /**
- * GuestFoundingMemberClaim — binds a settled guest payment to a freshly-created account.
+ * GuestFoundingMemberClaim — binds a settled guest order (a confirmed bank transfer, or a legacy
+ * guest Barion payment) to a freshly-created account.
  *
  * Mounted at /founding-member/claim?paymentId=… (PROTECTED, but OUTSIDE OnboardingGate so a
  * brand-new user isn't bounced into onboarding before their membership is granted).
@@ -20,7 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { Loader2 } from 'lucide-react'
 import { foundingMemberService } from '@/services/foundingMember'
 import { USERS_ME_QUERY_KEY } from '@/services/users'
-import { PENDING_FM_PAYMENT_KEY } from '@/pages/GuestFoundingMember'
+import { clearGuestTransferOrder, PENDING_FM_PAYMENT_KEY } from '@/lib/guestTransferOrder'
 
 export function GuestFoundingMemberClaim() {
   const { t } = useTranslation()
@@ -34,6 +35,7 @@ export function GuestFoundingMemberClaim() {
     mutationFn: (id: string) => foundingMemberService.claimPayment(id),
     onSuccess: async () => {
       sessionStorage.removeItem(PENDING_FM_PAYMENT_KEY)
+      clearGuestTransferOrder()
       await queryClient.invalidateQueries({ queryKey: USERS_ME_QUERY_KEY })
       navigate('/app', { replace: true })
     },

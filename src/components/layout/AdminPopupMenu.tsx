@@ -10,7 +10,7 @@
  */
 import { useRef, useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
-import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck, Network, ScanEye } from 'lucide-react'
+import { ShieldCheck, Users, Vault, ClipboardList, Store, Truck, Network, ScanEye, Landmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/auth'
@@ -34,6 +34,7 @@ const ADMIN_ITEMS = [
   { to: '/app/admin/recipe-families', icon: Network, labelKey: 'admin.popup.recipeFamilies' },
   { to: '/app/admin/retail/products', icon: Store, labelKey: 'admin.popup.retailProducts' },
   { to: '/app/admin/retail/providers', icon: Truck, labelKey: 'admin.popup.retailProviders' },
+  { to: '/app/admin/founding-member/transfers', icon: Landmark, labelKey: 'admin.popup.transferOrders' },
 ] as const
 
 // Kalmio Move review queue — shown only while the movement gate is on for the
