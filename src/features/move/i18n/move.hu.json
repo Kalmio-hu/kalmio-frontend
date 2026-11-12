@@ -57,7 +57,8 @@
         "bench": "Fekvenyomás rúddal",
         "row": "Ülő evezés csigán",
         "deadlift": "Felhúzás rúddal"
-      }
+      },
+      "imageNote": "MI-vel készült kép."
     },
     "gym": {
       "title": "A középpontban a súlyzós edzés",

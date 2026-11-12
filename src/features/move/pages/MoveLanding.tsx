@@ -107,67 +107,81 @@ export function MoveLanding() {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="bg-[#1A1A1A] text-white">
-          <div className={cn(WRAP, 'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center py-14 sm:py-20')}>
-            <div className="space-y-6">
+        <section className="relative isolate overflow-hidden bg-[#1A1A1A] text-white">
+          <img
+            src={`${IMG}/hero.jpg`}
+            srcSet={`${IMG}/hero-768.jpg 768w, ${IMG}/hero.jpg 1536w`}
+            sizes="100vw"
+            alt=""
+            width={1536}
+            height={1024}
+            fetchPriority="high"
+            className="absolute inset-0 -z-20 h-full w-full object-cover object-[72%_center]"
+          />
+          {/* the left stays dark for the headline; on a phone the picture is dimmed top and bottom */}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#1A1A1A]/85 via-[#1A1A1A]/60 to-[#1A1A1A]/85 md:bg-gradient-to-r md:from-[#1A1A1A] md:via-[#1A1A1A]/80 md:to-[#1A1A1A]/5" />
+          <div className={cn(WRAP, 'flex items-center min-h-[600px] lg:min-h-[700px] py-16 sm:py-20')}>
+            <div className="space-y-6 max-w-xl">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#2A9D8F]">{t('landing.hero.eyebrow')}</p>
               <h1 className="font-headline text-4xl sm:text-6xl font-bold leading-[1.05]">
                 {t('landing.hero.title')}
                 <span className="block text-[#2A9D8F]">{t('landing.hero.tagline')}</span>
               </h1>
-              <p className="text-lg text-white/75 max-w-xl">{t('landing.hero.lead')}</p>
+              <p className="text-lg text-white/80">{t('landing.hero.lead')}</p>
               <div className="flex flex-wrap items-center gap-3">
                 <Cta label={t('landing.hero.cta')} />
-                <a href="#how" className="inline-flex items-center min-h-12 px-5 rounded-[12px] border border-white/20 text-white/90 font-semibold hover:bg-white/10 transition-colors">
+                <a href="#how" className="inline-flex items-center min-h-12 px-5 rounded-[12px] border border-white/25 bg-[#1A1A1A]/40 text-white/90 font-semibold hover:bg-white/10 transition-colors">
                   {t('landing.hero.how')}
                 </a>
               </div>
-              <p className="text-sm text-white/50">{t('landing.hero.hint')}</p>
-            </div>
-
-            <div className="max-w-md w-full mx-auto lg:mx-0 lg:justify-self-end">
-              <div className="grid grid-cols-2 gap-3">
-                {(['start', 'end'] as const).map((phase) => (
-                  <figure key={phase} className="relative">
-                    <Still name={`squat-${phase}`} alt={`${t('landing.hero.card.squat')} – ${t(`landing.hero.${phase}`)}`} className="rounded-[16px]" />
-                    <figcaption className="absolute top-2 left-2 px-2 py-1 rounded-full bg-[#1A1A1A]/80 text-xs font-semibold text-white">
-                      {t(`landing.hero.${phase}`)}
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-              <div className="relative -mt-14 mx-4 sm:mx-8 rounded-[20px] bg-white text-[#1A1A1A] shadow-2xl p-5 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-headline font-bold text-lg leading-tight">{t('landing.hero.card.title')}</p>
-                    <p className="text-sm text-gray-600">{t('landing.hero.card.meta')}</p>
-                  </div>
-                  <span className="shrink-0 px-2.5 py-1 rounded-full bg-[#2A9D8F]/12 text-xs font-semibold text-[#21867A]">{t('landing.hero.card.today')}</span>
-                </div>
-                <ul className="divide-y divide-[#e5e4e7]">
-                  {lifts.map(([key, dose]) => (
-                    <li key={key} className="flex items-baseline justify-between gap-3 py-2 text-sm">
-                      <span className="font-medium">{t(`landing.hero.card.${key}`)}</span>
-                      <span className="shrink-0 tabular-nums text-gray-600">{dose}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F9F7F2] text-sm font-medium text-gray-700">
-                  <Timer className="h-4 w-4 text-[#2A9D8F]" aria-hidden />
-                  {t('landing.hero.card.rest')}
-                </p>
-              </div>
-              <p className="mt-3 text-center text-xs text-white/40">{t('landing.aiNote')}</p>
+              <p className="text-sm text-white/55">{t('landing.hero.hint')}</p>
             </div>
           </div>
+          <p className="absolute bottom-2 right-3 text-[11px] text-white/40">{t('landing.hero.imageNote')}</p>
         </section>
 
         {/* Gym first */}
         <section className="py-16 sm:py-24">
           <div className={cn(WRAP, 'space-y-10')}>
-            <div className="max-w-2xl space-y-3">
-              <h2 className={H2}>{t('landing.gym.title')}</h2>
-              <p className="text-lg text-gray-700">{t('landing.gym.lead')}</p>
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+              <div className="max-w-2xl space-y-3">
+                <h2 className={H2}>{t('landing.gym.title')}</h2>
+                <p className="text-lg text-gray-700">{t('landing.gym.lead')}</p>
+              </div>
+              <div className="max-w-md w-full mx-auto lg:mx-0 lg:justify-self-end">
+                <div className="grid grid-cols-2 gap-3">
+                  {(['start', 'end'] as const).map((phase) => (
+                    <figure key={phase} className="relative">
+                      <Still name={`squat-${phase}`} alt={`${t('landing.hero.card.squat')} – ${t(`landing.hero.${phase}`)}`} className="rounded-[16px]" />
+                      <figcaption className="absolute top-2 left-2 px-2 py-1 rounded-full bg-[#1A1A1A]/80 text-xs font-semibold text-white">
+                        {t(`landing.hero.${phase}`)}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+                <div className="relative -mt-14 mx-4 sm:mx-8 rounded-[20px] bg-white text-[#1A1A1A] shadow-2xl p-5 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-headline font-bold text-lg leading-tight">{t('landing.hero.card.title')}</p>
+                      <p className="text-sm text-gray-600">{t('landing.hero.card.meta')}</p>
+                    </div>
+                    <span className="shrink-0 px-2.5 py-1 rounded-full bg-[#2A9D8F]/12 text-xs font-semibold text-[#21867A]">{t('landing.hero.card.today')}</span>
+                  </div>
+                  <ul className="divide-y divide-[#e5e4e7]">
+                    {lifts.map(([key, dose]) => (
+                      <li key={key} className="flex items-baseline justify-between gap-3 py-2 text-sm">
+                        <span className="font-medium">{t(`landing.hero.card.${key}`)}</span>
+                        <span className="shrink-0 tabular-nums text-gray-600">{dose}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#F9F7F2] text-sm font-medium text-gray-700">
+                    <Timer className="h-4 w-4 text-[#2A9D8F]" aria-hidden />
+                    {t('landing.hero.card.rest')}
+                  </p>
+                </div>
+                <p className="mt-3 text-center text-xs text-gray-500">{t('landing.aiNote')}</p>
+              </div>
             </div>
             <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {gymItems.map(([key, Icon]) => (
