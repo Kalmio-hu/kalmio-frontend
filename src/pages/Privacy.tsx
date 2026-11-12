@@ -84,6 +84,9 @@ function PrivacyHu() {
         <li>
           <strong>Barion Payment Zrt.</strong> (fizetési szolgáltató) — A Kalmio Prémium előfizetés bankkártyás és ismétlődő (regisztrált kártyás) fizetéseinek lebonyolítása, a csalásmegelőzés (Barion Pixel alapfunkció), valamint – kizárólag a marketing sütikhez adott hozzájárulás esetén – a tartalmak, ajánlatok és hirdetések személyre szabása (Barion Pixel teljes funkció) céljából. A fizetéshez és a csalásmegelőzéshez szükséges adatokat (pl. e-mail, fizetési és tranzakciós adatok, böngészési események) közvetlenül a Barion kezeli; a teljes bankkártyaszámhoz a Kalmio nem fér hozzá. A Barion a Barion Pixel működtetéséhez az alábbi adatfeldolgozókat veszi igénybe: DataMe Kft., Dentsu Hungary Kft., Sales Contact Kft., WPP Media Hungary Kft. A Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt áll (engedélyszám: H-EN-I-1064/2013). Adatközpont: EU (Magyarország). Részletek: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/hu/adatvedelmi-tajekoztato</a>.
         </li>
+        <li>
+          <strong>Billingo Technologies Zrt.</strong> (számlázás) — A díjbekérők és az elektronikus számlák kiállítása, e-mailben történő megküldése és a jogszabály szerinti megőrzése céljából. Az érintett adatok: számlázási név és cím, e-mail-cím, a megrendelés és a fizetés adatai. A számlák adatai a jogszabályi kötelezettség alapján a Nemzeti Adó- és Vámhivatalhoz is továbbításra kerülnek. Adatközpont: EU. Részletek: <a href="https://www.billingo.hu/adatkezelesi-tajekoztato" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">billingo.hu/adatkezelesi-tajekoztato</a>.
+        </li>
       </ul>
       <p className="mt-3">
         Az általunk igénybe vett adatfeldolgozók GDPR 28. cikknek megfelelő adatfeldolgozói feltételeket tesznek közzé (pl. Supabase DPA, Microsoft Online Services Terms, PostHog DPA). Az adatfeldolgozók önállóan nem jogosultak az adatokat kezelni.
@@ -271,6 +274,9 @@ function PrivacyEn() {
         </li>
         <li>
           <strong>Barion Payment Zrt.</strong> (payment provider) — For processing the card and recurring (registered-card) payments of the Kalmio Premium subscription, for fraud prevention (Barion Pixel base function) and — only where the user has consented to marketing cookies — for personalising content, offers and ads (Barion Pixel full function). The data needed for payment and fraud prevention (e.g. email, payment and transaction data, browsing events) is handled directly by Barion; Kalmio never has access to the full card number. To operate the Barion Pixel, Barion engages the following processors: DataMe Kft., Dentsu Hungary Kft., Sales Contact Kft., WPP Media Hungary Kft. Barion Payment Zrt. is supervised by the National Bank of Hungary (licence number H-EN-I-1064/2013). Data centre: EU (Hungary). Details: <a href="https://www.barion.com/en/privacy-policy/" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">barion.com/en/privacy-policy</a>.
+        </li>
+        <li>
+          <strong>Billingo Technologies Zrt.</strong> (invoicing) — For issuing pro forma and electronic invoices, sending them by email and retaining them as the law requires. Data concerned: billing name and address, email address, order and payment details. Invoice data is also reported to the Hungarian tax authority (NAV) as required by law. Data centre: EU. Details: <a href="https://www.billingo.hu/adatkezelesi-tajekoztato" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">billingo.hu/adatkezelesi-tajekoztato</a>.
         </li>
       </ul>
       <p className="mt-3">
