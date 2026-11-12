@@ -182,6 +182,10 @@
     }
   },
   "today": {
+    "doneToday": "Megvolt. Ma ennyi elég.",
+    "doneToday_formal": "Megvolt. Mára ennyi elég.",
+    "donePlanB": "A rövid változat megvolt, a hét megy tovább.",
+    "donePlanB_formal": "A rövid változat megvolt, a hét megy tovább.",
     "title": "Ma",
     "restDay": "Pihenőnap",
     "tomorrow": "Holnap: {{line}}",

@@ -9,6 +9,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Play, Shuffle, MoonStar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from '@/components/ui/toast'
+import { refusalReason } from '../lib/weekView'
 import { moveService } from '../services/moveService'
 import { moveKeys } from '../lib/queryKeys'
 import { useMoveT } from '../lib/register'
@@ -44,7 +45,7 @@ export function TodayCard({ session, restDay, tomorrowLine, lifeState, couplingL
       toast({ title: t('today.swapped'), variant: 'success' })
       invalidate()
     },
-    onError: () => toast({ title: t('common.error'), variant: 'destructive' }),
+    onError: (err) => toast({ title: refusalReason(err) || t('common.error'), variant: 'destructive' }),
   })
 
   const notToday = useMutation({
@@ -104,7 +105,11 @@ export function TodayCard({ session, restDay, tomorrowLine, lifeState, couplingL
         {couplingLine && <p className="text-sm text-gray-600">{couplingLine}</p>}
       </div>
 
-      {!choosing ? (
+      {session.status === 'DONE' || session.status === 'PLAN_B' ? (
+        <p className="text-base font-semibold" style={{ color: MOVE_ACCENT }} aria-live="polite">
+          {session.status === 'PLAN_B' ? t('today.donePlanB') : t('today.doneToday')}
+        </p>
+      ) : !choosing ? (
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
             size="lg"

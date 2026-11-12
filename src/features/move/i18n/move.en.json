@@ -182,6 +182,10 @@
     }
   },
   "today": {
+    "doneToday": "Done. That is enough for today.",
+    "doneToday_formal": "Done. That is enough for today.",
+    "donePlanB": "The short version is done; the week goes on.",
+    "donePlanB_formal": "The short version is done; the week goes on.",
     "title": "Today",
     "restDay": "Rest day",
     "tomorrow": "Tomorrow: {{line}}",
