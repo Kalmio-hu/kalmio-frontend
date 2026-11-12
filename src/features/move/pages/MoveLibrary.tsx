@@ -24,6 +24,17 @@ import { MOVE_ACCENT } from '../lib/constants'
 import { chooseLibraryMedia, type MediaChoice } from '../lib/mediaFallback'
 import type { LibraryExerciseDto, LibraryPackDto } from '../types'
 
+/** Library equipment codes are per implement; the start-flow labels are per owned set (BAND → BANDS, …). */
+const EQUIPMENT_LABEL_ALIAS: Record<string, string> = {
+  BAND: 'BANDS', DUMBBELL: 'DUMBBELLS', KETTLEBELL: 'KETTLEBELLS', CONE: 'CONES', PULLUP_BAR: 'PULL_UP_BAR', MACHINE: 'GYM_ACCESS',
+}
+const LIBRARY_ONLY_EQUIPMENT = new Set(['COUNTER', 'WALL'])
+
+function equipmentLabelKey(code: string): string {
+  if (LIBRARY_ONLY_EQUIPMENT.has(code)) return `library.equipment.${code}`
+  return `start.equipment.items.${EQUIPMENT_LABEL_ALIAS[code] ?? code}`
+}
+
 export function MoveLibrary() {
   const { t } = useMoveT()
   const [params, setParams] = useSearchParams()
@@ -74,7 +85,7 @@ export function MoveLibrary() {
     >
       <div className="space-y-5">
         {packs.length > 0 && (
-          <div role="tablist" aria-label={t('library.filterPack')} className="flex gap-2 overflow-x-auto pb-1">
+          <div role="tablist" aria-label={t('library.filterPack')} className="flex flex-wrap gap-2">
             <button role="tab" type="button" aria-selected={!pack} className={tab(!pack)} style={!pack ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ pack: undefined, level: undefined, modality: undefined })}>
               {t('library.all')}
             </button>
@@ -136,9 +147,9 @@ export function MoveLibrary() {
                     aria-label={`${e.name} — ${t('library.open')}`}
                   >
                     {url ? (
-                      <img src={url} alt="" className="h-24 w-24 object-cover rounded-[12px] shrink-0 bg-[#F9F7F2]" loading="lazy" />
+                      <img src={url} alt="" className="w-20 aspect-[2/3] object-cover rounded-[12px] shrink-0 bg-[#F9F7F2]" loading="lazy" />
                     ) : (
-                      <PersonPictogram className="h-24 w-24 shrink-0" />
+                      <PersonPictogram className="w-20 aspect-[2/3] shrink-0" />
                     )}
                     <span className="min-w-0 flex-1">
                       <span className="block font-headline font-bold text-[#1A1A1A]">{e.name}</span>
@@ -146,7 +157,7 @@ export function MoveLibrary() {
                       <span className="block text-sm text-gray-600 mt-1">
                         {t('library.levelLabel', { level: e.level })}
                         {' · '}
-                        {e.equipment.length === 0 || e.equipment.every((x) => x === 'NONE') ? t('library.noEquipment') : e.equipment.map((x) => t(`player.dials.equipmentOptions.${x}`)).join(', ')}
+                        {e.equipment.length === 0 || e.equipment.every((x) => x === 'NONE') ? t('library.noEquipment') : e.equipment.map((x) => t(equipmentLabelKey(x))).join(', ')}
                       </span>
                       {c.kind !== 'TEXT' ? <AiLabel className="mt-1" /> : <span className="block text-xs text-gray-500 mt-1">{t('library.textOnly')}</span>}
                     </span>

@@ -415,6 +415,7 @@
       "setUndo": "Mégsem",
       "lastResults": "Utoljára",
       "rest": "Pihenő",
+      "restBeforeNext": "Pihenő a következő gyakorlat előtt",
       "restSkip": "Mehet tovább",
       "swap": "Másik gyakorlatot",
       "swapTitle": "Helyette",
@@ -584,7 +585,10 @@
     "textOnly": "Szöveges útmutató, kép nélkül.",
     "levelLabel": "{{level}} szint",
     "open": "Megnézem",
-    "equipment": "Felszerelés",
+    "equipment": {
+      "COUNTER": "Konyhapult",
+      "WALL": "Fal"
+    },
     "noEquipment": "Felszerelés nélkül",
     "startPose": "Kezdő állás",
     "endPose": "Záró állás",
@@ -1159,6 +1163,7 @@
       "MAIN": "fő rész",
       "OPTIONAL": "nem kötelező",
       "COOLDOWN": "levezetés"
-    }
+    },
+    "length": "Hossz"
   }
 }

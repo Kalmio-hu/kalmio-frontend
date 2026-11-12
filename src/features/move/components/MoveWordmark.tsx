@@ -10,9 +10,9 @@ export function MoveWordmark({ className, dark = false }: { className?: string; 
   return (
     <span className={cn('inline-flex items-end gap-1.5', className)} aria-label={t('brand.name')}>
       <img
-        src="/assets/images/logo.png"
+        src={dark ? '/assets/images/logo.png' : '/assets/images/logo-dark.png'}
         alt="Kalmio"
-        className={cn('h-9 object-contain object-left', dark ? '' : 'brightness-0')}
+        className="h-9 object-contain object-left"
       />
       <span
         className="font-headline font-bold text-lg leading-none pb-1 tracking-tight"

@@ -108,14 +108,14 @@ export function MoveShell() {
           <LanguageSwitcher />
           <div className="flex items-center gap-1">
             {/* admins reach the review queue and the other admin pages from Move too */}
-            <AdminPopupMenu variant="sidebar" />
+            <AdminPopupMenu variant="sidebar" large />
             <NavLink
               to={`${MOVE_HOME}/settings`}
               title={t('nav.settings')}
               aria-label={t('nav.settings')}
               className={({ isActive }) =>
                 cn(
-                  'p-3 rounded-lg transition-colors',
+                  'inline-flex items-center justify-center p-3 rounded-lg transition-colors',
                   isActive ? 'text-[var(--move-accent)]' : 'text-white/50 hover:text-white hover:bg-white/10',
                 )
               }
@@ -127,7 +127,7 @@ export function MoveShell() {
               onClick={signOut}
               title={t('nav.signOut')}
               aria-label={t('nav.signOut')}
-              className="p-3 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              className="inline-flex items-center justify-center p-3 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
             >
               <LogOut className="h-5 w-5" aria-hidden />
             </button>

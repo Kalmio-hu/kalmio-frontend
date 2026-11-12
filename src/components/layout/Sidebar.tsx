@@ -189,7 +189,7 @@ export function Sidebar() {
                 ? t('onboarding.founderFarewell.feedbackCoachmarkAria', { defaultValue: t('feedback.buttonTitle') })
                 : t('feedback.buttonTitle')}
               className={cn(
-                'relative p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors',
+                'relative inline-flex items-center justify-center p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors',
                 showFeedbackCoachmark && 'ring-2 ring-[#4F7942]/60 ring-offset-1 ring-offset-[#1A1A1A] animate-pulse'
               )}
             >
@@ -205,7 +205,7 @@ export function Sidebar() {
               title={t('nav.settings')}
               className={({ isActive }) =>
                 cn(
-                  'p-2 rounded-lg transition-colors',
+                  'inline-flex items-center justify-center p-2 rounded-lg transition-colors',
                   isActive ? 'text-[#F28C28]' : 'text-white/50 hover:text-white hover:bg-white/10'
                 )
               }
@@ -216,7 +216,7 @@ export function Sidebar() {
             <button
               onClick={signOut}
               title={t('common.signOut')}
-              className="p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
             >
               <LogOut className="h-4 w-4" />
             </button>

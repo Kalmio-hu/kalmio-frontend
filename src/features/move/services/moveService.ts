@@ -185,6 +185,10 @@ export const moveService = {
   setSessionExercises: (sessionId: string, exercises: ExercisePickDto[]): Promise<SessionExerciseDto[]> =>
     api.put<SessionExerciseDto[]>(`/api/move/sessions/${sessionId}/exercises`, { exercises }, IDEMPOTENT).then(r => r.data),
 
+  /** Change an open session's length and/or intensity; the steps follow on the server. */
+  updateSession: (sessionId: string, req: { durationMin?: number; intensity?: string }): Promise<SessionDto> =>
+    api.patch<SessionDto>(`/api/move/sessions/${sessionId}`, req, IDEMPOTENT).then(r => r.data),
+
   /** Remove a session the member added by hand. */
   deleteSession: (sessionId: string): Promise<void> =>
     api.delete(`/api/move/sessions/${sessionId}`, IDEMPOTENT).then(() => undefined),

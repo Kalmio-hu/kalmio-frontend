@@ -42,6 +42,8 @@ export function CardStep({ step, session, state, dispatch, paused, onSwap }: Car
 
   const logged = (i: number) => logs.find((l) => l.setIndex === i) ?? null
   const allDone = logs.length >= sets
+  // the last exercise of the session needs no rest after it; every other one gets a rest before the next exercise
+  const lastStep = step.index >= Math.max(...session.steps.map((s) => s.index))
   const draft = (i: number) => {
     const d = drafts[i]
     const existing = logged(i)
@@ -64,7 +66,7 @@ export function CardStep({ step, session, state, dispatch, paused, onSwap }: Car
       seconds: timed ? num(d.value) : null,
     }
     dispatch({ type: 'SET_LOG', log })
-    if (i < sets - 1) setRestAfter(i)
+    if (i < sets - 1 || !lastStep) setRestAfter(i)
   }
 
   const targetLine = timed
@@ -129,9 +131,10 @@ export function CardStep({ step, session, state, dispatch, paused, onSwap }: Car
         })}
       </ol>
 
-      {restAfter !== null && !allDone && (
+      {restAfter !== null && (!allDone || !lastStep) && (
         <div className="rounded-[12px] border border-[#e5e4e7] bg-white p-3 space-y-2">
-          <Countdown seconds={step.restSeconds ?? DEFAULT_REST} running={!paused} resetKey={restAfter} label={t('player.card.rest')} onDone={() => setRestAfter(null)} />
+          <Countdown seconds={step.restSeconds ?? DEFAULT_REST} running={!paused} resetKey={restAfter}
+            label={allDone ? t('player.card.restBeforeNext') : t('player.card.rest')} onDone={() => setRestAfter(null)} />
           <Button type="button" variant="secondary" onClick={() => setRestAfter(null)}>{t('player.card.restSkip')}</Button>
         </div>
       )}

@@ -19,6 +19,8 @@ import { ExercisePicker, type PickedExercise } from './ExercisePicker'
 import { SessionLogEditor } from './SessionLogEditor'
 import type { SessionDto, SessionExerciseDto } from '../types'
 
+const LENGTHS = [15, 20, 30, 45, 60, 90]
+
 interface SessionOverviewProps {
   session: SessionDto
   onStart: () => void
@@ -52,6 +54,16 @@ export function SessionOverview({ session, onStart, onActions, onClose }: Sessio
     },
     onError: () => toast({ title: t('common.error'), variant: 'destructive' }),
   })
+  const [minutes, setMinutes] = useState(session.durationMin)
+  const resize = useMutation({
+    mutationFn: (durationMin: number) => moveService.updateSession(session.id, { durationMin }),
+    onSuccess: (next) => {
+      setMinutes(next.durationMin)
+      void qc.invalidateQueries({ queryKey: moveKeys.sessionExercises(session.id) })
+      invalidate()
+    },
+    onError: () => toast({ title: t('common.error'), variant: 'destructive' }),
+  })
   const remove = useMutation({
     mutationFn: () => moveService.deleteSession(session.id),
     onSuccess: () => {
@@ -81,7 +93,7 @@ export function SessionOverview({ session, onStart, onActions, onClose }: Sessio
             <DialogDescription className="first-letter:uppercase">
               {[
                 `${weekdayLabel(session.date, i18n.language, 'long')} ${dayMonthLabel(session.date, i18n.language)}`,
-                t('common.minutes', { count: session.durationMin }),
+                t('common.minutes', { count: minutes }),
                 t(`week.intensity.${intensityKey(session.intensity)}`),
                 ...(session.status !== 'PLANNED' ? [t(`week.status.${session.status}`)] : []),
               ].join(' · ')}
@@ -91,6 +103,27 @@ export function SessionOverview({ session, onStart, onActions, onClose }: Sessio
       </DialogHeader>
       <div className="space-y-4">
         {session.expectLine && <p className="text-base text-[#1A1A1A]">{session.expectLine}</p>}
+
+        {planned && !editing && (
+          <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label={t('overview.length')}>
+            <span className="text-sm text-gray-600 mr-1">{t('overview.length')}</span>
+            {Array.from(new Set([...LENGTHS, minutes])).sort((a, b) => a - b).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="radio"
+                aria-checked={m === minutes}
+                disabled={resize.isPending}
+                onClick={() => m !== minutes && resize.mutate(m)}
+                className={m === minutes
+                  ? 'min-h-10 px-3 rounded-full text-sm font-semibold text-white bg-[#2A9D8F]'
+                  : 'min-h-10 px-3 rounded-full text-sm font-medium border border-[#e5e4e7] bg-white text-[#1A1A1A] hover:bg-[#F9F7F2]'}
+              >
+                {t('common.minutes', { count: m })}
+              </button>
+            ))}
+          </div>
+        )}
 
         {editing ? (
           <section className="space-y-3">

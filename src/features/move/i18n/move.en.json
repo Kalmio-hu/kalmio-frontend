@@ -415,6 +415,7 @@
       "setUndo": "Undo",
       "lastResults": "Last time",
       "rest": "Rest",
+      "restBeforeNext": "Rest before the next exercise",
       "restSkip": "Go on",
       "swap": "Another exercise",
       "swapTitle": "Instead",
@@ -584,7 +585,10 @@
     "textOnly": "Text guide, no image.",
     "levelLabel": "Level {{level}}",
     "open": "Open",
-    "equipment": "Equipment",
+    "equipment": {
+      "COUNTER": "Kitchen counter",
+      "WALL": "Wall"
+    },
     "noEquipment": "No equipment",
     "startPose": "Start position",
     "endPose": "End position",
@@ -1159,6 +1163,7 @@
       "MAIN": "main part",
       "OPTIONAL": "optional",
       "COOLDOWN": "cool-down"
-    }
+    },
+    "length": "Length"
   }
 }

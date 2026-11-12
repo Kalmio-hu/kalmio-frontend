@@ -25,6 +25,8 @@ interface AdminPopupMenuProps {
    * - "overflow" → dark background, inline in MobileNav overflow list
    */
   variant?: 'sidebar' | 'overflow'
+  /** The Move shell's icon row uses 20 px icons in 44 px targets; the nutrition sidebar 16 px. */
+  large?: boolean
 }
 
 const ADMIN_ITEMS = [
@@ -41,7 +43,7 @@ const ADMIN_ITEMS = [
 // caller, so a disabled flag leaves no trace of Move anywhere (D8 invariant).
 const MOVE_ADMIN_ITEM = { to: '/app/admin/move/review', icon: ScanEye, labelKey: 'move:review.menuLabel' } as const
 
-export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMenuProps) {
+export function AdminPopupMenu({ onNavigate, variant = 'sidebar', large = false }: AdminPopupMenuProps) {
   const { t } = useTranslation()
   const isAdmin = useAuthStore((s) => s.isAdmin)
   const { status: moveStatus } = useMoveStatus()
@@ -100,11 +102,11 @@ export function AdminPopupMenu({ onNavigate, variant = 'sidebar' }: AdminPopupMe
         className={cn(
           'flex items-center gap-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40',
           isSidebar
-            ? 'p-2 text-white/50 hover:text-white hover:bg-white/10'
+            ? cn('justify-center text-white/50 hover:text-white hover:bg-white/10', large ? 'p-3' : 'p-2')
             : 'px-5 py-3 text-white/80 hover:text-white hover:bg-white/5 w-full text-sm font-medium'
         )}
       >
-        <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden />
+        <ShieldCheck className={cn(large && isSidebar ? 'h-5 w-5' : 'h-4 w-4', 'shrink-0')} aria-hidden />
         {!isSidebar && <span>{t('admin.popup.label')}</span>}
       </button>
 

@@ -60,7 +60,8 @@ import '../move.css'
 const SNAPSHOT_MAX_AGE_MS = 24 * 60 * 60_000
 const ACCENT_BUTTON = 'bg-[#2A9D8F] hover:bg-[#21867A] focus-visible:ring-[#2A9D8F]'
 
-function reducer(state: PlayerState | null, action: PlayerAction): PlayerState | null {
+function reducer(state: PlayerState | null, action: PlayerAction | { type: 'DISCARD' }): PlayerState | null {
+  if (action.type === 'DISCARD') return null
   if (action.type === 'INIT') return initialState(action.session, action.now)
   if (!state) return state
   return playerReducer(state, action)
@@ -90,12 +91,27 @@ export function MovePlayer() {
   const needDefaults = !session && !planB && status.enabled
   const profile = useQuery({ queryKey: moveKeys.profile, queryFn: moveService.getProfile, staleTime: 60_000, enabled: needDefaults })
   const equipment = useQuery({ queryKey: moveKeys.equipment, queryFn: moveService.getEquipment, staleTime: 60_000, enabled: needDefaults })
-  const today = useQuery({ queryKey: moveKeys.today, queryFn: moveService.getToday, staleTime: 30_000, enabled: needDefaults })
+  // Also read with a resumed snapshot, to notice a session that changed on the server since it was started.
+  const today = useQuery({ queryKey: moveKeys.today, queryFn: moveService.getToday, staleTime: 30_000, enabled: (needDefaults || !!snapshot) && status.enabled })
   const plannedSession = useMemo(() => {
     const d = today.data
     if (!d) return null
     return [d.session, d.firstSessionOffer].find((s) => s?.id === sessionId) ?? null
   }, [today.data, sessionId])
+
+  // A session edited after it was started here (another activity type, another length) starts afresh: the snapshot
+  // would replay the old version (founder, 2026-11-12: switched to gym strength, the player still opened the class).
+  const [discarded, setDiscarded] = useState(false)
+  const staleSnapshot = !discarded && !!snapshot && !!session && session === snapshot.session && !!plannedSession
+    && (plannedSession.modalityCode !== session.modalityCode || plannedSession.durationMin !== session.durationMin)
+  if (staleSnapshot) {
+    setDiscarded(true)
+    setSession(null)
+    dispatch({ type: 'DISCARD' })
+  }
+  useEffect(() => {
+    if (discarded) clearSnapshot(sessionId)
+  }, [discarded, sessionId])
 
   const start = useMutation({
     mutationFn: (req: StartSessionRequest) => (planB ? moveService.planB(sessionId) : moveService.startSession(sessionId, req)),
