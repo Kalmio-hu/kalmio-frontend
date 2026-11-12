@@ -110,7 +110,7 @@ export function MoveSettings() {
                         >
                           <div className="aspect-[3/4] w-full rounded-[12px] bg-[#F9F7F2] overflow-hidden flex items-center justify-center">
                             {thumb ? (
-                              <img src={thumb} alt={`${c.name} — ${c.ageBand}`} className="h-full w-full object-cover" loading="lazy" />
+                              <img src={thumb} alt={`${c.name} — ${c.ageBand}`} className="h-full w-full object-cover object-top" loading="lazy" />
                             ) : (
                               <span className="text-xs text-gray-400 px-2 text-center">{t('settings.demonstrator.noSheet')}</span>
                             )}

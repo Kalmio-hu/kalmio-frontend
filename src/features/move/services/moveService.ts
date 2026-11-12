@@ -6,6 +6,7 @@
  * are deduplicated by the backend.
  */
 import { api } from '@/lib/api'
+import { normaliseCharacter } from '../lib/characters'
 import type {
   AdminExerciseDto,
   CalendarTokenDto,
@@ -222,7 +223,7 @@ export const moveService = {
     api.post(`/api/move/media/${mediaId}/report`, req, IDEMPOTENT).then(() => undefined),
 
   getCharacters: (): Promise<CharacterDto[]> =>
-    api.get<CharacterDto[]>('/api/move/characters').then(r => r.data),
+    api.get<Record<string, unknown>[]>('/api/move/characters').then(r => r.data.map(normaliseCharacter)),
 
   // ── Helper ────────────────────────────────────────────────────────────────
   getHelper: (): Promise<HelperLinksDto> =>

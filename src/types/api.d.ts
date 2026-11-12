@@ -183,6 +183,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/equipment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["equipment"];
+        put: operations["putEquipment"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ingredients/{id}": {
         parameters: {
             query?: never;
@@ -1530,6 +1546,272 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/week/regenerate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Újratervezés": re-plan from tomorrow as a diff (rule 14); null when nothing changes */
+        post: operations["regenerate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Seven-screen start flow: profile, screening flags, week 1 and a first session for today */
+        post: operations["start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/swap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Másikat kérek": another modality of the same role, or variant OTHER of the same one */
+        post: operations["swap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Open the player: steps with approved demonstrations or text-only fallback, dials applied */
+        post: operations["start_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/shorter": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["shorter"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/plan-b": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Plan B: the 5–10 minute version; the session counts as done once completed */
+        post: operations["planB"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/not-today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Ma nem megy": SHORTER (Plan B), LATER (rule 1 proposal) or UNWELL (life state SICK) */
+        post: operations["notToday"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/move": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Move a session to another day; 409 {reason} when the spacing rules refuse */
+        post: operations["move"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/exercise-swap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** List substitutes in the engine's order, or apply one (remembered for next time) */
+        post: operations["exerciseSwap"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/easier": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["easier"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Completion: one request after the last step with the effort tap */
+        post: operations["complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/self-test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["selfTest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/screening": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer the health questions again; only the routing flags are stored */
+        post: operations["screening"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/screening/doctor-confirmed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["doctorConfirmed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/replan/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["decline"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/replan/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["accept"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/move/media/{mediaId}/report": {
         parameters: {
             query?: never;
@@ -1541,6 +1823,259 @@ export interface paths {
         put?: never;
         /** Report a demonstration as wrong; three independent reports unpublish it */
         post: operations["report"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/log": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Mást mozogtam": an unplanned activity; counts toward the week, never adds to later days */
+        post: operations["log_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["limits"];
+        put?: never;
+        post: operations["addLimit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/life-state": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** SICK / INJURED pause the plan; BREAK / TRAVEL take dates */
+        post: operations["setLifeState"];
+        /** Return: ends the life state, re-plans the week and applies the gap rules as a diff */
+        delete: operations["clearLifeState"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper/{linkId}/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Consent: the helped person's own tap, or the manager's for a managed profile */
+        post: operations["consent"];
+        /** Withdraw consent: the helper sees nothing from now on */
+        delete: operations["revoke"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper/{helpedUserId}/log-on-behalf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Megvolt, én rögzítem": tick a planned session on the person's behalf */
+        post: operations["logOnBehalf"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper/{helpedUserId}/encourage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** One of three prepared encouragements; at most one a day per helper */
+        post: operations["encourage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper/invite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Invite by e-mail or member id; the link starts without consent */
+        post: operations["invite"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/fixed-classes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["fixedClasses"];
+        put?: never;
+        post: operations["addFixedClass"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/fall": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Elestem": one notch or level down, health questions again, pause when hurt */
+        post: operations["fall"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/entry/{id}/done": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["entryDone"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/devices/garmin/sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sync now: last night's signals, yesterday's and today's activities, the next seven days of workouts */
+        post: operations["syncGarmin"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/devices/garmin/connect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Connect a Garmin account through the unofficial sidecar (invited test accounts only, D4) */
+        post: operations["connect_1"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/checkin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Morning check-in: three taps → green / amber / red / ill; one evaluation a day, changes only as a pending diff */
+        post: operations["checkIn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/checkin/keep-original": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** "Marad az eredeti": declines today's recovery diff and records the override */
+        post: operations["keepOriginal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/calendar/token/rotate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["rotateCalendarToken"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1709,7 +2244,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["complete"];
+        post: operations["complete_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1725,7 +2260,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["start"];
+        post: operations["start_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2645,6 +3180,23 @@ export interface paths {
         patch: operations["updateOffPlanMeal"];
         trace?: never;
     };
+    "/api/move/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the profile; availability changes re-plan from tomorrow (pendingDiffId in the response) */
+        patch: operations["update_5"];
+        trace?: never;
+    };
     "/api/fridge/{id}": {
         parameters: {
             query?: never;
@@ -3429,6 +3981,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/week": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Seven days with session chips; generated on first read for the current and future weeks */
+        get: operations["week"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["today"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/move/status": {
         parameters: {
             query?: never;
@@ -3446,6 +4031,186 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/move/sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/sessions/{id}/export.fit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The session as a FIT workout file (CARD and TARGET sessions) */
+        get: operations["exportFit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/self-tests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["selfTests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/replan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pending"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["progress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/modalities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The modality grid of the start flow; names follow Accept-Language */
+        get: operations["modalities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/library": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["library"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Links in both directions: whom I help, who helps me */
+        get: operations["links"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/helper/{helpedUserId}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Weekly summary of a consented person: done of planned, last self-test, Elestem — no health answers */
+        get: operations["summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/family-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["familySession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["devices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/move/characters": {
         parameters: {
             query?: never;
@@ -3455,6 +4220,39 @@ export interface paths {
         };
         /** Active demonstrator characters ("bemutató"), with their sheet urls */
         get: operations["characters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/calendar/{token}.ics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The ICS feed; the token is the credential (permitAll) */
+        get: operations["calendarFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/calendar/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["calendarToken"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4025,7 +4823,7 @@ export interface paths {
         put?: never;
         post?: never;
         /** Revoke an API key */
-        delete: operations["revoke"];
+        delete: operations["revoke_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4060,6 +4858,54 @@ export interface paths {
         post?: never;
         /** Delete a registered passkey */
         delete: operations["delete_4"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/limits/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeLimit"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/fixed-classes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["removeFixedClass"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/move/devices/garmin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["disconnect_1"];
         options?: never;
         head?: never;
         patch?: never;
@@ -4247,6 +5093,9 @@ export interface components {
             onboardingChatDraft?: components["schemas"]["OnboardingChatDraftDto"];
             /** @enum {string} */
             effectiveDietTier?: "VEGAN" | "VEGETARIAN" | "PESCATARIAN" | "OMNIVORE";
+            /** Format: int32 */
+            birthYear?: number;
+            isManaged?: boolean;
         };
         UpdateProfileRequest: {
             firstName?: string;
@@ -4473,6 +5322,11 @@ export interface components {
             nutritionActive?: boolean;
             lastSpace?: string;
             register?: string;
+        };
+        EquipmentDto: {
+            items?: string[];
+            dumbbellsKg?: number[];
+            bandLevels?: string[];
         };
         ConstraintsRequest: {
             vegetarian?: boolean;
@@ -5190,6 +6044,7 @@ export interface components {
             /** Format: int32 */
             newDurationMin?: number;
             changeType?: string;
+            templateCode?: string;
         };
         WastedMeal: {
             /** Format: uuid */
@@ -5502,6 +6357,339 @@ export interface components {
         PermissionOutcomeRequest: {
             outcome: string;
         };
+        MoveReplanChangeDto: {
+            kind?: string;
+            /** Format: uuid */
+            sessionId?: string;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+            line?: string;
+        };
+        MoveReplanDiffDto: {
+            /** Format: uuid */
+            id?: string;
+            status?: string;
+            narrative?: string;
+            reason?: string;
+            changes?: components["schemas"]["MoveReplanChangeDto"][];
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        RegenerateWeekResponse: {
+            diff?: components["schemas"]["MoveReplanDiffDto"];
+        };
+        CreateFixedClassRequest: {
+            modalityCode?: string;
+            /** Format: int32 */
+            weekday?: number;
+            startTime?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            label?: string;
+        };
+        ModalityPick: {
+            code?: string;
+            /** Format: int32 */
+            rank?: number;
+        };
+        ScreeningAnswers: {
+            answers?: boolean[];
+        };
+        StartFlowRequest: {
+            /** Format: uuid */
+            forUserId?: string;
+            modalities?: components["schemas"]["ModalityPick"][];
+            /** Format: int32 */
+            daysPerWeek?: number;
+            /** Format: int32 */
+            minutes?: number;
+            equipment?: string[];
+            screening?: components["schemas"]["ScreeningAnswers"];
+            register?: string;
+            characterCode?: string;
+            familySessionAges?: number[];
+            fixedClasses?: components["schemas"]["CreateFixedClassRequest"][];
+        };
+        LifeStateDto: {
+            state?: string;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+        };
+        MoveProfileDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            userId?: string;
+            active?: boolean;
+            modalities?: components["schemas"]["ModalityPick"][];
+            /** Format: int32 */
+            daysPerWeek?: number;
+            /** Format: int32 */
+            minutes?: number;
+            weekdays?: number[];
+            characterCode?: string;
+            textSize?: string;
+            register?: string;
+            pushTime?: string;
+            hrTargets?: boolean;
+            familySessionAges?: number[];
+            screening?: components["schemas"]["ScreeningResultDto"];
+            supportedLevel?: string;
+            enduranceLevel?: string;
+            strengthLevel?: string;
+            trainedRecently?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+            lifeState?: components["schemas"]["LifeStateDto"];
+            /** Format: uuid */
+            pendingDiffId?: string;
+        };
+        ScreeningResultDto: {
+            track?: string;
+            levelCap?: string;
+            hrTargetsOff?: boolean;
+            line?: string;
+            doctorConfirmed?: boolean;
+        };
+        SessionDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date */
+            date?: string;
+            dayPart?: string;
+            startTime?: string;
+            modalityCode?: string;
+            modalityName?: string;
+            roles?: string[];
+            format?: string;
+            intensity?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            status?: string;
+            expectLine?: string;
+            firstSession?: boolean;
+            optional?: boolean;
+            fixedClass?: boolean;
+        };
+        StartFlowResponse: {
+            profile?: components["schemas"]["MoveProfileDto"];
+            screening?: components["schemas"]["ScreeningResultDto"];
+            week?: components["schemas"]["WeekDto"];
+            firstSession?: components["schemas"]["SessionDto"];
+        };
+        WeekDayDto: {
+            /** Format: date */
+            date?: string;
+            restDay?: boolean;
+            sessions?: components["schemas"]["SessionDto"][];
+        };
+        WeekDto: {
+            /** Format: date */
+            weekStart?: string;
+            days?: components["schemas"]["WeekDayDto"][];
+            target?: components["schemas"]["WeekTargetDto"];
+            /** Format: int32 */
+            activeWeeksOf12?: number;
+        };
+        WeekTargetDto: {
+            /** Format: int32 */
+            planned?: number;
+            /** Format: int32 */
+            done?: number;
+            activeWeek?: boolean;
+        };
+        SwapSessionRequest: {
+            modalityCode?: string;
+            variant?: string;
+        };
+        StartSessionRequest: {
+            /** Format: int32 */
+            minutes?: number;
+            equipment?: string[];
+            focus?: string;
+            characterCode?: string;
+        };
+        MediaRefDto: {
+            /** Format: uuid */
+            mediaId?: string;
+            type?: string;
+            url?: string;
+            fallbackUrl?: string;
+            characterCode?: string;
+            generated?: boolean;
+            reviewStatus?: string;
+        };
+        PlayerSessionDto: {
+            /** Format: uuid */
+            sessionId?: string;
+            /** Format: date */
+            date?: string;
+            modalityCode?: string;
+            modalityName?: string;
+            format?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            register?: string;
+            textSize?: string;
+            characterCode?: string;
+            pack?: string;
+            supportedPack?: boolean;
+            firstSession?: boolean;
+            askComfort?: boolean;
+            stopRule?: string;
+            setupLine?: string;
+            startTime?: string;
+            place?: string;
+            dials?: components["schemas"]["SessionDialsDto"];
+            steps?: components["schemas"]["PlayerStepDto"][];
+            planB?: boolean;
+        };
+        PlayerStepDto: {
+            /** Format: int32 */
+            index?: number;
+            kind?: string;
+            /** Format: uuid */
+            exerciseId?: string;
+            title?: string;
+            instruction?: string;
+            cues?: string[];
+            faults?: string[];
+            media?: components["schemas"]["MediaRefDto"];
+            endMedia?: components["schemas"]["MediaRefDto"];
+            pictogramUrl?: string;
+            /** Format: int32 */
+            targetReps?: number;
+            targetWeightKg?: number;
+            /** Format: int32 */
+            targetSeconds?: number;
+            /** Format: int32 */
+            sets?: number;
+            /** Format: int32 */
+            restSeconds?: number;
+            lastResults?: string[];
+            optional?: boolean;
+            autoAdvance?: boolean;
+            /** Format: int32 */
+            autoAdvanceSeconds?: number;
+            unitId?: string;
+            easier?: components["schemas"]["PlayerStepDto"];
+            harder?: components["schemas"]["PlayerStepDto"];
+            /** Format: int32 */
+            count?: number;
+            effortBand?: string;
+            talkTest?: string;
+            spokenCue?: string;
+            diagramUrl?: string;
+            selfScore?: boolean;
+        };
+        SessionDialsDto: {
+            /** Format: int32 */
+            minutes?: number;
+            equipment?: string[];
+            focus?: string;
+            characterCode?: string;
+        };
+        NotTodayRequest: {
+            choice?: string;
+        };
+        NotTodayResponse: {
+            session?: components["schemas"]["SessionDto"];
+            diff?: components["schemas"]["MoveReplanDiffDto"];
+            lifeState?: string;
+        };
+        MoveSessionRequest: {
+            /** Format: date */
+            date?: string;
+        };
+        ExerciseSwapRequest: {
+            /** Format: uuid */
+            exerciseId?: string;
+            /** Format: uuid */
+            substituteId?: string;
+        };
+        ExerciseSummaryDto: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            name?: string;
+            pack?: string;
+            level?: string;
+            roles?: string[];
+            equipment?: string[];
+            contraindications?: string[];
+            media?: components["schemas"]["MediaRefDto"][];
+            pictogramUrl?: string;
+        };
+        ExerciseSwapResponse: {
+            substitutes?: components["schemas"]["ExerciseSummaryDto"][];
+            applied?: components["schemas"]["PlayerSessionDto"];
+        };
+        CompleteSessionRequest: {
+            /** Format: int32 */
+            effort?: number;
+            /** Format: int32 */
+            comfort?: number;
+            painRegion?: string;
+            setLogs?: components["schemas"]["SetLogDto"][];
+            exerciseFeedback?: components["schemas"]["ExerciseFeedbackDto"][];
+            unitChoices?: components["schemas"]["UnitChoiceDto"][];
+            selfScores?: components["schemas"]["SelfScoreDto"][];
+            /** Format: int32 */
+            durationMin?: number;
+            shortened?: boolean;
+        };
+        ExerciseFeedbackDto: {
+            /** Format: uuid */
+            exerciseId?: string;
+            answer?: string;
+            /** Format: int32 */
+            repsInReserve?: number;
+        };
+        SelfScoreDto: {
+            /** Format: int32 */
+            stepIndex?: number;
+            /** Format: int32 */
+            score?: number;
+        };
+        SetLogDto: {
+            /** Format: uuid */
+            exerciseId?: string;
+            /** Format: int32 */
+            setIndex?: number;
+            /** Format: int32 */
+            reps?: number;
+            weightKg?: number;
+            /** Format: int32 */
+            seconds?: number;
+        };
+        UnitChoiceDto: {
+            /** Format: int32 */
+            stepIndex?: number;
+            fromUnitId?: string;
+            toUnitId?: string;
+            direction?: string;
+        };
+        SelfTestRequest: {
+            kind?: string;
+            /** Format: int32 */
+            value?: number;
+        };
+        SelfTestDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date */
+            date?: string;
+            kind?: string;
+            /** Format: int32 */
+            value?: number;
+        };
+        DoctorConfirmedRequest: {
+            confirmed?: boolean;
+        };
         MediaReportRequest: {
             note?: string;
         };
@@ -5512,6 +6700,127 @@ export interface components {
             reportCount?: number;
             unpublished?: boolean;
             alreadyReported?: boolean;
+        };
+        LogUnplannedRequest: {
+            modalityCode?: string;
+            /** Format: int32 */
+            minutes?: number;
+            /** Format: int32 */
+            effort?: number;
+            /** Format: date */
+            date?: string;
+        };
+        CreateLimitRequest: {
+            tag?: string;
+            note?: string;
+        };
+        LimitDto: {
+            /** Format: uuid */
+            id?: string;
+            tag?: string;
+            source?: string;
+            note?: string;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        LifeStateRequest: {
+            state?: string;
+            /** Format: date */
+            fromDate?: string;
+            /** Format: date */
+            toDate?: string;
+        };
+        HelperLinkDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            helperUserId?: string;
+            /** Format: uuid */
+            helpedUserId?: string;
+            helperName?: string;
+            helpedName?: string;
+            consented?: boolean;
+            /** Format: date-time */
+            createdAt?: string;
+        };
+        LogOnBehalfRequest: {
+            /** Format: uuid */
+            sessionId?: string;
+        };
+        EncourageRequest: {
+            templateCode?: string;
+        };
+        HelperInviteRequest: {
+            email?: string;
+            /** Format: uuid */
+            memberId?: string;
+        };
+        FixedClassDto: {
+            /** Format: uuid */
+            id?: string;
+            modalityCode?: string;
+            /** Format: int32 */
+            weekday?: number;
+            startTime?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            label?: string;
+        };
+        FallReportRequest: {
+            hurt?: boolean;
+            doctorSeen?: boolean;
+        };
+        FallReportResponse: {
+            level?: string;
+            paused?: boolean;
+            rescreen?: boolean;
+        };
+        EntryDoneRequest: {
+            /** Format: int32 */
+            effort?: number;
+        };
+        DeviceSyncReport: {
+            provider?: string;
+            status?: string;
+            /** Format: int32 */
+            nights?: number;
+            /** Format: int32 */
+            activities?: number;
+            /** Format: int32 */
+            matched?: number;
+            /** Format: int32 */
+            unplanned?: number;
+            /** Format: int32 */
+            pushed?: number;
+            /** Format: int32 */
+            removed?: number;
+            /** Format: int32 */
+            failed?: number;
+            lastError?: string;
+        };
+        GarminConnectRequest: {
+            email?: string;
+            password?: string;
+            mfaCode?: string;
+            loginState?: string;
+        };
+        GarminConnectResponse: {
+            status?: string;
+            loginState?: string;
+            displayName?: string;
+        };
+        CheckInRequest: {
+            feeling?: string;
+            soreness?: string;
+            sleep?: string;
+        };
+        CheckInResponse: {
+            light?: string;
+            diff?: components["schemas"]["MoveReplanDiffDto"];
+        };
+        CalendarTokenDto: {
+            token?: string;
+            url?: string;
         };
         MacroMergeResultDto: {
             kcalTargetSource?: string;
@@ -5734,6 +7043,8 @@ export interface components {
         AddManagedProfileRequest: {
             displayName: string;
             preferences?: components["schemas"]["UserPreferencesDto"];
+            /** Format: int32 */
+            birthYear?: number;
         };
         UserPreferencesDto: {
             allergens?: string[];
@@ -5853,9 +7164,6 @@ export interface components {
             aiGenerated?: boolean;
         };
         JsonNode: {
-            int?: boolean;
-            long?: boolean;
-            pojo?: boolean;
             /** @enum {string} */
             nodeType?: "ARRAY" | "BINARY" | "BOOLEAN" | "MISSING" | "NULL" | "NUMBER" | "OBJECT" | "POJO" | "STRING";
             short?: boolean;
@@ -5869,11 +7177,14 @@ export interface components {
             textual?: boolean;
             boolean?: boolean;
             binary?: boolean;
-            integralNumber?: boolean;
-            floatingPointNumber?: boolean;
+            int?: boolean;
+            long?: boolean;
+            pojo?: boolean;
             container?: boolean;
             string?: boolean;
             number?: boolean;
+            integralNumber?: boolean;
+            floatingPointNumber?: boolean;
             array?: boolean;
             empty?: boolean;
             null?: boolean;
@@ -6005,6 +7316,20 @@ export interface components {
             proteinG?: number;
             fatG?: number;
             carbG?: number;
+        };
+        UpdateMoveProfileRequest: {
+            modalities?: components["schemas"]["ModalityPick"][];
+            /** Format: int32 */
+            daysPerWeek?: number;
+            /** Format: int32 */
+            minutes?: number;
+            weekdays?: number[];
+            characterCode?: string;
+            textSize?: string;
+            register?: string;
+            pushTime?: string;
+            hrTargets?: boolean;
+            familySessionAges?: number[];
         };
         PatchFridgeItemRequest: {
             amount?: number;
@@ -6314,6 +7639,206 @@ export interface components {
             recipeId?: string;
             recommendedStorage?: string;
         };
+        CheckInStateDto: {
+            due?: boolean;
+            answered?: boolean;
+            sleepFromDevice?: boolean;
+            light?: string;
+        };
+        SelfTestStateDto: {
+            due?: boolean;
+            latest?: components["schemas"]["SelfTestDto"];
+            previous?: components["schemas"]["SelfTestDto"];
+        };
+        TodayDto: {
+            /** Format: date */
+            date?: string;
+            session?: components["schemas"]["SessionDto"];
+            restDay?: boolean;
+            tomorrowLine?: string;
+            checkIn?: components["schemas"]["CheckInStateDto"];
+            pendingDiff?: components["schemas"]["MoveReplanDiffDto"];
+            lifeState?: string;
+            /** Format: int32 */
+            gapDays?: number;
+            firstSessionOffer?: components["schemas"]["SessionDto"];
+            /** Format: date */
+            lifeStateUntil?: string;
+            returnQuestionDue?: boolean;
+            supportedLevel?: string;
+            screeningPending?: boolean;
+            selfTest?: components["schemas"]["SelfTestStateDto"];
+            couplingLine?: string;
+        };
+        SheetDayDto: {
+            /** Format: date */
+            date?: string;
+            label?: string;
+            restDay?: boolean;
+            /** Format: uuid */
+            sessionId?: string;
+            title?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            pictogramUrl?: string;
+            exercises?: components["schemas"]["SheetExerciseDto"][];
+        };
+        SheetExerciseDto: {
+            name?: string;
+            pictogramUrl?: string;
+            reps?: string;
+            cue?: string;
+        };
+        WeekSheetDto: {
+            /** Format: date */
+            weekStart?: string;
+            name?: string;
+            register?: string;
+            days?: components["schemas"]["SheetDayDto"][];
+            stopRule?: string;
+        };
+        LoadPointDto: {
+            /** Format: date */
+            date?: string;
+            /** Format: int32 */
+            load?: number;
+            /** Format: double */
+            fitness?: number;
+            /** Format: double */
+            fatigue?: number;
+            /** Format: double */
+            form?: number;
+        };
+        ProgressDto: {
+            /** Format: int32 */
+            activeWeeksOf12?: number;
+            weeks?: components["schemas"]["ProgressWeekDto"][];
+            selfTests?: components["schemas"]["SelfTestDto"][];
+            levels?: components["schemas"]["ProgressLevelsDto"];
+            loadChartAvailable?: boolean;
+            loadChart?: components["schemas"]["LoadPointDto"][];
+            goals?: components["schemas"]["ProgressGoalsDto"];
+        };
+        ProgressGoalsDto: {
+            kind?: string;
+            lines?: string[];
+        };
+        ProgressLevelsDto: {
+            supported?: string;
+            endurance?: string;
+            strength?: string;
+        };
+        ProgressWeekDto: {
+            /** Format: date */
+            weekStart?: string;
+            /** Format: int32 */
+            planned?: number;
+            /** Format: int32 */
+            done?: number;
+            active?: boolean;
+            reserve?: boolean;
+        };
+        ModalityDto: {
+            code?: string;
+            name?: string;
+            roles?: string[];
+            format?: string;
+            entryOnly?: boolean;
+            imageUrl?: string;
+            pictureKey?: string;
+        };
+        LibraryDto: {
+            exercises?: components["schemas"]["LibraryExerciseDto"][];
+            packs?: components["schemas"]["LibraryPackDto"][];
+            levels?: string[];
+            characterCode?: string;
+        };
+        LibraryExerciseDto: {
+            /** Format: uuid */
+            id?: string;
+            code?: string;
+            name?: string;
+            pack?: string;
+            level?: string;
+            roles?: string[];
+            equipment?: string[];
+            contraindications?: string[];
+            media?: components["schemas"]["MediaRefDto"][];
+            pictogramUrl?: string;
+            cue?: string;
+            cues?: string[];
+            faults?: string[];
+            approved?: boolean;
+        };
+        LibraryPackDto: {
+            code?: string;
+            name?: string;
+            defaultCharacterCode?: string;
+        };
+        HelperLinksDto: {
+            helping?: components["schemas"]["HelperLinkDto"][];
+            helpedBy?: components["schemas"]["HelperLinkDto"][];
+        };
+        HelperSessionLineDto: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: date */
+            date?: string;
+            modalityName?: string;
+            /** Format: int32 */
+            durationMin?: number;
+            status?: string;
+        };
+        HelperSummaryDto: {
+            /** Format: uuid */
+            helpedUserId?: string;
+            /** Format: date */
+            weekStart?: string;
+            /** Format: int32 */
+            planned?: number;
+            /** Format: int32 */
+            done?: number;
+            /** Format: date */
+            lastSessionDate?: string;
+            lastSelfTest?: components["schemas"]["SelfTestDto"];
+            fallReported?: boolean;
+            lifeState?: string;
+            lines?: string[];
+            sessions?: components["schemas"]["HelperSessionLineDto"][];
+        };
+        FamilySessionDto: {
+            /** Format: date */
+            date?: string;
+            ages?: number[];
+            title?: string;
+            characterCode?: string;
+            /** Format: uuid */
+            sessionId?: string;
+            units?: components["schemas"]["FamilySessionUnitDto"][];
+        };
+        FamilySessionUnitDto: {
+            /** Format: uuid */
+            id?: string;
+            kind?: string;
+            name?: string;
+            /** Format: int32 */
+            minutes?: number;
+            instruction?: string;
+            media?: components["schemas"]["MediaRefDto"];
+        };
+        DeviceDto: {
+            provider?: string;
+            status?: string;
+            /** Format: date-time */
+            lastSyncAt?: string;
+            displayName?: string;
+            lastError?: string;
+        };
+        DevicesDto: {
+            devices?: components["schemas"]["DeviceDto"][];
+            calendar?: components["schemas"]["CalendarTokenDto"];
+            garminAvailable?: boolean;
+        };
         DailyMacroDto: {
             /** Format: date */
             date?: string;
@@ -6559,29 +8084,6 @@ export interface components {
             modalities?: number;
             /** Format: int64 */
             sessionTemplates?: number;
-        };
-        ExerciseSummaryDto: {
-            /** Format: uuid */
-            id?: string;
-            code?: string;
-            packCode?: string;
-            kind?: string;
-            nameHu?: string;
-            nameEn?: string;
-            pattern?: string;
-            equipment?: string[];
-            position?: string;
-            /** Format: int32 */
-            difficultyRung?: number;
-            riskClass?: string;
-            /** Format: int32 */
-            shotCardVersion?: number;
-            shotCardStatus?: string;
-            published?: boolean;
-            /** Format: int64 */
-            mediaApproved?: number;
-            /** Format: int64 */
-            mediaPending?: number;
         };
         ReviewQueueItemDto: {
             media?: components["schemas"]["MediaDto"];
@@ -7101,6 +8603,50 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MoveStatus"];
+                };
+            };
+        };
+    };
+    equipment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EquipmentDto"];
+                };
+            };
+        };
+    };
+    putEquipment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EquipmentDto"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["EquipmentDto"];
                 };
             };
         };
@@ -9628,6 +11174,384 @@ export interface operations {
             };
         };
     };
+    regenerate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["RegenerateWeekResponse"];
+                };
+            };
+        };
+    };
+    start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartFlowRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["StartFlowResponse"];
+                };
+            };
+        };
+    };
+    swap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SwapSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    start_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["StartSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlayerSessionDto"];
+                };
+            };
+        };
+    };
+    shorter: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlayerSessionDto"];
+                };
+            };
+        };
+    };
+    planB: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlayerSessionDto"];
+                };
+            };
+        };
+    };
+    notToday: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotTodayRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["NotTodayResponse"];
+                };
+            };
+        };
+    };
+    move: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MoveSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    exerciseSwap: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseSwapRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ExerciseSwapResponse"];
+                };
+            };
+        };
+    };
+    easier: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["PlayerSessionDto"];
+                };
+            };
+        };
+    };
+    complete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    selfTest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SelfTestRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelfTestDto"];
+                };
+            };
+        };
+    };
+    screening: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScreeningAnswers"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScreeningResultDto"];
+                };
+            };
+        };
+    };
+    doctorConfirmed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoctorConfirmedRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ScreeningResultDto"];
+                };
+            };
+        };
+    };
+    decline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    accept: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     report: {
         parameters: {
             query?: never;
@@ -9650,6 +11574,434 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["MediaReportResponse"];
+                };
+            };
+        };
+    };
+    log_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogUnplannedRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    limits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LimitDto"][];
+                };
+            };
+        };
+    };
+    addLimit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLimitRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LimitDto"];
+                };
+            };
+        };
+    };
+    setLifeState: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LifeStateRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LifeStateDto"];
+                };
+            };
+        };
+    };
+    clearLifeState: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LifeStateDto"];
+                };
+            };
+        };
+    };
+    consent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                linkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HelperLinkDto"];
+                };
+            };
+        };
+    };
+    revoke: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                linkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    logOnBehalf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                helpedUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogOnBehalfRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    encourage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                helpedUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EncourageRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    invite: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HelperInviteRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HelperLinkDto"];
+                };
+            };
+        };
+    };
+    fixedClasses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FixedClassDto"][];
+                };
+            };
+        };
+    };
+    addFixedClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFixedClassRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FixedClassDto"];
+                };
+            };
+        };
+    };
+    fall: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FallReportRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FallReportResponse"];
+                };
+            };
+        };
+    };
+    entryDone: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["EntryDoneRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SessionDto"];
+                };
+            };
+        };
+    };
+    syncGarmin: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DeviceSyncReport"];
+                };
+            };
+        };
+    };
+    connect_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GarminConnectRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["GarminConnectResponse"];
+                };
+            };
+        };
+    };
+    checkIn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckInRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CheckInResponse"];
+                };
+            };
+        };
+    };
+    keepOriginal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    rotateCalendarToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTokenDto"];
                 };
             };
         };
@@ -9926,7 +12278,7 @@ export interface operations {
             };
         };
     };
-    complete: {
+    complete_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -9952,7 +12304,7 @@ export interface operations {
             };
         };
     };
-    start: {
+    start_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -11750,6 +14102,50 @@ export interface operations {
             };
         };
     };
+    profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveProfileDto"];
+                };
+            };
+        };
+    };
+    update_5: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMoveProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveProfileDto"];
+                };
+            };
+        };
+    };
     delete_3: {
         parameters: {
             query?: never;
@@ -12874,6 +15270,48 @@ export interface operations {
             };
         };
     };
+    week: {
+        parameters: {
+            query?: {
+                start?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WeekDto"];
+                };
+            };
+        };
+    };
+    today: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["TodayDto"];
+                };
+            };
+        };
+    };
     status: {
         parameters: {
             query?: never;
@@ -12894,6 +15332,238 @@ export interface operations {
             };
         };
     };
+    sheet: {
+        parameters: {
+            query?: {
+                start?: string;
+                forUserId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["WeekSheetDto"];
+                };
+            };
+        };
+    };
+    exportFit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    selfTests: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SelfTestDto"][];
+                };
+            };
+        };
+    };
+    pending: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MoveReplanDiffDto"][];
+                };
+            };
+        };
+    };
+    progress: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ProgressDto"];
+                };
+            };
+        };
+    };
+    modalities: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Accept-Language"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["ModalityDto"][];
+                };
+            };
+        };
+    };
+    library: {
+        parameters: {
+            query?: {
+                pack?: string;
+                level?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["LibraryDto"];
+                };
+            };
+        };
+    };
+    links: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HelperLinksDto"];
+                };
+            };
+        };
+    };
+    summary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                helpedUserId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["HelperSummaryDto"];
+                };
+            };
+        };
+    };
+    familySession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["FamilySessionDto"];
+                };
+            };
+        };
+    };
+    devices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["DevicesDto"];
+                };
+            };
+        };
+    };
     characters: {
         parameters: {
             query?: never;
@@ -12910,6 +15580,48 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CharacterDto"][];
+                };
+            };
+        };
+    };
+    calendarFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    calendarToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["CalendarTokenDto"];
                 };
             };
         };
@@ -13619,7 +16331,7 @@ export interface operations {
             };
         };
     };
-    revoke: {
+    revoke_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -13672,6 +16384,64 @@ export interface operations {
         responses: {
             /** @description No Content */
             204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    removeLimit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    removeFixedClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    disconnect_1: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

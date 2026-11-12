@@ -122,11 +122,12 @@ export function DialsScreen({ sessionId, format, date, defaults, onStart, busy }
                   style={on ? { borderColor: MOVE_ACCENT } : undefined}
                 >
                   {thumb ? (
-                    <img src={thumb} alt="" className="h-16 w-16 object-cover rounded-full" />
+                    <img src={thumb} alt="" className="h-24 w-[4.5rem] object-cover object-top rounded-[10px] bg-[#F1EFE9]" />
                   ) : (
-                    <span className="h-16 w-16 rounded-full" style={{ backgroundColor: c.accentColor }} aria-hidden />
+                    <span className="h-24 w-[4.5rem] rounded-[10px]" style={{ backgroundColor: c.accentColor }} aria-hidden />
                   )}
-                  <span className="text-sm font-medium text-[#1A1A1A]">{c.name}</span>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">{c.name}</span>
+                  {c.ageBand && <span className="text-xs text-gray-500">{c.ageBand}</span>}
                 </button>
               )
             })}
