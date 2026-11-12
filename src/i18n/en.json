@@ -1,6 +1,7 @@
 {
   "meta": {
-    "tabTitle": "Kalmio"
+    "tabTitle": "Kalmio",
+    "moveTabTitle": "Kalmio Move"
   },
   "nav": {
     "dashboard": "Dashboard",

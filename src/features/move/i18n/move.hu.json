@@ -34,24 +34,157 @@
     "move": "Mozgás"
   },
   "landing": {
-    "title": "Kalmio Move",
-    "tagline": "Heti háromszor 15 perc, otthon.",
-    "lead": "Rövid, végigvezetett mozgás a saját nappalidban. Nincs bérlet, nincs felszerelés, nincs rohanás.",
-    "what": {
-      "title": "Mi ez?",
-      "body": "A Kalmio Move hetente néhány rövid alkalmat tervez neked: séta, erősítés, nyújtás vagy székes gyakorlatok, ahogy neked jó. Minden alkalom lépésekből áll, lépésenként egy utasítással és egy bemutatóval."
+    "nav": {
+      "nutrition": "Étrend",
+      "cta": "Kezdjük el"
+    },
+    "hero": {
+      "eyebrow": "Kalmio Move",
+      "title": "Erősebb hétről hétre.",
+      "tagline": "Terv, nem találgatás.",
+      "lead": "A Kalmio Move megtervezi a hetedet, megmondja, mit emelj és mekkora súllyal, a következő alkalmat pedig abból számolja, amit ténylegesen megcsináltál. Konditeremben, otthon vagy a pályán.",
+      "cta": "Kezdjük el",
+      "how": "Így működik",
+      "hint": "Ingyenes. Bejelentkezés után a beállítás egy perc.",
+      "start": "Kezdőhelyzet",
+      "end": "Véghelyzet",
+      "card": {
+        "title": "Konditermi edzés",
+        "meta": "45 perc · közepes",
+        "today": "Ma",
+        "rest": "Pihenő · 1:30",
+        "squat": "Guggolás rúddal",
+        "bench": "Fekvenyomás rúddal",
+        "row": "Ülő evezés csigán",
+        "deadlift": "Felhúzás rúddal"
+      }
+    },
+    "gym": {
+      "title": "A középpontban a súlyzós edzés",
+      "lead": "Egészséges felnőttnek a rendszeres erősítés az egyik legjobb befektetés. A Move úgy vezeti az edzést, ahogy egy jó edzésnapló: sorozatról sorozatra.",
+      "items": {
+        "dose": {
+          "title": "Sorozat, ismétlés, kiló",
+          "body": "Minden gyakorlatnál ott a cél: hány sorozat, hány ismétlés, mekkora súllyal. A rudas gyakorlatok az üres rúddal indulnak."
+        },
+        "loads": {
+          "title": "A saját súlyaiddal számol",
+          "body": "Megadod, milyen tárcsáid, kézisúlyzóid és kettlebelljeid vannak, és a csigán mekkora lépésekben nő a súly. A terv csak olyan súlyt kér, amit fel is tudsz rakni."
+        },
+        "learn": {
+          "title": "Abból tanul, amit megcsináltál",
+          "body": "Sorozatonként rögzíted, mi ment, a végén egy koppintás: könnyű volt, pont jó vagy nehéz. A következő alkalom ehhez igazodik."
+        },
+        "rest": {
+          "title": "Pihenő a sorozatok között",
+          "body": "Az időzítő elindul, amikor befejezed a sorozatot. Ha hamarabb készen állsz, mehetsz tovább."
+        },
+        "demo": {
+          "title": "Bemutató minden gyakorlathoz",
+          "body": "Kezdő- és véghelyzet képen, mellette a legfontosabb figyelnivalók és a gyakori hibák."
+        },
+        "manual": {
+          "title": "Kézzel is összerakhatod",
+          "body": "Vegyél fel edzést bármelyik napra, válogasd össze a gyakorlatokat, állítsd át a hosszát. A bemelegítés és a levezetés megmarad."
+        }
+      },
+      "captions": {
+        "deadlift": "Felhúzás rúddal",
+        "bench": "Fekvenyomás rúddal",
+        "pulldown": "Lehúzás felső csigán",
+        "row": "Ülő evezés csigán"
+      }
+    },
+    "plan": {
+      "title": "A terv igazodik a hetedhez, nem fordítva",
+      "items": {
+        "fit": {
+          "title": "A te napjaid, a te perceid",
+          "body": "Megmondod, hány napod és mennyi időd van. A hét ebből épül fel."
+        },
+        "miss": {
+          "title": "Ha kimarad egy nap",
+          "body": "Nincs lelkifurdalás. A Move áttervezi a hetet, és megmutatja, mi változna, mielőtt elfogadod."
+        },
+        "tired": {
+          "title": "Ha fáradt vagy",
+          "body": "Edzés előtt egy rövid kérdés. Gyengébb napon könnyebb változatot kapsz."
+        },
+        "fix": {
+          "title": "A napló javítható",
+          "body": "Elírtad a súlyt? Utólag kijavítod, a terv pedig újraszámol."
+        }
+      },
+      "week": {
+        "gym": "Konditermi edzés",
+        "football": "Fociedzés",
+        "mobility": "Mozgékonyság",
+        "rest": "Pihenőnap",
+        "minutes": "{{count}} perc"
+      }
+    },
+    "more": {
+      "title": "Nemcsak konditerem",
+      "lead": "Ugyanaz a terv és ugyanaz a napló, bármilyen mozgást választasz.",
+      "items": {
+        "home": {
+          "title": "Otthoni erősítés",
+          "body": "Saját testsúllyal, kézisúlyzóval vagy gumiszalaggal."
+        },
+        "football": {
+          "title": "Fociedzés",
+          "body": "Egyéni, labdás gyakorlatok 15, 30 vagy 45 percre."
+        },
+        "mobility": {
+          "title": "Mozgékonyság",
+          "body": "Bemelegítés és nyújtás, öt perctől húszig."
+        },
+        "family": {
+          "title": "Közös 10 perc",
+          "body": "Játékos mozgás a gyerekekkel. Bogyó mutatja."
+        },
+        "supported": {
+          "title": "Szülőknek, támasszal",
+          "body": "Erő és egyensúly székkel, a konyhapult mellett. Be is állíthatod valaki másnak."
+        }
+      },
+      "endurance": "És ott a séta, a futás és a kerékpár is, fokozatosan növekvő célokkal."
+    },
+    "nutrition": {
+      "title": "Az étrended tudja, mikor edzel",
+      "body": "A Move a Kalmio része. Az edzésnapok terhelése átkerül az étrendhez, így a napi célok az edzéshez igazodnak. Egy fiók, egy irányítópult.",
+      "link": "Ismerd meg az étrendet"
+    },
+    "how": {
+      "title": "Így indul",
+      "steps": {
+        "one": {
+          "title": "Néhány rövid kérdés",
+          "body": "Milyen mozgást szeretnél, hány napod és perced van, milyen eszközeid vannak. Tíz egészségügyi kérdés segít abban, hogy a terv biztonságos legyen."
+        },
+        "two": {
+          "title": "Kész a heted",
+          "body": "Azonnal látod a hetet, és ma már indulhat az első alkalom."
+        },
+        "three": {
+          "title": "Edzel, a terv követ",
+          "body": "Rögzíted, mi ment. A súlyok és a következő hét ehhez igazodnak."
+        }
+      }
     },
     "safety": {
       "title": "Először a biztonság",
-      "body": "Tíz rövid kérdéssel kezdünk, és a hét ehhez igazodik. Minden képernyőn ott a szabály: hagyd abba, ha szédülsz, mellkasi fájdalmat érzel, vagy szokatlanul nehezen kapsz levegőt."
+      "body": "Tíz rövid kérdéssel kezdünk, és a hét ehhez igazodik. Minden képernyőn ott a szabály: hagyd abba, ha szédülsz, mellkasi fájdalmat érzel vagy szokatlanul nehezen kapsz levegőt."
     },
-    "points": {
-      "home": "Otthon, a saját tempódban",
-      "short": "Tizenöt perc is számít",
-      "plain": "Egyszerű szavakkal, egyszerre egy utasítás"
+    "final": {
+      "title": "Ma már indulhat az első alkalom.",
+      "cta": "Kezdjük el"
     },
-    "cta": "Kezdjük el",
-    "signInHint": "Bejelentkezés után a beállítás egy percet vesz igénybe."
+    "aiNote": "A képek MI-vel készült bemutatók.",
+    "meta": {
+      "title": "Kalmio Move – Erősebb hétről hétre",
+      "description": "Edzésterv konditerembe, otthonra és a pályára: sorozatok, ismétlések és súlyok a saját heted szerint."
+    }
   },
   "start": {
     "title": "Kezdjük el",

@@ -1,3 +1,4 @@
+import { isMoveHost } from '@/lib/hosts'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -10,6 +11,6 @@ export function useDocumentTitle() {
   const { t, i18n } = useTranslation()
 
   useEffect(() => {
-    document.title = t('meta.tabTitle')
+    document.title = isMoveHost() ? t('meta.moveTabTitle') : t('meta.tabTitle')
   }, [t, i18n.language])
 }

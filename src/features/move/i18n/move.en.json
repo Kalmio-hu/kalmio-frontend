@@ -34,24 +34,157 @@
     "move": "Movement"
   },
   "landing": {
-    "title": "Kalmio Move",
-    "tagline": "Three times a week, 15 minutes, at home.",
-    "lead": "Short, guided movement in your own living room. No membership, no equipment, no rush.",
-    "what": {
-      "title": "What is it?",
-      "body": "Kalmio Move plans a few short sessions a week for you: walking, strength, stretching or chair exercises, whatever suits you. Every session is a series of steps, one instruction and one demonstration at a time."
+    "nav": {
+      "nutrition": "Nutrition",
+      "cta": "Get started"
+    },
+    "hero": {
+      "eyebrow": "Kalmio Move",
+      "title": "Stronger every week.",
+      "tagline": "A plan, not guesswork.",
+      "lead": "Kalmio Move plans your week, tells you what to lift and how heavy, and builds the next session from what you actually did. In the gym, at home or on the pitch.",
+      "cta": "Get started",
+      "how": "How it works",
+      "hint": "Free. Set-up takes a minute after you sign in.",
+      "start": "Start position",
+      "end": "End position",
+      "card": {
+        "title": "Gym training",
+        "meta": "45 min · moderate",
+        "today": "Today",
+        "rest": "Rest · 1:30",
+        "squat": "Barbell back squat",
+        "bench": "Barbell bench press",
+        "row": "Seated cable row",
+        "deadlift": "Barbell deadlift"
+      }
+    },
+    "gym": {
+      "title": "Strength training comes first",
+      "lead": "For a healthy adult, regular strength training is one of the best investments there is. Move runs the session the way a good training log does: set by set.",
+      "items": {
+        "dose": {
+          "title": "Sets, reps, kilos",
+          "body": "Every exercise carries its target: how many sets, how many reps, how heavy. Barbell lifts start from the empty bar."
+        },
+        "loads": {
+          "title": "It counts with your own weights",
+          "body": "Tell it which plates, dumbbells and kettlebells you own and how your cable stack steps. The plan only asks for loads you can actually put on."
+        },
+        "learn": {
+          "title": "It learns from what you did",
+          "body": "Log each set, then one tap at the end: easy, just right or hard. The next session follows."
+        },
+        "rest": {
+          "title": "Rest between sets",
+          "body": "The clock starts when the set is done. Ready sooner? Move on."
+        },
+        "demo": {
+          "title": "A demonstration for every exercise",
+          "body": "Start and end position in pictures, with the key cues and the common faults beside them."
+        },
+        "manual": {
+          "title": "Build it by hand too",
+          "body": "Add a session to any day, pick the exercises, change its length. The warm-up and the cool-down stay."
+        }
+      },
+      "captions": {
+        "deadlift": "Barbell deadlift",
+        "bench": "Barbell bench press",
+        "pulldown": "Lat pulldown",
+        "row": "Seated cable row"
+      }
+    },
+    "plan": {
+      "title": "The plan fits your week, not the other way round",
+      "items": {
+        "fit": {
+          "title": "Your days, your minutes",
+          "body": "Say how many days and how much time you have. The week is built from that."
+        },
+        "miss": {
+          "title": "When a day slips",
+          "body": "No guilt. Move replans the week and shows what would change before you accept it."
+        },
+        "tired": {
+          "title": "When you are tired",
+          "body": "One short question before the session. On a weaker day you get an easier version."
+        },
+        "fix": {
+          "title": "The log can be corrected",
+          "body": "Typed the wrong weight? Fix it afterwards and the plan recalculates."
+        }
+      },
+      "week": {
+        "gym": "Gym training",
+        "football": "Football training",
+        "mobility": "Mobility",
+        "rest": "Rest day",
+        "minutes": "{{count}} min"
+      }
+    },
+    "more": {
+      "title": "Not only the gym",
+      "lead": "The same plan and the same log, whatever you do.",
+      "items": {
+        "home": {
+          "title": "Strength at home",
+          "body": "With bodyweight, dumbbells or a resistance band."
+        },
+        "football": {
+          "title": "Football training",
+          "body": "Solo ball drills for 15, 30 or 45 minutes."
+        },
+        "mobility": {
+          "title": "Mobility",
+          "body": "Warm-up and stretching, from five minutes to twenty."
+        },
+        "family": {
+          "title": "Ten minutes together",
+          "body": "Playful movement with the children. Bogyó shows the way."
+        },
+        "supported": {
+          "title": "For parents, with support",
+          "body": "Strength and balance with a chair, by the counter. You can set it up for someone else."
+        }
+      },
+      "endurance": "Walking, running and cycling are there too, with targets that build gradually."
+    },
+    "nutrition": {
+      "title": "Your meal plan knows when you train",
+      "body": "Move is part of Kalmio. The load of your training days carries over to nutrition, so the daily targets follow your training. One account, one dashboard.",
+      "link": "See the meal planner"
+    },
+    "how": {
+      "title": "How it starts",
+      "steps": {
+        "one": {
+          "title": "A few short questions",
+          "body": "What you would like to do, how many days and minutes you have, which equipment you own. Ten health questions keep the plan safe."
+        },
+        "two": {
+          "title": "Your week is ready",
+          "body": "You see the week at once, and the first session can start today."
+        },
+        "three": {
+          "title": "You train, the plan follows",
+          "body": "Log what you did. The loads and the next week adapt."
+        }
+      }
     },
     "safety": {
       "title": "Safety first",
       "body": "We start with ten short questions and the week adapts to them. The rule is on every screen: stop if you feel dizzy, feel chest pain, or find it unusually hard to breathe."
     },
-    "points": {
-      "home": "At home, at your own pace",
-      "short": "Fifteen minutes count",
-      "plain": "Plain words, one instruction at a time"
+    "final": {
+      "title": "The first session can start today.",
+      "cta": "Get started"
     },
-    "cta": "Let's start",
-    "signInHint": "After signing in, set-up takes about a minute."
+    "aiNote": "The pictures are AI-generated demonstrations.",
+    "meta": {
+      "title": "Kalmio Move – Stronger every week",
+      "description": "A training plan for the gym, home and the pitch: sets, reps and loads that fit your own week."
+    }
   },
   "start": {
     "title": "Let's start",

@@ -1,5 +1,6 @@
 import React, { useEffect, Suspense } from 'react'
 import posthog from 'posthog-js'
+import { isMoveHost, mainOrigin } from '@/lib/hosts'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { AppShell } from '@/components/layout/AppShell'
@@ -152,6 +153,20 @@ function PageViewTracker() {
   return null
 }
 
+/** On move.kalmio.hu every path but the landing continues on the main site (app, sign-in, legal pages). */
+function MoveHostRedirect() {
+  const location = useLocation()
+  useEffect(() => {
+    if (isMoveHost() && location.pathname !== '/') {
+      window.location.replace(`${mainOrigin()}${location.pathname}${location.search}${location.hash}`)
+    }
+  }, [location])
+  return null
+}
+
+// A direct load of any other path on the Move host: nothing renders, the effect above redirects.
+const OFF_MOVE_LANDING = isMoveHost() && window.location.pathname !== '/'
+
 export default function App() {
   useDocumentTitle()
 
@@ -161,11 +176,13 @@ export default function App() {
       <OfflineBanner />
       <BrowserRouter>
         <PageViewTracker />
+        <MoveHostRedirect />
         <CookieConsent />
         <AuthProvider>
           <BarionIdentity />
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
+          {!OFF_MOVE_LANDING && <Routes>
+            {/* move.kalmio.hu holds only the Move landing; www keeps it at /move */}
+            <Route path="/" element={isMoveHost() ? <MoveLandingRoute /> : <LandingPage />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -277,7 +294,7 @@ export default function App() {
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          </Routes>}
         </AuthProvider>
       </BrowserRouter>
     </>
