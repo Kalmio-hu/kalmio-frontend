@@ -4,7 +4,7 @@
  * @vitest-environment node
  */
 import { describe, it, expect } from 'vitest'
-import { resolveRegisterKey } from './register'
+import { resolveRegisterKey } from './registerKey'
 import hu from '../i18n/move.hu.json'
 import en from '../i18n/move.en.json'
 

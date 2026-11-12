@@ -11,23 +11,9 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Register } from '../types'
 import { useMoveStatus } from './useMoveStatus'
+import { MOVE_NS, resolveRegisterKey } from './registerKey'
 
-export const MOVE_NS = 'move'
-export const FORMAL_SUFFIX = '_formal'
-
-/**
- * Pure key resolver — exported for tests and for places without React.
- * @param exists  tells whether a key is defined in the `move` namespace
- */
-export function resolveRegisterKey(
-  key: string,
-  register: Register | null | undefined,
-  exists: (key: string) => boolean,
-): string {
-  if (register !== 'FORMAL') return key
-  const formal = `${key}${FORMAL_SUFFIX}`
-  return exists(formal) ? formal : key
-}
+export { MOVE_NS, FORMAL_SUFFIX, resolveRegisterKey } from './registerKey'
 
 export type MoveTFunction = (key: string, options?: Record<string, unknown>) => string
 
