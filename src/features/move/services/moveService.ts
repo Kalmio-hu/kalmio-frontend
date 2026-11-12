@@ -7,6 +7,7 @@
  */
 import { api } from '@/lib/api'
 import { normaliseCharacter } from '../lib/characters'
+import { toReviewQueue, type RawReviewQueue } from '../lib/reviewQueue'
 import type {
   AdminExerciseDto,
   CalendarTokenDto,
@@ -320,12 +321,13 @@ export const moveService = {
 
   // ── Admin ─────────────────────────────────────────────────────────────────
   admin: {
-    reviewQueue: (q: ReviewQueueQuery = {}): Promise<ReviewQueueDto> =>
-      api
-        .get<ReviewQueueDto>('/api/admin/move/review/queue', {
+    reviewQueue: (q: ReviewQueueQuery = {}, lang = 'hu', characterName: (code: string) => string = (c) => c): Promise<ReviewQueueDto> =>
+      Promise.all([
+        api.get<RawReviewQueue>('/api/admin/move/review/queue', {
           params: { status: q.status ?? 'PENDING', pack: q.pack ?? '', character: q.character ?? '' },
-        })
-        .then(r => r.data),
+        }),
+        api.get<PendingGroupDto[]>('/api/admin/move/review/pending-groups'),
+      ]).then(([queue, groups]) => toReviewQueue(queue.data, groups.data, lang, characterName)),
 
     review: (mediaId: string, req: ReviewVerdictRequest): Promise<MediaDto> =>
       api.post<MediaDto>(`/api/admin/move/review/${mediaId}`, req, IDEMPOTENT).then(r => r.data),

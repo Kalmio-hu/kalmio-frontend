@@ -16,6 +16,7 @@ import { useAuthStore } from '@/store/auth'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { LegalFooter } from '@/components/layout/LegalFooter'
 import { SpaceSwitcher } from '@/components/layout/SpaceSwitcher'
+import { AdminPopupMenu } from '@/components/layout/AdminPopupMenu'
 import { Spinner } from '@/components/ui/spinner'
 import { useMoveStatus } from '../lib/useMoveStatus'
 import { moveService } from '../services/moveService'
@@ -106,6 +107,8 @@ export function MoveShell() {
         <div className="border-t border-white/10 px-4 py-3 flex items-center justify-between gap-2">
           <LanguageSwitcher />
           <div className="flex items-center gap-1">
+            {/* admins reach the review queue and the other admin pages from Move too */}
+            <AdminPopupMenu variant="sidebar" />
             <NavLink
               to={`${MOVE_HOME}/settings`}
               title={t('nav.settings')}

@@ -23,13 +23,15 @@ import { moveService } from '../../services/moveService'
 import { moveKeys } from '../../lib/queryKeys'
 import { MOVE_ACCENT } from '../../lib/constants'
 import { REASON_CODES, shotCardRows } from '../../lib/reviewQueue'
+import { useCharacterNames } from '../../lib/useCharacterNames'
 import type { ReviewQueueItemDto, ReviewReasonCode, ReviewVerdictRequest } from '../../types'
 import '../../move.css'
 
 type Mode = 'idle' | 'rejecting'
 
 export function MoveReviewQueuePage() {
-  const { t } = useTranslation('move')
+  const { t, i18n } = useTranslation('move')
+  const characterName = useCharacterNames()
   const qc = useQueryClient()
   const [pack, setPack] = useState('')
   const [character, setCharacter] = useState('')
@@ -43,7 +45,8 @@ export function MoveReviewQueuePage() {
   const queueKey = moveKeys.admin.queue('PENDING', pack, character)
   const queue = useQuery({
     queryKey: queueKey,
-    queryFn: () => moveService.admin.reviewQueue({ status: 'PENDING', pack: pack || undefined, character: character || undefined }),
+    queryFn: () => moveService.admin.reviewQueue({ status: 'PENDING', pack: pack || undefined, character: character || undefined },
+      i18n.language, (code) => characterName(code) ?? code),
     staleTime: 15_000,
   })
 

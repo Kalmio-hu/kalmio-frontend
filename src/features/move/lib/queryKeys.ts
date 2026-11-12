@@ -29,7 +29,7 @@ export const moveKeys = {
   familySession: ['move', 'family-session'] as const,
   admin: {
     queue: (status: string, pack: string, character: string) =>
-      ['move', 'admin', 'review-queue', status, pack, character] as const,
+      ['move', 'admin', 'review-queue-v2', status, pack, character] as const,
     exercises: ['move', 'admin', 'exercises'] as const,
     exercise: (id: string) => ['move', 'admin', 'exercises', id] as const,
     stats: ['move', 'admin', 'stats'] as const,

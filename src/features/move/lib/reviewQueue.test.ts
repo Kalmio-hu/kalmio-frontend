@@ -1,6 +1,6 @@
 /** @vitest-environment node */
 import { describe, it, expect } from 'vitest'
-import { REASON_CODES, shotCardRows } from './reviewQueue'
+import { REASON_CODES, shotCardRows, toReviewQueue, type RawReviewQueue } from './reviewQueue'
 
 const t = (k: string) => k.split('.').pop() ?? k
 
@@ -38,5 +38,23 @@ describe('review queue helpers', () => {
       { label: 'poses', values: ['a', 'b'] },
       { label: 'cues', values: ['x'] },
     ])
+  })
+
+  it('flattens the backend queue and maps the snake_case shot card', () => {
+    const media = { id: 'm1', exerciseId: 'e1', characterCode: 'GABOR', mediaType: 'STILL_START' as const, style: 'STYLISED',
+      url: 'u1', shotCardVersion: 1, provider: 'openai', model: 'x', attempt: 1, reportCount: 0,
+      reviewStatus: 'PENDING' as const, createdAt: '2026-11-12T00:00:00Z' }
+    const raw: RawReviewQueue = {
+      items: [{ media, exercise: { id: 'e1', code: 'gym_squat', packCode: 'GYM', nameHu: 'Guggolás', nameEn: 'Squat' },
+        shotCard: { start_pose: 'áll', end_pose: 'guggol', common_faults: ['térd befelé'], cues_hu: ['lassan'], camera: 'oldal', name: 'x' },
+        pairedStill: { ...media, id: 'm2', mediaType: 'STILL_END' as const, url: 'u2' } }],
+      pending: 7, approved: 1, rejected: 0, unpublished: 0,
+    }
+    const q = toReviewQueue(raw, [{ packCode: 'GYM', characterCode: 'GABOR', count: 7 }], 'hu', () => 'Gábor')
+    expect(q.counts.pending).toBe(7)
+    expect(q.packs).toEqual(['GYM'])
+    expect(q.characters).toEqual([{ code: 'GABOR', name: 'Gábor' }])
+    expect(q.items[0]).toMatchObject({ mediaId: 'm1', exerciseName: 'Guggolás', pack: 'GYM', characterName: 'Gábor', pairUrl: 'u2' })
+    expect(q.items[0].shotCard).toEqual({ camera: 'oldal', poses: { start: 'áll', end: 'guggol' }, faults: ['térd befelé'], cues: ['lassan'] })
   })
 })

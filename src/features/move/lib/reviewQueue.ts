@@ -3,7 +3,7 @@
  * shot-card → readable rows projection. Kept out of the page for fast refresh
  * and so they can be unit-tested.
  */
-import type { ReviewReasonCode, ShotCardDto } from '../types'
+import type { MediaType, PendingGroupDto, ReviewQueueDto, ReviewReasonCode, ReviewStatus, ShotCardDto } from '../types'
 
 export const REASON_CODES: ReviewReasonCode[] = [
   'WRONG_JOINT_POSITION',
@@ -52,4 +52,59 @@ export function shotCardRows(card: ShotCardDto, t: (k: string) => string): { lab
     rows.push({ label: k, values: asList(v) })
   }
   return rows
+}
+
+/** The backend's queue wire format (MovementContentDtos.ReviewQueueResponse). */
+interface RawMedia {
+  id: string; exerciseId: string; characterCode: string; mediaType: MediaType; style: string | null; url: string
+  shotCardVersion: number; provider: string | null; model: string | null; attempt: number; reportCount: number
+  reviewStatus: ReviewStatus; createdAt: string
+}
+export interface RawReviewQueue {
+  items: { media: RawMedia; exercise: { id: string; code: string; packCode: string; nameHu: string; nameEn: string | null }
+    shotCard: Record<string, unknown> | null; pairedStill: RawMedia | null }[]
+  pending: number; approved: number; rejected: number; unpublished: number
+}
+
+/** Shot cards are stored snake_case by the content pipeline; the review page reads the camelCase shape. */
+function toShotCard(raw: Record<string, unknown> | null): ShotCardDto {
+  if (!raw) return {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- the id and name repeat the page header
+  const { start_pose, end_pose, common_faults, cues_hu, exercise_id, name, ...rest } = raw
+  const card: ShotCardDto = { ...rest }
+  if (start_pose || end_pose) card.poses = { start: start_pose as string | undefined, end: end_pose as string | undefined }
+  if (common_faults) card.faults = common_faults as string[]
+  if (cues_hu) card.cues = cues_hu as string[]
+  return card
+}
+
+export function toReviewQueue(raw: RawReviewQueue, groups: PendingGroupDto[], lang: string,
+                              characterName: (code: string) => string): ReviewQueueDto {
+  return {
+    items: raw.items.map(({ media, exercise, shotCard, pairedStill }) => ({
+      mediaId: media.id,
+      exerciseId: media.exerciseId,
+      exerciseCode: exercise.code,
+      exerciseName: (lang.startsWith('en') ? exercise.nameEn : null) ?? exercise.nameHu,
+      pack: exercise.packCode,
+      characterCode: media.characterCode,
+      characterName: characterName(media.characterCode),
+      mediaType: media.mediaType,
+      url: media.url,
+      pairUrl: pairedStill?.url ?? null,
+      style: media.style,
+      shotCardVersion: media.shotCardVersion,
+      provider: media.provider,
+      model: media.model,
+      attempt: media.attempt,
+      reportCount: media.reportCount,
+      status: media.reviewStatus,
+      createdAt: media.createdAt,
+      shotCard: toShotCard(shotCard),
+    })),
+    counts: { pending: raw.pending, approved: raw.approved, rejected: raw.rejected, unpublished: raw.unpublished },
+    packs: Array.from(new Set(groups.map((g) => g.packCode))).sort(),
+    characters: Array.from(new Set(groups.map((g) => g.characterCode))).sort()
+      .map((code) => ({ code, name: characterName(code) })),
+  }
 }
