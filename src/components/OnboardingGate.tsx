@@ -11,12 +11,14 @@
  *     (GET /api/move/status, 60 s stale, defaults to "off" on any error)
  *   - the per-user local done-flag (completion or skip on this device)
  *
- * Rules, in order: /app/move/* always passes; /app → /app/move when Move is
- * active and is the last-used or the only active space; a Move-only member is
+ * Rules, in order: /app/move/* always passes; on the tab's first route only,
+ * /app → /app/move when Move is active and is the last-used or the only active
+ * space (an in-app "Irányítópult" click always reaches the nutrition dashboard); a Move-only member is
  * never sent to nutrition onboarding; otherwise no preferences + no local flag
  * → /app/onboarding (except /app/profile and /app/settings — KALMIO-414).
  */
 
+import { useState } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Loader2 } from 'lucide-react'
@@ -28,6 +30,8 @@ import { decideGate } from './onboardingGate.rules'
 
 export function OnboardingGate() {
   const location = useLocation()
+  // The router's first location of this tab; every in-app navigation gets a new key.
+  const [entryKey] = useState(location.key)
   const userId = useAuthStore((s) => s.user?.id ?? '')
   const { isValid: isInvestorPreview } = useInvestorPreview()
   const { status: move, isLoading: moveLoading } = useMoveStatus()
@@ -57,6 +61,7 @@ export function OnboardingGate() {
       : undefined,
     move,
     isInvestorPreview,
+    isEntry: location.key === entryKey,
   })
 
   if (decision.action === 'redirect') {

@@ -8,10 +8,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Check, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { MovePageFrame } from '../components/MovePageFrame'
-import { AiLabel } from '../components/AiLabel'
 import { SettingsRhythm } from '../components/settings/SettingsRhythm'
 import { SettingsEquipment } from '../components/settings/SettingsEquipment'
 import { SettingsLimits } from '../components/settings/SettingsLimits'
@@ -19,11 +17,11 @@ import { SettingsNotifications } from '../components/settings/SettingsNotificati
 import { SettingsFamilyAges } from '../components/settings/SettingsFamilyAges'
 import { SettingsLifeState } from '../components/settings/SettingsLifeState'
 import { SettingsHealth } from '../components/settings/SettingsHealth'
+import { SettingsDemonstrators } from '../components/settings/SettingsDemonstrators'
 import { moveService } from '../services/moveService'
 import { moveKeys } from '../lib/queryKeys'
 import { useMoveT } from '../lib/register'
 import { MOVE_ACCENT, MOVE_HOME } from '../lib/constants'
-import { sheetThumbnail } from '../lib/characters'
 import type { TextSize, UpdateMoveProfileRequest } from '../types'
 
 export function MoveSettings() {
@@ -31,7 +29,6 @@ export function MoveSettings() {
   const qc = useQueryClient()
 
   const profile = useQuery({ queryKey: moveKeys.profile, queryFn: moveService.getProfile, staleTime: 60_000 })
-  const characters = useQuery({ queryKey: moveKeys.characters, queryFn: moveService.getCharacters, staleTime: 10 * 60_000 })
   const modalities = useQuery({ queryKey: moveKeys.modalities, queryFn: moveService.getModalities, staleTime: 10 * 60_000 })
 
   const patch = useMutation({
@@ -40,13 +37,13 @@ export function MoveSettings() {
       qc.setQueryData(moveKeys.profile, next)
       void qc.invalidateQueries({ queryKey: moveKeys.status })
       void qc.invalidateQueries({ queryKey: moveKeys.today })
+      void qc.invalidateQueries({ queryKey: moveKeys.demonstrators })
       toast({ title: t('settings.saved'), variant: 'success' })
     },
     onError: () => toast({ title: t('settings.error'), variant: 'destructive' }),
   })
   const onPatch = (req: UpdateMoveProfileRequest) => patch.mutate(req)
 
-  const current = profile.data?.characterCode ?? null
   const textSize: TextSize = profile.data?.textSize ?? 'NORMAL'
 
   const section = (key: string, title: string, body: React.ReactNode, hint?: string) => (
@@ -77,65 +74,8 @@ export function MoveSettings() {
           {section('notifications', t('settings.sections.notifications'), <SettingsNotifications profile={profile.data} onPatch={onPatch} pending={patch.isPending} />)}
           {section('family', t('settings.sections.family'), <SettingsFamilyAges profile={profile.data} onPatch={onPatch} pending={patch.isPending} />)}
 
-          {/* Demonstrator picker — GET /api/move/characters */}
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('settings.demonstrator.title')}</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">{t('settings.demonstrator.hint')}</p>
-            </CardHeader>
-            <CardContent>
-              {characters.isPending ? (
-                <div className="flex justify-center py-6" role="status">
-                  <Spinner className="border-[#2A9D8F]" />
-                </div>
-              ) : !characters.data || characters.data.length === 0 ? (
-                <p className="text-sm text-gray-500">{t('settings.demonstrator.empty')}</p>
-              ) : (
-                <ul className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3" role="radiogroup" aria-label={t('settings.demonstrator.title')}>
-                  {characters.data.map((c) => {
-                    const thumb = sheetThumbnail(c)
-                    const selected = c.code === current
-                    return (
-                      <li key={c.code}>
-                        <button
-                          type="button"
-                          role="radio"
-                          aria-checked={selected}
-                          disabled={patch.isPending}
-                          onClick={() => !selected && patch.mutate({ characterCode: c.code })}
-                          className={cn(
-                            'w-full text-left rounded-[16px] border-2 bg-white p-3 transition-colors h-full flex flex-col gap-2',
-                            selected ? 'border-[var(--move-accent)]' : 'border-[#e5e4e7] hover:border-[var(--move-accent)]/60',
-                          )}
-                        >
-                          <div className="aspect-[3/4] w-full rounded-[12px] bg-[#F9F7F2] overflow-hidden flex items-center justify-center">
-                            {thumb ? (
-                              <img src={thumb} alt={`${c.name} — ${c.ageBand}`} className="h-full w-full object-cover object-top" loading="lazy" />
-                            ) : (
-                              <span className="text-xs text-gray-400 px-2 text-center">{t('settings.demonstrator.noSheet')}</span>
-                            )}
-                          </div>
-                          {thumb && <AiLabel />}
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="font-semibold text-[#1A1A1A]">{c.name}</p>
-                              <p className="text-sm text-gray-500">{c.ageBand}</p>
-                            </div>
-                            {selected && (
-                              <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: MOVE_ACCENT }}>
-                                <Check className="h-4 w-4" aria-hidden />
-                                {t('settings.demonstrator.chosen')}
-                              </span>
-                            )}
-                          </div>
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
+          {/* "Ki mutatja" per activity type — GET /api/move/demonstrators */}
+          {section('demonstrator', t('settings.demonstrator.title'), <SettingsDemonstrators profile={profile.data} onPatch={onPatch} pending={patch.isPending} />, t('settings.demonstrator.hint'))}
 
           {/* Text size — toggles .move-large-text on the shell root */}
           <Card>

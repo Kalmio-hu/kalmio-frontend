@@ -3,9 +3,11 @@
  * desktop: grid. Chips drag to another day with dnd-kit → `POST …/move`;
  * a 409 shows the one-line reason and the chip snaps back. Every chip has a
  * keyboard-reachable "Műveletek" menu with the same moves, "Másikat kérek"
- * and "Ma nem megy".
+ * and "Ma nem megy". Tapping a chip opens its overview (SessionOverview); the
+ * "+" on a day adds a session by hand (AddSessionDialog). In the narrow
+ * desktop columns the chip stacks (container query).
  */
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -21,7 +23,7 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core'
 import { restrictToWindowEdges } from '@dnd-kit/modifiers'
-import { Check, Flame, Leaf, Lock, MoreHorizontal } from 'lucide-react'
+import { Check, Flame, Leaf, Lock, MoreHorizontal, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -46,6 +48,8 @@ import {
   type WeekView,
 } from '../lib/weekView'
 import { FitDownloadButton } from './FitDownloadButton'
+import { SessionOverview } from './SessionOverview'
+import { AddSessionDialog } from './AddSessionDialog'
 import type { ModalityDto, NotTodayChoice, SessionDto } from '../types'
 
 interface WeekGridProps {
@@ -63,6 +67,10 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
   const [menuFor, setMenuFor] = useState<SessionDto | null>(null)
   const [swapFor, setSwapFor] = useState<SessionDto | null>(null)
   const [notTodayFor, setNotTodayFor] = useState<SessionDto | null>(null)
+  const [overviewFor, setOverviewFor] = useState<SessionDto | null>(null)
+  const [addFor, setAddFor] = useState<string | null>(null)
+  // A drag that ends where it started still fires a click on the chip; that click must not open the overview.
+  const lastDragEnd = useRef(0)
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -72,6 +80,7 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: moveKeys.week(weekStart) })
     void qc.invalidateQueries({ queryKey: moveKeys.today })
+    void qc.invalidateQueries({ queryKey: moveKeys.sheet(weekStart) })
     void qc.invalidateQueries({ queryKey: ['dashboard'] })
   }
 
@@ -122,6 +131,7 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
   const onDragStart = (e: DragStartEvent) => setActiveId(parseSessionDragId(String(e.active.id)))
   const onDragEnd = (e: DragEndEvent) => {
     setActiveId(null)
+    lastDragEnd.current = Date.now()
     const id = parseSessionDragId(String(e.active.id))
     const date = e.over ? parseDayDropId(String(e.over.id)) : null
     if (!id || !date) return
@@ -135,6 +145,11 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
     if (s.date !== date) move.mutate({ id: s.id, date })
   }
 
+  const openOverview = (s: SessionDto) => {
+    if (Date.now() - lastDragEnd.current < 300) return
+    setOverviewFor(s)
+  }
+
   return (
     <>
       <DndContext sensors={sensors} modifiers={[restrictToWindowEdges]} onDragStart={onDragStart} onDragEnd={onDragEnd}>
@@ -146,12 +161,33 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
               locale={i18n.language}
               dragging={activeId !== null}
               onMenu={setMenuFor}
+              onOpen={openOverview}
+              onAdd={setAddFor}
             />
           ))}
         </ol>
         <DragOverlay modifiers={[restrictToWindowEdges]}>{active ? <Chip session={active} overlay /> : null}</DragOverlay>
       </DndContext>
       <p className="mt-3 text-sm text-gray-500">{t('week.dragHint')}</p>
+
+      {/* Overview — what to expect, the exercises, edit them, correct the log */}
+      <Dialog open={!!overviewFor} onOpenChange={(o) => !o && setOverviewFor(null)}>
+        <DialogContent className="move-block max-w-xl">
+          {overviewFor && (
+            <SessionOverview
+              session={overviewFor}
+              onStart={() => navigate(MOVE_SESSION(overviewFor.id))}
+              onActions={() => {
+                setMenuFor(overviewFor)
+                setOverviewFor(null)
+              }}
+              onClose={() => setOverviewFor(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <AddSessionDialog date={addFor} modalities={modalities} onClose={() => setAddFor(null)} />
 
       {/* Actions menu — keyboard path for move / swap / not today */}
       <Dialog open={!!menuFor} onOpenChange={(o) => !o && setMenuFor(null)}>
@@ -273,7 +309,7 @@ export function WeekGrid({ view, modalities, weekStart }: WeekGridProps) {
 
 // ── Day column ───────────────────────────────────────────────────────────────
 
-function DayColumn({ day, locale, dragging, onMenu }: { day: WeekDayView; locale: string; dragging: boolean; onMenu: (s: SessionDto) => void }) {
+function DayColumn({ day, locale, dragging, onMenu, onOpen, onAdd }: { day: WeekDayView; locale: string; dragging: boolean; onMenu: (s: SessionDto) => void; onOpen: (s: SessionDto) => void; onAdd: (date: string) => void }) {
   const { t } = useMoveT()
   const { setNodeRef, isOver } = useDroppable({ id: dayDropId(day.date), disabled: day.isPast })
   return (
@@ -304,87 +340,105 @@ function DayColumn({ day, locale, dragging, onMenu }: { day: WeekDayView; locale
       ) : (
         <ul className="flex flex-col gap-2">
           {day.sessions.map((s) => (
-            <DraggableChip key={s.id} session={s} onMenu={onMenu} />
+            <DraggableChip key={s.id} session={s} onMenu={onMenu} onOpen={onOpen} />
           ))}
         </ul>
+      )}
+      {!day.isPast && (
+        <button
+          type="button"
+          onClick={() => onAdd(day.date)}
+          aria-label={t('addSession.addTo', { day: weekdayLabel(day.date, locale, 'long') })}
+          className="mt-auto self-start inline-flex items-center gap-1 min-h-10 rounded-lg px-2 text-sm text-gray-500 hover:bg-[#2A9D8F]/10 hover:text-[#1A1A1A]"
+        >
+          <Plus className="h-4 w-4" aria-hidden />
+          <span>{t('addSession.short')}</span>
+        </button>
       )}
     </li>
   )
 }
 
-function DraggableChip({ session, onMenu }: { session: SessionDto; onMenu: (s: SessionDto) => void }) {
+function DraggableChip({ session, onMenu, onOpen }: { session: SessionDto; onMenu: (s: SessionDto) => void; onOpen: (s: SessionDto) => void }) {
   const draggable = isDraggable(session)
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: sessionDragId(session.id), disabled: !draggable })
   return (
     <li ref={setNodeRef} className={cn(isDragging && 'opacity-40')}>
-      <Chip session={session} onMenu={onMenu} dragHandleProps={draggable ? { ...attributes, ...listeners } : undefined} />
+      <Chip session={session} onMenu={onMenu} onOpen={onOpen} dragHandleProps={draggable ? { ...attributes, ...listeners } : undefined} />
     </li>
   )
 }
 
 // ── Chip ─────────────────────────────────────────────────────────────────────
 
-function Chip({ session, onMenu, dragHandleProps, overlay }: { session: SessionDto; onMenu?: (s: SessionDto) => void; dragHandleProps?: Record<string, unknown>; overlay?: boolean }) {
+function Chip({ session, onMenu, onOpen, dragHandleProps, overlay }: { session: SessionDto; onMenu?: (s: SessionDto) => void; onOpen?: (s: SessionDto) => void; dragHandleProps?: Record<string, unknown>; overlay?: boolean }) {
   const { t } = useMoveT()
   const hard = isHard(session)
   const done = session.status === 'DONE' || session.status === 'PLAN_B'
   const missed = session.status === 'MISSED'
+  const label = t('week.chipLabel', { modality: session.modalityName, minutes: session.durationMin, intensity: t(`week.intensity.${intensityKey(session.intensity)}`) })
   return (
-    <div
-      className={cn(
-        'rounded-[12px] border p-2 flex items-center gap-2 bg-white',
-        hard ? 'border-[#1A1A1A]/40' : 'border-[#e5e4e7]',
-        done && 'bg-[#4F7942]/10',
-        missed && 'opacity-70',
-        overlay && 'shadow-lg',
-      )}
-    >
+    // Below 16rem (the seven desktop columns) the chip stacks: picture on top, then one fact per line.
+    <div className="@container">
       <div
-        {...(dragHandleProps ?? {})}
-        className={cn('flex items-center gap-2 flex-1 min-w-0 min-h-12 rounded-lg px-1', dragHandleProps && 'cursor-grab touch-none')}
-        aria-label={
-          dragHandleProps
-            ? t('week.chipLabel', { modality: session.modalityName, minutes: session.durationMin, intensity: t(`week.intensity.${intensityKey(session.intensity)}`) })
-            : undefined
-        }
+        className={cn(
+          'relative rounded-[12px] border p-1.5 bg-white',
+          hard ? 'border-[#1A1A1A]/40' : 'border-[#e5e4e7]',
+          done && 'bg-[#4F7942]/10',
+          missed && 'opacity-70',
+          overlay && 'shadow-lg',
+        )}
       >
-        <ModalityPicture pictureKey={pictureKeyFor({ code: session.modalityCode })} className="h-9 w-9 shrink-0" />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#1A1A1A] truncate">{session.modalityName}</p>
-          <p className="text-xs text-gray-600 flex items-center gap-1 flex-wrap">
-            <span>{t('common.minutes', { count: session.durationMin })}</span>
-            <span aria-hidden>·</span>
-            <span className={cn('inline-flex items-center gap-0.5', hard && 'font-semibold text-[#1A1A1A]')}>
-              {hard ? <Flame className="h-3 w-3" aria-hidden /> : <Leaf className="h-3 w-3" aria-hidden />}
-              {t(`week.intensity.${intensityKey(session.intensity)}`)}
-            </span>
-            {session.fixedClass && (
-              <span className="inline-flex items-center gap-0.5">
-                <span aria-hidden>·</span>
-                <Lock className="h-3 w-3" aria-hidden />
-                {t('week.fixedClass')}
-              </span>
-            )}
-            {(done || missed) && (
-              <span className="inline-flex items-center gap-0.5">
-                <span aria-hidden>·</span>
-                {done && <Check className="h-3 w-3" aria-hidden />}
-                {t(`week.status.${session.status}`)}
-              </span>
-            )}
-          </p>
-        </div>
-      </div>
-      {onMenu && !overlay && (
         <button
           type="button"
-          onClick={() => onMenu(session)}
-          aria-label={t('week.actions')}
-          className="shrink-0 inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-black/5"
+          {...(dragHandleProps ?? {})}
+          onClick={onOpen && !overlay ? () => onOpen(session) : undefined}
+          aria-label={label}
+          className={cn(
+            'w-full min-h-12 rounded-lg p-1 text-left flex flex-col items-start gap-1 @3xs:flex-row @3xs:items-center @3xs:gap-2 @3xs:pr-9',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2A9D8F]',
+            onOpen && 'hover:bg-black/[0.03]',
+            dragHandleProps && 'cursor-grab touch-none',
+          )}
         >
-          <MoreHorizontal className="h-5 w-5" aria-hidden />
+          <ModalityPicture pictureKey={pictureKeyFor({ code: session.modalityCode })} className="h-9 w-9 shrink-0" />
+          <div className="min-w-0 w-full">
+            <p className="text-sm font-semibold text-[#1A1A1A] break-words hyphens-auto @3xs:truncate">{session.modalityName}</p>
+            <p className="text-xs text-gray-600 flex flex-col @3xs:flex-row @3xs:flex-wrap @3xs:items-center @3xs:gap-x-1">
+              <span className="whitespace-nowrap">{t('common.minutes', { count: session.durationMin })}</span>
+              <span aria-hidden className="hidden @3xs:inline">·</span>
+              <span className={cn('inline-flex items-center gap-0.5 whitespace-nowrap', hard && 'font-semibold text-[#1A1A1A]')}>
+                {hard ? <Flame className="h-3 w-3" aria-hidden /> : <Leaf className="h-3 w-3" aria-hidden />}
+                {t(`week.intensity.${intensityKey(session.intensity)}`)}
+              </span>
+              {session.fixedClass && (
+                <span className="inline-flex items-center gap-0.5 whitespace-nowrap">
+                  <span aria-hidden className="hidden @3xs:inline">·</span>
+                  <Lock className="h-3 w-3" aria-hidden />
+                  {t('week.fixedClass')}
+                </span>
+              )}
+              {(done || missed) && (
+                <span className="inline-flex items-center gap-0.5">
+                  <span aria-hidden className="hidden @3xs:inline">·</span>
+                  {done && <Check className="h-3 w-3 shrink-0" aria-hidden />}
+                  {t(`week.status.${session.status}`)}
+                </span>
+              )}
+            </p>
+          </div>
         </button>
-      )}
+        {onMenu && !overlay && (
+          <button
+            type="button"
+            onClick={() => onMenu(session)}
+            aria-label={t('week.actions')}
+            className="absolute top-1.5 right-1.5 h-8 w-8 inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-black/5 @3xs:top-1/2 @3xs:-translate-y-1/2"
+          >
+            <MoreHorizontal className="h-5 w-5" aria-hidden />
+          </button>
+        )}
+      </div>
     </div>
   )
 }

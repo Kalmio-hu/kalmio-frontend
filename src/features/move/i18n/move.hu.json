@@ -126,9 +126,22 @@
         "BANDS": "Gumiszalag",
         "CHAIR": "Stabil szék",
         "MAT": "Tornaszőnyeg",
-        "BIKE": "Kerékpár",
+        "BIKE": "Kerékpár / szobabicikli",
         "STEP": "Lépcsőfok",
-        "PULL_UP_BAR": "Húzódzkodórúd"
+        "PULL_UP_BAR": "Húzódzkodó rúd",
+        "GYM_ACCESS": "Konditerembe járok",
+        "BARBELL": "Súlyzórúd és tárcsák",
+        "SQUAT_RACK": "Guggolóállvány",
+        "BENCH": "Edzőpad",
+        "CABLE_HIGH": "Csiga fent (lehúzó)",
+        "CABLE_LOW": "Csiga lent (evező)",
+        "KETTLEBELLS": "Kettlebell",
+        "DIP_BARS": "Tolódzkodó korlát",
+        "SUSPENSION": "TRX / heveder",
+        "TREADMILL": "Futópad",
+        "ROWER": "Evezőgép",
+        "BALL": "Labda",
+        "CONES": "Bóják"
       }
     },
     "health": {
@@ -153,8 +166,8 @@
         "fellOnce_formal": "Elesett az elmúlt egy évben?",
         "fellTwice": "Kétszer vagy többször is elestél az elmúlt egy évben?",
         "fellTwice_formal": "Kétszer vagy többször is elesett az elmúlt egy évben?",
-        "chairStandNoHands": "Fel tudsz állni a székről úgy, hogy nem támaszkodsz a kezedre?",
-        "chairStandNoHands_formal": "Fel tud állni a székről úgy, hogy nem támaszkodik a kezére?",
+        "chairStandNeedsHands": "Támaszkodnod kell a kezedre, hogy felállj a székről?",
+        "chairStandNeedsHands_formal": "Támaszkodnia kell a kezére, hogy felálljon a székről?",
         "painAvoidsMovement": "Van olyan fájdalmad mozgás közben, ami miatt kerülsz bizonyos mozdulatokat?",
         "painAvoidsMovement_formal": "Van olyan fájdalma mozgás közben, ami miatt kerül bizonyos mozdulatokat?",
         "betaBlockerOrInsulin": "Szedsz béta-blokkolót vagy inzulint?",
@@ -236,7 +249,44 @@
       "saved": "Rögzítve.",
       "later": "Majd máskor",
       "progressLine": "{{weeks}} hete {{previous}} álltál fel, ma {{latest}}.",
-      "progressLine_formal": "{{weeks}} hete {{previous}} állt fel, ma {{latest}}."
+      "progressLine_formal": "{{weeks}} hete {{previous}} állt fel, ma {{latest}}.",
+      "result": {
+        "unit": "felállás 30 másodperc alatt",
+        "baselineHeadline": "Szép munka. Megvan a kiindulópontod.",
+        "betterHeadline": "Szép munka, erősödtél.",
+        "sameHeadline": "Tartod a szintet, ez is eredmény.",
+        "lowerHeadline": "Most kevesebb lett. Egy rosszabb nap még nem trend, a következő négy hét erre épül.",
+        "baselineLine": "Ehhez mérjük a fejlődésedet: négy hét múlva újra megnézzük.",
+        "baselineLine_formal": "Ehhez mérjük a fejlődését: négy hét múlva újra megnézzük.",
+        "reference": "Az egészséges {{from}}–{{to}} éves {{group}} átlaga {{mean}}.",
+        "group": {
+          "MALE": "férfiak",
+          "FEMALE": "nők",
+          "ANY": "felnőttek"
+        },
+        "position": {
+          "ABOVE": "Ezzel átlag felett vagy.",
+          "ABOVE_formal": "Ezzel átlag felett van.",
+          "AROUND": "Ezzel nagyjából az átlagnál tartasz.",
+          "AROUND_formal": "Ezzel nagyjából az átlagnál tart.",
+          "BELOW": "Ezzel most az átlag alatt vagy.",
+          "BELOW_formal": "Ezzel most az átlag alatt van."
+        },
+        "source": "Forrás: Tveter és mtsai., 2014. 370 egészséges felnőtt referenciaértékei.",
+        "askAge": "Add meg az életkorodat, és megmutatom, hol tartasz a korosztályodhoz képest. A nem megadása pontosabbá teszi, de nem kötelező.",
+        "askAge_formal": "Adja meg az életkorát, és megmutatom, hol tart a korosztályához képest. A nem megadása pontosabbá teszi, de nem kötelező.",
+        "age": "Életkor",
+        "sex": "Nem",
+        "sexOption": {
+          "MALE": "Férfi",
+          "FEMALE": "Nő",
+          "PREFER_NOT_TO_SAY": "Nem adom meg"
+        },
+        "compare": "Összevetés",
+        "baselineHeadline_formal": "Szép munka. Megvan a kiindulópontja.",
+        "betterHeadline_formal": "Szép munka, erősödött.",
+        "sameHeadline_formal": "Tartja a szintet, ez is eredmény."
+      }
     },
     "screeningPending": {
       "title": "Néhány kérdés az egészségről",
@@ -515,7 +565,9 @@
     "regenerateHint_formal": "Ha változott, mikor ér rá, kérjen új hetet. Először javaslatot kap, semmi nem változik magától.",
     "regenerateNoChange": "Nincs változás, a hét marad.",
     "chipLabel": "{{modality}}, {{minutes}} perc, {{intensity}}",
-    "dayLabel": "{{weekday}}, {{date}}"
+    "dayLabel": "{{weekday}}, {{date}}",
+    "overviewExercises": "Mi lesz benne",
+    "overviewNoExercises": "Ehhez nincs gyakorlatlista: az alkalom egyben, saját tempóban zajlik."
   },
   "library": {
     "title": "Gyakorlatok",
@@ -535,7 +587,9 @@
     "equipment": "Felszerelés",
     "noEquipment": "Felszerelés nélkül",
     "startPose": "Kezdő állás",
-    "endPose": "Záró állás"
+    "endPose": "Záró állás",
+    "filterModality": "Mozgásforma",
+    "demonstrator": "Bemutató: {{name}}"
   },
   "progress": {
     "title": "Haladás",
@@ -727,12 +781,18 @@
     "title": "Mozgás beállításai",
     "subtitle": "Ritmus, felszerelés, bemutató, betűméret.",
     "demonstrator": {
-      "title": "Bemutató",
-      "hint": "Ki mutassa a gyakorlatokat? Mindegyik bemutató MI által készített, ellenőrzött kép.",
+      "title": "Ki mutatja",
+      "hint": "Mozgásformánként választhatsz azok közül, akikhez már van jóváhagyott kép. Mindegyik bemutató MI által készített kép.",
       "choose": "Ezt választom",
       "chosen": "Kiválasztva",
       "noSheet": "Még nincs kép",
-      "empty": "Még nincs elérhető bemutató."
+      "empty": "Még nincs elérhető bemutató.",
+      "noImages": "Ehhez a mozgásformához még nincs jóváhagyott kép.",
+      "forType": "Ki mutatja: {{type}}",
+      "default": "alap",
+      "coverage": "{{count}} gyakorlat",
+      "otherTypes": "Többi mozgásforma",
+      "hint_formal": "Mozgásformánként választhat azok közül, akikhez már van jóváhagyott kép. Mindegyik bemutató MI által készített kép."
     },
     "textSize": {
       "title": "Betűméret",
@@ -780,7 +840,22 @@
         "LIGHT": "Könnyű",
         "MEDIUM": "Közepes",
         "HEAVY": "Erős"
-      }
+      },
+      "gymAccessHint": "Ha bejelölöd, a konditermi edzések egy átlagos terem teljes felszerelésével számolnak.",
+      "gymAccessHint_formal": "Ha bejelöli, a konditermi edzések egy átlagos terem teljes felszerelésével számolnak.",
+      "groups": {
+        "basics": "Otthon",
+        "homeGym": "Otthoni konditerem",
+        "cardio": "Kardiógépek"
+      },
+      "plates": "Legkisebb tárcsapár a rúdon",
+      "platesHint": "Ennyivel tud nőni a súly. 2 × 1,25 kg tárcsa = +2,5 kg.",
+      "cable": "Csiga súlyblokkja",
+      "cableHint": "Hol kezdődik a blokk, és mekkora a lépésköz. Például 30 kg-tól 4 kg-onként: 30, 34, 38.",
+      "cableStart": "Kezdő súly (kg)",
+      "cableStep": "Lépésköz (kg)",
+      "kettlebells": "Kettlebellek (kg)",
+      "gymWeightsHint": "A teremben a kézisúlyzókat 2 kg-onként, a kettlebelleket 4 kg-onként számoljuk."
     },
     "limits": {
       "hint": "Mondd el a saját szavaiddal, mit kímélünk. A gyakorlatok ehhez igazodnak.",
@@ -851,9 +926,14 @@
       "doctorHint_formal": "Ha megerősíti, az erősebb alkalmak is megnyílnak.",
       "doctorDone": "Megerősítve.",
       "reanswer": "Kérdések újra",
-      "reanswerHint": "Esés vagy betegség után érdemes újra válaszolni.",
+      "reanswerHint": "Ha változott az állapotod, válaszolj újra: a szint emelkedhet és csökkenhet is.",
       "saved": "Köszönjük. A hét ehhez igazodik.",
-      "hrOff": "Pulzuscélok kikapcsolva a válaszok alapján."
+      "hrOff": "Pulzuscélok kikapcsolva a válaszok alapján.",
+      "programme": "Támogatott program: {{level}}. A szintet a kérdésekre adott válaszok határozzák meg.",
+      "programme_formal": "Támogatott program: {{level}}. A szintet a kérdésekre adott válaszok határozzák meg.",
+      "programmeNone": "Nem a támogatott programban vagy: a gyakorlatok a saját szintedhez igazodnak.",
+      "programmeNone_formal": "Nem a támogatott programban van: a gyakorlatok a saját szintjéhez igazodnak.",
+      "reanswerHint_formal": "Ha változott az állapota, válaszoljon újra: a szint emelkedhet és csökkenhet is."
     },
     "devicesLink": "Eszközök és naptár megnyitása",
     "helperLink": "Segítő oldal megnyitása"
@@ -914,7 +994,16 @@
     },
     "approved": "Elfogadva.",
     "rejected": "Elutasítva.",
-    "error": "Most nem sikerült — egy másodperc."
+    "error": "Most nem sikerült — egy másodperc.",
+    "bulk": {
+      "title": "Jóváhagyás csomagonként",
+      "hint": "Ha végignézted egy szereplő képeit egy csomagban, egyszerre jóváhagyhatod. Elutasítani lent, egyenként lehet.",
+      "pending": "{{count}} kép vár",
+      "approve": "Mind jóváhagyása",
+      "confirm": "Biztosan jóváhagyod mind a(z) {{count}} képet?",
+      "yes": "Igen, jóváhagyom",
+      "done": "{{count}} kép jóváhagyva."
+    }
   },
   "log": {
     "title": "Mást mozogtam",
@@ -991,5 +1080,85 @@
     "clear": "Visszatérek",
     "saved": "Rendben, a hét vár.",
     "cleared": "Jó újra látni. A hét könnyebben indul."
+  },
+  "logEdit": {
+    "title": "Amit rögzítettél",
+    "title_formal": "Amit rögzített",
+    "editTitle": "Napló javítása",
+    "edit": "Javítom",
+    "undo": "Mégsem volt meg",
+    "undoConfirm": "Biztosan törlöd ezt a bejegyzést? Az alkalom újra megnyílik.",
+    "undoConfirm_formal": "Biztosan törli ezt a bejegyzést? Az alkalom újra megnyílik.",
+    "undoYes": "Igen, törlöm",
+    "minutes": "Időtartam (perc)",
+    "effort": "Milyen nehéz volt?",
+    "sets": "Sorozatok",
+    "setNo": "{{set}}. sorozat",
+    "setLine": "{{set}}. sorozat: {{reps}} × {{kg}} kg",
+    "reps": "Ismétlés",
+    "kg": "kg",
+    "effortValue": "nehézség {{effort}}/10",
+    "edited": "javítva",
+    "saved": "Javítva.",
+    "undone": "Törölve. Az alkalom újra nyitva van."
+  },
+  "selfTestEdit": {
+    "edit": "Javítás",
+    "delete": "Törlés",
+    "deleteConfirm": "Törlöd?",
+    "deleteConfirm_formal": "Törli?",
+    "saved": "Javítva.",
+    "deleted": "Törölve."
+  },
+  "addSession": {
+    "title": "Edzés hozzáadása",
+    "hint": "Bármelyik napra, mától. Ami már megvolt, annak a „Mást mozogtam” a helye.",
+    "short": "Hozzáadás",
+    "addTo": "Edzés hozzáadása: {{day}}",
+    "date": "Nap",
+    "modality": "Mozgásforma",
+    "choose": "Válassz…",
+    "choose_formal": "Válasszon…",
+    "minutes": "Időtartam",
+    "intensity": "Intenzitás",
+    "exercises": "Gyakorlatok",
+    "plannerPicks": "Rábízom a rendszerre",
+    "ownPicks": "Magam választom",
+    "submit": "Hozzáadom",
+    "saved": "Hozzáadva a héthez."
+  },
+  "picker": {
+    "empty": "Még nincs kiválasztott gyakorlat. Keress lent, és koppints rá.",
+    "empty_formal": "Még nincs kiválasztott gyakorlat. Keressen lent, és koppintson rá.",
+    "search": "Gyakorlat keresése",
+    "noMatch": "Ehhez a mozgásformához nincs ilyen gyakorlat.",
+    "sets": "Sorozat",
+    "reps": "Ismétlés",
+    "kg": "kg",
+    "seconds": "Másodperc",
+    "up": "Feljebb",
+    "down": "Lejjebb",
+    "remove": "Kiveszem"
+  },
+  "overview": {
+    "edit": "Gyakorlatok szerkesztése",
+    "editTitle": "A fő rész gyakorlatai",
+    "reset": "Újra rábízom a rendszerre",
+    "saved": "Elmentve.",
+    "delete": "Törlöm ezt az edzést",
+    "deleteConfirm": "Biztosan törlöd?",
+    "deleteConfirm_formal": "Biztosan törli?",
+    "deleteYes": "Igen, törlöm",
+    "deleted": "Törölve.",
+    "custom": "A fő részt te állítottad össze.",
+    "custom_formal": "A fő részt Ön állította össze.",
+    "reps": "{{count}} ismétlés",
+    "seconds": "{{count}} mp",
+    "block": {
+      "WARMUP": "bemelegítés",
+      "MAIN": "fő rész",
+      "OPTIONAL": "nem kötelező",
+      "COOLDOWN": "levezetés"
+    }
   }
 }

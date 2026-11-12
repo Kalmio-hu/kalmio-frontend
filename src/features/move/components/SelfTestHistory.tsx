@@ -5,6 +5,7 @@
 import { useMoveT } from '../lib/register'
 import { polylinePoints } from '../lib/progressMath'
 import { dayMonthLabel } from '../lib/dates'
+import { SelfTestEdit } from './SelfTestEdit'
 import type { SelfTestDto } from '../types'
 
 export function SelfTestHistory({ tests }: { tests: SelfTestDto[] }) {
@@ -39,6 +40,9 @@ export function SelfTestHistory({ tests }: { tests: SelfTestDto[] }) {
               <span className="sr-only">{t('progress.selfTests.title')}</span>
             </th>
             <th scope="col" className="py-1 font-medium text-right">{t('progress.selfTests.value')}</th>
+            <th scope="col" className="py-1">
+              <span className="sr-only">{t('selfTestEdit.edit')}</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -50,6 +54,9 @@ export function SelfTestHistory({ tests }: { tests: SelfTestDto[] }) {
                 <td className="py-2 text-[#1A1A1A]">{dayMonthLabel(s.date, i18n.language)}</td>
                 <td className="py-2 text-gray-600">{t(`progress.selfTests.kind.${s.kind}`)}</td>
                 <td className="py-2 text-right font-semibold text-[#1A1A1A] tabular-nums">{s.value}</td>
+                <td className="py-2 text-right">
+                  <SelfTestEdit test={s} />
+                </td>
               </tr>
             ))}
         </tbody>

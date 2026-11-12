@@ -23,7 +23,7 @@ export const DEFAULT_DAYS_PER_WEEK = 3
 export const DEFAULT_MINUTES = 20
 
 /** Equipment asked on screen 4 — no weights here (PRD §7.1 step 4). */
-export const START_EQUIPMENT: readonly EquipmentCode[] = ['NONE', 'DUMBBELLS', 'BANDS', 'CHAIR', 'MAT', 'BIKE']
+export const START_EQUIPMENT: readonly EquipmentCode[] = ['NONE', 'GYM_ACCESS', 'DUMBBELLS', 'KETTLEBELLS', 'BANDS', 'BARBELL', 'CABLE_HIGH', 'PULL_UP_BAR', 'CHAIR', 'MAT', 'BIKE', 'TREADMILL']
 
 /** "Nem tudom, ajánljon valamit" — for myself. */
 export const RECOMMENDED_SELF = ['WALK', 'STRENGTH_BODYWEIGHT', 'MOBILITY'] as const
@@ -42,7 +42,7 @@ export const HEALTH_QUESTION_IDS = [
   'knownDisease', // B: heart / lung / metabolic disease
   'fellOnce', // informational
   'fellTwice', // B: two or more falls in a year
-  'chairStandNoHands', // "yes" is the good answer; "no" → L0
+  'chairStandNeedsHands', // "yes" → L0; like every question, "no" is the safe answer
   'painAvoidsMovement', // suggests a limit, no routing
   'betaBlockerOrInsulin', // hrTargetsOff, then discarded
   'doctorSaidSupervised', // B
@@ -205,7 +205,7 @@ export const SUBMIT_AFTER_STEP: StartStep = 'health'
 
 export interface RoutingPreview {
   track: ScreeningTrack
-  /** Level cap on the supported track: L0 when the person cannot stand up without hands. */
+  /** Level cap on the supported track: L0 when the person needs the hands to stand up. */
   levelCap: SupportedLevel | null
   hrTargetsOff: boolean
   /** The person said pain makes them avoid movement — offer a limit statement later. */
@@ -230,10 +230,10 @@ export function previewRouting(answers: (boolean | null)[], skipped: boolean): R
   }
   const yes = (i: number) => answers[i] === true
   const track: ScreeningTrack = A_INDEXES.some(yes) ? 'A' : B_INDEXES.some(yes) ? 'B' : 'C'
-  const cannotStand = answers[CHAIR_INDEX] === false
+  const needsHands = yes(CHAIR_INDEX)
   return {
     track,
-    levelCap: track === 'A' || cannotStand ? 'L0' : null,
+    levelCap: track === 'A' || needsHands ? 'L0' : null,
     hrTargetsOff: yes(MEDICATION_INDEX),
     suggestLimit: yes(PAIN_INDEX),
     skipped: false,

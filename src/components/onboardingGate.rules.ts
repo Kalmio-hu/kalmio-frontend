@@ -4,8 +4,11 @@
  * Space-aware since Kalmio Move (movement-prd.md D8 rule 6, build contract §13):
  *   1. Paths under /app/move are always allowed — the Move shell and the start
  *      flow own their own gating.
- *   2. The /app index redirects to /app/move when Move is active and either it
- *      is the space used last or it is the only active space.
+ *   2. On app entry only (the first route of the tab), the /app index
+ *      redirects to /app/move when Move is active and either it is the space
+ *      used last or it is the only active space. An in-app click on
+ *      "Irányítópult" always lands on the nutrition dashboard (founder,
+ *      2026-11-12: the redirect on every click locked the dashboard away).
  *   3. A member with Move active and no nutrition preferences is never sent to
  *      nutrition onboarding.
  *   4. Otherwise today's rule: no meal/dietary preferences and no local
@@ -38,6 +41,8 @@ export interface GateInput {
   userId: string
   prefs: GatePrefs | undefined
   move: GateMoveStatus
+  /** True on the tab's first route (a fresh load or sign-in landing), false after any in-app navigation. */
+  isEntry: boolean
   isInvestorPreview: boolean
 }
 
@@ -64,13 +69,13 @@ export function isAppIndex(pathname: string): boolean {
 }
 
 export function decideGate(input: GateInput): GateDecision {
-  const { pathname, userId, prefs, move, isInvestorPreview } = input
+  const { pathname, userId, prefs, move, isInvestorPreview, isEntry } = input
 
   if (isMovePath(pathname)) return { action: 'pass' }
 
   const moveActive = move.enabled && move.spaceActive
 
-  if (isAppIndex(pathname) && moveActive && (move.lastSpace === 'MOVE' || !move.nutritionActive)) {
+  if (isEntry && isAppIndex(pathname) && moveActive && (move.lastSpace === 'MOVE' || !move.nutritionActive)) {
     return { action: 'redirect', to: '/app/move' }
   }
 

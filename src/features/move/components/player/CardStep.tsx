@@ -59,7 +59,7 @@ export function CardStep({ step, session, state, dispatch, paused, onSwap }: Car
     const log: SetLogDto = {
       exerciseId,
       setIndex: i,
-      weightKg: step.targetWeightKg !== null && step.targetWeightKg !== undefined ? num(d.weight) : null,
+      weightKg: step.weighted || (step.targetWeightKg !== null && step.targetWeightKg !== undefined) ? num(d.weight) : null,
       reps: timed ? null : num(d.value),
       seconds: timed ? num(d.value) : null,
     }
@@ -103,7 +103,7 @@ export function CardStep({ step, session, state, dispatch, paused, onSwap }: Car
           return (
             <li key={i} className={cn('rounded-[12px] border p-3 flex flex-wrap items-center gap-2 bg-white', done ? 'border-transparent' : 'border-[#e5e4e7]')} style={done ? { backgroundColor: 'rgba(42,157,143,0.12)' } : undefined}>
               <span className="text-base font-medium text-[#1A1A1A] w-24">{t('player.card.setRow', { index: i + 1 })}</span>
-              {step.targetWeightKg != null && (
+              {(step.weighted || step.targetWeightKg != null) && (
                 <label className="flex items-center gap-1 text-sm text-gray-700">
                   <span className="sr-only">{t('player.card.weightKg')}</span>
                   <Input type="number" inputMode="decimal" step="0.5" min={0} value={d.weight} onChange={(e) => setDraft(i, { weight: e.target.value })} disabled={!!done} className="w-20 min-h-12 text-base" aria-label={t('player.card.weightKg')} />

@@ -26,19 +26,26 @@ interface DialsScreenProps {
   format: SessionFormat | null
   date?: string
   defaults: { minutes: number | null; equipment: EquipmentCode[]; characterCode: string | null }
+  /** The session's activity type: the demonstrators offered are the ones with approved images in its pack. */
+  modalityCode?: string | null
   onStart: (req: StartSessionRequest) => void
   busy: boolean
 }
 
-export function DialsScreen({ sessionId, format, date, defaults, onStart, busy }: DialsScreenProps) {
+export function DialsScreen({ sessionId, format, date, defaults, modalityCode, onStart, busy }: DialsScreenProps) {
   const { t } = useMoveT()
   const [minutes, setMinutes] = useState<number | null>(defaults.minutes)
   const [equipment, setEquipment] = useState<EquipmentCode[]>(defaults.equipment.length ? defaults.equipment : ['NONE'])
   const [focus, setFocus] = useState<FocusCode>('DEFAULT')
-  const [characterCode, setCharacterCode] = useState<string | null>(defaults.characterCode)
+  const [picked, setCharacterCode] = useState<string | null>(null)
 
   const characters = useQuery({ queryKey: moveKeys.characters, queryFn: moveService.getCharacters, staleTime: 10 * 60_000 })
-  const demonstrators = (characters.data ?? []).filter((c) => !c.childFriendly)
+  const rows = useQuery({ queryKey: moveKeys.demonstrators, queryFn: moveService.getDemonstrators, staleTime: 60_000, enabled: !!modalityCode })
+  // "Ki mutatja" per activity type (founder, 2026-11-12): only demonstrators with approved images for this type
+  const row = rows.data?.find((r) => r.modalityCode === modalityCode)
+  const offered = new Set(row?.options.map((o) => o.characterCode) ?? [])
+  const demonstrators = (characters.data ?? []).filter((c) => offered.has(c.code))
+  const characterCode = picked ?? row?.chosenCharacterCode ?? row?.defaultCharacterCode ?? defaults.characterCode
 
   const toggleEquipment = (code: EquipmentCode) => {
     setEquipment((cur) => {
@@ -105,7 +112,7 @@ export function DialsScreen({ sessionId, format, date, defaults, onStart, busy }
         </div>
       </fieldset>
 
-      {demonstrators.length > 0 && (
+      {demonstrators.length > 1 && (
         <fieldset className="space-y-2">
           <legend className="text-base font-medium text-[#1A1A1A]">{t('player.dials.demonstrator')}</legend>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">

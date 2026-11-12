@@ -1,7 +1,8 @@
 /**
- * Settings — health: the current track in plain words, "Megbeszéltem az
- * orvosommal" for track B (`POST /api/move/screening/doctor-confirmed`), and
- * re-answering the ten questions (`POST /api/move/screening`).
+ * Settings — health: the current track and supported level in plain words,
+ * "Megbeszéltem az orvosommal" for track B (`POST /api/move/screening/doctor-confirmed`),
+ * and re-answering the ten questions (`POST /api/move/screening`), which moves
+ * the level both ways and can take the member off the supported programme.
  */
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -37,6 +38,11 @@ export function SettingsHealth({ profile }: { profile: MoveProfileDto }) {
       ) : (
         <p className="text-base text-[#1A1A1A]">{t('today.screeningPending.body')}</p>
       )}
+      <p className="text-base text-[#1A1A1A]">
+        {profile.supportedLevel
+          ? t('settings.health.programme', { level: t(`progress.levels.supported.${profile.supportedLevel}`) })
+          : t('settings.health.programmeNone')}
+      </p>
       {screening?.hrTargetsOff && <p className="text-sm text-gray-600">{t('settings.health.hrOff')}</p>}
 
       {screening?.track === 'B' && (

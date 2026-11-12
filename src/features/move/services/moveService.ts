@@ -72,6 +72,13 @@ import type {
   UpdateMoveProfileRequest,
   WeekDto,
   WeekSheetDto,
+  SessionLogDto,
+  UpdateSessionLogRequest,
+  CreateSessionRequest,
+  ExercisePickDto,
+  SessionExerciseDto,
+  ModalityDemonstratorsDto,
+  PendingGroupDto,
 } from '../types'
 
 const IDEMPOTENT = { requestIdempotencyKey: true } as const
@@ -166,6 +173,31 @@ export const moveService = {
   easierSession: (sessionId: string): Promise<PlayerSessionDto> =>
     api.post<PlayerSessionDto>(`/api/move/sessions/${sessionId}/easier`, {}, IDEMPOTENT).then(r => r.data),
 
+  /** Add a session by hand (today or later); optional hand-picked exercises. */
+  createSession: (req: CreateSessionRequest): Promise<SessionDto> =>
+    api.post<SessionDto>('/api/move/sessions', req, IDEMPOTENT).then(r => r.data),
+
+  getSessionExercises: (sessionId: string): Promise<SessionExerciseDto[]> =>
+    api.get<SessionExerciseDto[]>(`/api/move/sessions/${sessionId}/exercises`).then(r => r.data),
+
+  /** Replace the main part; an empty list hands it back to the planner. */
+  setSessionExercises: (sessionId: string, exercises: ExercisePickDto[]): Promise<SessionExerciseDto[]> =>
+    api.put<SessionExerciseDto[]>(`/api/move/sessions/${sessionId}/exercises`, { exercises }, IDEMPOTENT).then(r => r.data),
+
+  /** Remove a session the member added by hand. */
+  deleteSession: (sessionId: string): Promise<void> =>
+    api.delete(`/api/move/sessions/${sessionId}`, IDEMPOTENT).then(() => undefined),
+
+  getSessionLog: (sessionId: string): Promise<SessionLogDto> =>
+    api.get<SessionLogDto>(`/api/move/sessions/${sessionId}/log`).then(r => r.data),
+
+  updateSessionLog: (sessionId: string, req: UpdateSessionLogRequest): Promise<SessionLogDto> =>
+    api.patch<SessionLogDto>(`/api/move/sessions/${sessionId}/log`, req, IDEMPOTENT).then(r => r.data),
+
+  /** "Mégsem volt meg": the session opens again; an unplanned entry disappears. */
+  undoSessionLog: (sessionId: string): Promise<SessionDto> =>
+    api.delete<SessionDto>(`/api/move/sessions/${sessionId}/log`, IDEMPOTENT).then(r => r.data),
+
   logUnplanned: (req: LogUnplannedRequest): Promise<SessionDto> =>
     api.post<SessionDto>('/api/move/log', req, IDEMPOTENT).then(r => r.data),
 
@@ -202,6 +234,12 @@ export const moveService = {
   getSelfTests: (): Promise<SelfTestDto[]> =>
     api.get<SelfTestDto[]>('/api/move/self-tests').then(r => r.data),
 
+  updateSelfTest: (id: string, value: number): Promise<SelfTestDto> =>
+    api.patch<SelfTestDto>(`/api/move/self-tests/${id}`, { value }, IDEMPOTENT).then(r => r.data),
+
+  deleteSelfTest: (id: string): Promise<void> =>
+    api.delete(`/api/move/self-tests/${id}`, IDEMPOTENT).then(() => undefined),
+
   // ── Replan diffs ──────────────────────────────────────────────────────────
   getReplan: (): Promise<MoveReplanDiffDto[]> =>
     api.get<MoveReplanDiffDto[]>('/api/move/replan').then(r => r.data),
@@ -221,6 +259,9 @@ export const moveService = {
 
   reportMedia: (mediaId: string, req: MediaReportRequest = {}): Promise<void> =>
     api.post(`/api/move/media/${mediaId}/report`, req, IDEMPOTENT).then(() => undefined),
+
+  getDemonstrators: (): Promise<ModalityDemonstratorsDto[]> =>
+    api.get<ModalityDemonstratorsDto[]>('/api/move/demonstrators').then(r => r.data),
 
   getCharacters: (): Promise<CharacterDto[]> =>
     api.get<Record<string, unknown>[]>('/api/move/characters').then(r => r.data.map(normaliseCharacter)),
@@ -288,6 +329,13 @@ export const moveService = {
 
     review: (mediaId: string, req: ReviewVerdictRequest): Promise<MediaDto> =>
       api.post<MediaDto>(`/api/admin/move/review/${mediaId}`, req, IDEMPOTENT).then(r => r.data),
+
+    pendingGroups: (): Promise<PendingGroupDto[]> =>
+      api.get<PendingGroupDto[]>('/api/admin/move/review/pending-groups').then(r => r.data),
+
+    /** Approves every pending asset of one pack and demonstrator. */
+    approveAll: (packCode: string, characterCode: string): Promise<{ approved: number }> =>
+      api.post<{ approved: number }>('/api/admin/move/review/bulk', { packCode, characterCode }, IDEMPOTENT).then(r => r.data),
 
     exercises: (): Promise<AdminExerciseDto[]> =>
       api.get<AdminExerciseDto[]>('/api/admin/move/exercises').then(r => r.data),

@@ -126,9 +126,22 @@
         "BANDS": "Resistance bands",
         "CHAIR": "A sturdy chair",
         "MAT": "A mat",
-        "BIKE": "A bike",
+        "BIKE": "Bike / exercise bike",
         "STEP": "A stair step",
-        "PULL_UP_BAR": "A pull-up bar"
+        "PULL_UP_BAR": "A pull-up bar",
+        "GYM_ACCESS": "I go to a gym",
+        "BARBELL": "Barbell and plates",
+        "SQUAT_RACK": "Squat rack",
+        "BENCH": "Bench",
+        "CABLE_HIGH": "High pulley (pulldown)",
+        "CABLE_LOW": "Low pulley (row)",
+        "KETTLEBELLS": "Kettlebells",
+        "DIP_BARS": "Dip bars",
+        "SUSPENSION": "TRX / suspension straps",
+        "TREADMILL": "Treadmill",
+        "ROWER": "Rowing machine",
+        "BALL": "Ball",
+        "CONES": "Cones"
       }
     },
     "health": {
@@ -153,8 +166,8 @@
         "fellOnce_formal": "Have you fallen in the last year?",
         "fellTwice": "Have you fallen twice or more in the last year?",
         "fellTwice_formal": "Have you fallen twice or more in the last year?",
-        "chairStandNoHands": "Can you stand up from a chair without using your hands?",
-        "chairStandNoHands_formal": "Can you stand up from a chair without using your hands?",
+        "chairStandNeedsHands": "Do you need your hands to get up from a chair?",
+        "chairStandNeedsHands_formal": "Do you need your hands to get up from a chair?",
         "painAvoidsMovement": "Is there pain during movement that makes you avoid certain movements?",
         "painAvoidsMovement_formal": "Is there pain during movement that makes you avoid certain movements?",
         "betaBlockerOrInsulin": "Do you take a beta blocker or insulin?",
@@ -236,7 +249,44 @@
       "saved": "Saved.",
       "later": "Another time",
       "progressLine": "{{weeks}} weeks ago you stood up {{previous}}, today {{latest}}.",
-      "progressLine_formal": "{{weeks}} weeks ago you stood up {{previous}}, today {{latest}}."
+      "progressLine_formal": "{{weeks}} weeks ago you stood up {{previous}}, today {{latest}}.",
+      "result": {
+        "unit": "stands in 30 seconds",
+        "baselineHeadline": "Nice work. That is your starting point.",
+        "betterHeadline": "Nice work, you got stronger.",
+        "sameHeadline": "You held your level. That counts too.",
+        "lowerHeadline": "Fewer this time. One off day is not a trend; the next four weeks build from here.",
+        "baselineLine": "Your progress is measured against this: we check again in four weeks.",
+        "baselineLine_formal": "Your progress is measured against this: we check again in four weeks.",
+        "reference": "Healthy {{group}} aged {{from}}–{{to}} average {{mean}}.",
+        "group": {
+          "MALE": "men",
+          "FEMALE": "women",
+          "ANY": "adults"
+        },
+        "position": {
+          "ABOVE": "You are above average.",
+          "ABOVE_formal": "You are above average.",
+          "AROUND": "You are about average.",
+          "AROUND_formal": "You are about average.",
+          "BELOW": "You are below average for now.",
+          "BELOW_formal": "You are below average for now."
+        },
+        "source": "Source: Tveter et al., 2014. Reference values from 370 healthy adults.",
+        "askAge": "Enter your age and I will show where you stand for your age group. Sex makes it more precise but is optional.",
+        "askAge_formal": "Enter your age and I will show where you stand for your age group. Sex makes it more precise but is optional.",
+        "age": "Age",
+        "sex": "Sex",
+        "sexOption": {
+          "MALE": "Male",
+          "FEMALE": "Female",
+          "PREFER_NOT_TO_SAY": "Prefer not to say"
+        },
+        "compare": "Compare",
+        "baselineHeadline_formal": "Nice work. That is your starting point.",
+        "betterHeadline_formal": "Nice work, you got stronger.",
+        "sameHeadline_formal": "You held your level. That counts too."
+      }
     },
     "screeningPending": {
       "title": "A few questions about your health",
@@ -515,7 +565,9 @@
     "regenerateHint_formal": "If your availability changed, ask for a new week. You get a proposal first; nothing changes on its own.",
     "regenerateNoChange": "No change, the week stays.",
     "chipLabel": "{{modality}}, {{minutes}} min, {{intensity}}",
-    "dayLabel": "{{weekday}}, {{date}}"
+    "dayLabel": "{{weekday}}, {{date}}",
+    "overviewExercises": "What's in it",
+    "overviewNoExercises": "No exercise list for this one: it runs as one piece, at your own pace."
   },
   "library": {
     "title": "Exercises",
@@ -535,7 +587,9 @@
     "equipment": "Equipment",
     "noEquipment": "No equipment",
     "startPose": "Start position",
-    "endPose": "End position"
+    "endPose": "End position",
+    "filterModality": "Activity type",
+    "demonstrator": "Demonstrator: {{name}}"
   },
   "progress": {
     "title": "Progress",
@@ -727,12 +781,18 @@
     "title": "Movement settings",
     "subtitle": "Rhythm, equipment, demonstrator, text size.",
     "demonstrator": {
-      "title": "Demonstrator",
-      "hint": "Who should show the exercises? Every demonstrator is an AI-generated, checked image.",
+      "title": "Who demonstrates",
+      "hint": "Pick per activity type among the demonstrators who already have approved images. Every demonstration is an AI-made image.",
       "choose": "Choose",
       "chosen": "Chosen",
       "noSheet": "No image yet",
-      "empty": "No demonstrator available yet."
+      "empty": "No demonstrator available yet.",
+      "noImages": "No approved images for this activity type yet.",
+      "forType": "Demonstrator: {{type}}",
+      "default": "default",
+      "coverage": "{{count}} exercises",
+      "otherTypes": "Other activity types",
+      "hint_formal": "Pick per activity type among the demonstrators who already have approved images. Every demonstration is an AI-made image."
     },
     "textSize": {
       "title": "Text size",
@@ -780,7 +840,22 @@
         "LIGHT": "Light",
         "MEDIUM": "Medium",
         "HEAVY": "Heavy"
-      }
+      },
+      "gymAccessHint": "Tick it and gym training may use everything a gym has.",
+      "gymAccessHint_formal": "Tick it and gym training may use everything a gym has.",
+      "groups": {
+        "basics": "At home",
+        "homeGym": "Home gym",
+        "cardio": "Cardio machines"
+      },
+      "plates": "Smallest plate pair on the bar",
+      "platesHint": "The load can grow by this much. 2 × 1.25 kg plates = +2.5 kg.",
+      "cable": "Pulley weight stack",
+      "cableHint": "Where the stack starts and how much it steps. For example from 30 kg in 4 kg steps: 30, 34, 38.",
+      "cableStart": "Start (kg)",
+      "cableStep": "Step (kg)",
+      "kettlebells": "Kettlebells (kg)",
+      "gymWeightsHint": "At the gym we count dumbbells in 2 kg steps and kettlebells in 4 kg steps."
     },
     "limits": {
       "hint": "Tell us in your own words what to spare. The exercises follow it.",
@@ -851,9 +926,14 @@
       "doctorHint_formal": "Once confirmed, the harder sessions open too.",
       "doctorDone": "Confirmed.",
       "reanswer": "Answer again",
-      "reanswerHint": "After a fall or an illness it is worth answering again.",
+      "reanswerHint": "If your health has changed, answer again: the level adjusts up as well as down.",
       "saved": "Thank you. The week follows it.",
-      "hrOff": "Heart-rate targets are off based on the answers."
+      "hrOff": "Heart-rate targets are off based on the answers.",
+      "programme": "Supported programme: {{level}}. Your answers to the questions set the level.",
+      "programme_formal": "Supported programme: {{level}}. Your answers to the questions set the level.",
+      "programmeNone": "You are not on the supported programme: exercises run at your own level.",
+      "programmeNone_formal": "You are not on the supported programme: exercises run at your own level.",
+      "reanswerHint_formal": "If your health has changed, answer again: the level adjusts up as well as down."
     },
     "devicesLink": "Open devices and calendar",
     "helperLink": "Open the Helper page"
@@ -914,7 +994,16 @@
     },
     "approved": "Approved.",
     "rejected": "Rejected.",
-    "error": "That did not work just now — one second."
+    "error": "That did not work just now — one second.",
+    "bulk": {
+      "title": "Approve by pack",
+      "hint": "Once you have looked through a demonstrator's images in a pack, approve them at once. Rejections stay one by one below.",
+      "pending": "{{count}} waiting",
+      "approve": "Approve all",
+      "confirm": "Approve all {{count}} images?",
+      "yes": "Yes, approve",
+      "done": "{{count}} images approved."
+    }
   },
   "log": {
     "title": "I did something else",
@@ -991,5 +1080,85 @@
     "clear": "I'm back",
     "saved": "All right, the week waits.",
     "cleared": "Good to see you again. The week starts lighter."
+  },
+  "logEdit": {
+    "title": "What you logged",
+    "title_formal": "What you logged",
+    "editTitle": "Correct the log",
+    "edit": "Correct",
+    "undo": "Did not happen after all",
+    "undoConfirm": "Delete this entry? The session opens again.",
+    "undoConfirm_formal": "Delete this entry? The session opens again.",
+    "undoYes": "Yes, delete",
+    "minutes": "Duration (min)",
+    "effort": "How hard was it?",
+    "sets": "Sets",
+    "setNo": "Set {{set}}",
+    "setLine": "Set {{set}}: {{reps}} × {{kg}} kg",
+    "reps": "Reps",
+    "kg": "kg",
+    "effortValue": "effort {{effort}}/10",
+    "edited": "corrected",
+    "saved": "Corrected.",
+    "undone": "Deleted. The session is open again."
+  },
+  "selfTestEdit": {
+    "edit": "Correct",
+    "delete": "Delete",
+    "deleteConfirm": "Delete it?",
+    "deleteConfirm_formal": "Delete it?",
+    "saved": "Corrected.",
+    "deleted": "Deleted."
+  },
+  "addSession": {
+    "title": "Add a session",
+    "hint": "Any day from today. Something already done goes under “I did something else”.",
+    "short": "Add",
+    "addTo": "Add a session: {{day}}",
+    "date": "Day",
+    "modality": "Activity type",
+    "choose": "Choose…",
+    "choose_formal": "Choose…",
+    "minutes": "Duration",
+    "intensity": "Intensity",
+    "exercises": "Exercises",
+    "plannerPicks": "Let the planner choose",
+    "ownPicks": "I'll pick them",
+    "submit": "Add",
+    "saved": "Added to the week."
+  },
+  "picker": {
+    "empty": "No exercises picked yet. Search below and tap one.",
+    "empty_formal": "No exercises picked yet. Search below and tap one.",
+    "search": "Search exercises",
+    "noMatch": "No such exercise for this activity type.",
+    "sets": "Sets",
+    "reps": "Reps",
+    "kg": "kg",
+    "seconds": "Seconds",
+    "up": "Up",
+    "down": "Down",
+    "remove": "Remove"
+  },
+  "overview": {
+    "edit": "Edit exercises",
+    "editTitle": "Main part exercises",
+    "reset": "Let the planner choose again",
+    "saved": "Saved.",
+    "delete": "Delete this session",
+    "deleteConfirm": "Delete it?",
+    "deleteConfirm_formal": "Delete it?",
+    "deleteYes": "Yes, delete",
+    "deleted": "Deleted.",
+    "custom": "You put the main part together.",
+    "custom_formal": "You put the main part together.",
+    "reps": "{{count}} reps",
+    "seconds": "{{count}} s",
+    "block": {
+      "WARMUP": "warm-up",
+      "MAIN": "main part",
+      "OPTIONAL": "optional",
+      "COOLDOWN": "cool-down"
+    }
   }
 }

@@ -201,6 +201,7 @@ export function MovePlayer() {
           sessionId={sessionId}
           format={plannedSession?.format ?? null}
           date={plannedSession?.date}
+          modalityCode={plannedSession?.modalityCode ?? null}
           defaults={{
             minutes: plannedSession?.durationMin ?? profile.data?.minutes ?? null,
             equipment: equipment.data?.items ?? [],

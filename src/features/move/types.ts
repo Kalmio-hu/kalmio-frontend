@@ -79,6 +79,8 @@ export interface ModalityDto {
   imageUrl?: string | null
   /** Picture of the start-flow grid, rendered from `lib/modalityPictures.tsx` (walk, run, cycle, strength, band, dumbbell, chair, mobility, family, yoga, dance, water, ball, gym, hike, garden, balance, other). */
   pictureKey?: string | null
+  /** The demonstrator this activity type shows unless the member picked one. */
+  defaultCharacterCode?: string | null
 }
 
 export interface ModalityPick {
@@ -86,7 +88,11 @@ export interface ModalityPick {
   rank: number
 }
 
-export type EquipmentCode = 'NONE' | 'DUMBBELLS' | 'BANDS' | 'CHAIR' | 'MAT' | 'BIKE' | 'STEP' | 'PULL_UP_BAR'
+export type EquipmentCode =
+  | 'NONE' | 'DUMBBELLS' | 'BANDS' | 'CHAIR' | 'MAT' | 'BIKE' | 'STEP' | 'PULL_UP_BAR'
+  // home gym and gym (2026-11-12)
+  | 'GYM_ACCESS' | 'BARBELL' | 'SQUAT_RACK' | 'BENCH' | 'CABLE_HIGH' | 'CABLE_LOW' | 'KETTLEBELLS' | 'DIP_BARS' | 'SUSPENSION'
+  | 'TREADMILL' | 'ROWER' | 'BALL' | 'CONES'
 export type BandLevel = 'LIGHT' | 'MEDIUM' | 'HEAVY'
 
 export interface ScreeningAnswers {
@@ -141,6 +147,25 @@ export interface MoveProfileDto {
   createdAt: string
   /** Current life state with its dates (PRD §7.7); ACTIVE with null dates when the plan runs. */
   lifeState?: LifeStateDto | null
+  /** "Ki mutatja" per activity type: {modalityCode: characterCode}; a missing key means the type's default. */
+  charactersByModality?: Record<string, string>
+}
+
+/** GET /api/move/demonstrators — one row per activity type with a pack. */
+export interface ModalityDemonstratorsDto {
+  modalityCode: string
+  modalityName: string
+  pack: string
+  defaultCharacterCode: string | null
+  chosenCharacterCode: string | null
+  /** Demonstrators with approved images in the pack, most covered first. */
+  options: { characterCode: string; exercisesWithImages: number }[]
+}
+
+export interface PendingGroupDto {
+  packCode: string
+  characterCode: string
+  count: number
 }
 
 export type UpdateMoveProfileRequest = Partial<
@@ -156,6 +181,7 @@ export type UpdateMoveProfileRequest = Partial<
     | 'pushTime'
     | 'hrTargets'
     | 'familySessionAges'
+    | 'charactersByModality'
   >
 >
 
@@ -171,6 +197,12 @@ export interface EquipmentDto {
   /** Dumbbell inventory in kg, asked at the first strength session (or set in Settings). */
   dumbbellsKg: number[]
   bandLevels: BandLevel[]
+  kettlebellsKg?: number[]
+  /** Smallest plate pair on the barbell, kg (default 2.5). */
+  barbellIncrementKg?: number | null
+  /** Pulley stack step and where its grid starts, kg (default 5 from 5). */
+  cableStepKg?: number | null
+  cableStartKg?: number | null
 }
 
 export interface LimitDto {
@@ -222,6 +254,40 @@ export interface SessionDto {
   optional?: boolean
   /** A fixed class (PRD §7.1 step 3): stays where it is, cannot be dragged or swapped. */
   fixedClass?: boolean
+  /** The member added it by hand: it can be removed. */
+  userAdded?: boolean
+  /** The main part was picked by hand. */
+  customExercises?: boolean
+}
+
+/** One chosen exercise of a hand-built session; null targets use the member's progress, then the defaults. */
+export interface ExercisePickDto {
+  exerciseId: string
+  sets?: number | null
+  reps?: number | null
+  seconds?: number | null
+  weightKg?: number | null
+}
+
+export interface CreateSessionRequest {
+  date: string
+  modalityCode: string
+  durationMin: number
+  intensity?: Intensity
+  exercises?: ExercisePickDto[]
+}
+
+/** GET/PUT /api/move/sessions/{id}/exercises */
+export interface SessionExerciseDto {
+  exerciseId: string
+  code: string
+  name: string
+  block: 'WARMUP' | 'MAIN' | 'OPTIONAL' | 'COOLDOWN'
+  sets: number | null
+  reps: number | null
+  weightKg: number | null
+  seconds: number | null
+  optional: boolean
 }
 
 export interface WeekDayDto {
@@ -336,6 +402,26 @@ export interface SetLogDto {
   seconds?: number | null
 }
 
+/** GET/PATCH /api/move/sessions/{id}/log — the completed session as entered, for corrections. */
+export interface SessionLogDto {
+  sessionId: string
+  date: string
+  modalityCode: string
+  modalityName: string
+  kind: string
+  durationMin: number
+  effort: number | null
+  setLogs: (SetLogDto & { exerciseName: string | null })[]
+  completedAt: string
+  editedAt: string | null
+}
+
+export interface UpdateSessionLogRequest {
+  effort?: number
+  durationMin?: number
+  setLogs?: SetLogDto[]
+}
+
 export interface PlayerStepDto {
   index: number
   kind: 'INSTRUCTION' | 'EXERCISE' | 'REST' | 'TARGET' | 'QUESTION'
@@ -351,6 +437,8 @@ export interface PlayerStepDto {
   pictogramUrl?: string | null
   targetReps?: number | null
   targetWeightKg?: number | null
+  /** An externally loaded main exercise: the card asks for kg even before a target exists. */
+  weighted?: boolean
   targetSeconds?: number | null
   sets?: number | null
   /** Rest between sets of a Card exercise, seconds. */
@@ -556,6 +644,17 @@ export interface SelfTestDto {
   date: string
   kind: 'SIT_TO_STAND_30S' | 'SINGLE_LEG_STAND' | 'WALK_6MIN' | 'OTHER'
   value: number
+  /** Chair stand against healthy adults of the same age band; null until the age is known. */
+  comparison?: SelfTestComparisonDto | null
+}
+
+export interface SelfTestComparisonDto {
+  referenceMean: number
+  position: 'ABOVE' | 'AROUND' | 'BELOW'
+  ageFrom: number
+  ageTo: number
+  sex: 'MALE' | 'FEMALE' | null
+  source: string
 }
 
 export interface SelfTestRequest {
@@ -645,6 +744,15 @@ export interface ExerciseSummaryDto {
 export interface LibraryQuery {
   pack?: string
   level?: string
+  /** One activity type: its pack, narrowed to the exercises that use its equipment. */
+  modality?: string
+}
+
+export interface LibraryModalityDto {
+  code: string
+  name: string
+  pack: string
+  defaultCharacterCode?: string | null
 }
 
 export interface LibraryPackDto {
@@ -671,6 +779,8 @@ export interface LibraryDto {
   levels: string[]
   /** The member's demonstrator; the UI falls back to the pack default, then pictogram + text. */
   characterCode: string | null
+  /** Activity types with exercises behind them, for the type filter. */
+  modalities: LibraryModalityDto[]
 }
 
 export interface CharacterDto {

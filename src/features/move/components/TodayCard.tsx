@@ -14,6 +14,7 @@ import { moveService } from '../services/moveService'
 import { moveKeys } from '../lib/queryKeys'
 import { useMoveT } from '../lib/register'
 import { MOVE_ACCENT, MOVE_SESSION } from '../lib/constants'
+import { SessionLogEditor } from './SessionLogEditor'
 import type { LifeStateKind, NotTodayChoice, SessionDto } from '../types'
 
 interface TodayCardProps {
@@ -106,9 +107,12 @@ export function TodayCard({ session, restDay, tomorrowLine, lifeState, couplingL
       </div>
 
       {session.status === 'DONE' || session.status === 'PLAN_B' ? (
-        <p className="text-base font-semibold" style={{ color: MOVE_ACCENT }} aria-live="polite">
-          {session.status === 'PLAN_B' ? t('today.donePlanB') : t('today.doneToday')}
-        </p>
+        <div className="space-y-3">
+          <p className="text-base font-semibold" style={{ color: MOVE_ACCENT }} aria-live="polite">
+            {session.status === 'PLAN_B' ? t('today.donePlanB') : t('today.doneToday')}
+          </p>
+          <SessionLogEditor sessionId={session.id} />
+        </div>
       ) : !choosing ? (
         <div className="flex flex-col sm:flex-row gap-2">
           <Button

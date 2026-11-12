@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner } from '@/components/ui/spinner'
 import { toast } from '@/components/ui/toast'
 import { AiLabel } from '../../components/AiLabel'
+import { ReviewBulkApprove } from '../../components/ReviewBulkApprove'
 import { moveService } from '../../services/moveService'
 import { moveKeys } from '../../lib/queryKeys'
 import { MOVE_ACCENT } from '../../lib/constants'
@@ -137,6 +138,10 @@ export function MoveReviewQueuePage() {
           </span>
         }
       />
+
+      <div className="mb-4">
+        <ReviewBulkApprove />
+      </div>
 
       {/* Filters */}
       <div className="flex flex-wrap items-end gap-3 mb-4">

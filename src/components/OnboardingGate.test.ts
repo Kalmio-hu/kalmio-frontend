@@ -43,8 +43,8 @@ const BOTH_LAST_MOVE: GateMoveStatus = { enabled: true, spaceActive: true, nutri
 const BOTH_LAST_NUTRITION: GateMoveStatus = { enabled: true, spaceActive: true, nutritionActive: true, lastSpace: 'NUTRITION' }
 const ENABLED_NOT_STARTED: GateMoveStatus = { enabled: true, spaceActive: false, nutritionActive: true, lastSpace: null }
 
-function gate(pathname: string, prefs: GatePrefs | undefined, move: GateMoveStatus, isInvestorPreview = false) {
-  return decideGate({ pathname, userId: TEST_USER_ID, prefs, move, isInvestorPreview })
+function gate(pathname: string, prefs: GatePrefs | undefined, move: GateMoveStatus, isInvestorPreview = false, isEntry = true) {
+  return decideGate({ pathname, userId: TEST_USER_ID, prefs, move, isInvestorPreview, isEntry })
 }
 
 describe('OnboardingGate — computeNeedsOnboarding', () => {
@@ -126,6 +126,11 @@ describe('OnboardingGate — decideGate (spaces)', () => {
 
   it('/app index → /app/move when both spaces are active and the last space was MOVE', () => {
     expect(gate('/app', WITH_PREFS, BOTH_LAST_MOVE)).toEqual({ action: 'redirect', to: '/app/move' })
+  })
+
+  it('an in-app click on the dashboard is never redirected to Move', () => {
+    expect(gate('/app', WITH_PREFS, BOTH_LAST_MOVE, false, false)).toEqual({ action: 'pass' })
+    expect(gate('/app', NO_PREFS, MOVE_ONLY, false, false)).toEqual({ action: 'pass' })
   })
 
   it('/app index stays on nutrition when both are active and the last space was NUTRITION', () => {

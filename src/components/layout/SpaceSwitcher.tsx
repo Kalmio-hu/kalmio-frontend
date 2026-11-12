@@ -1,9 +1,10 @@
 /**
  * SpaceSwitcher — "Étrend | Mozgás" (movement-prd.md D8 rule 3).
  *
- * Rendered in the nutrition Header and in the Move shell header. Shows only
- * when the member has BOTH spaces active; otherwise renders nothing, so a
- * single-space member never sees the other space's navigation. Imports from
+ * Rendered in the nutrition Header and in the Move shell header. Shows
+ * whenever Move is active: nutrition is the base product, and "no saved meal
+ * preferences" is not proof that the member does not use it (founder,
+ * 2026-11-12 — the switcher vanished and the dashboard became unreachable). Imports from
  * the Move feature index only (ESLint boundary, contract §2).
  */
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -24,7 +25,7 @@ export function SpaceSwitcher({ tone = 'light', className }: SpaceSwitcherProps)
   const location = useLocation()
   const navigate = useNavigate()
 
-  if (!status.enabled || !status.spaceActive || !status.nutritionActive) return null
+  if (!status.enabled || !status.spaceActive) return null
 
   const inMove = location.pathname.startsWith('/app/move')
 

@@ -18,6 +18,7 @@ import { useMoveT } from '../../lib/register'
 import { MINUTE_OPTIONS } from '../../lib/startFlow'
 import { weekdayName } from '../../lib/dates'
 import { ModalityPicture, pictureKeyFor } from '../../lib/modalityPictures'
+import { useCharacterNames } from '../../lib/useCharacterNames'
 import type { CreateFixedClassRequest, ModalityDto, ModalityPick, MoveProfileDto, UpdateMoveProfileRequest } from '../../types'
 
 interface SettingsRhythmProps {
@@ -40,6 +41,7 @@ function rerank(picks: ModalityPick[]): ModalityPick[] {
 export function SettingsRhythm({ profile, modalities, onPatch, pending }: SettingsRhythmProps) {
   const { t, i18n } = useMoveT()
   const qc = useQueryClient()
+  const characterName = useCharacterNames()
   const picks = profile.modalities.slice().sort((a, b) => a.rank - b.rank)
   const byCode = new Map(modalities.map((m) => [m.code, m]))
   const available = modalities.filter((m) => !picks.some((p) => p.code === m.code))
@@ -86,7 +88,12 @@ export function SettingsRhythm({ profile, modalities, onPatch, pending }: Settin
               <li key={p.code} className="flex items-center gap-2 rounded-[12px] border border-[#e5e4e7] bg-white px-3 py-1.5">
                 <span className="w-6 text-sm font-bold text-[#2A9D8F]">{i + 1}.</span>
                 <ModalityPicture pictureKey={pictureKeyFor(m ?? { code: p.code })} className="h-8 w-8 text-[#2A9D8F]" />
-                <span className="flex-1 text-sm text-[#1A1A1A]">{m?.name ?? p.code}</span>
+                <span className="flex-1 min-w-0 text-sm text-[#1A1A1A]">
+                  {m?.name ?? p.code}
+                  {m?.defaultCharacterCode && (
+                    <span className="block text-xs text-gray-500">{t('library.demonstrator', { name: characterName(m.defaultCharacterCode) })}</span>
+                  )}
+                </span>
                 <button type="button" onClick={() => movePick(i, -1)} disabled={pending || i === 0} aria-label={t('settings.rhythm.up')} className="inline-flex items-center justify-center rounded-lg text-gray-600 hover:bg-black/5 disabled:opacity-30">
                   <ArrowUp className="h-4 w-4" aria-hidden />
                 </button>

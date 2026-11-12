@@ -109,20 +109,21 @@ describe('start flow — routing preview (PRD §7.1 table)', () => {
     expect(r.levelCap).toBe('L0')
   })
   it('known disease, two falls or doctor-said-supervised → track B', () => {
-    expect(previewRouting(answered(false, { 3: true, 6: true }), false).track).toBe('B')
-    expect(previewRouting(answered(false, { 4: true, 5: true, 6: true }), false).track).toBe('B')
-    expect(previewRouting(answered(false, { 9: true, 6: true }), false).track).toBe('B')
+    expect(previewRouting(answered(false, { 3: true }), false).track).toBe('B')
+    expect(previewRouting(answered(false, { 4: true, 5: true }), false).track).toBe('B')
+    expect(previewRouting(answered(false, { 9: true }), false).track).toBe('B')
   })
   it('none of the above → track C; one fall alone does not route', () => {
-    const r = previewRouting(answered(false, { 4: true, 6: true }), false)
+    const r = previewRouting(answered(false, { 4: true }), false)
     expect(r.track).toBe('C')
     expect(r.levelCap).toBeNull()
   })
-  it('cannot stand up without hands → L0 cap, whatever the track', () => {
-    expect(previewRouting(answered(false, { 6: false }), false).levelCap).toBe('L0')
+  it('needs the hands to stand up → L0 cap, whatever the track', () => {
+    expect(previewRouting(answered(false, { 6: true }), false).levelCap).toBe('L0')
+    expect(previewRouting(answered(false), false).levelCap).toBeNull()
   })
   it('beta-blocker or insulin → heart-rate targets off; pain → suggest a limit', () => {
-    const r = previewRouting(answered(false, { 6: true, 7: true, 8: true }), false)
+    const r = previewRouting(answered(false, { 7: true, 8: true }), false)
     expect(r.hrTargetsOff).toBe(true)
     expect(r.suggestLimit).toBe(true)
   })
@@ -157,7 +158,7 @@ describe('start flow — payload', () => {
   })
 
   it('sends the answers as a bare boolean array and nothing else about them', () => {
-    const s = { ...base, answers: answered(false, { 4: true, 6: true }) }
+    const s = { ...base, answers: answered(false, { 4: true }) }
     const p = buildStartPayload(s)
     expect(p.screening.answers).toHaveLength(HEALTH_QUESTION_COUNT)
     expect(p.screening.answers?.[4]).toBe(true)

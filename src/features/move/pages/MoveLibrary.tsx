@@ -1,6 +1,6 @@
 /**
- * "Gyakorlatok" (PRD §12.1, contract §8): GET /api/move/library?pack=&level=
- * → pack tabs, level filter, cards with the approved start still for the
+ * "Gyakorlatok" (PRD §12.1, contract §8): GET /api/move/library?pack=&level=&modality=
+ * → pack tabs, activity-type filter, level filter, cards with the approved start still for the
  * member's demonstrator (fallback: pack default character, then pictogram +
  * text). The detail sheet shows the still pair, cues, faults, the
  * "gyógytornász ellenőrizte" line only for approved items, and the report
@@ -19,6 +19,7 @@ import { AiLabel } from '../components/AiLabel'
 import { moveService } from '../services/moveService'
 import { moveKeys } from '../lib/queryKeys'
 import { useMoveT } from '../lib/register'
+import { useCharacterNames } from '../lib/useCharacterNames'
 import { MOVE_ACCENT } from '../lib/constants'
 import { chooseLibraryMedia, type MediaChoice } from '../lib/mediaFallback'
 import type { LibraryExerciseDto, LibraryPackDto } from '../types'
@@ -28,11 +29,13 @@ export function MoveLibrary() {
   const [params, setParams] = useSearchParams()
   const pack = params.get('pack') ?? undefined
   const level = params.get('level') ?? undefined
+  const modality = params.get('modality') ?? undefined
+  const characterName = useCharacterNames()
   const [openId, setOpenId] = useState<string | null>(null)
 
   const q = useQuery({
-    queryKey: moveKeys.library(pack, level),
-    queryFn: () => moveService.getLibrary({ pack, level }),
+    queryKey: moveKeys.library(pack, level, modality),
+    queryFn: () => moveService.getLibrary({ pack, level, modality }),
     staleTime: 5 * 60_000,
   })
 
@@ -41,7 +44,7 @@ export function MoveLibrary() {
   const exercises = q.data?.exercises ?? []
   const characterCode = q.data?.characterCode ?? null
 
-  const setFilter = (next: { pack?: string; level?: string }) => {
+  const setFilter = (next: { pack?: string; level?: string; modality?: string }) => {
     const p = new URLSearchParams(params)
     for (const [k, v] of Object.entries(next)) {
       if (v) p.set(k, v)
@@ -72,14 +75,34 @@ export function MoveLibrary() {
       <div className="space-y-5">
         {packs.length > 0 && (
           <div role="tablist" aria-label={t('library.filterPack')} className="flex gap-2 overflow-x-auto pb-1">
-            <button role="tab" type="button" aria-selected={!pack} className={tab(!pack)} style={!pack ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ pack: undefined, level: undefined })}>
+            <button role="tab" type="button" aria-selected={!pack} className={tab(!pack)} style={!pack ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ pack: undefined, level: undefined, modality: undefined })}>
               {t('library.all')}
             </button>
             {packs.map((p: LibraryPackDto) => (
-              <button key={p.code} role="tab" type="button" aria-selected={pack === p.code} className={tab(pack === p.code)} style={pack === p.code ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ pack: p.code, level: undefined })}>
+              <button key={p.code} role="tab" type="button" aria-selected={pack === p.code} className={tab(pack === p.code)} style={pack === p.code ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ pack: p.code, level: undefined, modality: undefined })}>
                 {p.name}
               </button>
             ))}
+          </div>
+        )}
+
+        {(q.data?.modalities?.length ?? 0) > 0 && (
+          <div className="flex flex-wrap items-center gap-2" aria-label={t('library.filterModality')}>
+            <span className="text-sm text-gray-600 mr-1">{t('library.filterModality')}:</span>
+            <button type="button" aria-pressed={!modality} className={tab(!modality)} style={!modality ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ modality: undefined, pack: undefined, level: undefined })}>
+              {t('library.all')}
+            </button>
+            {q.data!.modalities.map((m) => (
+              <button key={m.code} type="button" aria-pressed={modality === m.code} className={tab(modality === m.code)} style={modality === m.code ? { backgroundColor: MOVE_ACCENT } : undefined} onClick={() => setFilter({ modality: m.code, pack: m.pack, level: undefined })}>
+                {m.name}
+              </button>
+            ))}
+            {(() => {
+              const selected = q.data!.modalities.find((m) => m.code === modality)
+              return selected?.defaultCharacterCode ? (
+                <span className="basis-full text-sm text-gray-600">{t('library.demonstrator', { name: characterName(selected.defaultCharacterCode) })}</span>
+              ) : null
+            })()}
           </div>
         )}
 
