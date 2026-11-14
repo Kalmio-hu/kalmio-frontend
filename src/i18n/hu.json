@@ -3735,9 +3735,27 @@
     "checkout": {
       "back": "Másik csomag",
       "title": "Előfizetés",
-      "renewal": {
-        "MONTHLY": "Az első hónap díját most fizeted. Utána a Barion havonta automatikusan terheli a {{price, number}} Ft-ot a regisztrált kártyádra, amíg le nem mondod. Lemondás után az aktuális hónap végéig megmarad a hozzáférésed.",
-        "YEARLY": "Az első év díját most fizeted. Utána a Barion évente automatikusan terheli a {{price, number}} Ft-ot a regisztrált kártyádra, amíg le nem mondod. Lemondás után az aktuális év végéig megmarad a hozzáférésed."
+      "schedule": {
+        "title": "Mikor mennyit fizetsz",
+        "today": "Ma",
+        "todayNote": {
+          "MONTHLY": "az első hónap díja",
+          "YEARLY": "az első év díja"
+        },
+        "then": {
+          "MONTHLY": "Ezután havonta, amíg le nem mondod",
+          "YEARLY": "Ezután évente, amíg le nem mondod"
+        },
+        "nextCharge": "következő terhelés: {{date}}",
+        "amount": "{{price, number}} Ft",
+        "charge": "A megújuló díjat a Barion automatikusan, külön jóváhagyás nélkül terheli az első fizetéskor regisztrált bankkártyádra.",
+        "statement": "A bankszámlakivonatodon elfogadóhelyként a Barion Payment Zrt. neve szerepel.",
+        "reminder": "Minden megújulás előtt {{days}} nappal e-mailben emlékeztetőt küldünk.",
+        "cancel": "Bármikor lemondhatod a Beállításokban (Kalmio Prémium előfizetés → Előfizetés lemondása). Lemondás után nincs több terhelés, a hozzáférésed a kifizetett időszak végéig megmarad."
+      },
+      "acceptRecurring": {
+        "MONTHLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion havonta {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}.",
+        "YEARLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion évente {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}."
       },
       "cta": "Tovább a fizetéshez",
       "ctaLoading": "Átirányítás a Barionhoz…",

@@ -6,7 +6,7 @@ function TermsHu() {
   return (
     <div className="prose prose-sm max-w-none text-[#1A1A1A]/80">
       <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Felhasználási feltételek</h1>
-      <p className="text-sm text-[#1A1A1A]/50 mb-8">Hatályos: 2026. január 1-től</p>
+      <p className="text-sm text-[#1A1A1A]/50 mb-8">Hatályos: 2026. november 14-től</p>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">1. A szolgáltatás leírása</h2>
       <p>
@@ -97,16 +97,32 @@ function TermsHu() {
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">9. Kalmio Prémium előfizetés</h2>
       <p>
-        A Kalmio Prémium a prémium funkciókhoz (különösen az AI-alapú funkciókhoz) hozzáférést biztosító, határozatlan időre szóló, időszakonként ismétlődő díjas digitális szolgáltatás. Az előfizetés a weboldalon, a számlázási adatok megadásával, jelen feltételek elfogadásával és az első díj megfizetésével jön létre.
+        A Kalmio Prémium a prémium funkciókhoz (különösen az AI-alapú funkciókhoz) hozzáférést biztosító, határozatlan időre szóló, időszakonként ismétlődő díjfizetéssel járó digitális szolgáltatás. Az előfizetés a weboldalon, a számlázási adatok megadásával, jelen feltételek elfogadásával és az első díj megfizetésével jön létre.
       </p>
       <p className="mt-3">
         <strong>Díjak.</strong> Havi előfizetés: 1 990 Ft/hó; éves előfizetés: 14 990 Ft/év. A feltüntetett árak a fizetendő teljes (bruttó) összeget tartalmazzák. A már megkötött előfizetés díja a futamideje alatt nem emelkedik: a megújuló terhelés összege nem haladja meg az első díjat.
       </p>
       <p className="mt-3">
-        <strong>Automatikus megújulás és terhelés.</strong> Az előfizetés a választott időszak (egy hónap, illetve egy év) leteltével – lemondásig – automatikusan ugyanilyen időtartamra megújul. Az első díjat a Barion fizetőoldalán bankkártyával fizeted meg; ekkor hozzájárulsz ahhoz, hogy a Barion a kártyádat az ismétlődő díjak terheléséhez regisztrálja. A megújuló díjat az aktuális időszak lejártakor, külön jóváhagyás nélkül terheljük a regisztrált kártyára. Minden sikeres terhelésről elektronikus számlát küldünk.
+        <strong>Automatikus megújulás.</strong> Az előfizetés a választott időszak (egy hónap, illetve egy év) leteltével – lemondásig – automatikusan ugyanilyen időtartamra megújul.
       </p>
       <p className="mt-3">
-        <strong>Lemondás.</strong> Az előfizetést bármikor lemondhatod a Beállítások oldalon. A lemondás az aktuális, már kifizetett időszak végén lép hatályba: addig a prémium funkciók elérhetők maradnak, további terhelés nem történik. Az időszak végéig a lemondást visszavonhatod. A megkezdett időszak díját – a jogszabályban kötelezően előírt esetek kivételével – nem térítjük vissza.
+        <strong>Ismétlődő bankkártyás fizetés (tokenes fizetés).</strong> Az előfizetés díját ismétlődő bankkártyás fizetéssel szedjük be, hogy a hozzáférésed megszakítás nélkül folytatódjon, és ne kelljen minden időszakban újra megadnod a kártyád adatait. Az ismétlődő fizetést a Barion Payment Zrt. tokenes fizetési szolgáltatása biztosítja, a következők szerint:
+      </p>
+      <ul className="list-disc pl-6 space-y-2 mt-3">
+        <li><strong>Első fizetés és a kártya regisztrálása.</strong> Az első díjat a megrendeléskor, a Barion fizetőoldalán fizeted meg bankkártyával. A Barion ekkor a kártyádat az előfizetés megújuló díjainak terheléséhez regisztrálja, és ehhez egy azonosítót (tokent) ad ki. A kártya adatait a Barion kezeli; a Kalmio csak a tokent és a kártya maszkolt adatait (kártyatípus, utolsó négy számjegy, lejárat) tárolja.</li>
+        <li><strong>Mikor és mennyit terhelünk.</strong> A megújuló díjat a jelenlegi időszak lejártakor terheljük a regisztrált kártyára. Összege havi előfizetésnél havonta 1 990 Ft, éves előfizetésnél évente 14 990 Ft; a terhelés a megrendelés napjának megfelelő naptári napon történik (ha az adott hónapban nincs ilyen nap, a hónap utolsó napján). Az első megújuló terhelés így a megrendelést követő egy hónap, illetve egy év múlva esedékes.</li>
+        <li><strong>Tájékoztatás a megrendeléskor.</strong> A megrendelés során, a fizetés előtt megmutatjuk, hogy mikor és mekkora összeget terhelünk: a most fizetendő első díjat, valamint a következő terhelés napját és összegét. A következő terhelés napját és összegét a megrendelés után a Beállítások oldalon bármikor megnézheted.</li>
+        <li><strong>Külön elfogadás.</strong> Az ismétlődő fizetést a megrendelés során külön jelölőnégyzet bejelölésével fogadod el. Ezzel hozzájárulsz ahhoz, hogy a megújuló díjakat a regisztrált kártyádra további közreműködésed és külön jóváhagyásod nélkül terheljük, amíg az előfizetést le nem mondod. Elfogadás nélkül az előfizetés nem rendelhető meg.</li>
+        <li><strong>Számla.</strong> Minden sikeres terhelésről elektronikus számlát küldünk e-mailben.</li>
+      </ul>
+      <p className="mt-3">
+        <strong>A terhelés megjelenése a bankszámlakivonaton.</strong> A bankkártyás fizetéseket a Barion Payment Zrt. bonyolítja le, ezért a bankszámla-, illetve kártyakivonatodon a Kalmio Prémium díjának terhelésénél elfogadóhelyként a <strong>Barion Payment Zrt.</strong> neve szerepel, nem a Kalmióé és nem a Hard Rock Coders Kft.-é.
+      </p>
+      <p className="mt-3">
+        <strong>Emlékeztető a megújulás előtt.</strong> A hat hónapos vagy annál hosszabb időszakra szóló előfizetés (jelenleg: az éves előfizetés) minden megújulása előtt 14 nappal e-mailben emlékeztetőt küldünk a fiókodhoz tartozó e-mail-címre. Az emlékeztető tartalmazza a terhelés napját és összegét, a terhelendő kártya maszkolt adatait, valamint azt, hogyan mondhatod le az előfizetést a terhelés előtt. A havi előfizetésnél a következő terhelés napját és összegét a Beállítások oldalon látod.
+      </p>
+      <p className="mt-3">
+        <strong>Lemondás.</strong> Az előfizetést bármikor, indokolás nélkül lemondhatod: a Kalmióba bejelentkezve a Beállítások oldalon, a „Kalmio Prémium előfizetés” részben, az „Előfizetés lemondása” gombbal. Ha nem tudsz bejelentkezni, írj a <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a> címre, és segítünk. A lemondás a jelenlegi, már kifizetett időszak végén lép hatályba: addig a prémium funkciók elérhetők maradnak, a regisztrált kártyádat pedig többé nem terheljük. Az időszak végéig a lemondást visszavonhatod. A megkezdett időszak díját – a jogszabályban kötelezően előírt esetek kivételével – nem térítjük vissza.
       </p>
       <p className="mt-3">
         <strong>Sikertelen terhelés.</strong> Ha a megújuló díj terhelése nem sikerül (például lejárt vagy letiltott kártya, illetve fedezethiány miatt), a terhelést az esedékességet követő 1., 3. és 5. napon megismételjük. Az esedékességtől számított 7 napig (türelmi idő) a prémium funkciók elérhetők maradnak, és az elmaradt díjat a Beállítások oldalon másik bankkártyával is rendezheted. Ha a díj a türelmi idő végéig sem kerül megfizetésre, az előfizetés megszűnik, a fiók ingyenes hozzáférésre vált, az adataid pedig megmaradnak.
@@ -134,7 +150,7 @@ function TermsHu() {
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">11. Fizetés, számlázás és csalásmegelőzés</h2>
       <p>
-        <strong>Bankkártyás fizetés (csak a Kalmio Prémium előfizetésnél).</strong> Az online bankkártyás fizetések a Barion rendszerén keresztül valósulnak meg (elfogadott kártyatípusok: Visa, Mastercard, Maestro). A bankkártya adatait a Barion kezeli, azokhoz a Kalmio (Hard Rock Coders Kft.) nem fér hozzá; az ismétlődő terheléshez a Barion által kiadott azonosítót és a kártya maszkolt adatait (kártyatípus, utolsó négy számjegy, lejárat) tároljuk. A szolgáltatást nyújtó Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt álló intézmény, engedélyének száma: H-EN-I-1064/2013.
+        <strong>Bankkártyás fizetés (csak a Kalmio Prémium előfizetésnél).</strong> Az online bankkártyás fizetések a Barion rendszerén keresztül valósulnak meg (elfogadott kártyatípusok: Visa, Mastercard, Maestro). A bankkártya adatait a Barion kezeli, azokhoz a Kalmio (Hard Rock Coders Kft.) nem fér hozzá; az ismétlődő terheléshez a Barion által kiadott azonosítót és a kártya maszkolt adatait (kártyatípus, utolsó négy számjegy, lejárat) tároljuk. Az ismétlődő bankkártyás fizetés menetét, a terhelések idejét és összegét, valamint a lemondás módját a 9. pont írja le. A bankszámlakivonaton a terhelés elfogadóhelyeként a Barion Payment Zrt. szerepel. A fizetési szolgáltatást nyújtó Barion Payment Zrt. a Magyar Nemzeti Bank felügyelete alatt álló intézmény, engedélyének száma: H-EN-I-1064/2013.
       </p>
       <p className="mt-3">
         <strong>Számlázás.</strong> Minden megfizetett díjról elektronikus számlát állítunk ki, amelyet e-mailben küldünk meg.
@@ -153,7 +169,7 @@ function TermsHu() {
         E-mail: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        Jelen feltételek legutóbb 2026. november 12-én frissültek.
+        Jelen feltételek legutóbb 2026. november 14-én frissültek.
       </p>
     </div>
   )
@@ -163,7 +179,7 @@ function TermsEn() {
   return (
     <div className="prose prose-sm max-w-none text-[#1A1A1A]/80">
       <h1 className="text-2xl font-bold text-[#1A1A1A] mb-2">Terms of Service</h1>
-      <p className="text-sm text-[#1A1A1A]/50 mb-8">Effective: 1 January 2026</p>
+      <p className="text-sm text-[#1A1A1A]/50 mb-8">Effective: 14 November 2026</p>
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">1. About the Service</h2>
       <p>
@@ -260,10 +276,26 @@ function TermsEn() {
         <strong>Fees.</strong> Monthly subscription: HUF 1,990 per month; yearly subscription: HUF 14,990 per year. The prices shown are the full (gross) amounts payable. The fee of an existing subscription does not increase during its term: a renewal charge never exceeds the first fee.
       </p>
       <p className="mt-3">
-        <strong>Automatic renewal and charging.</strong> Until cancelled, the subscription renews automatically for the same period (one month or one year) when the chosen period ends. You pay the first fee by card on Barion's payment page and, in doing so, consent to Barion registering your card for the recurring charges. Each renewal fee is charged to the registered card when the current period ends, without separate approval. We send an electronic invoice for every successful charge.
+        <strong>Automatic renewal.</strong> Until cancelled, the subscription renews automatically for the same period (one month or one year) when the chosen period ends.
       </p>
       <p className="mt-3">
-        <strong>Cancellation.</strong> You can cancel the subscription at any time on the Settings page. Cancellation takes effect at the end of the current, already paid period: until then the premium features remain available and no further charge is made. You can withdraw the cancellation until the period ends. Fees for a period that has begun are not refunded, except where the law requires it.
+        <strong>Recurring card payment (token payment).</strong> We collect the subscription fee by recurring card payment, so that your access continues without interruption and you do not have to enter your card details again for every period. The recurring payment is provided by the token payment service of Barion Payment Zrt., as follows:
+      </p>
+      <ul className="list-disc pl-6 space-y-2 mt-3">
+        <li><strong>First payment and card registration.</strong> You pay the first fee by card on Barion's payment page when you order. Barion then registers your card for charging the renewal fees of the subscription and issues an identifier (token) for this purpose. Card details are handled by Barion; Kalmio stores only the token and the card's masked details (card type, last four digits, expiry).</li>
+        <li><strong>When and how much we charge.</strong> Each renewal fee is charged to the registered card when the current period ends. The amount is HUF 1,990 every month for the monthly subscription and HUF 14,990 every year for the yearly subscription; the charge is made on the calendar day matching the day of the order (or on the last day of the month if that month has no such day). The first renewal charge is therefore due one month or one year after the order.</li>
+        <li><strong>Information when ordering.</strong> During the order, before payment, we show when and how much will be charged: the first fee payable now, and the date and amount of the next charge. After ordering, the date and amount of the next charge can be checked at any time on the Settings page.</li>
+        <li><strong>Separate acceptance.</strong> You accept the recurring payment during the order by ticking a separate checkbox. By doing so you consent to the renewal fees being charged to your registered card without any further action or separate approval on your part, until you cancel the subscription. The subscription cannot be ordered without this acceptance.</li>
+        <li><strong>Invoice.</strong> We send an electronic invoice by email for every successful charge.</li>
+      </ul>
+      <p className="mt-3">
+        <strong>How the charge appears on your bank statement.</strong> Card payments are processed by Barion Payment Zrt., so on your bank or card statement the merchant shown for the Kalmio Premium charge is <strong>Barion Payment Zrt.</strong>, not Kalmio or Hard Rock Coders Kft.
+      </p>
+      <p className="mt-3">
+        <strong>Reminder before renewal.</strong> For a subscription covering a period of six months or longer (currently: the yearly subscription) we send a reminder by email to your account's email address 14 days before every renewal. The reminder states the date and amount of the charge, the masked details of the card to be charged, and how you can cancel the subscription before the charge. For the monthly subscription, the date and amount of the next charge are shown on the Settings page.
+      </p>
+      <p className="mt-3">
+        <strong>Cancellation.</strong> You can cancel the subscription at any time, without giving reasons: signed in to Kalmio, on the Settings page, in the “Kalmio Premium subscription” section, with the “Cancel subscription” button. If you cannot sign in, write to <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a> and we will help. Cancellation takes effect at the end of the current, already paid period: until then the premium features remain available, and your registered card is not charged again. You can withdraw the cancellation until the period ends. Fees for a period that has begun are not refunded, except where the law requires it.
       </p>
       <p className="mt-3">
         <strong>Failed charges.</strong> If a renewal charge fails (for example because the card has expired or been blocked, or for lack of funds), we retry it on the 1st, 3rd and 5th day after the due date. For 7 days from the due date (grace period) the premium features remain available, and you can settle the overdue fee with another card on the Settings page. If the fee is still unpaid at the end of the grace period, the subscription ends, the account reverts to free access and your data is kept.
@@ -291,7 +323,7 @@ function TermsEn() {
 
       <h2 className="text-lg font-semibold text-[#1A1A1A] mt-8 mb-3">11. Payment, Invoicing and Fraud Prevention</h2>
       <p>
-        <strong>Card payment (Kalmio Premium subscription only).</strong> Online card payments are processed through the Barion system (accepted card types: Visa, Mastercard, Maestro). Card details are handled by Barion and are never accessible to Kalmio (Hard Rock Coders Kft.); for the recurring charges we store the identifier issued by Barion and the card's masked details (card type, last four digits, expiry). Barion Payment Zrt., the payment provider, is an institution supervised by the National Bank of Hungary under licence number H-EN-I-1064/2013.
+        <strong>Card payment (Kalmio Premium subscription only).</strong> Online card payments are processed through the Barion system (accepted card types: Visa, Mastercard, Maestro). Card details are handled by Barion and are never accessible to Kalmio (Hard Rock Coders Kft.); for the recurring charges we store the identifier issued by Barion and the card's masked details (card type, last four digits, expiry). Section 9 describes how the recurring card payment works, when and how much is charged, and how to cancel. On the bank statement the merchant shown for the charge is Barion Payment Zrt. Barion Payment Zrt., the payment service provider, is an institution supervised by the National Bank of Hungary under licence number H-EN-I-1064/2013.
       </p>
       <p className="mt-3">
         <strong>Invoicing.</strong> We issue an electronic invoice for every fee paid and send it by email.
@@ -310,7 +342,7 @@ function TermsEn() {
         Email: <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        These Terms were last updated on 12 November 2026.
+        These Terms were last updated on 14 November 2026.
       </p>
     </div>
   )

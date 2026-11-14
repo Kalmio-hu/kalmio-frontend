@@ -1189,13 +1189,15 @@ export interface SubscriptionDto {
   payments: SubscriptionPaymentDto[]
 }
 
-/** Body of POST /api/subscription/checkout. Both acknowledgements must be true. */
+/** Body of POST /api/subscription/checkout. All three acknowledgements must be true. */
 export interface SubscriptionCheckoutRequest {
   plan: SubscriptionPlanCode
   billingInfo: BillingInfo
   redirectUrl: string
   acceptTerms: true
   startNowWaiveWithdrawal: true
+  /** The member's own acceptance of the recurring card charge (Barion's condition for token payment). */
+  acceptRecurringPayment: true
 }
 
 /** Response of POST /api/subscription/checkout and POST /api/subscription/pay-overdue. */

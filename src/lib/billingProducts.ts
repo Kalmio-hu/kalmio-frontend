@@ -4,6 +4,7 @@
  */
 
 import type { BarionPixelProduct } from '@/lib/barionPixel'
+import { formatLocalDate } from '@/lib/utils'
 import type { SubscriptionCard, SubscriptionDto, SubscriptionPlanCode } from '@/types'
 
 /** List prices, used until GET /api/billing/plans answers. Gross HUF. */
@@ -12,6 +13,12 @@ export const DEFAULT_PRICES = {
   YEARLY: 14990,
   FOUNDING_MEMBER: 19900,
 } as const
+
+/**
+ * Days before a renewal charge the member is reminded by e-mail (contract §5); 0 means no reminder.
+ * Mirrors the backend's SubscriptionService.Plan.
+ */
+export const RENEWAL_REMINDER_DAYS: Record<SubscriptionPlanCode, number> = { MONTHLY: 0, YEARLY: 14 }
 
 /** PAST_DUE keeps premium for this long after the period end (contract §1). */
 export const PAST_DUE_GRACE_DAYS = 7
@@ -32,6 +39,22 @@ export function foundingMemberPixelProduct(priceHuf?: number): BarionPixelProduc
 
 export function isPlanCode(value: string | null | undefined): value is SubscriptionPlanCode {
   return value === 'MONTHLY' || value === 'YEARLY'
+}
+
+/**
+ * The day of the first renewal charge for a subscription paid on `from`: one month or one year later,
+ * counted the way the backend does (31 January → 28 February, 29 February → 28 February).
+ */
+export function nextChargeDate(plan: SubscriptionPlanCode, from: Date = new Date()): Date {
+  const year = from.getFullYear() + (plan === 'YEARLY' ? 1 : 0)
+  const month = from.getMonth() + (plan === 'MONTHLY' ? 1 : 0)
+  const lastDay = new Date(year, month + 1, 0).getDate()
+  return new Date(year, month, Math.min(from.getDate(), lastDay))
+}
+
+/** A charge day for the checkout texts ("2027. november 14."), kept on one line. */
+export function chargeDateLabel(date: Date, lang: string): string {
+  return formatLocalDate(date, lang, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/ /g, '\u00a0')
 }
 
 /** Whole-percent saving of the yearly plan against twelve monthly charges (14 990 vs 23 880 → 37). */

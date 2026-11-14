@@ -3,7 +3,8 @@
  * (docs/product/payments-subscriptions.md §1).
  *
  *   GET  /api/subscription                              → SubscriptionDto, 204 when the member never subscribed
- *   POST /api/subscription/checkout                     → { paymentId, gatewayUrl }; 409 when one is active
+ *   POST /api/subscription/checkout                     → { paymentId, gatewayUrl }; 409 when one is active,
+ *                                                         400 unless the three acknowledgements are true
  *   GET  /api/subscription/payments/{paymentId}/status  → { status }
  *   POST /api/subscription/cancel                       → SubscriptionDto (cancelAtPeriodEnd: true)
  *   POST /api/subscription/resume                       → SubscriptionDto
@@ -42,6 +43,7 @@ async function checkout(
     redirectUrl,
     acceptTerms: true,
     startNowWaiveWithdrawal: true,
+    acceptRecurringPayment: true,
   }
   const res = await api.post<BarionRedirectResponse>('/api/subscription/checkout', body)
   return res.data

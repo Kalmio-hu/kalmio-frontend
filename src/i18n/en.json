@@ -3735,9 +3735,27 @@
     "checkout": {
       "back": "Choose another plan",
       "title": "Subscription",
-      "renewal": {
-        "MONTHLY": "You pay the first month now. After that Barion charges {{price, number}} HUF to your registered card every month until you cancel. After cancelling you keep access until the end of the current month.",
-        "YEARLY": "You pay the first year now. After that Barion charges {{price, number}} HUF to your registered card every year until you cancel. After cancelling you keep access until the end of the current year."
+      "schedule": {
+        "title": "What you pay and when",
+        "today": "Today",
+        "todayNote": {
+          "MONTHLY": "the first month’s fee",
+          "YEARLY": "the first year’s fee"
+        },
+        "then": {
+          "MONTHLY": "Then every month, until you cancel",
+          "YEARLY": "Then every year, until you cancel"
+        },
+        "nextCharge": "next charge: {{date}}",
+        "amount": "{{price, number}} HUF",
+        "charge": "Barion charges each renewal fee automatically, without separate approval, to the card registered at the first payment.",
+        "statement": "On your bank statement the merchant is shown as Barion Payment Zrt.",
+        "reminder": "We send a reminder by email {{days}} days before every renewal.",
+        "cancel": "You can cancel at any time in Settings (Kalmio Premium subscription → Cancel subscription). After cancelling there are no more charges, and you keep access until the end of the period you paid for."
+      },
+      "acceptRecurring": {
+        "MONTHLY": "I accept the recurring card payment. I pay the first fee ({{price, number}} HUF) now; after that Barion charges the card registered at the first payment {{price, number}} HUF every month, without my separate approval, until I cancel the subscription. Next charge: {{date}}.",
+        "YEARLY": "I accept the recurring card payment. I pay the first fee ({{price, number}} HUF) now; after that Barion charges the card registered at the first payment {{price, number}} HUF every year, without my separate approval, until I cancel the subscription. Next charge: {{date}}."
       },
       "cta": "Continue to payment",
       "ctaLoading": "Redirecting to Barion…",

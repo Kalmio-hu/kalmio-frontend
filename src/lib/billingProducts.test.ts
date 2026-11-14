@@ -5,6 +5,7 @@ import {
   isPlanCode,
   isResumable,
   isSubscriptionOpen,
+  nextChargeDate,
   planPixelProduct,
   subscriptionReturnUrl,
   yearlySavingPercent,
@@ -63,6 +64,17 @@ describe('billingProducts', () => {
     expect(isResumable(sub(), NOW)).toBe(false)
     expect(isResumable(sub({ cancelAtPeriodEnd: true, currentPeriodEnd: '2026-11-01T00:00:00Z' }), NOW)).toBe(false)
     expect(isResumable(sub({ status: 'EXPIRED', cancelAtPeriodEnd: true }), NOW)).toBe(false)
+  })
+
+  it('puts the first renewal one month or one year after the first payment', () => {
+    const ymd = (d: Date) => [d.getFullYear(), d.getMonth() + 1, d.getDate()]
+    expect(ymd(nextChargeDate('MONTHLY', new Date(2026, 10, 14)))).toEqual([2026, 12, 14])
+    expect(ymd(nextChargeDate('YEARLY', new Date(2026, 10, 14)))).toEqual([2027, 11, 14])
+    // December rolls into the next year
+    expect(ymd(nextChargeDate('MONTHLY', new Date(2026, 11, 20)))).toEqual([2027, 1, 20])
+    // a day the next month does not have falls on its last day, as on the backend
+    expect(ymd(nextChargeDate('MONTHLY', new Date(2027, 0, 31)))).toEqual([2027, 2, 28])
+    expect(ymd(nextChargeDate('YEARLY', new Date(2028, 1, 29)))).toEqual([2029, 2, 28])
   })
 
   it('adds the 7-day grace to the period end', () => {

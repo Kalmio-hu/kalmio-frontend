@@ -87,6 +87,9 @@ function PrivacyHu() {
         <li>
           <strong>Billingo Technologies Zrt.</strong> (számlázás) — A díjbekérők és az elektronikus számlák kiállítása, e-mailben történő megküldése és a jogszabály szerinti megőrzése céljából. Az érintett adatok: számlázási név és cím, e-mail-cím, a megrendelés és a fizetés adatai. A számlák adatai a jogszabályi kötelezettség alapján a Nemzeti Adó- és Vámhivatalhoz is továbbításra kerülnek. Adatközpont: EU. Részletek: <a href="https://www.billingo.hu/adatkezelesi-tajekoztato" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">billingo.hu/adatkezelesi-tajekoztato</a>.
         </li>
+        <li>
+          <strong>Resend, Inc.</strong> (e-mail-küldés) — A bejelentkezési e-mailek és az előfizetéssel kapcsolatos értesítések (a megrendelés visszaigazolása, emlékeztető a megújuló terhelés előtt) kézbesítése céljából. Az érintett adatok: e-mail-cím és az üzenet tartalma. Küldési régió: EU (Írország). Részletek: <a href="https://resend.com/legal/privacy-policy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">resend.com/legal/privacy-policy</a>.
+        </li>
       </ul>
       <p className="mt-3">
         Az általunk igénybe vett adatfeldolgozók GDPR 28. cikknek megfelelő adatfeldolgozói feltételeket tesznek közzé (pl. Supabase DPA, Microsoft Online Services Terms, PostHog DPA). Az adatfeldolgozók önállóan nem jogosultak az adatokat kezelni.
@@ -188,7 +191,7 @@ function PrivacyHu() {
         <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        Ez a tájékoztató legutóbb 2026. november 12-én frissült. A változásokról az aktív felhasználókat e-mailben értesítjük.
+        Ez a tájékoztató legutóbb 2026. november 14-én frissült. A változásokról az aktív felhasználókat e-mailben értesítjük.
       </p>
     </div>
   )
@@ -277,6 +280,9 @@ function PrivacyEn() {
         </li>
         <li>
           <strong>Billingo Technologies Zrt.</strong> (invoicing) — For issuing pro forma and electronic invoices, sending them by email and retaining them as the law requires. Data concerned: billing name and address, email address, order and payment details. Invoice data is also reported to the Hungarian tax authority (NAV) as required by law. Data centre: EU. Details: <a href="https://www.billingo.hu/adatkezelesi-tajekoztato" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">billingo.hu/adatkezelesi-tajekoztato</a>.
+        </li>
+        <li>
+          <strong>Resend, Inc.</strong> (email delivery) — For delivering sign-in emails and subscription notices (order confirmation, reminder before a renewal charge). Data concerned: email address and the content of the message. Sending region: EU (Ireland). Details: <a href="https://resend.com/legal/privacy-policy" className="text-[#F28C28] hover:underline" target="_blank" rel="noopener noreferrer">resend.com/legal/privacy-policy</a>.
         </li>
       </ul>
       <p className="mt-3">
@@ -379,7 +385,7 @@ function PrivacyEn() {
         <a href="mailto:privacy@kalmio.hu" className="text-[#F28C28] hover:underline">privacy@kalmio.hu</a>
       </p>
       <p className="mt-3 text-sm text-[#1A1A1A]/50">
-        This notice was last updated on 12 November 2026. Active users will be notified by email of material changes.
+        This notice was last updated on 14 November 2026. Active users will be notified by email of material changes.
       </p>
     </div>
   )

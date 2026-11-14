@@ -6,8 +6,10 @@
  *
  * Flow:
  *   1. Plan cards (GET /api/billing/plans) plus the Founding Member offer.
- *   2. Choosing a plan opens the checkout step: billing address, ÁSZF acceptance and the
- *      express request to start now (losing the withdrawal right), then
+ *   2. Choosing a plan opens the checkout step: what is charged and when (today's fee, the
+ *      next charge and its day), billing address, ÁSZF acceptance, the express request to
+ *      start now (losing the withdrawal right) and the separate acceptance of the recurring
+ *      card payment — Barion's conditions for token payment (contract §5) — then
  *      POST /api/subscription/checkout and a full redirect to Barion's gateway.
  *   3. Barion returns to /app/premium/success?plan=…&paymentId=… (PremiumSuccess.tsx).
  *
@@ -26,12 +28,15 @@ import { usersService, USERS_ME_QUERY_KEY } from '@/services/users'
 import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
 import { PremiumFeatureList } from '@/components/premium/PremiumFeatureList'
 import { PaymentMethods } from '@/components/PaymentMethods'
+import { ChargeSchedule } from '@/components/premium/ChargeSchedule'
 import { BillingAddressForm } from '@/components/checkout/BillingAddressForm'
 import { EMPTY_BILLING, toBillingInfo, validateBilling, type BillingDraft, type BillingErrors } from '@/lib/billingDraft'
 import {
   DEFAULT_PRICES,
+  chargeDateLabel,
   foundingMemberPixelProduct,
   isSubscriptionOpen,
+  nextChargeDate,
   planPixelProduct,
   subscriptionReturnUrl,
   yearlySavingPercent,
@@ -40,7 +45,7 @@ import { addToCart, contentView, initiateCheckout, initiatePurchase } from '@/li
 import type { SubscriptionPlanCode } from '@/types'
 
 function PremiumInner() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const me = useQuery({ queryKey: USERS_ME_QUERY_KEY, queryFn: usersService.getMe, staleTime: 30_000 })
   const plans = useQuery({ queryKey: BILLING_PLANS_QUERY_KEY, queryFn: billingService.getPlans, staleTime: 60_000 })
@@ -51,6 +56,7 @@ function PremiumInner() {
   const [billingErrors, setBillingErrors] = useState<BillingErrors>({})
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [waiveWithdrawal, setWaiveWithdrawal] = useState(false)
+  const [acceptRecurring, setAcceptRecurring] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
   const [error, setError] = useState<'exists' | 'generic' | null>(null)
 
@@ -82,6 +88,8 @@ function PremiumInner() {
     addToCart(product)
     initiateCheckout([product])
     setSelected(plan)
+    // the acceptance names the plan's amount and day, so it never carries over to another plan
+    setAcceptRecurring(false)
     setError(null)
     window.scrollTo({ top: 0 })
   }
@@ -91,7 +99,7 @@ function PremiumInner() {
     setError(null)
     const errs = validateBilling(billing)
     setBillingErrors(errs)
-    if (Object.keys(errs).length > 0 || !acceptTerms || !waiveWithdrawal) return
+    if (Object.keys(errs).length > 0 || !acceptTerms || !waiveWithdrawal || !acceptRecurring) return
     setIsRedirecting(true)
     try {
       const result = await subscriptionService.checkout(
@@ -109,6 +117,11 @@ function PremiumInner() {
   }
 
   const loading = me.isLoading || subscription.isLoading
+  const lang = i18n.language?.startsWith('hu') ? 'hu' : 'en'
+  const nextCharge = selected
+    ? chargeDateLabel(nextChargeDate(selected), lang)
+    : ''
+  const allAccepted = acceptTerms && waiveWithdrawal && acceptRecurring
 
   return (
     <main className="min-h-screen flex justify-center px-6 py-12 sm:py-16 bg-[#111]">
@@ -229,15 +242,15 @@ function PremiumInner() {
 
             <h1 className="text-2xl font-semibold text-white mb-6 leading-snug">{t('premiumPage.checkout.title')}</h1>
 
-            <div className="bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 mb-8">
+            <div className="bg-white/[0.04] border border-white/10 rounded-2xl px-5 py-4 mb-4">
               <p className="text-white/60 text-sm">{t(`premiumPage.plans.${selected}.name`)}</p>
               <p className="text-white text-2xl font-semibold mt-0.5">
                 {t(`premiumPage.plans.${selected}.price`, { price: priceOf(selected) })}
               </p>
-              <p className="text-white/55 text-xs leading-relaxed mt-2">
-                {t(`premiumPage.checkout.renewal.${selected}`, { price: priceOf(selected) })}
-              </p>
             </div>
+
+            {/* When and how much — shown before the payment (Barion's condition for token payment) */}
+            <ChargeSchedule plan={selected} priceHuf={priceOf(selected)} nextCharge={nextCharge} />
 
             <form
               onSubmit={(e) => {
@@ -273,7 +286,7 @@ function PremiumInner() {
                 </span>
               </label>
 
-              <label className="flex items-start gap-2.5 mb-5 cursor-pointer select-none">
+              <label className="flex items-start gap-2.5 mb-3 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={waiveWithdrawal}
@@ -281,6 +294,18 @@ function PremiumInner() {
                   className="mt-0.5 h-4 w-4 shrink-0 accent-[#F28C28]"
                 />
                 <span className="text-white/70 text-sm leading-relaxed">{t('checkout.startNowWaiveWithdrawal')}</span>
+              </label>
+
+              <label className="flex items-start gap-2.5 mb-5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={acceptRecurring}
+                  onChange={(e) => setAcceptRecurring(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-[#F28C28]"
+                />
+                <span className="text-white/70 text-sm leading-relaxed">
+                  {t(`premiumPage.checkout.acceptRecurring.${selected}`, { price: priceOf(selected), date: nextCharge })}
+                </span>
               </label>
 
               {error && (
@@ -291,8 +316,8 @@ function PremiumInner() {
 
               <button
                 type="submit"
-                disabled={isRedirecting || !acceptTerms || !waiveWithdrawal}
-                aria-disabled={isRedirecting || !acceptTerms || !waiveWithdrawal}
+                disabled={isRedirecting || !allAccepted}
+                aria-disabled={isRedirecting || !allAccepted}
                 className="inline-flex items-center justify-center gap-2 bg-[#F28C28] hover:bg-[#e07820] disabled:bg-[#F28C28]/50 text-white font-bold text-base px-10 py-4 rounded-full transition-colors w-full"
               >
                 {isRedirecting ? (

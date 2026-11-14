@@ -7,8 +7,9 @@
 //   - Workbox runtime caching for GET /api/* with per-endpoint TTLs (KALMIO-363)
 //   - BackgroundSync queue for mutating requests to /api/* (KALMIO-377)
 
-import { precacheAndRoute, createHandlerBoundToURL } from 'workbox-precaching'
+import { precache, addRoute, createHandlerBoundToURL } from 'workbox-precaching'
 import { registerRoute, NavigationRoute } from 'workbox-routing'
+import type { RouteHandlerCallback } from 'workbox-core/types'
 import { StaleWhileRevalidate, NetworkFirst, NetworkOnly } from 'workbox-strategies'
 import { ExpirationPlugin } from 'workbox-expiration'
 import { BackgroundSyncPlugin, Queue } from 'workbox-background-sync'
@@ -22,26 +23,69 @@ declare const self: ServiceWorkerGlobalScope
 // shell was not available offline and a cold reload while offline showed a
 // blank page even after the SW had activated.
 //
-// SPA navigation fallback: any in-app navigation (e.g. /app, /app/recipes/123)
-// while offline should serve the cached index.html. NavigationRoute pairs the
-// precached index.html with all navigation requests by default. The denylist
-// keeps explicit OS / debug paths off the SPA shell.
-precacheAndRoute(self.__WB_MANIFEST)
+// SPA navigation: network first, the precached index.html when offline or slow.
+// A navigation fetches the current index.html, so a returning visitor gets the
+// build that is live now, not the one precached on their last visit. The
+// cache-first shell this replaces showed one stale page load after every
+// deploy, which matters most on the legal pages (ÁSZF, privacy notice).
+// The navigation route is registered before the precache route: the precache
+// route would otherwise answer "/" with the precached index.html.
+// The denylist keeps explicit OS / debug paths off the SPA shell.
+precache(self.__WB_MANIFEST)
 
-const navigationHandler = createHandlerBoundToURL('/index.html')
+const SHELL_TIMEOUT_MS = 3000
+// Present in Cache Storage once a worker with the network-first shell has activated.
+const SHELL_MARKER_CACHE = 'kalmio-shell-meta'
+const SHELL_MARKER_URL = '/__shell-network-first'
+
+const precachedShell = createHandlerBoundToURL('/index.html')
+
+const navigationHandler: RouteHandlerCallback = async (options) => {
+  const abort = new AbortController()
+  const timer = setTimeout(() => abort.abort(), SHELL_TIMEOUT_MS)
+  try {
+    const fresh = await fetch('/index.html', { cache: 'no-store', signal: abort.signal })
+    if (fresh.ok) return fresh
+  } catch {
+    // offline, or slower than the timeout: the precached shell below
+  } finally {
+    clearTimeout(timer)
+  }
+  return precachedShell(options)
+}
+
 registerRoute(
   new NavigationRoute(navigationHandler, {
     denylist: [/^\/api\//, /^\/actuator\//, /^\/sw\.js$/, /^\/registerSW\.js$/, /^\/manifest\.webmanifest$/],
   }),
 )
+addRoute()
 
 // ── Activate immediately so notificationclick fires for the new SW right away ─
+let replacesOlderWorker = false
+
 self.addEventListener('install', () => {
+  replacesOlderWorker = self.registration.active !== null
   void self.skipWaiting()
 })
 
 self.addEventListener('activate', (event: ExtendableEvent) => {
-  event.waitUntil(self.clients.claim())
+  event.waitUntil(
+    (async () => {
+      await self.clients.claim()
+      // One-time heal: a window opened under a worker that still served the shell
+      // cache-first is showing the previous build. Reload it once; from this worker
+      // on, every navigation already gets the current build.
+      const meta = await caches.open(SHELL_MARKER_CACHE)
+      if (await meta.match(SHELL_MARKER_URL)) return
+      await meta.put(SHELL_MARKER_URL, new Response('1'))
+      if (!replacesOlderWorker) return
+      const windows = await self.clients.matchAll({ type: 'window' })
+      // Not awaited: the reload's own request reaches this worker only once activation has
+      // finished, so waiting for it here would never end.
+      for (const client of windows) void client.navigate(client.url).catch(() => null)
+    })(),
+  )
 })
 
 // ── Runtime API caching (KALMIO-363) ──────────────────────────────────────────
