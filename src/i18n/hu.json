@@ -3700,6 +3700,7 @@
     "choose": "Ezt választom",
     "backToApp": "Vissza az alkalmazásba",
     "comingSoon": "A Kalmio Prémium hamarosan elérhető.",
+    "pendingApproval": "A bankkártyás fizetés jóváhagyása folyamatban van a Barionnál. Hamarosan működni fog.",
     "plans": {
       "MONTHLY": {
         "name": "Havi",
@@ -3754,14 +3755,15 @@
         "cancel": "Bármikor lemondhatod a Beállításokban (Kalmio Prémium előfizetés → Előfizetés lemondása). Lemondás után nincs több terhelés, a hozzáférésed a kifizetett időszak végéig megmarad."
       },
       "acceptRecurring": {
-        "MONTHLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion havonta {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}.",
-        "YEARLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion évente {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}."
+        "MONTHLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion havonta {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}",
+        "YEARLY": "Elfogadom az ismétlődő bankkártyás fizetést. Az első díjat ({{price, number}} Ft) most fizetem meg; ezután a Barion évente {{price, number}} Ft-tal, külön jóváhagyásom nélkül megterheli az első fizetéskor regisztrált bankkártyámat, amíg az előfizetést le nem mondom. Következő terhelés: {{date}}"
       },
       "cta": "Tovább a fizetéshez",
       "ctaLoading": "Átirányítás a Barionhoz…",
       "secureNote": "A kártyaadatokat a Barion biztonságos fizetőoldalán adod meg; ezeket mi nem látjuk és nem tároljuk.",
       "errors": {
         "exists": "Már van élő előfizetésed. A Beállításokban kezelheted.",
+        "pending": "A bankkártyás fizetés még jóváhagyás alatt áll, ezért most nem indult el. Terhelés nem történt; hamarosan működni fog.",
         "generic": "Nem sikerült elindítani a fizetést. Próbáld újra pár másodperc múlva."
       }
     }

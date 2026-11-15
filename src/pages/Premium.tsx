@@ -10,7 +10,8 @@
  *      next charge and its day), billing address, ÁSZF acceptance, the express request to
  *      start now (losing the withdrawal right) and the separate acceptance of the recurring
  *      card payment — Barion's conditions for token payment (contract §5) — then
- *      POST /api/subscription/checkout and a full redirect to Barion's gateway.
+ *      POST /api/subscription/checkout and a full redirect to Barion's gateway. While
+ *      Barion's approval of token payment is pending, a notice says so on both steps.
  *   3. Barion returns to /app/premium/success?plan=…&paymentId=… (PremiumSuccess.tsx).
  *
  * Barion Pixel: contentView per offer, addToCart + initiateCheckout when a plan is chosen,
@@ -29,9 +30,11 @@ import { PremiumFeatureGate } from '@/components/premium/PremiumFeatureGate'
 import { PremiumFeatureList } from '@/components/premium/PremiumFeatureList'
 import { PaymentMethods } from '@/components/PaymentMethods'
 import { ChargeSchedule } from '@/components/premium/ChargeSchedule'
+import { CardPaymentPendingNotice } from '@/components/premium/CardPaymentPendingNotice'
 import { BillingAddressForm } from '@/components/checkout/BillingAddressForm'
 import { EMPTY_BILLING, toBillingInfo, validateBilling, type BillingDraft, type BillingErrors } from '@/lib/billingDraft'
 import {
+  CARD_PAYMENT_PENDING_APPROVAL,
   DEFAULT_PRICES,
   chargeDateLabel,
   foundingMemberPixelProduct,
@@ -58,7 +61,7 @@ function PremiumInner() {
   const [waiveWithdrawal, setWaiveWithdrawal] = useState(false)
   const [acceptRecurring, setAcceptRecurring] = useState(false)
   const [isRedirecting, setIsRedirecting] = useState(false)
-  const [error, setError] = useState<'exists' | 'generic' | null>(null)
+  const [error, setError] = useState<'exists' | 'pending' | 'generic' | null>(null)
 
   const priceOf = (code: SubscriptionPlanCode) =>
     plans.data?.plans.find((p) => p.code === code)?.priceHuf ?? DEFAULT_PRICES[code]
@@ -112,7 +115,8 @@ function PremiumInner() {
     } catch (err: unknown) {
       setIsRedirecting(false)
       const status = (err as { response?: { status?: number } })?.response?.status
-      setError(status === 409 ? 'exists' : 'generic')
+      // until Barion switches token payment on, the gateway refuses to start the payment
+      setError(status === 409 ? 'exists' : CARD_PAYMENT_PENDING_APPROVAL ? 'pending' : 'generic')
     }
   }
 
@@ -172,6 +176,8 @@ function PremiumInner() {
             <p className="text-white/70 text-base leading-relaxed mb-10 text-center max-w-xl mx-auto">
               {t('premiumPage.sub')}
             </p>
+
+            {CARD_PAYMENT_PENDING_APPROVAL && <CardPaymentPendingNotice className="mb-6" />}
 
             <div className="grid gap-4 sm:grid-cols-2 mb-4">
               <PlanCard
@@ -307,6 +313,8 @@ function PremiumInner() {
                   {t(`premiumPage.checkout.acceptRecurring.${selected}`, { price: priceOf(selected), date: nextCharge })}
                 </span>
               </label>
+
+              {CARD_PAYMENT_PENDING_APPROVAL && error !== 'pending' && <CardPaymentPendingNotice className="mb-5" />}
 
               {error && (
                 <p className="text-red-400 text-sm mb-4" role="alert">

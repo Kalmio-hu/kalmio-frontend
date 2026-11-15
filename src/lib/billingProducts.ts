@@ -20,6 +20,13 @@ export const DEFAULT_PRICES = {
  */
 export const RENEWAL_REMINDER_DAYS: Record<SubscriptionPlanCode, number> = { MONTHLY: 0, YEARLY: 14 }
 
+/**
+ * True while Barion has not yet switched token (recurring) payment on for the shop
+ * (contract §5): the checkout is open, a notice says the card payment is awaiting approval
+ * and a failed start is explained with it. Build-time, from .env.production.
+ */
+export const CARD_PAYMENT_PENDING_APPROVAL = import.meta.env.VITE_PAYMENT_PENDING_APPROVAL === 'true'
+
 /** PAST_DUE keeps premium for this long after the period end (contract §1). */
 export const PAST_DUE_GRACE_DAYS = 7
 

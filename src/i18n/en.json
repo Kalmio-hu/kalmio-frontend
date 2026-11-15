@@ -3700,6 +3700,7 @@
     "choose": "Choose this plan",
     "backToApp": "Back to the app",
     "comingSoon": "Kalmio Premium is coming soon.",
+    "pendingApproval": "Card payment is awaiting Barion’s approval. It will work soon.",
     "plans": {
       "MONTHLY": {
         "name": "Monthly",
@@ -3762,6 +3763,7 @@
       "secureNote": "You enter your card details on Barion’s secure payment page; we never see or store them.",
       "errors": {
         "exists": "You already have an active subscription. You can manage it in Settings.",
+        "pending": "Card payment is still awaiting approval, so it did not start. Nothing was charged; it will work soon.",
         "generic": "We couldn’t start the payment. Please try again in a few seconds."
       }
     }
